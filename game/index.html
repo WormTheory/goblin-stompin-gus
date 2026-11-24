@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:845ddd5f47845df9175d304a22a5cf8898cb2a8b1e1ddaa4ab213578a78d1c06 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:4e7415814d9ff95d30e35bb8c371d2f6f3369f502bdce009e8b389a33643716c -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2402,7 +2402,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='ebfe6ef75c98';
+const GAME_VER='0.5',GAME_BUILD='a99f80ceb6cc';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -11322,7 +11322,7 @@ const FACE_T=FACES.map(f=>{const [dx,dy,dz]=f.dir,axis=dx?0:dy?1:2,ua=(axis+1)%3
     return {x:c[0],y:c[1],z:c[2],u:c[3],v:c[4],s1,s2,cc,o1:lin(...s1),o2:lin(...s2),oc:lin(...cc),w1:wl(...s1),w2:wl(...s2),wc:wl(...cc)};})};});
 // the kinds of ground that blend into each other at their edges (buildChunk's gMix)
 const G_MIX=new Uint8Array(256),GMC=[1,1,1],GM_M=26;const GM_Q=new Array(49).fill(null);   // (the chunks round about, while one's blended)
-let GM_S=new Float32Array(0),GM_T=new Float32Array(0);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
+let GM_S=new Float32Array(0),GM_T=new Float32Array(0);const GM_OWN=new Float32Array(CS*CS*4);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
 // a chunk's columns' top ground colours for the blend ([r,g,b,1] a column, or 0,0,0,0 where the top isn't ground), kept
 // with the chunk's block array (made again when the chunk is; a dug-out column keeps its old colour till then, which only
 // tints its neighbours a little)
@@ -11333,7 +11333,13 @@ function gmCols(qx,qz){
     for(let y=H-1;y>=0;y--){const v=N[c0+y*A2];if(v){if(!BLOCK[v].liquid)bb=v;break;}}
     if(!G_MIX[bb])continue;const t=BLOCK[bb].tiles[0]*3,o=c0*4;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
     if(bb===GRASS){const T=bioTint(qx*CS+lx,qz*CS+lz,0);r*=T[0];g*=T[1];bl*=T[2];}C[o]=r;C[o+1]=g;C[o+2]=bl;C[o+3]=1;}
-  GM_CC.set(N,C);return C;}
+  gmSig(C);GM_CC.set(N,C);return C;}
+// (whether a chunk's columns are all one ground colour, kept on its array as u: 0 no ground at all, 1 one colour, in
+// ur/ug/ub, 2 more than one. Where the chunk being meshed and every chunk the blend reaches are one and the same colour,
+// blending changes nothing, and buildChunk leaves it out)
+function gmSig(C){let u=0,r=0,g=0,b=0;
+  for(let o=0;o<C.length;o+=4){if(!C[o+3])continue;if(!u){u=1;r=C[o];g=C[o+1];b=C[o+2];}else if(C[o]!==r||C[o+1]!==g||C[o+2]!==b){u=2;break;}}
+  C.u=u;C.ur=r;C.ug=g;C.ub=b;return C;}
 function buildChunk(cx,cz){
   const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
@@ -11372,7 +11378,18 @@ function buildChunk(cx,cz){
   // the blurred colour of the four columns round it, as a multiple of this block's own texture's average. The grid is the
   // chunk and GM_M columns round it, enough for the two blurs; the other chunks' columns come from gmCols, kept per chunk)
   const GM=GM_M,GW=CS+2*GM,GN=GW*GW,gS=GM_S.length===GN*4?GM_S:(GM_S=new Float32Array(GN*4)),gT=GM_T.length===GN*4?GM_T:(GM_T=new Float32Array(GN*4));
-  for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-GM,lz=j-GM,o=(j*GW+i)*4;
+  // (most chunks are inside one biome on one kind of ground, all of it the same colour as far as the blend reaches: then
+  // there's nothing to blend, and the top faces take the grass's tint as they always did. The chunk's own columns as they
+  // are here (fallen leaves, hidden features) and the others as gmCols has them)
+  let gmOn=false;{const O=gmSig(GM_OWN);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const i=lz*CS+lx,y=tops[i],bb=y>=0?a[lx+lz*CS+y*A2]:0,o=i*4;
+      O[o+3]=0;if(!G_MIX[bb])continue;const t=BLOCK[bb].tiles[0]*3;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
+      if(bb===GRASS){const T=tnC,k=tint(lx,lz,0);r*=T[k];g*=T[k+1];bl*=T[k+2];}O[o]=r;O[o+1]=g;O[o+2]=bl;O[o+3]=1;}
+    gmSig(O);let u=O.u,r=O.ur,g=O.ug,b=O.ub;
+    if(u===1){const q0=-Math.floor(GM/CS)-1,q1=Math.floor((CS+GM-1)/CS);
+      for(let qz=q0;qz<=q1&&!gmOn;qz++)for(let qx=q0;qx<=q1;qx++){if(!qx&&!qz)continue;const gi=(qz+3)*7+qx+3,C=GM_Q[gi]||(GM_Q[gi]=gmCols(cx+qx,cz+qz));
+        if(C.u===2||C.u===1&&(C.ur!==r||C.ug!==g||C.ub!==b)){gmOn=true;break;}}}
+    else gmOn=u===2;}
+  if(gmOn)for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-GM,lz=j-GM,o=(j*GW+i)*4;
     if(lx>=0&&lx<CS&&lz>=0&&lz<CS){const y=tops[lz*CS+lx],bb=y>=0?a[lx+lz*CS+y*A2]:0;gS[o+3]=0;gS[o]=gS[o+1]=gS[o+2]=0;
       if(!G_MIX[bb])continue;const t=BLOCK[bb].tiles[0]*3;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
       if(bb===GRASS){const T=bioTint(x0+lx,z0+lz,0);r*=T[0];g*=T[1];bl*=T[2];}gS[o]=r;gS[o+1]=g;gS[o+2]=bl;gS[o+3]=1;continue;}
@@ -11385,7 +11402,7 @@ function buildChunk(cx,cz){
       if(ia<GW){const o=(l*dy+ia*dx)*4;r+=A[o];g+=A[o+1];b+=A[o+2];w+=A[o+3];}
       if(ib>=0){const o=(l*dy+ib*dx)*4;r-=A[o];g-=A[o+1];b-=A[o+2];w-=A[o+3];}
       if(k>=0){const o=(l*dy+k*dx)*4;B[o]=r;B[o+1]=g;B[o+2]=b;B[o+3]=w;}}}};
-  box(gS,gT,1,GW);box(gT,gS,GW,1);box(gS,gT,1,GW);box(gT,gS,GW,1);
+  if(gmOn){box(gS,gT,1,GW);box(gT,gS,GW,1);box(gS,gT,1,GW);box(gT,gS,GW,1);}
   const gMix=(lx,lz,y,cx,cz,own)=>{let r=0,g=0,b=0,w=0;
     for(let dj=-1;dj<=0;dj++)for(let di=-1;di<=0;di++){const o=((lz+cz+dj+GM)*GW+lx+cx+di+GM)*4;r+=gS[o];g+=gS[o+1];b+=gS[o+2];w+=gS[o+3];}
     const t=own*3;if(w<1e-6){GMC[0]=GMC[1]=GMC[2]=1;return GMC;}
@@ -11411,7 +11428,7 @@ function buildChunk(cx,cz){
       const P=out.p.room(12),U=out.u.room(8),C=out.c.room(12),K=out.k.room(4),n=out.p.length/3,Bv=BL?out.b.room(12):null;
       let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length,bo=BL?out.b.length:0;
       const wb=lit?(lx+15)+(lz+15)*BLW+(y+1)*BLA:0,wi=wb+F.wf;   // (the block, and the open one in front of the face, in block light's window)
-      const gm=F.dy1&&skyTop&&G_MIX[b]===1;
+      const gm=gmOn&&F.dy1&&skyTop&&G_MIX[b]===1;
       const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(X*65536+Z)||0):0,V0=1-(ty+1)/AR;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
