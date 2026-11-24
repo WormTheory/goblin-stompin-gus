@@ -244,7 +244,7 @@ const FACE_T=FACES.map(f=>{const [dx,dy,dz]=f.dir,axis=dx?0:dy?1:2,ua=(axis+1)%3
     const s1=[dx+du[0],dy+du[1],dz+du[2]],s2=[dx+dv[0],dy+dv[1],dz+dv[2]],cc=[dx+du[0]+dv[0],dy+du[1]+dv[1],dz+du[2]+dv[2]];
     return {x:c[0],y:c[1],z:c[2],u:c[3],v:c[4],s1,s2,cc,o1:lin(...s1),o2:lin(...s2),oc:lin(...cc),w1:wl(...s1),w2:wl(...s2),wc:wl(...cc)};})};});
 // the kinds of ground that blend into each other at their edges (buildChunk's gMix)
-const G_MIX=new Uint8Array(256),GMC=[1,1,1];for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
+const G_MIX=new Uint8Array(256),GMC=[1,1,1],GM_M=12;let GM_S=new Float32Array(0),GM_T=new Float32Array(0);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
 function buildChunk(cx,cz){
   const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
@@ -278,20 +278,29 @@ function buildChunk(cx,cz){
   const tnF=new Uint8Array(A2*2),tnC=new Float32Array(A2*6),tint=(lx,lz,g)=>{const i=(lz*CS+lx)*2+g;
     if(!tnF[i]){tnF[i]=1;const T=bioTint(x0+lx,z0+lz,g);tnC[i*3]=T[0];tnC[i*3+1]=T[1];tnC[i*3+2]=T[2];}return i*3;};
   // (where one kind of ground meets another, grass and sand, sand and red sand, dirt and snow..., the top faces' colours
-  // blend from one to the other over a few blocks: each corner takes the average colour of the ground in the 4 x 4 columns
-  // round it (weights 1,3,3,1 each way; a column whose top isn't ground or is more than a block higher or lower counts as
-  // this one), as a multiple of this block's own texture's average. gK/gY/gC: each column's top ground block, its height
-  // and its colour (the texture's average times the grass's tint), for the chunk and two columns round it)
-  const GW=CS+4,gK=new Int16Array(GW*GW),gY=new Int16Array(GW*GW),gC=new Float32Array(GW*GW*3);
-  for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-2,lz=j-2,o=j*GW+i;let y;
-    if(lx>=0&&lx<CS&&lz>=0&&lz<CS)y=tops[lz*CS+lx];else{y=-1;for(let yy=Math.min(H-1,yTop+2);yy>=0;yy--){const bb=at(lx,yy,lz);if(bb){y=BLOCK[bb].liquid?-1:yy;break;}}}
-    const bb=y<0?0:at(lx,y,lz);if(!G_MIX[bb])continue;gK[o]=bb;gY[o]=y;
-    const t=BLOCK[bb].tiles[0]*3;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
-    if(bb===GRASS){const T=bioTint(x0+lx,z0+lz,0);r*=T[0];g*=T[1];bl*=T[2];}gC[o*3]=r;gC[o*3+1]=g;gC[o*3+2]=bl;}
-  const GMW=[1,3,3,1],gMix=(lx,lz,y,cx,cz,own)=>{let r=0,g=0,b=0;const so=((lz+2)*GW+lx+2)*3;
-    for(let dj=0;dj<4;dj++)for(let di=0;di<4;di++){const o=(lz+cz+dj)*GW+lx+cx+di,w=GMW[di]*GMW[dj],dy=gY[o]-y,u=gK[o]&&dy<=1&&dy>=-1?o*3:so;
-      r+=w*gC[u];g+=w*gC[u+1];b+=w*gC[u+2];}
-    const t=own*3,k=1/64;GMC[0]=Math.min(1.45,r*k/(TILE_AVG[t]||1));GMC[1]=Math.min(1.45,g*k/(TILE_AVG[t+1]||1));GMC[2]=Math.min(1.45,b*k/(TILE_AVG[t+2]||1));return GMC;};
+  // blend from one to the other over a score of blocks: each column's top ground colour (its texture's average times the
+  // grass's tint; nothing where the top isn't ground) is blurred twice with a 12-wide box each way, and each corner takes
+  // the blurred colour of the four columns round it, as a multiple of this block's own texture's average. The grid is the
+  // chunk and GM_M columns round it, enough for the two blurs)
+  const GM=GM_M,GW=CS+2*GM,GN=GW*GW,gS=GM_S.length===GN*4?GM_S:(GM_S=new Float32Array(GN*4)),gT=GM_T.length===GN*4?GM_T:(GM_T=new Float32Array(GN*4));gS.fill(0);
+  for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-GM,lz=j-GM;let y,bb=0;
+    if(lx>=0&&lx<CS&&lz>=0&&lz<CS){y=tops[lz*CS+lx];if(y>=0)bb=a[lx+lz*CS+y*A2];}
+    else{const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2,o=nj*3+ni;let N=NB[o];if(!N)N=NB[o]=chunkArr(cx+ni-1,cz+nj-1);
+      const c0=lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS;for(let yy=Math.min(H-1,yTop+2);yy>=0;yy--){const v=N[c0+yy*A2];if(v){if(!BLOCK[v].liquid)bb=v;break;}}}
+    if(!G_MIX[bb])continue;
+    const t=BLOCK[bb].tiles[0]*3,o=(j*GW+i)*4;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
+    if(bb===GRASS){const T=bioTint(x0+lx,z0+lz,0);r*=T[0];g*=T[1];bl*=T[2];}gS[o]=r;gS[o+1]=g;gS[o+2]=bl;gS[o+3]=1;}
+  // (a 12-wide box along x then z, twice: sliding sums, missing columns past the grid's edge counting as nothing)
+  const box=(A,B,dx,dy)=>{for(let l=0;l<GW;l++){let r=0,g=0,b=0,w=0;
+    for(let k=-6;k<GW;k++){const ia=k+6,ib=k-6;
+      if(ia<GW){const o=(l*dy+ia*dx)*4;r+=A[o];g+=A[o+1];b+=A[o+2];w+=A[o+3];}
+      if(ib>=0){const o=(l*dy+ib*dx)*4;r-=A[o];g-=A[o+1];b-=A[o+2];w-=A[o+3];}
+      if(k>=0){const o=(l*dy+k*dx)*4;B[o]=r;B[o+1]=g;B[o+2]=b;B[o+3]=w;}}}};
+  box(gS,gT,1,GW);box(gT,gS,GW,1);box(gS,gT,1,GW);box(gT,gS,GW,1);
+  const gMix=(lx,lz,y,cx,cz,own)=>{let r=0,g=0,b=0,w=0;
+    for(let dj=-1;dj<=0;dj++)for(let di=-1;di<=0;di++){const o=((lz+cz+dj+GM)*GW+lx+cx+di+GM)*4;r+=gS[o];g+=gS[o+1];b+=gS[o+2];w+=gS[o+3];}
+    const t=own*3;if(w<1e-6){GMC[0]=GMC[1]=GMC[2]=1;return GMC;}
+    GMC[0]=Math.min(1.45,r/w/(TILE_AVG[t]||1));GMC[1]=Math.min(1.45,g/w/(TILE_AVG[t+1]||1));GMC[2]=Math.min(1.45,b/w/(TILE_AVG[t+2]||1));return GMC;};
   const dkC=BL_DARK.size?new Int8Array(A2).fill(-1):null,darkCol=(lx,lz)=>{const i=lz*CS+lx;if(dkC[i]<0)dkC[i]=bldgDarkAt(x0+lx,z0+lz)?1:0;return dkC[i]===1;};
   for(let y=yLo;y<=yTop;y++){
     const midY=y>=1&&y<H-1;
