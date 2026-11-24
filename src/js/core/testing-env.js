@@ -135,7 +135,7 @@ function tenvSpot(w,h){
   return best||{ax:ax0,az:az0};
 }
 function tenvPlace(key,F){
-  const T=tenvSpot(F.w,F.h,F),B={k:key,ax:T.ax,az:T.az,w:F.w,h:F.h,sx:F.ax,sz:F.az};
+  const T=tenvSpot(F.w,F.h),B={k:key,ax:T.ax,az:T.az,w:F.w,h:F.h,sx:F.ax,sz:F.az};
   TENV.boxes.push(B);tenvIndex();linkNearC.clear();tenvRebuild(B);save();
   tsSet(stName(key)+': one spawned just ahead of Gus.');tpRender();
 }
@@ -401,34 +401,16 @@ function tenvReset(){
 for(const b of document.querySelectorAll('#tpVM [data-vm]'))b.addEventListener('click',()=>{TS.vm=b.dataset.vm;tpRender();});
 for(const b of document.querySelectorAll('#tpFoes [data-foe]'))b.addEventListener('click',()=>tenvFoe(b.dataset.foe));
 for(const b of document.querySelectorAll('#tpN [data-n]'))b.addEventListener('click',()=>{TS.n=+b.dataset.n;tpRender();});
-// where Gus was standing last time (in this city): saved every couple of seconds and when the page closes
-const POS_KEY='goblin-stompin-gus-pos';
-function savePos(){try{if(saveBlocked||netGuest()||!P1.active||P1.deadT>0||!isFinite(P1.pos.x)||P1.pos.x>=SHIP_X0)return;
-  let x=P1.pos.x,y=P1.pos.y,z=P1.pos.z;
-  // (in a vehicle: on the ground under it, where it's made again on loading (ui/play-save.js), or he gets out if it can't be)
-  if(P1.drv){const S=drvPose(P1.drv);if(!(S.x<SHIP_X0)||![S.x,S.y,S.z].every(Number.isFinite))return;x=S.x;z=S.z;y=groundAt(x,z,S.y+0.5);if(!(y>0))return;}
-  else if(!P1.grounded||P1.state!=='walk')return;   // (only where he's standing: never mid-jump, mid-boost or clinging to a wall)
-  localStorage.setItem(POS_KEY,JSON.stringify({seed,x:+x.toFixed(2),y:+y.toFixed(2),z:+z.toFixed(2),h:+P1.heading.toFixed(3),yaw:+P1.cam.yaw.toFixed(3)}));}catch(e){}}
-function loadPos(){try{const q=JSON.parse(localStorage.getItem(POS_KEY)||'null');if(q&&q.seed===seed&&[q.x,q.y,q.z].every(Number.isFinite)&&q.y>0&&q.y<H)return q;}catch(e){}return null;}
-addEventListener('pagehide',savePos);addEventListener('beforeunload',savePos);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)savePos();});
-function boot(){
-  P1.active=true;P1.heading=0;
-  const sp=loadPos();
-  if(sp){P1.heading=sp.h||0;placePlayer(P1,new V3(sp.x,sp.y,sp.z));if(Number.isFinite(sp.yaw))P1.cam.yaw=sp.yaw;P1.spawnSnap=true;}
-  else placePlayer(P1,new V3(10.5,G+1,10.5));
-  if(P2.active){P2.heading=P1.heading;placePlayer(P2,sp?findStreet(P1.pos.x,P1.pos.z,3,6):new V3(13.5,G+1,13.5));}
-  updateChunks(999,0);
-  // (once the ground under him has been built, stand him back on it)
-  if(sp){const f=footprint(P1);if(f!==null&&f!==undefined&&f>=P1.pos.y-1.5)P1.pos.y=f;}
-  try{playPlayer(P1);}catch(e){}   // (his health, weapons and the vehicle he was in: ui/play-save.js)
-  layout();
-  seedLine();   // (ui/saves.js: the version, the seed and where it's saved)
-  if(TENV)tpShow(true);
-}
+// ---- starting up: the saved world (or a new seed), then the first frame. (savePos and boot are in core/new-city.js.) ----
 if(!load())seed=(Math.random()*1e9)|0;
 playLoad();   // (the score, this rampage, the clock and weather as they were: ui/play-save.js)
 if(TENV)trInstall();
 resize();
 boot();
+if(loadBad)try{flashLabel("Couldn't read your saved world: a copy was kept");}catch(e){}
+// The tools' way in. Everything here is inside one function, so nothing outside can reach it; a page that sets
+// window.GSG_TEST before this script runs (the node suites' harness, tools/tests/harness.js; never the game's own page)
+// gets window.__gsg, which evaluates a piece of text in here: __gsg('seed'), __gsg('placeAt')(0,0). It replaces the
+// lists of names each suite used to splice in over the last line.
+if(typeof window!=='undefined'&&window.GSG_TEST)window.__gsg=s=>eval(s);
 requestAnimationFrame(frame);

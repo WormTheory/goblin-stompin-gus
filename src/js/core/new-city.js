@@ -77,3 +77,28 @@ const TEST_GROUPS=[
   ['Railways',[['rail','Railways'],['station','Train stations']]],
   ['Coast',[['sea','The ocean'],['beach','Beaches'],['harbor','Docks'],['yard','Shipping ports (coastal cities)'],['navy','Naval bases'],['lighthouse','Lighthouses'],['rig','Oil rigs'],['wreck','Shipwrecks']]],
   ['Underground',[['sewers','Sewers'],['subway','Subway'],['caves','Caves']]]];
+// where Gus was standing last time (in this city): saved every couple of seconds and when the page closes
+const POS_KEY='goblin-stompin-gus-pos';
+function savePos(){try{if(saveBlocked||netGuest()||!P1.active||P1.deadT>0||!isFinite(P1.pos.x)||P1.pos.x>=SHIP_X0)return;
+  let x=P1.pos.x,y=P1.pos.y,z=P1.pos.z;
+  // (in a vehicle: on the ground under it, where it's made again on loading (ui/play-save.js), or he gets out if it can't be)
+  if(P1.drv){const S=drvPose(P1.drv);if(!(S.x<SHIP_X0)||![S.x,S.y,S.z].every(Number.isFinite))return;x=S.x;z=S.z;y=groundAt(x,z,S.y+0.5);if(!(y>0))return;}
+  else if(!P1.grounded||P1.state!=='walk')return;   // (only where he's standing: never mid-jump, mid-boost or clinging to a wall)
+  localStorage.setItem(POS_KEY,JSON.stringify({seed,x:+x.toFixed(2),y:+y.toFixed(2),z:+z.toFixed(2),h:+P1.heading.toFixed(3),yaw:+P1.cam.yaw.toFixed(3)}));}catch(e){}}
+function loadPos(){try{const q=JSON.parse(localStorage.getItem(POS_KEY)||'null');if(q&&q.seed===seed&&[q.x,q.y,q.z].every(Number.isFinite)&&q.y>0&&q.y<H)return q;}catch(e){}return null;}
+addEventListener('pagehide',savePos);addEventListener('beforeunload',savePos);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)savePos();});
+function boot(){
+  P1.active=true;P1.heading=0;
+  const sp=loadPos();
+  if(sp){P1.heading=sp.h||0;placePlayer(P1,new V3(sp.x,sp.y,sp.z));if(Number.isFinite(sp.yaw))P1.cam.yaw=sp.yaw;P1.spawnSnap=true;}
+  else placePlayer(P1,new V3(10.5,G+1,10.5));
+  if(P2.active){P2.heading=P1.heading;placePlayer(P2,sp?findStreet(P1.pos.x,P1.pos.z,3,6):new V3(13.5,G+1,13.5));}
+  updateChunks(999,0);
+  // (once the ground under him has been built, stand him back on it)
+  if(sp){const f=footprint(P1);if(f!==null&&f!==undefined&&f>=P1.pos.y-1.5)P1.pos.y=f;}
+  try{playPlayer(P1);}catch(e){}   // (his health, weapons and the vehicle he was in: ui/play-save.js)
+  layout();
+  seedLine();   // (ui/saves.js: the version, the seed and where it's saved)
+  if(TENV)tpShow(true);
+}

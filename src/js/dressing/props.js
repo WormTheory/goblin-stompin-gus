@@ -27,8 +27,14 @@ const _PC=new THREE.Color();
 // each one in range first showed; propGrowing the ones still growing, redrawn in place every frame by growProps (each keeps
 // where its boxes start in the two batches, _iL and _iG, as drawing it again writes the same number of boxes).
 const PROP_GROW=0.3,propBorn=new Map(),propGrowing=[],propNow=()=>performance.now()/1000;
+let propTrimT=-1e9;   // (when propBorn was last thinned out)
 function propScale(f){
-  let b=propBorn.get(f.key);if(b===undefined){b=propNow();propBorn.set(f.key,b);}
+  let b=propBorn.get(f.key);if(b===undefined){b=propNow();
+    // (propBorn kept every prop ever seen, for good. Past 60,000 the ones not new in the last half minute are forgotten;
+    // those still in sight are asked about again at once, and for a second anything unknown counts as grown already,
+    // so none of them grows out of the floor a second time.)
+    if(b-propTrimT<1)b-=PROP_GROW;propBorn.set(f.key,b);
+    if(propBorn.size>60000){propTrimT=propNow();for(const [k,v] of propBorn)if(v<propTrimT-30)propBorn.delete(k);}}
   const t=(propNow()-b)/PROP_GROW;if(t>=1)return 1;
   if(!f._grow){f._grow=true;propGrowing.push(f);}
   const k=1-(1-Math.max(0,t))**3;return Math.max(0.02,k);   // (eased out; never quite nothing, as a flat box has no sensible normals)

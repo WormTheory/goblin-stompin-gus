@@ -203,7 +203,11 @@ function netWelcome(m){
   NET.seat=m.seat|0;
   const J=netJoinFlag();
   if(S.seed!==seed||!J||J.code!==NET.code){
-    try{sessionStorage.setItem(NET_SS_WORLD,m.save);sessionStorage.setItem(NET_SS_JOIN,JSON.stringify({code:NET.code,kind:NET.kind}));}
+    // (A city smashed up enough is too big for sessionStorage, about 5 MB. Then the world is kept without its smashed
+    // blocks: enough to build the same city, and once this tab's back the host's welcome brings them all again, which
+    // netCatchUp puts in block by block.)
+    const keep=t=>{sessionStorage.setItem(NET_SS_WORLD,t);sessionStorage.setItem(NET_SS_JOIN,JSON.stringify({code:NET.code,kind:NET.kind}));};
+    try{try{keep(m.save);}catch(e){const S2=Object.assign({},S);delete S2.ed2;delete S2.edits;keep(JSON.stringify(S2));}}
     catch(e){netStatus("Couldn't keep the host's world in this tab.");netClose();return;}
     NET.reloading=true;netStatus('Building the host\'s city...');
     try{NET.tr.close();}catch(e){}clearTimeout(saveTimer);saveBlocked=true;netReload();return;}

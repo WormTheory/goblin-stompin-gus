@@ -303,7 +303,11 @@ const NET_FX={};
 function netFx(name,f){
   NET_FX[name]=f;
   // (named as the one it wraps: the debug Sound list reads names off the stack to say what made a sound)
-  return {[name](...a){
+  return {[name](){
+    // (offline, which is nearly always: straight through, with nothing made on the way. These are the dust, smoke and
+    // sound calls, thousands a second when a building comes down.)
+    if(NET.mode===0)return f.apply(this,arguments);
+    const a=Array.prototype.slice.call(arguments);
     // (a guest's own shot is seen and heard on the guest as it fires, NET_SHOOTER: see netOwnShot)
     const own=NET_SHOOTER&&NET_OWNFX[name];
     if(NET_MUTE&&!(own&&NET.mode===2))return;

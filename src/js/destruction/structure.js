@@ -1,7 +1,6 @@
 // ---------- Structural physics ----------
 const bodies=[];
-const bkey=(x,y,z)=>((x+100000)*256+y)*200000+(z+100000);
-const colKey=(x,z)=>(x+100000)*200000+(z+100000);
+const bkey=(x,y,z)=>((x+1048576)*256+y)*4194304+(z+1048576);   // (one block as a number, good out to the edge of the world; colKey, a column, is in world/places.js)
 const NB6=[[0,1,0],[1,0,0],[-1,0,0],[0,0,1],[0,0,-1],[0,-1,0]]; // popped last-first, so downward is explored first
 function colSupport(x,z,fromY){for(let y=Math.min(H-1,fromY-1);y>=0;y--)if(solidAt(x,y,z))return y+1;return 0;}
 // returns the blocks of a piece that no longer connects to the ground, or null if it is held up
@@ -222,7 +221,6 @@ function settle(broken,o={}){
   for(const {B,levels} of cand.values()){
     const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL;
     for(const y of [...levels].sort((p,q)=>p-q)){
-      const up=b.tier>0&&(b.x1-b.x0)>=8&&y>b.tier,x0=up?b.x0+2:b.x0,x1=up?b.x1-2:b.x1,z0=up?b.z0+2:b.z0,z1=up?b.z1-2:b.z1;
       // only walls and pillars hold a building up; floors and furniture don't count
       let solid=0,base=0;
       for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){blockAt(b,x,z,y,B.px,B.pz);if(!STRUCT)continue;base++;if(get(X0+x,y,Z0+z)!==AIR)solid++;}

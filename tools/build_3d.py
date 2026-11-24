@@ -4,8 +4,11 @@
 import sys,build
 build.build()
 html=open(sys.argv[1],encoding='utf-8',newline='').read()
-tag='<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>'
-assert html.count(tag)==1,'three.js script tag not found'
+import re
+# (the tag carries an integrity hash now, so it's found by its address rather than written out whole)
+tags=re.findall(r'<script src="https://cdnjs\.cloudflare\.com/ajax/libs/three\.js/r128/three\.min\.js"[^>]*></script>',html)
+assert len(tags)==1,'three.js script tag not found'
+tag=tags[0]
 end='requestAnimationFrame(frame);\n})();'
 assert html.count(end)==1,'closing lines not found'
 html=html.replace(tag,'<script src="../../node_modules/three/build/three.min.js"></script>')

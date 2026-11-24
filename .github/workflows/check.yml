@@ -1,0 +1,28 @@
+# Checks every push to test, main or hotfix (and every pull request): the built game matches src/, the source check
+# passes (tools/lint.js: undefined names, names declared twice, and so on across the one shared scope) and the smoke
+# suite boots a city with no errors. It needs nothing but Python and Node. (The Pages deploy is its own workflow and
+# doesn't wait for this: a red cross here is a warning to look, not a gate.)
+
+name: Check the game
+
+on:
+  push:
+    branches: [main, test, hotfix]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: The built game matches src/
+        run: python3 tools/build.py --check
+      - name: Source check and smoke suite
+        run: bash tools/run_tests.sh smoke

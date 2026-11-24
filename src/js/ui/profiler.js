@@ -28,10 +28,10 @@ function profAdd(k,ms){PROF.lab.set(k,(PROF.lab.get(k)||0)+ms);}
 // time f, as label k, counting only its own time
 function profRun(k,f,self,args){const t0=performance.now(),c0=PROF_CH;PROF_CH=0;
   try{return f.apply(self,args);}finally{const el=performance.now()-t0;profAdd(k,el-PROF_CH);PROF_CH=c0+el;}}
-const profWrap=(k,f)=>function(...a){return PROF.on?profRun(k,f,this,a):f.apply(this,a);};
+const profWrap=(k,f)=>function(){return PROF.on?profRun(k,f,this,arguments):f.apply(this,arguments);};   // (arguments, not ...a: nothing's made per call while the profiler's off)
 // an event this frame (shown on the graph and against a spike), counted
 function profEv(k){if(!PROF.on)return;if(!PROF.fev)PROF.fev=new Map();PROF.fev.set(k,(PROF.fev.get(k)||0)+1);}
-const profEvWrap=(k,f,ok)=>function(...a){if(PROF.on&&(!ok||ok(...a)))profEv(k);return f.apply(this,a);};
+const profEvWrap=(k,f,ok)=>function(){if(PROF.on&&(!ok||ok.apply(null,arguments)))profEv(k);return f.apply(this,arguments);};
 // the hot spots that aren't a safe() of their own (function declarations can be swapped like this: every caller looks
 // them up by name)
 genChunk=profWrap('gen',profEvWrap('chunk made',genChunk));
@@ -58,7 +58,7 @@ function profGpuPoll(){const G=PROF.gq;if(!G)return;const gl=G.gl;
     for(const q of L){ns+=gl.getQueryParameter(q,gl.QUERY_RESULT);gl.deleteQuery(q);}
     if(!bad)PROF.gpu+=(ns/1e6-PROF.gpu)*0.1;}
   if(PROF.gpuQ.length>8){for(const L of PROF.gpuQ.splice(0,PROF.gpuQ.length-8))for(const q of L)gl.deleteQuery(q);}}
-{const rv=renderView;renderView=function(...a){if(!PROF.on||!PROF.gq)return rv.apply(this,a);profGpuBegin();try{return rv.apply(this,a);}finally{profGpuEnd();}};}
+{const rv=renderView;renderView=function(){if(!PROF.on||!PROF.gq)return rv.apply(this,arguments);profGpuBegin();try{return rv.apply(this,arguments);}finally{profGpuEnd();}};}
 function profSet(on){
   PROF.on=PROF_ON=on;PROF.fill=0;PROF.i=0;PROF.lab.clear();PROF.avg.clear();PROF.mx.clear();PROF.spikes.length=0;PROF.fev=null;PROF.t0=0;PROF.gpu=0;
   try{renderer.info.autoReset=!on;renderer.info.reset();}catch(e){}   // (on, the counts cover every view of the frame, not just the last)

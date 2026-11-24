@@ -2,12 +2,7 @@
 // foot of the mound, curtain walls with round towers and battlements on top, a gatehouse with its portcullis, the keep ----
 const castleC=new Map();
 function castleAt(px,pz){
-  return false;   // (castles are gone)
-  const k=px*100003+pz;let v=castleC.get(k);if(v!==undefined)return v;v=false;
-  if(hash2(px*523+7,pz*271+13)<0.0016&&realmOf(px,pz)==='plains'){let near=false;
-    for(let a=-2;a<=2&&!near;a++)for(let b=-2;b<=2&&!near;b++)if(settlementAt(px+a,pz+b))near=true;
-    if(!near&&!bigPlainsAt(px,pz)&&!plotNearLines(px,pz,8)&&farmK(px,pz)===null&&!rivPlotNear(px,pz)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))v=true;}
-  castleC.set(k,v);return v;
+  return false;   // (castles are gone: nothing places one any more, though castleColumn can still build one)
 }
 function castleColumn(a,col,px,pz,rx,rz,lx,lz,x,z){
   const c=15.5,d=Math.max(Math.abs(rx-c),Math.abs(rz-c)),dr=Math.hypot(rx-c,rz-c),wall=STONE,trim=MOSSSTONE;
@@ -157,12 +152,7 @@ function bunkerColumn(col,rx,rz,x,z){
 // ---- railways: some of the country highways have a railway running alongside (16 blocks off, on the side clear of
 // any truck stop), a station with its platform and shelter at each end, and a train shuttling between them ----
 function railOf(R){
-  if(R.rail!==undefined)return R.rail;R.rail=null;return null;   // (the railways have their own lines now)
-  if(R.kind!=='country'||R.L<520)return null;
-  const sx=Math.round(R.pts[0][0]),sz=Math.round(R.pts[0][1]);if(hash2(sx*71+9,sz*37+5)>0.4)return null;
-  let side=hash2(sx*9+2,sz*11+4)<0.5?1:-1;const TS=truckStopOf(R);
-  if(TS.some(T=>T.side===side))side=-side;if(TS.some(T=>T.side===side))return null;
-  R.rail={side,off:16*side};return R.rail;
+  if(R.rail!==undefined)return R.rail;R.rail=null;return null;   // (the railways have their own lines now: no highway has one alongside)
 }
 function railColumn(col,x,z){
   const n=routeAt(x+0.5,z+0.5,24);if(!n)return;const R=n.R,RL=railOf(R);if(!RL)return;

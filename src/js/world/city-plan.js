@@ -443,7 +443,7 @@ function plotInfo(px,pz){
         const small=cat==='sitdown'?22:0;   // (a dining room, a bar and a kitchen need that much)
         if(wide){bd=Math.min(SD-2,16);bw=Math.min(SW-14,Math.max(small,Math.round(A/bd)));x0=PL0+1;z0=PL0+1;}
         else{bw=Math.min(SW-2,16);bd=Math.min(SD-14,Math.max(small,Math.round(A/bw)));x0=PL0+1;z0=PL1-1+D-bd;}
-        const b=base({x0,x1:x0+bw,z0,z1:z0+bd,gf:7,top:G+7,wall:BRICK,win:cat==='drug'?GLASS:WIN_WARM,kind:'apartment',ground:cat,floor:cat==='drug'?FLOORT:PLANKS,door:wide?2:2,front:cat==='drug',neon:NEON_R});
+        const b=base({x0,x1:x0+bw,z0,z1:z0+bd,gf:7,top:G+7,wall:BRICK,win:cat==='drug'?GLASS:WIN_WARM,kind:'apartment',ground:cat,floor:cat==='drug'?FLOORT:PLANKS,door:2,front:cat==='drug',neon:NEON_R});
         b.detailTop=b.top-1;brandOn(b,cat,r(140));p.b.push(b);if(cat==='sitdown'){b.eat=true;b.eatTile=5;b.rowWin=true;}
         // beside a wide one: a row of bays against it and another along the far side; in front of a tall one: rows across the lot
         p.siteLot=wide?[{x0:b.x1+2,x1:b.x1+9,z0:PL0+1,z1:PL1-1,face:3},...(PL1-1+W-(b.x1+9)>=9?[{x0:PL1-8+W,x1:PL1-1+W,z0:PL0+1,z1:PL1-1,face:1}]:[])]:[{x0:PL0+1,x1:PL1-1,z0:PL0+1,z1:b.z0-3,big:'z',face:0}];

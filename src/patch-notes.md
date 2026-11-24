@@ -687,6 +687,18 @@
 - A map of any world, at the game's address followed by /WorldGen. Type a seed and see its land and sea, every settlement with its name and type, the capital, military bases, naval bases and where aircraft carriers spawn. Zoom in and it fills in what's on every plot. Click a settlement to see what's in it.
 - It opens on the world you're playing in this browser, and uses the game's own world generation, so it always matches the version it sits beside.
 
+### Sturdier
+
+- If something goes wrong inside one frame, the game carries on with the next one instead of freezing for good.
+- A city that's been smashed up a great deal can be joined online. Joining used to fail once the host's city grew past what the browser would hold for the tab.
+- The world has an edge now, 450,000 blocks out in every direction: you're stopped there, out of whatever you were driving. (Things went wrong a little further on.)
+- The world is saved at least every five seconds through a long rampage or a fire, rather than waiting for a quiet moment.
+- A saved world that can't be read is kept aside, instead of being lost under a new one.
+- If the graphics card resets, the game pauses until the picture's back.
+- Making a new world in a browser that won't store anything no longer leaves bits of the old world's coasts, railways and airports behind.
+- A very long journey no longer slowly uses up memory on furniture and shop signs left far behind.
+- Snow lying no longer slows down big collapses.
+
 ## Version 0.4.1
 
 ### Saving

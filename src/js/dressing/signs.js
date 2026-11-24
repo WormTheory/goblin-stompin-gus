@@ -349,7 +349,7 @@ function refreshBrandSigns(){
           // still held up? (count what's left of the wall behind it, in chunks that are loaded)
           let left=0,known=0;for(const a of S.anc){if(!chunks.has(ckey(Math.floor(a[0]/CS),Math.floor(a[2]/CS))))continue;known++;if(get(a[0],a[1],a[2])!==AIR)left++;}
           const key=seed+':'+px+','+pz+','+bi+','+si,up=known===0||left>=Math.ceil(known*0.55),was=bsignUp.get(key);
-          bsignUp.set(key,up);
+          if(bsignUp.size>20000)bsignUp.clear();bsignUp.set(key,up);   // (it only grew, a sign at a time, for as long as you kept travelling)
           if(!up){if(was===true){const c=parseInt(S.B.bg.slice(1),16);puff(S.x,S.y,S.z,10,c,0.7);puff(S.x,S.y,S.z,6,parseInt(S.B.fg.slice(1),16),0.5);clang();}continue;}
           if(S.pole){const q=bpoleAt(nBP++);if(!q)continue;const mt=brandTex(S.B,S.aspect),bot=S.y-S.h/2;
             q.g.position.set(S.x,0,S.z);q.g.rotation.set(0,S.yaw,0);q.post.position.set(0,(G+2+bot+0.3)/2,0);q.post.scale.set(1,bot+0.3-(G+2),1);

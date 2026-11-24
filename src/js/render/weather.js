@@ -73,7 +73,7 @@ const WX_LC=new Map();let wxLcKey='';
 function wxLocal(x,z,y){
   if(TENV)return WX.type;   // (the Testing Environment's flat ground has no climate of its own)
   const key=WX.type+WX.until+'/'+seasonOf();if(key!==wxLcKey){wxLcKey=key;WX_LC.clear();}
-  const cx=Math.floor(x/64),cz=Math.floor(z/64),cy=Math.max(0,Math.floor(((y||G)-G)/16)),ck=(cx*65536+cz)*64+Math.min(63,cy);
+  const cx=Math.floor(x/64),cz=Math.floor(z/64),cy=Math.max(0,Math.floor(((y||G)-G)/16)),ck=colKey(cx,cz)*64+Math.min(63,cy);
   let k=WX_LC.get(ck);if(k)return k;
   const c=climAt(cx*64+32,cz*64+32),t=c.t,bk=BIOMES[bioPick(t,c.m,cx*64+32,cz*64+32)].k,cold=cy*16+8>rlfSnow(t)-25;
   k=wxLocalOf(WX.type,t+WX_SEAS[seasonOf()],bk,cold);if(WX_LC.size>4096)WX_LC.clear();WX_LC.set(ck,k);return k;

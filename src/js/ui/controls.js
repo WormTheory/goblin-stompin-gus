@@ -107,7 +107,7 @@ const ACTS=[
   {id:'blRope',n:'Drop / pull up the rope',c:CC.bite,kb:['Mouse0'],pad:[2],ctx:'balloon'},
 ];
 for(const a of ACTS)if(a.mg)a.ctx='mg';
-const MG_IDS=ACTS.filter(a=>a.mg).map(a=>a.id),MG_PRESS=MG_IDS.map(k=>k+'P');
+const MG_IDS=ACTS.filter(a=>a.mg).map(a=>a.id);
 // every vehicle's own controls (the Mobile Gear's among them), and the headings of their sections in the Controls tab
 const CTX_IDS=ACTS.filter(a=>a.ctx).map(a=>a.id),CTX_PRESS=CTX_IDS.map(k=>k+'P');
 const CTX_NAMES={road:'Driving cars, bikes and trucks',lift:'Driving a forklift',farm:'Driving a tractor',tank:'Driving a tank',heli:'Flying a helicopter',

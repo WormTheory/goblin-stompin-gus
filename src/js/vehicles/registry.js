@@ -95,5 +95,3 @@ function vehHealth(D){const K=VEHICLE_KINDS[D.k],o=D.o;if(!K)return{hp:CAR_HP,ma
   if(D.k==='mount')return{hp:o.S.hp,max:o.S.K.hp};return{hp:K.hp(o,D.ci),max:K.max(o)};}
 // the control context of what's being driven (see ctx above)
 function drvCtx(D){const K=D&&VEHICLE_KINDS[D.k];return K?K.ctx(D):null;}
-// the handling profile of what's being driven
-function drvHand(D){const K=VEHICLE_KINDS[D.k];return K?K.handling(D):handOf(D.k);}

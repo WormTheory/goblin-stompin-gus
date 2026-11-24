@@ -7,6 +7,7 @@
 # Usage: python tools/safe_commit.py --base <sha the thread started from> --from <scratch dir> -m "message" [files...]
 #   files: paths relative to the repo (as in the scratch dir). Left out, every file in the scratch dir that differs from
 #          --base is taken (not allowed when --from is this folder itself, since others' unfinished edits are in it).
+#   --remove path (repeatable) takes a file out of the repo, if nobody has changed it since --base.
 #   -m may be given more than once (one paragraph each); -F file reads the message from a file.
 #   The built files (--generated, by default game/index.html, game/patch-notes/index.html, game/version.json) are never
 #   merged: when anything in src/ changes, the merged tree is built afresh in a temporary worktree (--rebuild-cmd, by
@@ -109,6 +110,7 @@ def main():
   ap.add_argument('--rebuild-cmd',help='default: python tools/build.py, when anything in src/ changes')
   ap.add_argument('--no-rebuild',action='store_true')
   ap.add_argument('--generated',action='append',help='a built file (repeatable); default: '+', '.join(GENERATED))
+  ap.add_argument('--remove',action='append',default=[],help='a file to delete from the repo (repeatable)')
   ap.add_argument('files',nargs='*')
   a=ap.parse_args()
   if not a.msg and not a.msgfile:sys.exit('safe_commit: give a message with -m or -F')
@@ -138,7 +140,8 @@ def main():
     if a.rebuild_cmd:want=not a.no_rebuild
     if built and not want:
       sys.exit('safe_commit: built files can\'t be merged (%s): let it rebuild them, or leave them out'%', '.join(built))
-    if not mine:sys.exit('safe_commit: nothing differs from --base; nothing to commit')
+    gone_files=[f.replace('\\','/') for f in a.remove]
+    if not mine and not gone_files:sys.exit('safe_commit: nothing differs from --base; nothing to commit')
     cmd=a.rebuild_cmd or [sys.executable,'tools/build.py']
     idx=os.path.join(tmp,'index')
     env=dict(os.environ,GIT_INDEX_FILE=idx)
@@ -158,6 +161,11 @@ def main():
       for f in mine:
         sha=out('hash-object','-w','--stdin','--no-filters',inp=res[f])
         git('update-index','--add','--cacheinfo','%s,%s,%s'%(mode(old,f),sha,f),env=env)
+      for f in gone_files:
+        theirs=blob(old,f)
+        if theirs is None:continue
+        if theirs!=blob(base,f):sys.exit('safe_commit: %s was changed since --base, so it was not removed. Nothing was committed.'%f)
+        git('update-index','--force-remove','--',f,env=env)
       if want:rebuild(out('write-tree',env=env),old,cmd,gen,env)
       tree=out('write-tree',env=env)
       if tree==out('rev-parse',old+'^{tree}'):sys.exit('safe_commit: the branch already has these changes')
@@ -181,6 +189,12 @@ def sync(old,new,branch):
     ix=st.split()[1] if st else None
     oldsha=out('rev-parse','%s:%s'%(old,p)) if was is not None else None
     newsha=out('rev-parse','%s:%s'%(new,p)) if now is not None else None
+    if now is None:
+      # (removed by this commit: gone from here too, unless someone has changed their copy)
+      if ix==oldsha:git('update-index','--force-remove','--',p,ok=(0,128))
+      f=os.path.join(os.getcwd(),p)
+      if os.path.isfile(f) and stored(p,f)==was:os.remove(f)
+      continue
     if ix==oldsha and now is not None:
       git('update-index','--add','--cacheinfo','%s,%s,%s'%(mode(new,p),newsha,p),ok=(0,128))
     elif ix not in (oldsha,newsha):

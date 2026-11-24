@@ -131,7 +131,7 @@ function railPass(a,x0,z0){
       } else if(ROADTOP.has(at(G))){}   // a level crossing: the road (or the pavement) runs on over the rails
       else{set(G,GRAVEL);set(G-1,DIRT);if(at(G-2)===AIR||at(G-2)===WATER)set(G-2,DIRT);}
       // the end of the line: buffer stops
-      if(R.E.t==='s'&&ac<=1.5){const L=R.L,first=R.i===0,last=R.i===L.el.length-1,sgn=L.el.length===1?0:0;
+      if(R.E.t==='s'&&ac<=1.5){const L=R.L,first=R.i===0,last=R.i===L.el.length-1;
         if(first&&!railCarriesOn(L,'A')&&Math.abs(R.s-R.E.a0)<1.01||last&&!railCarriesOn(L,'B')&&Math.abs(R.s-R.E.a1)<1.01){set(G+1,ac>0.5?PAINT_RED:METAL);if(ac<=0.5)set(G+2,PAINT_RED);}}
       continue;}
     if(!town)continue;

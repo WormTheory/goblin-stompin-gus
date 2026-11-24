@@ -7,7 +7,7 @@
 // shown (only when it's changed); over (the fighter jet's head-up display, a tank's sight), a picture laid over the whole
 // view instead, round the crosshair. The look follows the game's own stickers: ink, paper, yolk, Gus green, tomato.
 // Options' Vehicle instruments switch (uiSpeedo) hides the slot.
-const KMH_KN=1/1.852,BPS_KMH=3.6,BPS_KN=3.6/1.852;
+const BPS_KMH=3.6,BPS_KN=3.6/1.852;
 const IN_INK='#2b1b2e',IN_PAPER='#fff6dc',IN_YOLK='#ffd447',IN_GUS='#7fc24a',IN_TOM='#e0564a',IN_ORA='#f0a04a',IN_R=Math.PI/180;
 const inCl=(v,a,b)=>Math.max(a,Math.min(b,v)),inF=n=>(+n).toFixed(1);
 const inHeat=k=>k<.55?IN_GUS:k<.8?IN_ORA:IN_TOM;

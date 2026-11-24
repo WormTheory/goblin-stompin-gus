@@ -40,7 +40,7 @@ function airportAt(px,pz){
   const rx0=Math.round(px/SET_SP),rz0=Math.round(pz/SET_SP);
   for(let rx=rx0-1;rx<=rx0+1&&!v;rx++)for(let rz=rz0-1;rz<=rz0+1&&!v;rz++){const S=settlementLat(rx,rz);if(S.type!=='city'||S.ap===null&&apBusy)continue;
     if(settlementAt(S.cx,S.cz)!==S)continue;const A=airportOf(S);if(A&&px>=A.ax&&px<A.ax+A.w&&pz>=A.az&&pz<A.az+A.h)v=A;}
-  if(!apBusy)apAtC.set(k,v);return v;
+  if(!apBusy){if(apAtC.size>200000)apAtC.clear();apAtC.set(k,v);}return v;
 }
 // the street's last junction, right at the airport's gate: paved through to it
 function airportGateAt(ix,iz){const B=airportAt(ix,iz-1);return!!B&&!B.flip&&iz===B.az+8&&ix===B.ax+B.i;}

@@ -282,7 +282,7 @@ function hangarAt(b,rx,rz,y){
 // an airport's control tower: a slim shaft, the glass cab at the top under its roof, an aerial
 function ctrlAt(b,rx,rz,y){
   const u=rx-b.x0,v=rz-b.z0,W=b.x1-b.x0,fl=y-G,H=b.top-G,edge=u===0||u===W-1||v===0||v===W-1,mid=(W-1)/2;STRUCT=true;
-  if(fl<H-6)return Math.abs(u-mid)<=1&&Math.abs(v-mid)<=1&&(Math.abs(u-mid)===1||Math.abs(v-mid)===1)?(fl%5===0?GLASS:b.wall):(Math.abs(u-mid)<1&&Math.abs(v-mid)<1?AIR:AIR);
+  if(fl<H-6)return Math.abs(u-mid)<=1&&Math.abs(v-mid)<=1&&(Math.abs(u-mid)===1||Math.abs(v-mid)===1)?(fl%5===0?GLASS:b.wall):AIR;
   if(fl===H-6)return CONCRETE;
   if(fl<H-1)return edge?(fl===H-2?METAL:GLASS):AIR;
   if(fl===H-1)return CONCRETE;
@@ -377,7 +377,7 @@ function capitolAt(b,rx,rz,y){
   const g=capGeo(),u=rx-PL0,v=rz-PL0,yy=y-G,c=g.c,ad=Math.abs(u-c+0.5),a=Math.floor(ad),w=v-g.bf;
   if(v<g.pz0||v>=g.pz1||u<g.px0||u>=g.px1)return AIR;
   // the plinth, three blocks high, with broad steps up the middle of the front
-  if(v<g.pz0+3&&ad<14){if(yy<=v-g.pz0+1){STRUCT=true;return HOSPW;}return yy<=3?AIR:AIR;}
+  if(v<g.pz0+3&&ad<14){if(yy<=v-g.pz0+1){STRUCT=true;return HOSPW;}return AIR;}
   if(yy<=3){
     STRUCT=true;
     // (the floors inside: the rotunda's has a gold ring and a dark band round it, like the compass stars let into real ones)

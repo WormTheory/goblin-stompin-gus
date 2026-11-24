@@ -28,6 +28,12 @@ const BB={jobs:[],ms:4,speed:120,clouds:[],armed:[],quiet:0},BB_SMALL=12,BB_STUM
 const BL_DARK=new Set();   // (the buildings gone dark, destruction/lights-out.js: read by the mesher, which can run before that file)
 const chunkEdits=new Map(),chunks=new Map(),plotCache=new Map();
 const ckey=(cx,cz)=>(cx+32768)*65536+(cz+32768);
+// (one column of blocks as a number, for maps kept per column. x*65536+z, as these used to be, gave columns 65,536 apart in z
+// and one apart in x the same number once z went negative.)
+const colKey=(x,z)=>(x+1048576)*4194304+(z+1048576);
+// the edge of the world: nobody goes further out than this. (Chunk numbers run out at 524,288 blocks, and the ships'
+// pockets, from SHIP_X0, are inside that.)
+const WORLD_EDGE=450000;
 const li=(lx,y,lz)=>lx+lz*CS+y*CS*CS;
 let lastK=-1,lastA=null;
 function hash2(x,z){let h=Math.imul(x,374761393)+Math.imul(z,668265263)+Math.imul(seed,1442695041)|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return(h>>>0)/4294967296;}

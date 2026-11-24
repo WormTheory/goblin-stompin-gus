@@ -76,7 +76,7 @@ function updateFires(dt){
     F.melt=(F.melt||0)-dt;
     if(F.melt<=0&&snowMax()>0&&snowAt(F.x,F.z,F.y)>0){F.melt=1+Math.random()*0.5;const R=F.r+1.5,ch=new Set();let melted=0;
       for(let x=Math.floor(F.x-R);x<=Math.floor(F.x+R);x++)for(let z=Math.floor(F.z-R);z<=Math.floor(F.z+R);z++){
-        if(Math.hypot(x+0.5-F.x,z+0.5-F.z)>R)continue;const key=x*65536+z,was=snowBorn.get(key)||0;
+        if(Math.hypot(x+0.5-F.x,z+0.5-F.z)>R)continue;const key=colKey(x,z),was=snowBorn.get(key)||0;
         if(WX.snowClock-was>0.02){snowBorn.set(key,WX.snowClock);ch.add(ckey(Math.floor(x/CS),Math.floor(z/CS)));melted++;}}
       if(ch.size)rebuildSet(ch);
       if(melted>3)puff(F.x,F.y+0.6,F.z,4,0xe8eef4,R*0.5);   // a little steam

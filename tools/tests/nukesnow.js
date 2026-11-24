@@ -31,7 +31,7 @@ function blast(g,x,z,R){const J=g.T.bigBlast(x,g.T.G+1,z,R);let f=0;while(!J.don
 // every column of the crater: [checked, snow not melted]
 function snowCheck(T,C,step){let n=0,miss=0;const o=T.bbO(),K=T.bbK(C);
   for(let x=Math.floor(C.x-C.R);x<=C.x+C.R;x+=step)for(let z=Math.floor(C.z-C.R);z<=C.z+C.R;z+=step){T.bbCol(C,K,x,z,o);if(!o.zone)continue;n++;
-    if(!(T.snowBorn.get(x*65536+z)>=C.w))miss++;}
+    if(!(T.snowBorn.get((x+1048576)*4194304+(z+1048576))>=C.w))miss++;}
   return [n,miss];}
 (async()=>{
 // ---- 1 and 2 ----
@@ -48,7 +48,7 @@ console.log('Gus\'s snow melted off',T.P1.snowU.value.toFixed(2),chk(T.P1.snowU.
 for(let x=Math.floor(C.x-C.R);x<=C.x+C.R;x+=16)for(let z=Math.floor(C.z-C.R);z<=C.z+C.R;z+=16)T.chunkArr(Math.floor(x/16),Math.floor(z/16));   // (the ones not loaded, made now)
 {const [n,m]=snowCheck(T,C,3);console.log('snow melted over the crater: columns',n,'still snowy',m,chk(n>1000&&m===0));}
 // outside it: untouched
-{let out=0;for(let a=0;a<64;a++){const x=Math.floor(C.x+Math.cos(a)*C.R*1.4),z=Math.floor(C.z+Math.sin(a)*C.R*1.4);if(T.snowBorn.get(x*65536+z)>=C.w)out++;}console.log('outside the blast still snowy (melted samples)',out,chk(out===0));}
+{let out=0;for(let a=0;a<64;a++){const x=Math.floor(C.x+Math.cos(a)*C.R*1.4),z=Math.floor(C.z+Math.sin(a)*C.R*1.4);if(T.snowBorn.get((x+1048576)*4194304+(z+1048576))>=C.w)out++;}console.log('outside the blast still snowy (melted samples)',out,chk(out===0));}
 // the capitol's lawn: none of it left green in the flattened zone
 {const o=T.bbO(),K=T.bbK(C);let n=0,green=0;
   for(let x=cap.ax*T.CELL;x<(cap.ax+cap.w)*T.CELL;x++)for(let z=cap.az*T.CELL;z<(cap.az+cap.h)*T.CELL;z++){T.bbCol(C,K,x,z,o);if(o.zone!==3)continue;

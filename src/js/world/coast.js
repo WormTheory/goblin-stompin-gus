@@ -417,7 +417,7 @@ function craneBlock(t,wa,fl){
   if(t>=1&&t<=2&&aw<=1&&(fl===18||fl===19))return t===2?WIN_BLUE:PAINT_WHITE;   // the driver's cab
   if(t===7&&aw<=1&&fl===19)return METAL;                                         // the trolley...
   if(t===7&&wa===0&&fl>=14&&fl<=18)return CHAINLINK;                             // ...its hoist...
-  if(t>=4&&t<=9&&aw<=1&&(fl===12||fl===13))return fl===13?PAINT_BLUE:PAINT_BLUE; // ...and the box on the hook
+  if(t>=4&&t<=9&&aw<=1&&(fl===12||fl===13))return PAINT_BLUE; // ...and the box on the hook
   return AIR;
 }
 function craneCol(col,x,z){

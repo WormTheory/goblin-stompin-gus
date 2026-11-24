@@ -3,7 +3,6 @@
 // curving away on their own line: see the routes.) ----
 const HY_X=G+14,HY_Z=G+20;
 // (the motorways no longer come down to the ground anywhere: these are kept for the code that asks)
-const hwProf=()=>null,hwGround=()=>false;
 // a highway at ground level along row k / column k at column a along it: a country highway through a place
 const gRow=(k,a)=>ghwRow(k,Math.floor(a/CELL)),gCol=(k,a)=>ghwCol(k,Math.floor(a/CELL));
 // the height of the road surface there

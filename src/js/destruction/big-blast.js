@@ -21,7 +21,7 @@ function bbK(C){let K=C._k;if(!K){K={rc:C.R*0.18,rf:C.R*0.7,gy:C.y-1,D:Math.max(
 function bbO(){return{zone:0,cut:H,floor:-1,fb:0,l0:0,l1:0,lb:0,t:0};}
 // (the top of the ground at a column as the plan made it: up on the hills and mountains, world/relief.js, else street
 // level; kept per column for the blast, as it's asked again and again)
-function bbGround(K,x,z){let M=K.gm;if(!M)M=K.gm=new Map();const k=x*65536+z;let v=M.get(k);
+function bbGround(K,x,z){let M=K.gm;if(!M)M=K.gm=new Map();const k=colKey(x,z);let v=M.get(k);
   if(v===undefined){v=G+Math.max(0,plainsH(x,z));if(M.size<400000)M.set(k,v);}return v;}
 function bbCol(C,K,x,z,o){
   o.zone=0;o.cut=H;o.floor=-1;o.l0=o.l1=0;
@@ -50,7 +50,7 @@ function bbCarve(A,cx,cz,C,J){
   for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const x=x0+lx,z=z0+lz;bbCol(C,K,x,z,o);if(!o.zone)continue;
     const base=lx+lz*CS,top=Math.max(T[(lz>>2)*4+(lx>>2)],o.l1);let n0=n,B=undefined;
-    if(melt>=0){const ck=x*65536+z;if(!(snowBorn.get(ck)>=melt))snowBorn.set(ck,melt);}
+    if(melt>=0){const ck=colKey(x,z);if(!(snowBorn.get(ck)>=melt))snowBorn.set(ck,melt);}
     if(o.floor>=1){const i=base+o.floor*L,v=A[i];if(v&&v!==WATER&&v!==BEDROCK)A[i]=o.fb;}
     for(let y=Math.max(1,o.cut);y<=top&&y<H;y++){const i=base+y*L,v=A[i];if(!v||v===WATER||v===BEDROCK)continue;A[i]=AIR;n++;
       if(!host)continue;
@@ -64,7 +64,7 @@ function bbCarve(A,cx,cz,C,J){
       let y=Math.min(o.l1,H-1)-1;const lo=Math.max(1,o.l0-K.D-K.lip-6);while(y>=lo&&!A[base+y*L])y--;
       if(y>=lo&&A[base+y*L]!==WATER)for(let k=1;k<=o.l1-o.l0&&y+k<H;k++){const i=base+(y+k)*L;if(A[i])continue;A[i]=o.lb;lip=true;}}
     else if(o.zone>=3&&bbScar(A,base,x,z,C,K,o))lip=true;
-    if(J&&(n>n0||o.l1>o.l0))navCols.delete(x*65536+z);
+    if(J&&(n>n0||o.l1>o.l0))navCols.delete(colKey(x,z));
   }
   if(lip||n)tileTopsOf(A);   // (the rubble lip can rise above what was there)
   A.bb=Math.max(A.bb||0,C.n);

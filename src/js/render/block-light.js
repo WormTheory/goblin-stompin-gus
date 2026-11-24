@@ -146,7 +146,7 @@ const blkSeenAny=(C,x,y,z,pad)=>{for(const c of C)if(blkSeen(c.x,c.y,c.z,x,y,z,p
 // ([x,y,z,r,g,b,size,shown,wanted]), wanted set by each pick, shown eased toward it every frame. (Room's kept for as many
 // fading out as shown, BL_HALO_ALL, so none is cut short.)
 const HALO_ON=new Map(),blHaloFade=()=>Math.max(1e-4,DT.haloFade??0.25);
-let blHaloT=0,blHaloS=0;const _hM=new THREE.Matrix4(),_hV=new THREE.Vector3(),_hC=new THREE.Color();
+let blHaloT=0,blHaloS=0;const _hM=new THREE.Matrix4();
 function blkHaloTick(dt){
   if(HALO_U.uStr.value<=0.001){if(HALO)HALO.visible=false;blHaloS=0;HALO_ON.clear();return;}
   if(!HALO)HALO=haloMesh();HALO.visible=true;if((blHaloT-=dt)<=0){blHaloT=0.25;blkHaloPick();}
