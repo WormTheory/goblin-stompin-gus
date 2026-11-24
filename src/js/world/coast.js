@@ -292,9 +292,11 @@ function coastCap(x,z){
 }
 function coastFlav(x,z){
   const c=climAt(x,z),t=c.t,m=c.m;CF_RC=nzClamp01((clBlend('r')-0.32)/0.2);
-  const j=(hash2(x*7+4421,z*11+4423)-0.5)*0.03,tj=t+j,mj=m+j;
+  // (nudged as the biomes' columns are, bioJit, so one kind of shore gives way to the next in stretches of each rather than
+  // at a line or speckled block by block)
+  const J=bioJit(x,z),tj=t+J[0],mj=m+J[1];
   if(tj<0.17)return 2;if(tj<0.36)return 1;if(mj>0.8&&tj>0.55||tj>0.8&&mj>0.62)return 3;
-  return bioPick(t,m,x,z)===BIO_I.badlands?4:0;
+  return bioPick(tj,mj,x,z,J[2])===BIO_I.badlands?4:0;
 }
 // what kind of natural shore (x,z) is, for the maps: 0 sand, 1 shingle, 2 an ice shelf, 3 mangroves, 4 red sand (as
 // coastFlav), 5 cliffs and headlands (rugged), 6 a fjord's walls (cold and most rugged, as natLand builds them)
@@ -348,9 +350,11 @@ function natLand(col,x,z,kind,cd){
   // (the more rugged, the more of it), easing down toward the land behind from 12 blocks in. Kept back from roads,
   // railways, rivers and anything built (coastCap), and from a town's beach or harbour
   if(rc>0.15&&w<CF_HW&&bk1<0.5){
-    // (a cold shore at its most rugged is a fjord's wall: higher, and sheer from the water up)
-    const fj=(F===1||F===2)&&rc>0.5,P=Math.round(rc*Math.min(Math.max(reliefNat(x,z),fj?16:10),fj?40:28)),cap=P>=2?coastCap(x,z):0;
-    if(P>=2&&cap>=2){const ph=w>=12?Math.max(0,plainsH(x,z)):0,h=Math.round(Math.min(cap,w<0.8&&!fj?Math.min(P,2):w<12?P:P+(ph-P)*(w-12)/(CF_HW-12)));
+    // (a cold shore at its most rugged is a fjord's wall: higher, and sheer from the water up. Where the land's only just
+    // rugged enough the headland comes in low and set back behind a strip of the beach, s, growing out to the water and
+    // to its full height as the ruggedness climbs, so a beach becomes a headland along the shore rather than at a step)
+    const s=nzSmooth(0.15,0.45,rc),fj=(F===1||F===2)&&rc>0.5,P=Math.round(s*rc*Math.min(Math.max(reliefNat(x,z),fj?16:10),fj?40:28)),w0=(1-s)*7,cap=P>=2&&w>=w0?coastCap(x,z):0;
+    if(P>=2&&cap>=2){const ph=w>=12?Math.max(0,plainsH(x,z)):0,v=w-w0,h=Math.round(Math.min(cap,v<0.8&&!fj?Math.min(P,2):v<3*(1-s)?Math.min(P,1+v*2):w<12?P:P+(ph-P)*(w-12)/(CF_HW-12)));
       if(h>0){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<1.5?STONE:F===2?SNOW:BIOMES[biomeAt(x,z)].top||GRASS);return true;}}}
   // cliffs rise out of the beach as the noise climbs, instead of standing up suddenly beside it
   const rk=Math.max(0,Math.min(1,(gridNoise(x/CELL,z/CELL,7,77)-0.06)/0.14))*(1-bk1);

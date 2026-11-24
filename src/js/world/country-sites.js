@@ -52,7 +52,10 @@ function bigCell(i,ax,az){
   // (not in rugged country, world/relief.js: fewer the more rugged, none in the high mountains. Only that coarse field,
   // never the land's real height, which is worked out from where the sites are)
   // (mines and quarries go higher, bases, launch sites and airfields want gentler ground; the ski slope wants mountains)
-  if(ok&&K.kind!=='ski'){const g=ruggedAt((ax+K.w/2)*CELL,(az+K.h/2)*CELL),g0=K.kind==='mine'||K.kind==='quarry'?0.6:K.kind==='base'||K.kind==='nasa'||K.kind==='airfield'?0.35:0.5;if(g>g0&&hash2(ax*97+K.salt,az*53+7)<(g-g0)/0.15)ok=false;}
+  if(ok&&K.kind!=='ski'){const g=ruggedAt((ax+K.w/2)*CELL,(az+K.h/2)*CELL),g0=K.kind==='mine'||K.kind==='quarry'?0.6:K.kind==='base'||K.kind==='nasa'||K.kind==='airfield'?0.35:0.5;if(g>g0&&hash2(ax*97+K.salt,az*53+7)<(g-g0)/0.15)ok=false;
+    // (nor where the mountains, mesas or a cliff right round it stand high: it'd sit in a pit, cut faces all round. Mines
+    // and quarries may go among taller ones, as they're dug in anyway)
+    if(ok)ok=rlfLotOK(ax,az,K.w,K.h,K.kind==='mine'||K.kind==='quarry'?18:RLF_SITE);}
   if(ok)for(let a=ax-2;a<ax+K.w+2&&ok;a++)for(let b=az-2;b<az+K.h+2&&ok;b++){const inR=a>=ax&&a<ax+K.w&&b>=az&&b<az+K.h;if(settlementAt(a,b)||seaPlot(a,b)||inR&&railPlot(a,b)||inR&&(farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,2)||rivPlotNear(a,b)))ok=false;}
   if(ok)for(let a=ax;a<ax+K.w&&ok;a++)for(let b=az;b<az+K.h&&ok;b++)for(let i2=0;i2<i&&ok;i2++){const K2=BIGP[i2];if(i2===0?airportAt(a,b):bigCell(i2,Math.floor(a/K2.w)*K2.w,Math.floor(b/K2.h)*K2.h))ok=false;}
   if(!apBusy)bigOK.set(kk,ok);return ok;
@@ -129,7 +132,7 @@ const bunkC=new Map();
 function bunkerAt(px,pz){
   if(TEST_OFF.has('bunker'))return false;
   const k=px*100003+pz;let v=bunkC.get(k);if(v!==undefined)return v;v=false;
-  if(hash2(px*613+29,pz*307+41)<0.0015&&realmOf(px,pz)==='plains'&&!railPlot(px,pz)&&!bigPlainsAt(px,pz)&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!tsPlot(px,pz)&&!plotNearLines(px,pz,3)&&!rivPlotNear(px,pz))v=true;
+  if(hash2(px*613+29,pz*307+41)<0.0015&&realmOf(px,pz)==='plains'&&!railPlot(px,pz)&&!bigPlainsAt(px,pz)&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!tsPlot(px,pz)&&!plotNearLines(px,pz,3)&&!rivPlotNear(px,pz)&&rlfLotOK(px,pz,1,1))v=true;
   bunkC.set(k,v);return v;
 }
 function bunkerColumn(col,rx,rz,x,z){
@@ -217,6 +220,7 @@ function dumpSite(ax,az){
   if(hash2(ax*389+11,az*167+3)<0.22){
     let ok=true;
     for(let i=0;i<4&&ok;i++)for(let j=0;j<4&&ok;j++){const px=ax+i,pz=az+j;if(realmOf(px,pz)!=='plains'||railPlot(px,pz)||bigPlainsAt(px,pz)||plotNearLines(px,pz,4)||farmK(px,pz)!==null||rivPlotNear(px,pz)||[[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))ok=false;}
+    if(ok)ok=rlfLotOK(ax,az,4,4);
     // a street ending at one of its sides: (side, i) -- 0 low x, 1 high x, 2 low z, 3 high z; i blocks along that side
     if(ok)for(const i of [1,2,0,3]){if(v)break;for(let side=0;side<4&&!v;side++){
       const open=side===0?segBase(ax-1,az+i,1):side===1?segBase(ax+4,az+i,1):side===2?segBase(ax+i,az-1,0):segBase(ax+i,az+4,0);
@@ -269,7 +273,7 @@ const farmC=new Map(),farmCand=(px,pz)=>{const h=hash2(px*19+5,pz*23+7),st=WORLD
 function farmK(px,pz){
   if(TEST_OFF.has('farm'))return null;
   const key=px*100003+pz;let v=farmC.get(key);if(v!==undefined)return v;v=null;
-  if(farmCand(px,pz)&&!plotNearLines(px,pz,6)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b))){
+  if(farmCand(px,pz)&&!plotNearLines(px,pz,6)&&rlfLotOK(px,pz,1,1)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b))){
     const x=px*CELL+PC;
     const tryDir=s=>{
       for(let z=s<0?pz*CELL-1:(pz+1)*CELL,n=0;n<64;z+=s*2,n++){

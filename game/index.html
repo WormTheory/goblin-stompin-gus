@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:52bd15560a7ef5aa7f597086df98e921230fd54047e442e4c59235b6ffbbf7f3 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:232d7e9bcca505675d34cfd1825986c80759643871a7a013a249a4b7e44fb6b7 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1650,7 +1650,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Territories</h3>
 <ul><li>The world is divided into territories now, each made up of many settlements: kingdoms, principalities, duchies, republics, free states, nations, empires, khanates, tribal lands and more, each with a name of its own and a capital.</li><li>Their borders follow the land: coastlines, rivers, lakes and mountain ranges.</li><li>The pause map draws their borders and names over what you've explored, the minimap shows a border you're near, and a banner names the territory you've come into.</li><li>New world and the World Generator have a Territories group: Size (how big territories are on average) and Variety (how much they differ). The World Generator shows them as a layer on the Map, and in the Noise view.</li><li>Fixed the World Generator sometimes showing only sea after an update, when the browser kept an older copy of its map maker.</li></ul>
 <h3>Biomes, polished</h3>
-<ul><li>Waterfalls drop into a proper plunge pool now, about six blocks deep under the fall and shallower toward the rim, deep enough to dive into.</li><li>Where a river meets a lake it runs down to the lake's level in a steady slope, with no more steps like little weirs.</li><li>The land behind a rocky headland rises into the hills inland, instead of lying flat behind it.</li><li>The pause map marks stone arches, waterfalls and landmarks you've explored, and colours natural shores by kind: sandy shores, shingle, ice shelves, mangroves, red sand, cliffs and headlands, and fjords. Each has an entry in the key. The World Generator's Map has the same, as its Wonders and Coasts layers.</li><li>Out in the far view, the oil fields, peat diggings, research stations, safari lodges, stilt villages and ski slopes look like themselves (the rigs and tanks, the trenches, the radar dome and mast, the tents and waterhole, the huts over the water, the piste and its lift) rather than plain patches of ground.</li><li>Dust devils are easy to see now: tall, swirling funnels of dust that lean with the wind.</li><li>Towns are built a little more their biome's way: in the desert and the badlands, small shops and eateries are adobe with parapets and log beam ends, squares are more often paved plazas, and there are more rows of shops; in forests, swamps and the cold they're log and plank with false fronts or steep roofs, and the squares are left green; on the moor they're stone.</li><li>This changes how the world is made, so a saved city starts afresh.</li></ul>
+<ul><li>Waterfalls drop into a proper plunge pool now, about six blocks deep under the fall and shallower toward the rim, deep enough to dive into.</li><li>Where a river meets a lake it runs down to the lake's level in a steady slope, with no more steps like little weirs.</li><li>The land behind a rocky headland rises into the hills inland, instead of lying flat behind it.</li><li>The pause map marks stone arches, waterfalls and landmarks you've explored, and colours natural shores by kind: sandy shores, shingle, ice shelves, mangroves, red sand, cliffs and headlands, and fjords. Each has an entry in the key. The World Generator's Map has the same, as its Wonders and Coasts layers.</li><li>Out in the far view, the oil fields, peat diggings, research stations, safari lodges, stilt villages and ski slopes look like themselves (the rigs and tanks, the trenches, the radar dome and mast, the tents and waterhole, the huts over the water, the piste and its lift) rather than plain patches of ground.</li><li>Biomes blend into each other now: where two meet, patches of each mix across a wide band instead of meeting at a sharp line or in a speckle of single blocks, and the grass and leaves change colour gradually across it, in the far view too.</li><li>Farms, compounds, bases and other sites out in the country no longer sit in a pit below the hills with cliffs all round them: they're only built where the land round them is low enough to meet them gently.</li><li>Coasts change gradually as well: a sandy beach gives way to a rocky headland as the land gets rougher, and one kind of shore turns into the next in stretches rather than block by block.</li><li>Dust devils are easy to see now: tall, swirling funnels of dust that lean with the wind.</li><li>Towns are built a little more their biome's way: in the desert and the badlands, small shops and eateries are adobe with parapets and log beam ends, squares are more often paved plazas, and there are more rows of shops; in forests, swamps and the cold they're log and plank with false fronts or steep roofs, and the squares are left green; on the moor they're stone.</li><li>This changes how the world is made, so a saved city starts afresh.</li></ul>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Biomes</h3>
@@ -2402,10 +2402,10 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='e092a26dd116';
-let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v110'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
+const GAME_VER='0.5',GAME_BUILD='653bb4824dd9';
+let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v111'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
-const WORLD_GEN=12;
+const WORLD_GEN=13;
 // one city block: road, sidewalk, the plot (buildings, parks), sidewalk again; building floors every FH blocks
 const SW=3,PL0=ROADW+SW,PL1=CELL-SW,PW=PL1-PL0,PC=PL0+(PW>>1),RC=ROADW>>1,FH=5,STZ=PC-1;
 // traffic control at each intersection, one fixture per approach (indexed by car direction 0..3):
@@ -3095,18 +3095,35 @@ const BIO_TAB=[
   ['desert','desert','savanna','rainforest','rainforest']].map(r=>r.map(k=>BIO_I[k]));
 const bioBand=(v,E)=>v<E[0]?0:v<E[1]?1:v<E[2]?2:v<E[3]?3:4;
 // the biome a climate (t, m) gives, at block (x,z) (badlands are hot dry ground where a patch noise says so)
-function bioPick(t,m,x,z){let b=BIO_TAB[bioBand(t,BIO_T)][bioBand(m,BIO_M)];
-  if(b===BIO_I.desert&&t>0.84&&nzNoise(x/2600,z/2600,2411)>0.12)b=BIO_I.badlands;return b;}
+function bioPick(t,m,x,z,bj){let b=BIO_TAB[bioBand(t,BIO_T)][bioBand(m,BIO_M)];
+  if(b===BIO_I.desert&&t>0.84&&nzNoise(x/2600,z/2600,2411)+(bj||0)>0.12)b=BIO_I.badlands;return b;}
+// (how far a column's climate is nudged where two biomes meet, so the edge is a broad band of patches rather than a line:
+// mostly a patch noise about 24 blocks across, so it's clumps of one in the other, a little per column so their edges
+// are ragged. BIO_J is the most either way, which clCorner's soft fields average over. Into BJ: t, m, and the badlands'
+// patch noise)
+const BIO_J=0.04,BJ=[0,0,0];
+function bioJit(x,z){
+  BJ[0]=0.03*nzNoise(x/24,z/24,2231)+0.01*(hash2(x*7+2203,z*13+2207)-0.5)*2;
+  BJ[1]=0.03*nzNoise(x/24+71.5,z/24-33.5,2239)+0.01*(hash2(x*11+2213,z*5+2221)-0.5)*2;
+  BJ[2]=0.1*nzNoise(x/30,z/30,2243);return BJ;}
 // (one corner of the lattice: its climate, its biome, and the smooth fields blended between corners: grass and leaf tints,
 // how much likelier ponds are, how much thicker the woods, and how rugged the land is, world/relief.js)
 function clCorner(ix,iz){
   if(clSeed!==seed){clSeed=seed;CL_C.clear();}
   const k=ix*100003+iz;let E=CL_C.get(k);if(E)return E;
   const x=ix*CL_SP,z=iz*CL_SP,c=climateAt(x,z),B=BIOMES[bioPick(c.t,c.m,x,z)];
-  E={t:c.t,m:c.m,b:B.i,gr:B.grass,lf:B.leaf,pond:B.pond,wood:B.wood,r:ruggedAt(x,z),
-    // (the landforms, world/relief.js: dunes in the desert, mesas in the badlands and lower plateaus in scrubland, salt
-    // flats in the driest, hottest desert)
-    dune:B.k==='desert'?1:0,mesa:B.k==='badlands'?1:B.k==='scrub'?0.5:0,salt:B.k==='desert'&&c.m<0.14?1:0};
+  E={t:c.t,m:c.m,b:B.i,gr:[0,0,0],lf:[0,0,0],pond:0,wood:0,r:ruggedAt(x,z),dune:0,mesa:0,
+    // (salt flats in the driest, hottest desert, world/relief.js)
+    salt:B.k==='desert'&&c.m<0.14?1:0};
+  // (the smooth fields are what the columns round here come to on average: each biome's share of the climates the
+  // columns' nudges (bioJit) reach, so a grass tint, how thick the woods are, the dunes and mesas fade across the whole
+  // band where two biomes are mixed, not in one lattice step at a line of their own. The landforms: dunes in the desert,
+  // mesas in the badlands and lower plateaus in scrubland)
+  const t0=c.t,m0=c.m;let W=0;
+  for(let a=-2;a<=2;a++)for(let d=-2;d<=2;d++){const w=(3-Math.abs(a))*(3-Math.abs(d)),Q=BIOMES[bioPick(t0+a*BIO_J/2.5,m0+d*BIO_J/2.5,x,z)];W+=w;
+    for(let i=0;i<3;i++){E.gr[i]+=Q.grass[i]*w;E.lf[i]+=Q.leaf[i]*w;}E.pond+=Q.pond*w;E.wood+=Q.wood*w;
+    E.dune+=(Q.k==='desert'?1:0)*w;E.mesa+=(Q.k==='badlands'?1:Q.k==='scrub'?0.5:0)*w;}
+  for(let i=0;i<3;i++){E.gr[i]/=W;E.lf[i]/=W;}E.pond/=W;E.wood/=W;E.dune/=W;E.mesa/=W;
   if(CL_C.size>200000)CL_C.clear();CL_C.set(k,E);return E;
 }
 // the climate at block (x,z), blended from the lattice. Into CLIM, with CLIM.u, CLIM.v and the four corners in CL_Q for
@@ -3124,11 +3141,11 @@ function climAt(x,z){
 }
 // (a blended field of the corners just asked, by name)
 function clBlend(f){const u=CLIM.u,v=CLIM.v,Q=CL_Q;return (Q[0][f]*(1-u)+Q[1][f]*u)*(1-v)+(Q[2][f]*(1-u)+Q[3][f]*u)*v;}
-// the biome of the column at block (x,z): the table, from the blended climate dithered a little per column, so the edge
-// between two biomes is ragged rather than a line. (Every column has one: towns are in a biome too, for their grass)
+// the biome of the column at block (x,z): the table, from the blended climate nudged per column (bioJit), so two biomes
+// meet in a band of patches rather than at a line. (Every column has one: towns are in a biome too, for their grass)
 function biomeAt(x,z){
-  const c=climAt(x,z),j=hash2(x*7+2203,z*13+2207)-0.5,j2=hash2(x*11+2213,z*5+2221)-0.5;
-  return bioPick(c.t+j*0.03,c.m+j2*0.03,x,z);
+  const c=climAt(x,z),J=bioJit(x,z);
+  return bioPick(c.t+J[0],c.m+J[1],x,z,J[2]);
 }
 // the biome a plot's mostly in (its middle, no dithering; alpine where its middle's above the bare rock): for the maps and
 // the far view
@@ -3178,8 +3195,10 @@ function reliefNat(x,z,feat){
   // (the landforms of phase 3: dunes on the hills' part, so they ease out by the roads as the hills do; mesas, plateaus and
   // escarpments on the mountains' part, cut back from what's built as the mountains are; salt flats level the ground)
   const du=clBlend('dune'),me=clBlend('mesa'),sa=clBlend('salt');let h2=hill;RLF.dune=0;RLF.salt=false;RLF.face=false;
-  if(sa>0.5){const L=nzFbm(x,z,700,2,3551);if(L<0.02){const s=nzSmooth(-0.1,0.02,L);h2*=s;if(L<-0.1)RLF.salt=true;}}
-  if(du>0.02&&!RLF.salt){const d=rlfDune(x,z)*du*WORLD_CFG.hill*(sa>0.5?nzSmooth(-0.1,0.05,nzFbm(x,z,700,2,3551)):1);h2+=d;RLF.dune=d;}
+  // (eased in as the salt's share grows, so the hills don't drop to the flat at a line where it passes a half)
+  const sw=nzSmooth(0.3,0.7,sa);
+  if(sw>0){const L=nzFbm(x,z,700,2,3551);if(L<0.02){const s=nzSmooth(-0.1,0.02,L);h2*=1-(1-s)*sw;if(L<-0.1&&sa>0.5)RLF.salt=true;}}
+  if(du>0.02&&!RLF.salt){const d=rlfDune(x,z)*du*WORLD_CFG.hill*(sw>0?1-(1-nzSmooth(-0.1,0.05,nzFbm(x,z,700,2,3551)))*sw:1);h2+=d;RLF.dune=d;}
   if(me>0.02){mtn+=rlfMesa(x,z,me)*WORLD_CFG.mth;h2*=1-0.85*RLF_MS;}   // (a mesa's top is flat: the hills smoothed out on it)
   if(r>0.25&&r<0.7)mtn+=rlfCliff(x,z,r)*rlfValley(x,z);
   RLF.wl=-99;RLF.oas=false;
@@ -3195,6 +3214,35 @@ function reliefNat(x,z,feat){
   RLF.hill=h2;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
   return h2+mtn-lake;
 }
+// how high the mountains' part of the land (mountains, mesas, escarpments: what reliefMask cuts back from what's built)
+// stands at block (x,z), near enough, for deciding where a site may go: from the climate lattice's corners themselves
+// (no valleys), leaving CLIM, CL_Q, RLF and RLF_MS as they were, since it's asked while a column's plainsH is mid-way.
+// Sites sit at G, so one among hills this high would stand in a pit with a cut face all round it
+function rlfRoughAt(x,z){
+  const fx=x/CL_SP,fz=z/CL_SP,ix=Math.floor(fx),iz=Math.floor(fz),u=fx-ix,v=fz-iz;
+  const ct=CLIM.t,cm=CLIM.m,cu=CLIM.u,cv=CLIM.v,q0=CL_Q[0],q1=CL_Q[1],q2=CL_Q[2],q3=CL_Q[3],ms=RLF_MS,fc=RLF.face;
+  const A=clCorner(ix,iz),B=clCorner(ix+1,iz),C=clCorner(ix,iz+1),D=clCorner(ix+1,iz+1);
+  const bl=f=>(A[f]*(1-u)+B[f]*u)*(1-v)+(C[f]*(1-u)+D[f]*u)*v,r=bl('r'),me=bl('mesa');
+  let h=0;const top=Math.min(RLF_MAX,rlfTop(r)*WORLD_CFG.mth);
+  if(top>0.3){const w=nzWarp(x,z,1400,380,3307),P=nzRidged(w[0],w[1],900,4,3301);h=top*(0.12+0.88*P*P);}
+  if(me>0.02)h+=rlfMesa(x,z,me)*WORLD_CFG.mth;
+  if(r>0.25&&r<0.7)h+=rlfCliff(x,z,r);
+  CLIM.t=ct;CLIM.m=cm;CLIM.u=cu;CLIM.v=cv;CL_Q[0]=q0;CL_Q[1]=q1;CL_Q[2]=q2;CL_Q[3]=q3;RLF_MS=ms;RLF.face=fc;
+  return h;
+}
+// is the land over plots (px,pz) to (px+w-1,pz+h-1), and a plot round them, no higher than lim (rlfRoughAt, five points a
+// plot)? Flat country (every corner's ruggedness under 0.25 and no mesas) is asked nothing more
+const RLF_SITE=9;
+function rlfLotOK(px,pz,w,h,lim){
+  lim=lim===undefined?RLF_SITE:lim;
+  let rough=false;
+  for(let a=px-1;a<=px+w+1&&!rough;a+=Math.max(1,(w+2)>>1))for(let b=pz-1;b<=pz+h+1&&!rough;b+=Math.max(1,(h+2)>>1)){
+    const E=clCorner(Math.floor(a*CELL/CL_SP),Math.floor(b*CELL/CL_SP));if(E.r>0.22||E.mesa>0.02)rough=true;}
+  if(!rough)return true;
+  for(let a=-1;a<=w;a++)for(let b=-1;b<=h;b++)for(const [u,v] of RLF_LOTP)if(rlfRoughAt((px+a)*CELL+u,(pz+b)*CELL+v)>lim)return false;
+  return true;
+}
+const RLF_LOTP=[[4,4],[28,4],[16,16],[4,28],[28,28]];
 // ---- landforms (docs/biomes-plan.md, phase 3) ----
 // dunes: long ridges across the world's wind (one way per world, RLF_DW, a whole-number direction so no trig: [dx,dz,its
 // length]), gentle on the windward side and steep on the lee (the slip face), 3 to 12 blocks high, wandering and broken
@@ -3252,7 +3300,7 @@ function rlfTarnAt(ix,iz,cx,cz){
 // an oasis: in the open desert (not a salt flat)
 function rlfOasisAt(ix,iz,cx,cz){
   if(hash2(ix*11+3,iz*19+5)>0.4||WORLD_CFG.lakes<=0)return null;
-  const E=clCorner(Math.round(cx/CL_SP),Math.round(cz/CL_SP));if(E.dune<1||E.salt||!rlfOpen(cx,cz,1))return null;
+  const E=clCorner(Math.round(cx/CL_SP),Math.round(cz/CL_SP));if(E.b!==BIO_I.desert||E.salt||!rlfOpen(cx,cz,1))return null;
   return {x:cx,z:cz,R:9+Math.floor(hash2(ix*5+1,iz*7+3)*7)};}
 // a sinkhole: a round shaft down toward the caves (bot: its floor), on open ground clear of roads and rivers, with water at
 // the bottom in warm country (a cenote). Not in the ice fields
@@ -3694,9 +3742,11 @@ function coastCap(x,z){
 }
 function coastFlav(x,z){
   const c=climAt(x,z),t=c.t,m=c.m;CF_RC=nzClamp01((clBlend('r')-0.32)/0.2);
-  const j=(hash2(x*7+4421,z*11+4423)-0.5)*0.03,tj=t+j,mj=m+j;
+  // (nudged as the biomes' columns are, bioJit, so one kind of shore gives way to the next in stretches of each rather than
+  // at a line or speckled block by block)
+  const J=bioJit(x,z),tj=t+J[0],mj=m+J[1];
   if(tj<0.17)return 2;if(tj<0.36)return 1;if(mj>0.8&&tj>0.55||tj>0.8&&mj>0.62)return 3;
-  return bioPick(t,m,x,z)===BIO_I.badlands?4:0;
+  return bioPick(tj,mj,x,z,J[2])===BIO_I.badlands?4:0;
 }
 // what kind of natural shore (x,z) is, for the maps: 0 sand, 1 shingle, 2 an ice shelf, 3 mangroves, 4 red sand (as
 // coastFlav), 5 cliffs and headlands (rugged), 6 a fjord's walls (cold and most rugged, as natLand builds them)
@@ -3750,9 +3800,11 @@ function natLand(col,x,z,kind,cd){
   // (the more rugged, the more of it), easing down toward the land behind from 12 blocks in. Kept back from roads,
   // railways, rivers and anything built (coastCap), and from a town's beach or harbour
   if(rc>0.15&&w<CF_HW&&bk1<0.5){
-    // (a cold shore at its most rugged is a fjord's wall: higher, and sheer from the water up)
-    const fj=(F===1||F===2)&&rc>0.5,P=Math.round(rc*Math.min(Math.max(reliefNat(x,z),fj?16:10),fj?40:28)),cap=P>=2?coastCap(x,z):0;
-    if(P>=2&&cap>=2){const ph=w>=12?Math.max(0,plainsH(x,z)):0,h=Math.round(Math.min(cap,w<0.8&&!fj?Math.min(P,2):w<12?P:P+(ph-P)*(w-12)/(CF_HW-12)));
+    // (a cold shore at its most rugged is a fjord's wall: higher, and sheer from the water up. Where the land's only just
+    // rugged enough the headland comes in low and set back behind a strip of the beach, s, growing out to the water and
+    // to its full height as the ruggedness climbs, so a beach becomes a headland along the shore rather than at a step)
+    const s=nzSmooth(0.15,0.45,rc),fj=(F===1||F===2)&&rc>0.5,P=Math.round(s*rc*Math.min(Math.max(reliefNat(x,z),fj?16:10),fj?40:28)),w0=(1-s)*7,cap=P>=2&&w>=w0?coastCap(x,z):0;
+    if(P>=2&&cap>=2){const ph=w>=12?Math.max(0,plainsH(x,z)):0,v=w-w0,h=Math.round(Math.min(cap,v<0.8&&!fj?Math.min(P,2):v<3*(1-s)?Math.min(P,1+v*2):w<12?P:P+(ph-P)*(w-12)/(CF_HW-12)));
       if(h>0){for(let y=G-2;y<G+h;y++)col(y,hash2(x*3+y,z*5)<0.3?MOSSSTONE:STONE);col(G+h,w<1.5?STONE:F===2?SNOW:BIOMES[biomeAt(x,z)].top||GRASS);return true;}}}
   // cliffs rise out of the beach as the noise climbs, instead of standing up suddenly beside it
   const rk=Math.max(0,Math.min(1,(gridNoise(x/CELL,z/CELL,7,77)-0.06)/0.14))*(1-bk1);
@@ -5649,7 +5701,10 @@ function bigCell(i,ax,az){
   // (not in rugged country, world/relief.js: fewer the more rugged, none in the high mountains. Only that coarse field,
   // never the land's real height, which is worked out from where the sites are)
   // (mines and quarries go higher, bases, launch sites and airfields want gentler ground; the ski slope wants mountains)
-  if(ok&&K.kind!=='ski'){const g=ruggedAt((ax+K.w/2)*CELL,(az+K.h/2)*CELL),g0=K.kind==='mine'||K.kind==='quarry'?0.6:K.kind==='base'||K.kind==='nasa'||K.kind==='airfield'?0.35:0.5;if(g>g0&&hash2(ax*97+K.salt,az*53+7)<(g-g0)/0.15)ok=false;}
+  if(ok&&K.kind!=='ski'){const g=ruggedAt((ax+K.w/2)*CELL,(az+K.h/2)*CELL),g0=K.kind==='mine'||K.kind==='quarry'?0.6:K.kind==='base'||K.kind==='nasa'||K.kind==='airfield'?0.35:0.5;if(g>g0&&hash2(ax*97+K.salt,az*53+7)<(g-g0)/0.15)ok=false;
+    // (nor where the mountains, mesas or a cliff right round it stand high: it'd sit in a pit, cut faces all round. Mines
+    // and quarries may go among taller ones, as they're dug in anyway)
+    if(ok)ok=rlfLotOK(ax,az,K.w,K.h,K.kind==='mine'||K.kind==='quarry'?18:RLF_SITE);}
   if(ok)for(let a=ax-2;a<ax+K.w+2&&ok;a++)for(let b=az-2;b<az+K.h+2&&ok;b++){const inR=a>=ax&&a<ax+K.w&&b>=az&&b<az+K.h;if(settlementAt(a,b)||seaPlot(a,b)||inR&&railPlot(a,b)||inR&&(farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,2)||rivPlotNear(a,b)))ok=false;}
   if(ok)for(let a=ax;a<ax+K.w&&ok;a++)for(let b=az;b<az+K.h&&ok;b++)for(let i2=0;i2<i&&ok;i2++){const K2=BIGP[i2];if(i2===0?airportAt(a,b):bigCell(i2,Math.floor(a/K2.w)*K2.w,Math.floor(b/K2.h)*K2.h))ok=false;}
   if(!apBusy)bigOK.set(kk,ok);return ok;
@@ -5726,7 +5781,7 @@ const bunkC=new Map();
 function bunkerAt(px,pz){
   if(TEST_OFF.has('bunker'))return false;
   const k=px*100003+pz;let v=bunkC.get(k);if(v!==undefined)return v;v=false;
-  if(hash2(px*613+29,pz*307+41)<0.0015&&realmOf(px,pz)==='plains'&&!railPlot(px,pz)&&!bigPlainsAt(px,pz)&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!tsPlot(px,pz)&&!plotNearLines(px,pz,3)&&!rivPlotNear(px,pz))v=true;
+  if(hash2(px*613+29,pz*307+41)<0.0015&&realmOf(px,pz)==='plains'&&!railPlot(px,pz)&&!bigPlainsAt(px,pz)&&farmK(px,pz)===null&&dumpAt(px,pz)===null&&!castleAt(px,pz)&&!tsPlot(px,pz)&&!plotNearLines(px,pz,3)&&!rivPlotNear(px,pz)&&rlfLotOK(px,pz,1,1))v=true;
   bunkC.set(k,v);return v;
 }
 function bunkerColumn(col,rx,rz,x,z){
@@ -5814,6 +5869,7 @@ function dumpSite(ax,az){
   if(hash2(ax*389+11,az*167+3)<0.22){
     let ok=true;
     for(let i=0;i<4&&ok;i++)for(let j=0;j<4&&ok;j++){const px=ax+i,pz=az+j;if(realmOf(px,pz)!=='plains'||railPlot(px,pz)||bigPlainsAt(px,pz)||plotNearLines(px,pz,4)||farmK(px,pz)!==null||rivPlotNear(px,pz)||[[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b)))ok=false;}
+    if(ok)ok=rlfLotOK(ax,az,4,4);
     // a street ending at one of its sides: (side, i) -- 0 low x, 1 high x, 2 low z, 3 high z; i blocks along that side
     if(ok)for(const i of [1,2,0,3]){if(v)break;for(let side=0;side<4&&!v;side++){
       const open=side===0?segBase(ax-1,az+i,1):side===1?segBase(ax+4,az+i,1):side===2?segBase(ax+i,az-1,0):segBase(ax+i,az+4,0);
@@ -5866,7 +5922,7 @@ const farmC=new Map(),farmCand=(px,pz)=>{const h=hash2(px*19+5,pz*23+7),st=WORLD
 function farmK(px,pz){
   if(TEST_OFF.has('farm'))return null;
   const key=px*100003+pz;let v=farmC.get(key);if(v!==undefined)return v;v=null;
-  if(farmCand(px,pz)&&!plotNearLines(px,pz,6)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b))){
+  if(farmCand(px,pz)&&!plotNearLines(px,pz,6)&&rlfLotOK(px,pz,1,1)&&![[4,4],[28,4],[4,28],[28,28],[16,16]].some(([a,b])=>tsAt(px*CELL+a,pz*CELL+b))){
     const x=px*CELL+PC;
     const tryDir=s=>{
       for(let z=s<0?pz*CELL-1:(pz+1)*CELL,n=0;n<64;z+=s*2,n++){
@@ -6486,7 +6542,7 @@ function airportOf(S){
       else{for(let z=S.cz+R;z>=S.cz;z--)if(settlementAt(ix,z)===S&&settlementAt(ix-1,z)===S){iz=z+1;break;}}
       if(iz===null||!(flip?segBase(ix,iz-1,0):segBase(ix,iz,0)))continue;
       const az=flip?iz:iz-8;
-      for(const i of [8,7,9,6,10,5,11,4,12,3,13,2]){const ax=ix-i;if(free(ax,az)){v={kind:'airport',ax,az,w:16,h:8,i,flip};break;}}}}
+      for(const i of [8,7,9,6,10,5,11,4,12,3,13,2]){const ax=ix-i;if(free(ax,az)&&rlfLotOK(ax,az,16,8)){v={kind:'airport',ax,az,w:16,h:8,i,flip};break;}}}}
   apBusy--;S.ap=v;return v;
 }
 function airportAt(px,pz){
@@ -32051,7 +32107,14 @@ const FAR_BIO=BIOMES.map(B=>{const top=B.top||GRASS;let g,l;
   else{g=new THREE.Color(topColor(top));if(top===GRASS){g.r*=B.grass[0];g.g*=B.grass[1];g.b*=B.grass[2];g.grass=true;}
     l=FAR_LEAF.clone();l.r*=B.leaf[0];l.g*=B.leaf[1];l.b*=B.leaf[2];}
   return {g,l};});
-const farBio=(px,pz)=>FAR_BIO[biomeOfPlot(px,pz)];
+// (a plot's: the biome its middle column has, nudged as the columns are, so where two meet the far view is patches of
+// each rather than a stepped line of plots; and a grassy one's grass and every one's leaves tinted as the columns there
+// are, bioTint, so the colour fades across as it does close to)
+function farBio(px,pz){const x=px*CELL+16,z=pz*CELL+16,i0=biomeOfPlot(px,pz),i=i0===BIO_I.alpine?i0:biomeAt(x,z),F=FAR_BIO[i];
+  if(i===BIO_I.alpine)return F;
+  const B=BIOMES[i],L=bioTint(x,z,1),l=FAR_LEAF.clone();l.r*=L[0];l.g*=L[1];l.b*=L[2];
+  if((B.top||GRASS)!==GRASS)return {g:F.g,l};
+  const T=bioTint(x,z,0),g=FARC.park.clone();g.r*=T[0];g.g*=T[1];g.b*=T[2];g.grass=true;return {g,l};}
 function farLeaf(F,x0,y0,z0,x1,y1,z1,hFall,hCol,c){farBox(F,x0,y0,z0,x1,y1,z1,c||FAR_LEAF);const j=(F.n-1)*4;F.wn[j]=hFall;F.wn[j+1]=hCol;F.wn[j+3]=-4;}
 // the trees in one block, as genChunk grows them: x, z, the ground's top, the trunk's height and the species of each. Worked out once (a
 // third of a millisecond for a block of plains) and kept, unless something in the block has been smashed since: then a
@@ -32354,7 +32417,7 @@ function* farJobFar(SB,SG,act,ra,rb){
   for(const p of act)for(let qx=Math.floor((p.pos.x-rb)/C4);qx<=Math.floor((p.pos.x+rb)/C4);qx++){yield;for(let qz=Math.floor((p.pos.z-rb)/C4);qz<=Math.floor((p.pos.z+rb)/C4);qz++){
     const k=qx*100003+qz;if(seen.has(k))continue;
     const d=Math.hypot(qx*C4+C4/2-p.pos.x,qz*C4+C4/2-p.pos.z);if(d>rb+C4||d<ra-C4)continue;seen.add(k);
-    {const bi=biomeOfPlot(qx*4+2,qz*4+2);if(bi!==BIO_GRASS)farBox(SG,qx*C4,G+0.31,qz*C4,qx*C4+C4,G+0.42,qz*C4+C4,FAR_BIO[bi].g);}   // (a biome's ground under the fields)
+    {const bi=biomeOfPlot(qx*4+2,qz*4+2);if(bi!==BIO_GRASS)farBox(SG,qx*C4,G+0.31,qz*C4,qx*C4+C4,G+0.42,qz*C4+C4,farBio(qx*4+2,qz*4+2).g);}   // (a biome's ground under the fields)
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
       const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(realmOf(px,pz)==='plains'){if(!sc)farTerrain(SG,px,pz,32,false);farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);if(!sc)yield* farCountry(SB,SG,px,pz,2);}continue;}

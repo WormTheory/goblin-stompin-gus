@@ -171,7 +171,14 @@ const FAR_BIO=BIOMES.map(B=>{const top=B.top||GRASS;let g,l;
   else{g=new THREE.Color(topColor(top));if(top===GRASS){g.r*=B.grass[0];g.g*=B.grass[1];g.b*=B.grass[2];g.grass=true;}
     l=FAR_LEAF.clone();l.r*=B.leaf[0];l.g*=B.leaf[1];l.b*=B.leaf[2];}
   return {g,l};});
-const farBio=(px,pz)=>FAR_BIO[biomeOfPlot(px,pz)];
+// (a plot's: the biome its middle column has, nudged as the columns are, so where two meet the far view is patches of
+// each rather than a stepped line of plots; and a grassy one's grass and every one's leaves tinted as the columns there
+// are, bioTint, so the colour fades across as it does close to)
+function farBio(px,pz){const x=px*CELL+16,z=pz*CELL+16,i0=biomeOfPlot(px,pz),i=i0===BIO_I.alpine?i0:biomeAt(x,z),F=FAR_BIO[i];
+  if(i===BIO_I.alpine)return F;
+  const B=BIOMES[i],L=bioTint(x,z,1),l=FAR_LEAF.clone();l.r*=L[0];l.g*=L[1];l.b*=L[2];
+  if((B.top||GRASS)!==GRASS)return {g:F.g,l};
+  const T=bioTint(x,z,0),g=FARC.park.clone();g.r*=T[0];g.g*=T[1];g.b*=T[2];g.grass=true;return {g,l};}
 function farLeaf(F,x0,y0,z0,x1,y1,z1,hFall,hCol,c){farBox(F,x0,y0,z0,x1,y1,z1,c||FAR_LEAF);const j=(F.n-1)*4;F.wn[j]=hFall;F.wn[j+1]=hCol;F.wn[j+3]=-4;}
 // the trees in one block, as genChunk grows them: x, z, the ground's top, the trunk's height and the species of each. Worked out once (a
 // third of a millisecond for a block of plains) and kept, unless something in the block has been smashed since: then a
@@ -474,7 +481,7 @@ function* farJobFar(SB,SG,act,ra,rb){
   for(const p of act)for(let qx=Math.floor((p.pos.x-rb)/C4);qx<=Math.floor((p.pos.x+rb)/C4);qx++){yield;for(let qz=Math.floor((p.pos.z-rb)/C4);qz<=Math.floor((p.pos.z+rb)/C4);qz++){
     const k=qx*100003+qz;if(seen.has(k))continue;
     const d=Math.hypot(qx*C4+C4/2-p.pos.x,qz*C4+C4/2-p.pos.z);if(d>rb+C4||d<ra-C4)continue;seen.add(k);
-    {const bi=biomeOfPlot(qx*4+2,qz*4+2);if(bi!==BIO_GRASS)farBox(SG,qx*C4,G+0.31,qz*C4,qx*C4+C4,G+0.42,qz*C4+C4,FAR_BIO[bi].g);}   // (a biome's ground under the fields)
+    {const bi=biomeOfPlot(qx*4+2,qz*4+2);if(bi!==BIO_GRASS)farBox(SG,qx*C4,G+0.31,qz*C4,qx*C4+C4,G+0.42,qz*C4+C4,farBio(qx*4+2,qz*4+2).g);}   // (a biome's ground under the fields)
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
       const ty=setType(px,pz);if(!ty){if(sc)farBox(SG,X0,G+0.45,Z0,X0+CELL,G+0.6,Z0+CELL,FAR_SCORCH);else if(turbineAt(px,pz))farTurbine(SB,px,pz,2.6);if(realmOf(px,pz)==='plains'){if(!sc)farTerrain(SG,px,pz,32,false);farPonds(SG,px,pz,16,false);farWoods(SG,px,pz,32,false);if(!sc)yield* farCountry(SB,SG,px,pz,2);}continue;}

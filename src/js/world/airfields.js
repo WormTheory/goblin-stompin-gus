@@ -31,7 +31,7 @@ function airportOf(S){
       else{for(let z=S.cz+R;z>=S.cz;z--)if(settlementAt(ix,z)===S&&settlementAt(ix-1,z)===S){iz=z+1;break;}}
       if(iz===null||!(flip?segBase(ix,iz-1,0):segBase(ix,iz,0)))continue;
       const az=flip?iz:iz-8;
-      for(const i of [8,7,9,6,10,5,11,4,12,3,13,2]){const ax=ix-i;if(free(ax,az)){v={kind:'airport',ax,az,w:16,h:8,i,flip};break;}}}}
+      for(const i of [8,7,9,6,10,5,11,4,12,3,13,2]){const ax=ix-i;if(free(ax,az)&&rlfLotOK(ax,az,16,8)){v={kind:'airport',ax,az,w:16,h:8,i,flip};break;}}}}
   apBusy--;S.ap=v;return v;
 }
 function airportAt(px,pz){

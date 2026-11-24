@@ -80,18 +80,35 @@ const BIO_TAB=[
   ['desert','desert','savanna','rainforest','rainforest']].map(r=>r.map(k=>BIO_I[k]));
 const bioBand=(v,E)=>v<E[0]?0:v<E[1]?1:v<E[2]?2:v<E[3]?3:4;
 // the biome a climate (t, m) gives, at block (x,z) (badlands are hot dry ground where a patch noise says so)
-function bioPick(t,m,x,z){let b=BIO_TAB[bioBand(t,BIO_T)][bioBand(m,BIO_M)];
-  if(b===BIO_I.desert&&t>0.84&&nzNoise(x/2600,z/2600,2411)>0.12)b=BIO_I.badlands;return b;}
+function bioPick(t,m,x,z,bj){let b=BIO_TAB[bioBand(t,BIO_T)][bioBand(m,BIO_M)];
+  if(b===BIO_I.desert&&t>0.84&&nzNoise(x/2600,z/2600,2411)+(bj||0)>0.12)b=BIO_I.badlands;return b;}
+// (how far a column's climate is nudged where two biomes meet, so the edge is a broad band of patches rather than a line:
+// mostly a patch noise about 24 blocks across, so it's clumps of one in the other, a little per column so their edges
+// are ragged. BIO_J is the most either way, which clCorner's soft fields average over. Into BJ: t, m, and the badlands'
+// patch noise)
+const BIO_J=0.04,BJ=[0,0,0];
+function bioJit(x,z){
+  BJ[0]=0.03*nzNoise(x/24,z/24,2231)+0.01*(hash2(x*7+2203,z*13+2207)-0.5)*2;
+  BJ[1]=0.03*nzNoise(x/24+71.5,z/24-33.5,2239)+0.01*(hash2(x*11+2213,z*5+2221)-0.5)*2;
+  BJ[2]=0.1*nzNoise(x/30,z/30,2243);return BJ;}
 // (one corner of the lattice: its climate, its biome, and the smooth fields blended between corners: grass and leaf tints,
 // how much likelier ponds are, how much thicker the woods, and how rugged the land is, world/relief.js)
 function clCorner(ix,iz){
   if(clSeed!==seed){clSeed=seed;CL_C.clear();}
   const k=ix*100003+iz;let E=CL_C.get(k);if(E)return E;
   const x=ix*CL_SP,z=iz*CL_SP,c=climateAt(x,z),B=BIOMES[bioPick(c.t,c.m,x,z)];
-  E={t:c.t,m:c.m,b:B.i,gr:B.grass,lf:B.leaf,pond:B.pond,wood:B.wood,r:ruggedAt(x,z),
-    // (the landforms, world/relief.js: dunes in the desert, mesas in the badlands and lower plateaus in scrubland, salt
-    // flats in the driest, hottest desert)
-    dune:B.k==='desert'?1:0,mesa:B.k==='badlands'?1:B.k==='scrub'?0.5:0,salt:B.k==='desert'&&c.m<0.14?1:0};
+  E={t:c.t,m:c.m,b:B.i,gr:[0,0,0],lf:[0,0,0],pond:0,wood:0,r:ruggedAt(x,z),dune:0,mesa:0,
+    // (salt flats in the driest, hottest desert, world/relief.js)
+    salt:B.k==='desert'&&c.m<0.14?1:0};
+  // (the smooth fields are what the columns round here come to on average: each biome's share of the climates the
+  // columns' nudges (bioJit) reach, so a grass tint, how thick the woods are, the dunes and mesas fade across the whole
+  // band where two biomes are mixed, not in one lattice step at a line of their own. The landforms: dunes in the desert,
+  // mesas in the badlands and lower plateaus in scrubland)
+  const t0=c.t,m0=c.m;let W=0;
+  for(let a=-2;a<=2;a++)for(let d=-2;d<=2;d++){const w=(3-Math.abs(a))*(3-Math.abs(d)),Q=BIOMES[bioPick(t0+a*BIO_J/2.5,m0+d*BIO_J/2.5,x,z)];W+=w;
+    for(let i=0;i<3;i++){E.gr[i]+=Q.grass[i]*w;E.lf[i]+=Q.leaf[i]*w;}E.pond+=Q.pond*w;E.wood+=Q.wood*w;
+    E.dune+=(Q.k==='desert'?1:0)*w;E.mesa+=(Q.k==='badlands'?1:Q.k==='scrub'?0.5:0)*w;}
+  for(let i=0;i<3;i++){E.gr[i]/=W;E.lf[i]/=W;}E.pond/=W;E.wood/=W;E.dune/=W;E.mesa/=W;
   if(CL_C.size>200000)CL_C.clear();CL_C.set(k,E);return E;
 }
 // the climate at block (x,z), blended from the lattice. Into CLIM, with CLIM.u, CLIM.v and the four corners in CL_Q for
@@ -109,11 +126,11 @@ function climAt(x,z){
 }
 // (a blended field of the corners just asked, by name)
 function clBlend(f){const u=CLIM.u,v=CLIM.v,Q=CL_Q;return (Q[0][f]*(1-u)+Q[1][f]*u)*(1-v)+(Q[2][f]*(1-u)+Q[3][f]*u)*v;}
-// the biome of the column at block (x,z): the table, from the blended climate dithered a little per column, so the edge
-// between two biomes is ragged rather than a line. (Every column has one: towns are in a biome too, for their grass)
+// the biome of the column at block (x,z): the table, from the blended climate nudged per column (bioJit), so two biomes
+// meet in a band of patches rather than at a line. (Every column has one: towns are in a biome too, for their grass)
 function biomeAt(x,z){
-  const c=climAt(x,z),j=hash2(x*7+2203,z*13+2207)-0.5,j2=hash2(x*11+2213,z*5+2221)-0.5;
-  return bioPick(c.t+j*0.03,c.m+j2*0.03,x,z);
+  const c=climAt(x,z),J=bioJit(x,z);
+  return bioPick(c.t+J[0],c.m+J[1],x,z,J[2]);
 }
 // the biome a plot's mostly in (its middle, no dithering; alpine where its middle's above the bare rock): for the maps and
 // the far view

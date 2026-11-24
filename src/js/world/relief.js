@@ -38,8 +38,10 @@ function reliefNat(x,z,feat){
   // (the landforms of phase 3: dunes on the hills' part, so they ease out by the roads as the hills do; mesas, plateaus and
   // escarpments on the mountains' part, cut back from what's built as the mountains are; salt flats level the ground)
   const du=clBlend('dune'),me=clBlend('mesa'),sa=clBlend('salt');let h2=hill;RLF.dune=0;RLF.salt=false;RLF.face=false;
-  if(sa>0.5){const L=nzFbm(x,z,700,2,3551);if(L<0.02){const s=nzSmooth(-0.1,0.02,L);h2*=s;if(L<-0.1)RLF.salt=true;}}
-  if(du>0.02&&!RLF.salt){const d=rlfDune(x,z)*du*WORLD_CFG.hill*(sa>0.5?nzSmooth(-0.1,0.05,nzFbm(x,z,700,2,3551)):1);h2+=d;RLF.dune=d;}
+  // (eased in as the salt's share grows, so the hills don't drop to the flat at a line where it passes a half)
+  const sw=nzSmooth(0.3,0.7,sa);
+  if(sw>0){const L=nzFbm(x,z,700,2,3551);if(L<0.02){const s=nzSmooth(-0.1,0.02,L);h2*=1-(1-s)*sw;if(L<-0.1&&sa>0.5)RLF.salt=true;}}
+  if(du>0.02&&!RLF.salt){const d=rlfDune(x,z)*du*WORLD_CFG.hill*(sw>0?1-(1-nzSmooth(-0.1,0.05,nzFbm(x,z,700,2,3551)))*sw:1);h2+=d;RLF.dune=d;}
   if(me>0.02){mtn+=rlfMesa(x,z,me)*WORLD_CFG.mth;h2*=1-0.85*RLF_MS;}   // (a mesa's top is flat: the hills smoothed out on it)
   if(r>0.25&&r<0.7)mtn+=rlfCliff(x,z,r)*rlfValley(x,z);
   RLF.wl=-99;RLF.oas=false;
@@ -55,6 +57,35 @@ function reliefNat(x,z,feat){
   RLF.hill=h2;RLF.mtn=mtn;RLF.lake=lake;RLF.r=r;
   return h2+mtn-lake;
 }
+// how high the mountains' part of the land (mountains, mesas, escarpments: what reliefMask cuts back from what's built)
+// stands at block (x,z), near enough, for deciding where a site may go: from the climate lattice's corners themselves
+// (no valleys), leaving CLIM, CL_Q, RLF and RLF_MS as they were, since it's asked while a column's plainsH is mid-way.
+// Sites sit at G, so one among hills this high would stand in a pit with a cut face all round it
+function rlfRoughAt(x,z){
+  const fx=x/CL_SP,fz=z/CL_SP,ix=Math.floor(fx),iz=Math.floor(fz),u=fx-ix,v=fz-iz;
+  const ct=CLIM.t,cm=CLIM.m,cu=CLIM.u,cv=CLIM.v,q0=CL_Q[0],q1=CL_Q[1],q2=CL_Q[2],q3=CL_Q[3],ms=RLF_MS,fc=RLF.face;
+  const A=clCorner(ix,iz),B=clCorner(ix+1,iz),C=clCorner(ix,iz+1),D=clCorner(ix+1,iz+1);
+  const bl=f=>(A[f]*(1-u)+B[f]*u)*(1-v)+(C[f]*(1-u)+D[f]*u)*v,r=bl('r'),me=bl('mesa');
+  let h=0;const top=Math.min(RLF_MAX,rlfTop(r)*WORLD_CFG.mth);
+  if(top>0.3){const w=nzWarp(x,z,1400,380,3307),P=nzRidged(w[0],w[1],900,4,3301);h=top*(0.12+0.88*P*P);}
+  if(me>0.02)h+=rlfMesa(x,z,me)*WORLD_CFG.mth;
+  if(r>0.25&&r<0.7)h+=rlfCliff(x,z,r);
+  CLIM.t=ct;CLIM.m=cm;CLIM.u=cu;CLIM.v=cv;CL_Q[0]=q0;CL_Q[1]=q1;CL_Q[2]=q2;CL_Q[3]=q3;RLF_MS=ms;RLF.face=fc;
+  return h;
+}
+// is the land over plots (px,pz) to (px+w-1,pz+h-1), and a plot round them, no higher than lim (rlfRoughAt, five points a
+// plot)? Flat country (every corner's ruggedness under 0.25 and no mesas) is asked nothing more
+const RLF_SITE=9;
+function rlfLotOK(px,pz,w,h,lim){
+  lim=lim===undefined?RLF_SITE:lim;
+  let rough=false;
+  for(let a=px-1;a<=px+w+1&&!rough;a+=Math.max(1,(w+2)>>1))for(let b=pz-1;b<=pz+h+1&&!rough;b+=Math.max(1,(h+2)>>1)){
+    const E=clCorner(Math.floor(a*CELL/CL_SP),Math.floor(b*CELL/CL_SP));if(E.r>0.22||E.mesa>0.02)rough=true;}
+  if(!rough)return true;
+  for(let a=-1;a<=w;a++)for(let b=-1;b<=h;b++)for(const [u,v] of RLF_LOTP)if(rlfRoughAt((px+a)*CELL+u,(pz+b)*CELL+v)>lim)return false;
+  return true;
+}
+const RLF_LOTP=[[4,4],[28,4],[16,16],[4,28],[28,28]];
 // ---- landforms (docs/biomes-plan.md, phase 3) ----
 // dunes: long ridges across the world's wind (one way per world, RLF_DW, a whole-number direction so no trig: [dx,dz,its
 // length]), gentle on the windward side and steep on the lee (the slip face), 3 to 12 blocks high, wandering and broken
@@ -112,7 +143,7 @@ function rlfTarnAt(ix,iz,cx,cz){
 // an oasis: in the open desert (not a salt flat)
 function rlfOasisAt(ix,iz,cx,cz){
   if(hash2(ix*11+3,iz*19+5)>0.4||WORLD_CFG.lakes<=0)return null;
-  const E=clCorner(Math.round(cx/CL_SP),Math.round(cz/CL_SP));if(E.dune<1||E.salt||!rlfOpen(cx,cz,1))return null;
+  const E=clCorner(Math.round(cx/CL_SP),Math.round(cz/CL_SP));if(E.b!==BIO_I.desert||E.salt||!rlfOpen(cx,cz,1))return null;
   return {x:cx,z:cz,R:9+Math.floor(hash2(ix*5+1,iz*7+3)*7)};}
 // a sinkhole: a round shaft down toward the caves (bot: its floor), on open ground clear of roads and rivers, with water at
 // the bottom in warm country (a cenote). Not in the ice fields
