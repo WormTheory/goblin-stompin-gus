@@ -1,0 +1,7 @@
+rows backward      plots answered differently 0 of 57600 ok
+columns backward   plots answered differently 0 of 57600 ok
+shuffled           plots answered differently 0 of 57600 ok
+rows forward again plots answered differently 0 ok
+chunks made in two orders  different 0 of 60 ok
+errors 0 []
+all ok

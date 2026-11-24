@@ -698,6 +698,7 @@
 - Making a new world in a browser that won't store anything no longer leaves bits of the old world's coasts, railways and airports behind.
 - A very long journey no longer slowly uses up memory on furniture and shop signs left far behind.
 - Snow lying no longer slows down big collapses.
+- The height of the land no longer depends on which direction you first came at it from. Here and there a patch of ground could come out a block or two higher or lower, which online could leave two players with slightly different hills.
 - A heavily smashed city uses about a fifth of the memory it did for its smashed blocks: two million of them took a third of a gigabyte, and now take about 60 MB.
 
 ## Version 0.4.1
