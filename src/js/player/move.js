@@ -142,7 +142,7 @@ function movePlayer(p,dt){
         sfx('Long jump',()=>{grunt(p,true);thud(0.12);});rumble(p,0.3,120);puff(p.pos.x-hx*1.2,p.pos.y+0.2,p.pos.z-hz*1.2,8,0xb8b2a6,0.6);
         p.blastJ=BL;p.blastAt=null;if(BL)blastOff(p,hx,hz);
       }
-      else if(p.wet&&!p.grounded){const bb=boatBeside(p);p.vy=Math.max(p.vy,bb?Math.sqrt(50*(bb.top-p.pos.y+1)):p.swimTop!=null&&p.pos.y>p.swimTop+SWIM.float-0.5?SWIM.out:4.2);if(bb){p.mvx=(bb.x-p.pos.x)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;p.mvz=(bb.z-p.pos.z)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;}p.hopT=0.1;puff(p.pos.x,p.pos.y+0.5,p.pos.z,4,0xcfe8ff,0.5);}   // swimming: a paddle stroke upward
+      else if(p.wet&&!p.grounded){const bb=boatBeside(p);p.vy=Math.max(p.vy,bb?Math.sqrt(50*(bb.top-p.pos.y+1)):p.swimTop!=null&&p.pos.y>p.swimTop+SWIM.float-0.5?SWIM.out:4.2);if(bb){p.mvx=(bb.x-p.pos.x)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;p.mvz=(bb.z-p.pos.z)/Math.hypot(bb.x-p.pos.x,bb.z-p.pos.z||1)*5;}p.hopT=0.1;swimSpray(p,p.swimTop!=null?p.swimTop+1:p.pos.y+0.5,4);}   // swimming: a paddle stroke upward
       else if(p.grounded||p.coyote>0){hbStart(p,'jump');p.vy=AB.jump.launch;p.grounded=false;p.coyote=0;p.airBiteCD=0;p.hopT=0.12;p.airJumps=airJumpsMax();sfx('Jump',()=>{grunt(p,false);thud(0.08);});}
       else if(p.airJumps>0){
         // double jump: a second kick in mid-air with a full twirl and a puff of air underneath
@@ -552,13 +552,13 @@ function movePlayer(p,dt){
   if(p.spawnSnap){if(g!==null&&chunks.has(ckey(Math.floor(p.pos.x/CS),Math.floor(p.pos.z/CS)))){if(g<p.pos.y)p.pos.y=g;p.spawnSnap=false;}p.vy=0;p.peakY=p.pos.y;}
   // in deep water: you sink slowly, can paddle up with jump, and the water breaks any fall
   const wet=get(Math.floor(p.pos.x),Math.floor(p.pos.y+0.6),Math.floor(p.pos.z))===WATER;
-  if(wet&&!p.wet){puff(p.pos.x,p.pos.y+0.8,p.pos.z,12,0xcfe8ff,1.2);sfx('Splash',()=>{noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);});}
+  if(wet&&!p.wet){swimSpray(p,p.pos.y+0.6,12,1.6,true);sfx('Splash',()=>{noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);});}
   p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();p.airDash=true;}
   // (the top water block over him, so he floats at the surface; climb held dives, as long as there's no wall to cling to)
   if(wet){const x=Math.floor(p.pos.x),z=Math.floor(p.pos.z);let t=Math.floor(p.pos.y+0.6);for(let k=0;k<48&&get(x,t+1,z)===WATER;k++)t++;p.swimTop=t;}else p.swimTop=null;
   p.dive=wet&&p.state==='walk'&&!!p.in.climb;   // (the air dash comes back in the water, but can't be used until he's out of it)
   // (holding jump in the water keeps on paddling upward, a stroke every SWIM_HOLD seconds after the first)
-  if(wet&&ABIL.jump&&p.in.jump&&!p.grounded&&p.state==='walk'){p.swimHoldT=(p.swimHoldT??SWIM_HOLD)-dt;if(p.swimHoldT<=0){p.swimHoldT=SWIM_HOLD;p.vy=Math.max(p.vy,4.2);puff(p.pos.x,p.pos.y+0.5,p.pos.z,4,0xcfe8ff,0.5);}}else p.swimHoldT=SWIM_HOLD;
+  if(wet&&ABIL.jump&&p.in.jump&&!p.grounded&&p.state==='walk'){p.swimHoldT=(p.swimHoldT??SWIM_HOLD)-dt;if(p.swimHoldT<=0){p.swimHoldT=SWIM_HOLD;p.vy=Math.max(p.vy,4.2);swimSpray(p,p.swimTop!=null?p.swimTop+1:p.pos.y+0.5,4);}}else p.swimHoldT=SWIM_HOLD;
   if(g!==null){
     if(DT.fly&&p.state==='walk'&&!wet&&(p.pos.y>g+0.01||p.in.jump)){
       // debug flying: hold jump to rise, climb to sink, let go to hover (no gravity, no fall damage, no air jumps)
@@ -817,7 +817,7 @@ function movePlayer(p,dt){
   {p.spinK=Math.max(0,Math.min(1,(p.spinK||0)+(p.twirl>0.35?dt/0.06:-dt/0.09)));
    if(p.spinK>0){const w=p.spinK*p.spinK*(3-2*p.spinK);p.legs.forEach((l,i)=>{l.rotation.z+=(i%2?1:-1)*(i<2?0.5:0.4)*w;});}}
   // swimming: a doggy-paddle -- the legs churn round in diagonal pairs, the body levels out with the nose tipped up
-  // out of the water, and he bobs gently; strokes kick up a little spray at the surface
+  // out of the water, and he bobs gently; strokes leave a little spray behind at the surface
   p.swimK=Math.max(0,Math.min(1,(p.swimK||0)+(p.wet&&p.state==='walk'?dt/0.25:-dt/0.25)));
   if(p.swimK>0){const k=p.swimK*p.swimK*(3-2*p.swimK);p.swimT=(p.swimT||0)+dt*(moving?7.5:4.2);const ph=p.swimT;
     p.legs.forEach((l,i)=>{const front=i<2,side=i%2?1:-1,o=(i===0||i===3)?0:Math.PI,c=Math.sin(ph+o);
@@ -830,7 +830,7 @@ function movePlayer(p,dt){
     p.tail.rotation.x=p.tail.rotation.x*(1-k)+(0.9+Math.sin(ph*1.5)*0.3)*k;
     if(moving&&p.wet){p.swimFx=(p.swimFx||0)-dt;
       if(p.swimFx<=0){p.swimFx=0.3;const yy=Math.floor(p.pos.y+0.6);let top=yy;while(top<yy+4&&get(Math.floor(p.pos.x),top+1,Math.floor(p.pos.z))===WATER)top++;
-        if(top-yy<3){const hx=Math.sin(p.heading),hz=Math.cos(p.heading);puff(p.pos.x+hx*1.6,top+1,p.pos.z+hz*1.6,3,0xcfe8ff,0.45);}}}
+        if(top-yy<3)swimSpray(p,top+1,3);}}   // (a wake behind, never ahead: in front it was in a goblin's first-person view)
   } else p.swimT=0;
   // hanging from a ceiling: the whole standing pose flipped upside down about the feet, so they grip the ceiling
   if(p.state==='ceil'||(p.state==='piv'&&p.piv.next==='ceil')){p.rig.rotation.z+=Math.PI;p.rig.position.y*=-1;}

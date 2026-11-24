@@ -35,7 +35,16 @@ const PART_M=fxBatch(new THREE.BoxGeometry(0.22,0.22,0.22),new THREE.MeshBasicMa
 PART_M.renderOrder=1.6;
 let pIdx=0;
 function takePart(){for(let k=0;k<parts.length;k++){const p=parts[(pIdx+k)%parts.length];if(p.life<=0){pIdx=(pIdx+k+1)%parts.length;return p;}}const p=parts[pIdx];pIdx=(pIdx+1)%parts.length;return p;}
-function puff(x,y,z,n,color=0x9a948a,spread=1){if(SBX)return;for(let i=0;i<n;i++){const p=takePart();p.kind=0;p.life=0.7+Math.random()*0.5;p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*1.4*spread,y+0.15,z+(Math.random()-.5)*1.4*spread);const a=Math.random()*Math.PI*2,s=(2+Math.random()*3)*spread;p.v.set(Math.cos(a)*s,1.5+Math.random()*2.5,Math.sin(a)*s);p.m.scale.setScalar(1);p.m.visible=true;}}
+function puff(x,y,z,n,color=0x9a948a,spread=1){if(SBX)return;for(let i=0;i<n;i++){const p=takePart();p.kind=0;p.life=0.7+Math.random()*0.5;p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*1.4*spread,y+0.15,z+(Math.random()-.5)*1.4*spread);const a=Math.random()*Math.PI*2,s=(2+Math.random()*3)*spread;p.v.set(Math.cos(a)*s,1.5+Math.random()*2.5,Math.sin(a)*s);p.sz=1;p.m.scale.setScalar(1);p.m.visible=true;}}
+// spray kicked up by a swimmer at height y: small drops sized to their body (a goblin's a good deal smaller than a hippo's),
+// thrown out from behind them and away. A goblin's eyes are its camera, so none of it ever lands in front of a
+// first-person view; ring (falling in) spreads a hippo's all round him, a goblin's still only behind.
+function swimSpray(p,y,n,k=1,ring=false){if(SBX)return;const B=bodyOf(p),s=B.hy/HIPPO_BODY.hy,fx=Math.sin(p.heading),fz=Math.cos(p.heading),all=ring&&!p.gob;
+  for(let i=0;i<n;i++){const q=takePart();q.kind=0;q.life=0.45+Math.random()*0.35;q.sz=0.45*s*k;q.m.material.color.setHex(0xcfe8ff);
+    // (a: the way out, measured from straight behind; f and d its forward and sideways parts)
+    const a=all?Math.random()*Math.PI*2:(Math.random()-.5)*Math.PI*0.8,f=-Math.cos(a),d=Math.sin(a),dx=fx*f+fz*d,dz=fz*f-fx*d;
+    q.m.position.set(p.pos.x+fx*f*B.hz*0.9+fz*d*B.hx*0.9,y+0.05,p.pos.z+fz*f*B.hz*0.9-fx*d*B.hx*0.9);
+    const v=(1+Math.random()*1.6)*s*k;q.v.set(dx*v,(1.2+Math.random()*1.4)*Math.sqrt(s*k),dz*v);q.m.scale.setScalar(q.sz);q.m.visible=true;}}
 function smoke(x,y,z,n,color){for(let i=0;i<n;i++){const p=takePart();p.kind=2;p.life=1.4+Math.random();p.m.material.color.setHex(color);p.m.position.set(x+(Math.random()-.5)*0.6,y,z+(Math.random()-.5)*0.6);p.v.set((Math.random()-.5)*0.8,1.6+Math.random()*1.4,(Math.random()-.5)*0.8);p.m.scale.setScalar(1.5);p.m.visible=true;}}
 // (Options' Hide blood: no spray, no splats on the ground and no pool under a fallen hippo. Each player's own choice,
 // online too: a guest's game makes the blood the host sends through these same functions.)
@@ -44,7 +53,7 @@ function blood(x,y,z,n,dir){if(SBX||BLOOD_OFF)return;for(let i=0;i<n;i++){const 
 function updateParts(dt){const w=windNow();for(const p of parts){if(p.life<=0)continue;p.life-=dt;const m=p.m;
   if(p.kind===1){p.v.y-=20*dt;m.position.addScaledVector(p.v,dt);const g=groundAt(m.position.x,m.position.z,m.position.y);if(m.position.y<=g){if(Math.random()<0.5)splat(m.position.x,m.position.z,g+0.5,0.08+Math.random()*0.2);p.life=0;}m.material.opacity=1;}
   else if(p.kind===2){p.v.multiplyScalar(1-0.9*dt);m.position.addScaledVector(p.v,dt);m.position.x+=w.x*SMOKE_WIND*0.8*dt;m.position.z+=w.z*SMOKE_WIND*0.8*dt;m.scale.setScalar(1.5+(2.4-p.life)*1.3);m.material.opacity=Math.max(0,Math.min(1,p.life))*0.75;}
-  else{p.v.y-=6*dt;p.v.multiplyScalar(1-2*dt);m.position.addScaledVector(p.v,dt);m.material.opacity=Math.max(0,Math.min(1,p.life*1.6));m.scale.setScalar(1+(1-p.life));}
+  else{p.v.y-=6*dt;p.v.multiplyScalar(1-2*dt);m.position.addScaledVector(p.v,dt);m.material.opacity=Math.max(0,Math.min(1,p.life*1.6));m.scale.setScalar((p.sz||1)*(1+(1-p.life)));}
   if(p.life<=0)m.visible=false;}}
 const decals=[];let decalIdx=0,decalsDirty=false;
 for(let i=0;i<160;i++){const m=fxObj([0x5a0a0a,0x6e0d0d,0x4a0606][i%3],1);m.rotation.x=-Math.PI/2;decals.push(m);}

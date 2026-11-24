@@ -258,6 +258,7 @@
 - Hold climb (C, controller LB) to dive, and let go to bob back up. Near a wall it still grabs on and climbs.
 - A stroke at the surface throws you up far enough to climb out on to a one-block ledge.
 - Gnash and Grizzle can now paddle upward with jump in the water, as Gus and Gertie do.
+- Splashes and the wake while swimming are smaller, sized to whoever's swimming, and trail out behind you rather than in front, so they no longer spray across Gnash's and Grizzle's view.
 
 ### Mobile Gear on water
 
