@@ -25,7 +25,7 @@ Hovercraft: driven 4 s into a pool, frames over the water 22  lowest there 0.0  
   got out over the water: hovercraft still at 1.0 over sea level, alive true
 airliner: off the ground after 3.9 s  speed after 12 s more at full throttle 81.3  height 90.1  bank after half a second of A 0.20  dead false
   controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] roll | [KEY:Left Shift]/[KEY:C] throttle | [KEY:Q]/[KEY:E] rudder | [KEY:Space] brakes | [RMB] autopilot on | [KEY:R] gear up | [KEY:F] get out
-fighter jet: off the ground after 1.5 s  speed after 12 s more at full throttle 167.2  height 235.0  bank after half a second of A 2.08  dead false
+fighter jet: off the ground after 1.5 s  speed after 12 s more at full throttle 166.7  height 235.0  bank after half a second of A 2.14  dead false
   controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] roll (twice: barrel roll) | [KEY:Left Shift] throttle (full: afterburner) | [KEY:C] throttle down | [KEY:Q]/[KEY:E] rudder | [KEY:Space] brakes | [LMB] cannon | [RMB] missiles | [KEY:R] hook down
 jet cannon held 1 s: 120 -> 100 rounds
   locked on the tank true  tank 26.0 off

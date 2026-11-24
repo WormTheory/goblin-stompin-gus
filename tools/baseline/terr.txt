@@ -1,0 +1,36 @@
+== seed 1 cfg {}
+tile 6.0 grid points (6912 blocks) across, cells 288 blocks; first tile N ms, 49 tiles N ms (N ms each)
+owners 94c3b5ba; again reversed 94c3b5ba, after clearing 94c3b5ba, warmed bit by bit 94c3b5ba: same
+territories 19 (capitals within 2 tiles): places each min 13 median 36 max 82; with fewer than 2: 0
+every place in its own territory: yes
+capitals in their own territory: 19/19
+names: 67, the same as a place's nearby 0, the same as another territory's 0
+kinds: Tribal Lands 7, Kingdom 7, Principality 7, Commonwealth 5, Republic 5, Horde 4, Nation 4, Empire 4, Federation 4, Chiefdom 4, Duchy 4, Confederacy 3, Grand Duchy 3, Dominion 3, Theocracy 1, Khanate 1, Free State 1
+e.g. Kingdom of Kettlehollow (capital Greater Grotmoor, 51 places); Principality of Mireheath (capital Clodmarsh, 17 places); The Rubblemire Horde (capital Snotworth, 22 places); Dominion of Muckfield (capital Upper Gloomheath, 13 places); Kingdom of Gritwold (capital Greater Gritwick, 53 places); Rustland Confederacy (capital Sludgeville, 15 places)
+world with these settings e14f42bb, with ter 2.2 tvar 0.3 e14f42bb, back e14f42bb: same; territories then ed69c321 (different, as they should be)
+saved cfg {"ter":1.7,"tvar":0.4}; loaded ok cfg {"ter":1.7,"tvar":0.4}: territories 7dded310 -> 7dded310 same (defaults meanwhile 94c3b5ba)
+an old save with no cfg loads with the defaults: yes
+== seed 2 cfg {}
+tile 6.0 grid points (6912 blocks) across, cells 288 blocks; first tile N ms, 49 tiles N ms (N ms each)
+owners f6184ae3; again reversed f6184ae3, after clearing f6184ae3, warmed bit by bit f6184ae3: same
+territories 9 (capitals within 2 tiles): places each min 9 median 36 max 74; with fewer than 2: 0
+every place in its own territory: yes
+capitals in their own territory: 9/9
+names: 40, the same as a place's nearby 0, the same as another territory's 0
+kinds: Nation 5, Horde 5, Republic 5, Duchy 4, Confederacy 4, Kingdom 2, Federation 2, Commonwealth 2, Free State 2, Empire 2, Grand Duchy 2, Khanate 1, Dominion 1, Principality 1, Tribal Lands 1, Chiefdom 1
+e.g. Commonwealth of Muckmire (capital Gulchmoor, 38 places); Free State of Ruststan (capital Dregcombe, 34 places); Duchy of Gloomrealm (capital Trollhollow-on-the-Bog, 70 places); The Cindercombe Horde (capital Toadbury, 33 places); Toadmoor Nation (capital Gorsepool, 36 places); Twigworth Confederacy (capital Scabbottom-on-the-Marsh, 40 places)
+world with these settings d7c1200c, with ter 2.2 tvar 0.3 d7c1200c, back d7c1200c: same; territories then 3254eb66 (different, as they should be)
+saved cfg {"ter":1.7,"tvar":0.4}; loaded ok cfg {"ter":1.7,"tvar":0.4}: territories 561fa2ce -> 561fa2ce same (defaults meanwhile f6184ae3)
+an old save with no cfg loads with the defaults: yes
+== seed 3 cfg {}
+tile 6.0 grid points (6912 blocks) across, cells 288 blocks; first tile N ms, 49 tiles N ms (N ms each)
+owners a78fde93; again reversed a78fde93, after clearing a78fde93, warmed bit by bit a78fde93: same
+territories 21 (capitals within 2 tiles): places each min 3 median 27 max 70; with fewer than 2: 0
+every place in its own territory: yes
+capitals in their own territory: 21/21
+names: 64, the same as a place's nearby 0, the same as another territory's 0
+kinds: Kingdom 10, Principality 8, Republic 8, Khanate 7, Federation 6, Commonwealth 5, Chiefdom 4, Duchy 4, Nation 3, Empire 3, Free State 2, Grand Duchy 1, Theocracy 1, Tribal Lands 1, Confederacy 1
+e.g. Khanate of Slagmire (capital Gloommoor, 29 places); Principality of Gristlestan (capital New Rotfield, 36 places); Kingdom of Hagland (capital Bogden, 54 places); Grand Duchy of Weevilrealm (capital Kettlemoor, 31 places); Khanate of Snagglehollow (capital Bunionstead, 3 places); Grimshire Nation (capital New Cragburg, 22 places)
+world with these settings 53f10b44, with ter 2.2 tvar 0.3 53f10b44, back 53f10b44: same; territories then 18eea86e (different, as they should be)
+saved cfg {"ter":1.7,"tvar":0.4}; loaded ok cfg {"ter":1.7,"tvar":0.4}: territories f5576ea4 -> f5576ea4 same (defaults meanwhile a78fde93)
+an old save with no cfg loads with the defaults: yes

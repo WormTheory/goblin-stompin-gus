@@ -1,22 +1,22 @@
+Gus     truck    traffic   on it 25.6s destroyed by damageCar<hurt<carsCollide,damageCar<explodeCar0<eval after 25.6s (hp -2/30)
+Gus     van      traffic   on it 40.0s still there
+Gus     truck    traffic   on it 40.0s still there
 Gus     car      traffic   on it 40.0s still there
-Gus     car      traffic   on it 40.0s still there
-Gus     bike     traffic   on it 17.7s destroyed by damageCar<hurt<carsCollide,damageCar<explodeCar0<eval after 17.7s (hp 0/30)
-Gus     car      traffic   on it 40.0s still there
-Gus     car      traffic   on it 4.4s destroyed by damageCar<explodeCar0<eval,damageCar<hurt<carsCollide after 4.4s (hp 0/30)
-Gus     car      traffic   on it 40.0s still there
-Gus     car      traffic   on it 40.0s still there
-Gus     car      traffic   on it 40.0s still there
+Gus     van      traffic   on it 35.9s destroyed by damageCar<hurt<carsCollide,damageCar<explodeCar0<eval after 35.9s (hp -8/30)
+Gus     car      traffic   on it 39.0s still there
+Gus     pickup   traffic   on it 40.0s still there
+Gus     car      traffic   on it 17.1s destroyed by damageCar<hurt<carsCollide,damageCar<explodeCar0<eval after 17.2s (hp -3/30)
   the semi kept
-Gus stuck car stood on, camera away: kept 3 of 3
-Gus recycled from under him 0 destroyed 2 of 8
+Gus stuck car stood on, camera away: kept 4 of 4
+Gus recycled from under him 0 destroyed 3 of 8
+Gertie  bicycle  traffic   on it 39.8s still there
+Gertie  car      traffic   on it 22.6s destroyed by damageCar<hurt<carsCollide,damageCar<explodeCar0<eval after 22.6s (hp 0/30)
 Gertie  car      traffic   on it 40.0s still there
-Gertie  bike     traffic   on it 39.0s still there
-Gertie  car      traffic   on it 40.0s still there
-Gertie  car      traffic   on it 40.0s still there
-Gertie  car      traffic   on it 40.0s still there
-Gertie  car      traffic   on it 40.0s still there
-Gertie  bike     traffic   on it 40.0s still there
-Gertie  pickup   traffic   on it 40.0s still there
+Gertie  pickup   traffic   on it 7.3s destroyed by damageCar<hurt<carsCollide,damageCar<explodeCar0<eval after 7.3s (hp -4/30)
+Gertie  van      traffic   on it 40.0s still there
+Gertie  car      traffic   on it 23.7s destroyed by damageCar<hurt<carsCollide after 23.7s (hp -2/19)
+Gertie  truck    traffic   on it 40.0s still there
+Gertie  super    traffic   on it 30.8s destroyed by damageCar<hurt<carsCollide,damageCar<explodeCar0<eval after 30.9s (hp -2/25)
   the semi kept
-Gertie stuck car stood on, camera away: kept 3 of 3
-Gertie recycled from under him 0 destroyed 0 of 8
+Gertie stuck car stood on, camera away: kept 4 of 4
+Gertie recycled from under him 0 destroyed 4 of 8

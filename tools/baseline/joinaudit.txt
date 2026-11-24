@@ -1,6 +1,6 @@
 world seed 266144506
-ground highway ends 748 not joined to streets 0 []
-routes 415 length 411199 problem stretches {"blocked":4,"noRoad":1}
+ground highway ends 764 not joined to streets 0 []
+routes 415 length 429460 problem stretches {"blocked":4,"noRoad":1}
 by block {"blocked CONCRETE":4,"noRoad AIR":1}
   {"k":"blocked","R":51,"s":29,"x":-35,"y":45,"z":4543,"b":"CONCRETE","n":2}
   {"k":"blocked","R":53,"s":29,"x":-35,"y":45,"z":4543,"b":"CONCRETE","n":2}

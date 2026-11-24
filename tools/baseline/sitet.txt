@@ -79,6 +79,12 @@ capture prepper | at -38,52 | plots 2x2 | face 3 | size 50x51x50 from y 5 | prop
 capture militia | at -22,4 | plots 2x2 | face -1 | size 50x53x50 from y 3 | props 40 | people 4 | cars 0 | text 58k | check ok | round trip same | N ms
 capture ruins | at 28,-8 | plots 2x2 | face -1 | size 50x50x50 from y 3 | props 18 | people 0 | cars 0 | text 64k | check ok | round trip same | N ms
 capture thieves | at -33,-13 | plots 1x1 | face 2 | size 18x50x18 from y 3 | props 10 | people 2 | cars 1 | text 8k | check ok | round trip same | N ms
+capture derricks | none: There is none of these near enough in this world | N ms
+capture peat | none: There is none of these near enough in this world | N ms
+capture research | none: There is none of these near enough in this world | N ms
+capture safari | at 118,124 | plots 2x2 | face 3 | size 50x54x50 from y 4 | props 8 | people 0 | cars 0 | text 62k | check ok | round trip same | N ms
+capture stilts | none: There is none of these near enough in this world | N ms
+capture ski | none: There is none of these near enough in this world | N ms
 capture wind | at -1,13 | plots 3x3 | face -1 | size 82x85x82 from y 3 | props 2 | people 0 | cars 1 | text 167k | check ok | round trip same | N ms
 capture airport | at -54,122 | plots 16x8 | face -1 | size 498x76x242 from y 3 | props 1500 | people 6 | cars 0 | text 2993k | check ok | round trip same | N ms
 capture airfield | at -12,20 | plots 4x2 | face -1 | size 114x53x50 from y 3 | props 24 | people 0 | cars 0 | text 141k | check ok | round trip same | N ms
@@ -100,7 +106,7 @@ capture sewers | at 0,0 | plots 1x1 | face 2 | size 18x33x18 from y 41 | props 1
 capture subway | at 1,-5 | plots 1x1 | face -1 | size 18x26x18 from y 23 | props 0 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
 capture caves | at -14,12 | plots 3x3 | face -1 | size 82x51x82 from y 4 | props 0 | people 0 | cars 0 | text 169k | check ok | round trip same | N ms
 capture metro | at 1,-5 | plots 1x1 | face -1 | size 18x26x18 from y 23 | props 0 | people 0 | cars 0 | text 8k | check ok | round trip same | N ms
-kinds 102 | captured 98 | none near aquarium,stadium,bigpark,navy
+kinds 108 | captured 99 | none near aquarium,stadium,bigpark,derricks,peat,research,stilts,ski,navy
 on police #0 at -2,-8 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
 on police #1 at -10,-10 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3
 on police #2 at 10,-22 | face 0 turns 0 | blocks unlike the file 0 of 82500 | marker at 2,4,3 expected 2,4,3

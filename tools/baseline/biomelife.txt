@@ -26,25 +26,25 @@ town in ice        Grotwick               small    houses 21 walls {"SIDING":6,"
 wear in grassland  apron 6, backpack 12, bandana 8, beanie 8, cap 17, earring 14, glasses 22, hardhat 7, hat:bandana 8, hat:beanie 8, hat:cap 17, hat:hardhat 7, hat:none 10, hat:top 10, monocle 8, pouch 18, scarf 13, tie 17, top 10, tuft 13
 wear in taiga      apron 3, backpack 7, bandana 3, beanie 1, cap 2, earring 17, glasses 24, hardhat 3, hat:bandana 3, hat:beanie 1, hat:cap 2, hat:hardhat 3, hat:hood 41, hat:none 6, hat:top 4, hood 41, monocle 10, parka 41, pouch 13, scarf 4, tie 5, top 4, tuft 15
 wear in savanna    apron 10, backpack 5, bandana 3, beanie 3, cap 6, earring 9, glasses 19, hardhat 2, hat:bandana 3, hat:beanie 3, hat:cap 6, hat:hardhat 2, hat:none 3, hat:safari 39, hat:top 4, monocle 9, pouch 14, safari 39, scarf 9, tie 12, top 4, tuft 13
-wear in moor       apron 9, backpack 8, bandana 1, beanie 5, cap 50, earring 19, glasses 22, hardhat 3, hat:bandana 1, hat:beanie 5, hat:cap 50, hat:hardhat 3, hat:none 1, monocle 7, pouch 17, scarf 51, tie 11, tuft 11
-wear in forest     apron 8, backpack 6, bandana 8, beanie 7, cap 11, earring 16, glasses 28, hardhat 6, hat:bandana 8, hat:beanie 7, hat:cap 11, hat:hardhat 6, hat:none 15, hat:top 13, monocle 7, pouch 15, scarf 8, tie 14, top 13, tuft 9
+wear in forest     apron 9, backpack 8, bandana 7, beanie 11, cap 15, earring 19, glasses 22, hardhat 6, hat:bandana 7, hat:beanie 11, hat:cap 15, hat:hardhat 6, hat:none 13, hat:safari 1, hat:top 7, monocle 7, pouch 17, safari 1, scarf 15, tie 11, top 7, tuft 11
+wear in moor       apron 8, backpack 6, bandana 4, beanie 2, cap 40, earring 16, glasses 28, hardhat 2, hat:bandana 4, hat:beanie 2, hat:cap 40, hat:hardhat 2, hat:none 6, hat:top 6, monocle 7, pouch 15, scarf 39, tie 14, top 6, tuft 9
 wear in scrub      apron 8, backpack 6, bandana 11, beanie 7, cap 13, earring 19, glasses 16, hardhat 5, hat:bandana 11, hat:beanie 7, hat:cap 13, hat:hardhat 5, hat:none 15, hat:top 9, monocle 7, pouch 15, scarf 20, tie 10, top 9, tuft 11
 wear in rainforest apron 9, backpack 10, bandana 11, beanie 9, cap 14, earring 12, glasses 18, hardhat 7, hat:bandana 11, hat:beanie 9, hat:cap 14, hat:hardhat 7, hat:none 16, hat:top 3, monocle 9, pouch 15, scarf 9, tie 10, top 3, tuft 13
 wear in desert     apron 2, backpack 15, bandana 3, beanie 3, cap 4, earring 16, glasses 22, hardhat 2, hat:bandana 3, hat:beanie 3, hat:cap 4, hat:hardhat 2, hat:none 2, hat:top 3, hat:wrap 43, monocle 10, pouch 20, robe 21, scarf 1, tie 3, top 3, tuft 16, wrap 43
-wear in swamp      apron 4, backpack 10, bandana 5, beanie 1, cap 3, earring 20, glasses 18, hardhat 2, hat:bandana 5, hat:beanie 1, hat:cap 3, hat:hardhat 2, hat:none 5, hat:reedhat 41, hat:top 3, monocle 10, pouch 16, reedhat 41, scarf 18, tie 9, top 3, tuft 17
+wear in swamp      apron 4, backpack 10, bandana 2, beanie 3, cap 5, earring 20, glasses 18, hardhat 3, hat:bandana 2, hat:beanie 3, hat:cap 5, hat:hardhat 3, hat:none 5, hat:reedhat 40, hat:top 2, monocle 10, pouch 16, reedhat 40, scarf 18, tie 9, top 2, tuft 17
 wear in badlands   apron 2, backpack 11, bandana 3, beanie 6, cap 3, earring 10, glasses 21, hardhat 4, hat:bandana 3, hat:beanie 6, hat:cap 3, hat:hardhat 4, hat:none 3, hat:top 2, hat:wrap 39, monocle 11, pouch 21, robe 25, scarf 4, tie 7, top 2, tuft 12, wrap 39
-wear in tundra     apron 3, backpack 9, bandana 7, beanie 4, cap 4, earring 17, glasses 15, hardhat 2, hat:bandana 7, hat:beanie 4, hat:cap 4, hat:hardhat 2, hat:hood 38, hat:none 3, hat:top 2, hood 38, monocle 13, parka 38, pouch 17, scarf 5, tie 3, top 2, tuft 15
+wear in tundra     apron 6, backpack 9, bandana 9, beanie 9, cap 11, earring 17, glasses 15, hardhat 4, hat:bandana 9, hat:beanie 9, hat:cap 11, hat:hardhat 4, hat:hood 10, hat:none 10, hat:top 7, hood 10, monocle 13, parka 10, pouch 17, scarf 10, tie 10, top 7, tuft 15
 wear in ice        apron 4, backpack 8, bandana 3, beanie 6, cap 7, earring 13, glasses 20, hat:bandana 3, hat:beanie 6, hat:cap 7, hat:hood 37, hat:none 6, hat:top 1, hood 37, monocle 10, parka 37, pouch 18, scarf 3, tie 7, top 1, tuft 22
 banner, out in the open in desert : after 1s:  [hidden] | after 3.5s: Desert [shown]
 banner, into a place there: Gristlecrossing Village · Desert [shown]
 banner, out in the open in taiga : after 1s: Gristlecrossing Village · Desert [shown] | after 3.5s: Taiga [shown]
 banner, into a place there: Kettlemouth Village · Taiga [shown]
-sites within 260 plots (anchors): {"cult":214,"lumber":51,"campsite":126,"airfield":90,"militia":92,"mine":135,"base":60,"nuclear":30,"tower5g":320,"ruins":152,"quarry":46,"thieves":179,"prepper":104,"nasa":57,"airport":7,"safari":87,"derricks":26,"peat":12,"ski":13,"stilts":3}
-site derricks  at 183 -165 biome desert     label 🛢️ Oil field | buildings 1 props 8 cars 0 | blocks (every 2nd column) 2:2304 154:2304 6:1941 81:426 39:188 135:182 18:178 16:144
+sites within 260 plots (anchors): {"cult":178,"lumber":44,"campsite":103,"airfield":79,"militia":77,"mine":119,"base":50,"nuclear":20,"tower5g":250,"ruins":127,"quarry":40,"thieves":140,"prepper":82,"nasa":50,"airport":3,"safari":55,"derricks":27,"peat":6,"ski":19,"stilts":3}
+site derricks  at 174 -159 biome desert     label 🛢️ Oil field | buildings 1 props 8 cars 0 | blocks (every 2nd column) 2:2304 154:2304 6:1941 81:426 39:188 135:182 18:178 16:144
 site peat      at -194 132 biome moor       label 🪣 Peat diggings | buildings 1 props 5 cars 0 | blocks (every 2nd column) 158:2033 1:614 7:106 39:98 10:75 2:45 49:35 4:18
 site research  at -374 346 biome ice        label 🔬 Research station | buildings 2 props 7 cars 0 | blocks (every 2nd column) 153:1833 2:1024 22:112 23:110 40:110 81:69 77:57 18:47
-site safari    at 118 124 biome grassland  label 🦒 Safari lodge | buildings 1 props 12 cars 0 | blocks (every 2nd column) 2:2104 1:803 7:325 5:87 49:76 4:57 9:50 158:45
+site safari    at 118 124 biome grassland  label 🦒 Safari lodge | buildings 1 props 12 cars 0 | blocks (every 2nd column) 2:2104 1:803 7:325 5:86 49:76 4:58 9:50 158:45
 site stilts    at -232 56 biome swamp      label 🛖 Stilt village | buildings 0 props 15 cars 0 | blocks (every 2nd column) 158:2347 9:698 7:195 161:108 49:100 5:43 4:32 8:5
 site ski       at -207 144 biome moor       label ⛷️ Ski slope | buildings 1 props 8 cars 8 | blocks (every 2nd column) 3:30597 2:3072 153:2759 7:219 18:192 4:177 12:167 49:144
-farm plots 262 of them in the ice fields 0
+farm plots 210 of them in the ice fields 0
 errors 0 

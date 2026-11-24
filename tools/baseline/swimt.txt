@@ -1,5 +1,8 @@
 sea: top water block 0 from G, depth 13
+Gus    spray: most at once 12 | furthest ahead of him falling in 2.17 (a hippo all round, a goblin below 0) swimming -0.37 (below 0) | biggest drop 0.158 blocks
 Gus    floats at 0.20 (wet true) bob 0.001 | 2.5s diving: down 7.8 wet true | back up in 3.4s | stroke rises 1.26
+Gertie spray: most at once 12 | furthest ahead of him falling in 1.60 (a hippo all round, a goblin below 0) swimming -0.41 (below 0) | biggest drop 0.158 blocks
 Gertie floats at 0.20 (wet true) bob 0.001 | 2.5s diving: down 7.8 wet true | back up in 3.4s | stroke rises 1.26
+Gnash  spray: most at once 18 | furthest ahead of him falling in -0.17 (a hippo all round, a goblin below 0) swimming -0.12 (below 0) | biggest drop 0.120 blocks
 Gnash  floats at 0.20 (wet true) bob 0.001 | 2.5s diving: down 7.8 wet true | back up in 3.4s | stroke rises 1.26
 done

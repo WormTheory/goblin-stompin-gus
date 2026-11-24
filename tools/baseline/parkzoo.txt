@@ -15,12 +15,12 @@ venue dropped away true
 back: animals 42 of 48; killed on record 6 alive now 42
 park -180 113 surveyed true coaster true wheel true carousel true
 park 189 177 surveyed true coaster true wheel true carousel true
-park 221 -25 surveyed true coaster true wheel true carousel true
+park 169 190 surveyed true coaster true wheel true carousel true
 park 221 -6 surveyed true coaster true wheel true carousel true
-park -175 247 surveyed true coaster true wheel true carousel true
+park 227 4 surveyed true coaster true wheel true carousel true
 park 287 47 surveyed true coaster true wheel true carousel true
-park -205 299 surveyed true coaster true wheel true carousel true
-park -210 319 surveyed true coaster true wheel true carousel true
+park 203 361 surveyed true coaster true wheel true carousel true
+park 413 155 surveyed true coaster true wheel true carousel true
 theme park at -180 113 w 8
 venue true rides true
 untouched: circuit points with no track 0 of 720
@@ -38,8 +38,8 @@ carousel gone after 8 charged stomps, score 300 on record true
 gondola gone after 6 bites, drawn false
 after the carousel and a gondola: health bars 12 (11 full, 1 hurt)
 hole in the track: there still false
-derailed true after 1.6s cars flying 3 down after 0.7s all dead true score 500
-legs cut on one side: came down true after 0.6s lying at 1.5 tipped 1.57 score 1000 hits left false
+derailed true after 1.6s cars flying 3 down after 0.8s all dead true score 500
+legs cut on one side: came down true after 1.0s lying at 1.5 tipped 1.57 score 1000 hits left false
 A-frame blocks still standing 0
 venue dropped away true
 back: wheel down true carousel down true coaster off true cars drawn 0 wheel height 1.5

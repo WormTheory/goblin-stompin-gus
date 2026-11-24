@@ -1,4 +1,4 @@
-lamps near 356 props near 245
+lamps near 358 props near 245
 knockAt                     down   (knocked 1)
 knockAt on a roof           STANDING   (knocked 0)
 pvpArea (stomp, club...)    down   (knocked 1)

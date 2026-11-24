@@ -1,15 +1,15 @@
 in the list: light row pedalo speed launch sail fish tug ferry cargo navy
 two-seater: Spawned 1 two-seater plane. light true hp 120
   got in plane   name two-seater   moved 39.2 in 4 s
-row: Spawned 1 rowboat  afloat at -0.4  got in boat  moved 0.0 in 4 s
-pedalo: Spawned 1 pedal boat  afloat at -0.1  got in boat  moved 13.5 in 4 s
-speed: Spawned 1 speedboat  afloat at -0.2  got in boat  moved 4.8 in 4 s
-launch: Spawned 1 launch  afloat at -0.2  got in boat  moved 29.4 in 4 s
+row: Spawned 1 rowboat  afloat at -0.1  got in boat  moved 0.0 in 4 s
+pedalo: Spawned 1 pedal boat  afloat at 0.0  got in boat  moved 13.5 in 4 s
+speed: Spawned 1 speedboat  afloat at -0.1  got in boat  moved 4.8 in 4 s
+launch: Spawned 1 launch  afloat at -0.0  got in boat  moved 29.4 in 4 s
 sail: Spawned 1 sailboat  afloat at -0.0  got in boat  moved 18.3 in 4 s
-fish: Spawned 1 fishing boat  afloat at -0.1  got in boat  moved 13.2 in 4 s
-tug: Spawned 1 tug  afloat at -0.1  got in boat  moved 16.2 in 4 s
+fish: Spawned 1 fishing boat  afloat at -0.0  got in boat  moved 13.2 in 4 s
+tug: Spawned 1 tug  afloat at -0.0  got in boat  moved 16.2 in 4 s
 ferry: Spawned 1 ferry  afloat at -0.1  got in boat  moved 17.0 in 4 s
-cargo: Spawned 1 container ship  afloat at -0.2  got in boat  moved 13.0 in 4 s
+cargo: Spawned 1 container ship  afloat at -0.1  got in boat  moved 13.0 in 4 s
 navy: Spawned 1 warship  afloat at -0.1  got in boat  moved 16.8 in 4 s
 dropdown entries 41   cargo at 37
 after Clear, spawned boats left: 0

@@ -1,5 +1,5 @@
-chunks 81 all: off N ms on N ms  +0.58
-densest 8 (emitters in 3x3: 7334,6078,6054,5886,5812,5698,5347,5185): off N ms on N ms  +1.04
+chunks 81 all: off N ms on N ms  +0.94
+densest 8 (emitters in 3x3: 7334,6078,6054,5886,5812,5698,5347,5185): off N ms on N ms  +2.11
 same geometry 81/81 lit corners 71.5% chunks with no light 0
 rebuilds queued by a lamp block 9
 fill alone (densest) N ms

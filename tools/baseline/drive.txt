@@ -32,7 +32,7 @@ train: in train  car 1
   braked, reversed, W 3 s: speed -1.6 (the other way now)
   F again: on foot  train speed 0.0  waits 3.9
 boat (launch): in boat
-  W 4 s: moved 29.4  speed 13.8  afloat at 1.2
+  W 4 s: moved 29.4  speed 13.8  afloat at 1.3
   W+A 2 s: turned 2.3
   F again: on foot  in the water beside it 2.4  y -0.8
   3 s on: it stays put (off its route) 0.0
@@ -49,7 +49,7 @@ tank: in tank  base alerted false
   A 1.5 s: turned on the spot 1.2  moved 13.0
   turret follows the view: off by 0.0
   display: shown true  crosshair true  gun marker false  says Tank  ·  160 / 160 | [KEY:W]/[KEY:S] tracks  ·  [KEY:A]/[KEY:D] turn (pivots when still)  ·  [KEY:Left Shift] cruise off  ·  [LMB] fire  ·  [RMB] gunsight (hold)  ·  [KEY:R] AP shells  ·  [KEY:C] hull lock  ·  [KEY:Q] lock on  ·  [KEY:F] get out  ·  [KEY:X] man the gun
-  shell, aimed at the ground ahead: marker to crosshair point 1.0, marker to where it went off 0.1
+  shell, aimed at the ground ahead: marker to crosshair point 1.0, marker to where it went off 2.4
   shell, aimed high up (more than the gun can lift): marker to crosshair point 41.3, the shell never comes down on anything (marker faint, where it passes as far off as the crosshair point)
   bite: shells in the air 1  crosshair dim while reloading false
   shell at the ground: blocks blown out 14
@@ -59,12 +59,12 @@ tank: in tank  base alerted false
   5 s on: Shells 4/4
   a shell bursting on another tank: its hp 160 -> 100
   Q looking at another tank: locked on it true  crosshair red false  says [KEY:W]/[KEY:S] tracks  ·  [KEY:A]/[KEY:D] turn (pivots when still)  ·  [KEY:Left Shift] cruise off  ·  [LMB] fire  ·  [RMB] gunsight (hold)  ·  [KEY:R] AP shells  ·  [KEY:C] hull lock  ·  Locked on tank ([KEY:Q] let go)  ·  [KEY:F] get out  ·  [KEY:X] man the gun
-  looking well away: turret off the target by 0.0  bite: its hp 100 -> 40
+  looking well away: turret off the target by 0.0  bite: its hp 100 -> 40.004517236988576
   Q again: locked false
-  driven into a brick wall 5 high: went on 14.0  speed 5.8  wall blocks knocked out 34 of 90
+  driven into a brick wall 5 high: went on 14.0  speed 5.8  wall blocks knocked out 33 of 90
   bite with nothing loaded: clicks true
   F again: on foot  tank idle  me beside it 2.5
-  on foot, Q facing a tank: locked on the tank  its hp 40
+  on foot, Q facing a tank: locked on the tank  its hp 40.004517236988576
   3 s on: tank stays 0.0
 helicopter: in heli
   no one at the controls
@@ -79,10 +79,10 @@ helicopter: in heli
   3 s on: Gun 40/40, Rockets 4/4
   rocket marker to where it went off: 0.1  display: marker shown false
   F again 24.0 up: on foot  heli idle  me falling yes
-helicopter flown into a wall at speed: wrecked true  blocks blown out 263  me thrown clear on foot  hp 20
+helicopter flown into a wall at speed: wrecked true  blocks blown out 261  me thrown clear on foot  hp 20
 a stopped helicopter (wrecked), ground under it dug out 6 deep: dropped 6.0  hp -40 -> -40.0
 first helicopter, 8 s on: height 0.0  rotor 0.0  me on the ground true  hp 20
-airport -5 3 mirrored true  pilots shown in the moving airliners true,true  in the parked ones false
+airport -8 1 mirrored true  pilots shown in the moving airliners true,true  in the parked ones false
 airliner on the keyboard: (thr+ Shift, thr- C, up S, down W, right D)
   in plane  this one true
   Shift 1.5 s: throttle 68%, rolling at 8.1  moved 3.7  height 0.0
@@ -93,9 +93,9 @@ airliner on the keyboard: (thr+ Shift, thr- C, up S, down W, right D)
   let go 2 s: bank -0.0
   W (nose down) 0.6 s: nose -0.1  came down 11.6  speed 80.6 -> 82.7
   throttle shut (C), S held: throttle 10%, stalls true after 2.5 s at 22.5  display says true  nose drops 1.3 -> 1.5
-  throttle up, let go: speed 62.2  climb rate 5.2  wrecked false
+  throttle up, let go: speed 62.3  climb rate 5.2  wrecked false
   F again: on foot  falling true
-  left to itself: down after 32.0 s, wrecked true  height 0.0  speed 26.7  air false  me on the ground true  crater blocks 214
+  left to itself: down after 32.0 s, wrecked true  height 0.0  speed 26.7  air true  me on the ground true  crater blocks 217
 airliner on a controller: (thr+ RT, thr- LT, up stick back, down stick forward, right stick right)
   in plane  this one true
   RT 1.5 s: throttle 68%, rolling at 8.1  moved 3.7  height 0.0
@@ -106,10 +106,10 @@ airliner on a controller: (thr+ RT, thr- LT, up stick back, down stick forward, 
   let go 2 s: bank -0.0
   stick forward (nose down) 0.6 s: nose -0.1  came down 11.6  speed 80.6 -> 82.7
   throttle shut (LT), stick back held: throttle 10%, stalls true after 2.5 s at 22.5  display says true  nose drops 1.3 -> 1.5
-  throttle up, let go: speed 62.2  climb rate 5.2  wrecked false
+  throttle up, let go: speed 62.3  climb rate 5.2  wrecked false
   F again: on foot  falling true
-  left to itself: down after 32.0 s, wrecked true  height 0.0  speed 26.7  air true  me on the ground true  crater blocks 405
-airfield 41 11  its planes 3  pilot shown in the one going round true
+  left to itself: down after 32.0 s, wrecked true  height 0.0  speed 26.7  air true  me on the ground true  crater blocks 394
+airfield 38 9  its planes 3  pilot shown in the one going round true
 two-seater on the keyboard: (thr+ Shift, thr- C, up S, down W, right D)
   in plane  this one true
   Shift 1.5 s: throttle 90%, rolling at 4.8  moved 2.0  height 0.0
@@ -120,7 +120,7 @@ two-seater on the keyboard: (thr+ Shift, thr- C, up S, down W, right D)
   let go 2 s: bank -0.0
   W (nose down) 0.6 s: nose -0.2  came down 15.1  speed 46.0 -> 46.0
   throttle shut (C), S held: throttle 0%, stalls true after 1.5 s at 8.6  display says true  nose drops 1.5 -> 0.9
-  throttle up, let go: speed 45.6  climb rate 6.2  wrecked false
+  throttle up, let go: speed 45.8  climb rate 6.3  wrecked false
   F again: on foot  falling true
   left to itself: down after 16.0 s, wrecked true  height 0.0  speed 25.9  air false  me on the ground true  crater blocks 219
 errors 0 []

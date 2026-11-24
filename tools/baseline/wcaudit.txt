@@ -1,6 +1,6 @@
 BATHROOM DOORS 2105 with a problem 3
     2 of 192 tower/normal/lobby no door block (0) -112,45,23
-    1 of 1 zoo/house/shop no door block (0) 464,45,-753
+    1 of 1 zoo/house/shop no door block (2) 464,45,-753
 LARGEST SHARE OF THE GROUND FLOOR
   20% zoo/house/shop/shop rooms per building 1.0
   19% farm/house/apartment/apartment rooms per building 1.0
@@ -19,7 +19,7 @@ LARGEST SHARE OF THE GROUND FLOOR
   13% shops/normal/bar/apartment rooms per building 1.0
   13% food/normal/cafe/apartment rooms per building 1.0
 NONE ON THE GROUND FLOOR
-  477 of   477 farm/house/barn/barn e.g. 6x10
+  475 of   475 farm/house/barn/barn e.g. 6x10
   454 of  2702 homes/house/apartment/apartment e.g. 16x12
   148 of   148 build/site/office/office e.g. 10x10
   146 of   146 fire/normal/firehall/apartment e.g. 13x13
@@ -27,8 +27,8 @@ NONE ON THE GROUND FLOOR
   125 of   125 church/church/church/church e.g. 11x15
    93 of    93 mansion/house/apartment/apartment e.g. 16x11
    90 of    90 trailers/normal/apartment/apartment e.g. 4x8
-   70 of    70 thieves/house/shop/shop e.g. 8x7
-   70 of    70 thieves/normal/shop/shop e.g. 6x5
+   69 of    69 thieves/house/shop/shop e.g. 8x7
+   69 of    69 thieves/normal/shop/shop e.g. 6x5
    46 of    46 mine/normal/shop/shop e.g. 10x12
    44 of    44 lumber/house/apartment/apartment e.g. 8x7
    42 of    42 campsite/house/office/office e.g. 6x7

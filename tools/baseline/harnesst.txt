@@ -1,0 +1,8 @@
+reads a function and a value ok
+sets a name ok
+two seconds of frames, chunks made ok
+colKey tells columns 65,536 apart from each other ok
+the edge of the world stops a player ok
+a frame that throws still leaves the game running ok
+errors 0 []
+all ok

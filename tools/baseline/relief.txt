@@ -1,8 +1,8 @@
-spot -49500,-57300: tallest 46; road 871 rail 0 covered 440 (highest 27); low headroom road 0 rail 0; hanging 0; water above G 0
-spot -48000,-45900: tallest 43; road 786 rail 0 covered 189 (highest 24); low headroom road 0 rail 0; hanging 0; water above G 0
-spot -47100,-43500: tallest 28; road 784 rail 336 covered 751 (highest 27); low headroom road 0 rail 0; hanging 0; water above G 0
-spot -46800,-44400: tallest 37; road 0 rail 0 covered 0 (highest 0); low headroom road 0 rail 0; hanging 0; water above G 0
-spot -46200,-42000: tallest 55; road 625 rail 0 covered 558 (highest 50); low headroom road 0 rail 0; hanging 0; water above G 0
-spot -17600,24000: tallest 39; road 0 rail 0 covered 0 (highest 0); low headroom road 0 rail 0; hanging 0; water above G 0
-spot -25200,-42400: tallest 41; road 814 rail 0 covered 720 (highest 28); low headroom road 0 rail 0; hanging 0; water above G 0
+spot -49500,-57300: tallest 46; road 871 rail 0 covered 439 (highest 27); low headroom road 0 rail 0; hanging 0; water above G 0
+spot -48000,-45900: tallest 43; road 786 rail 0 covered 0 (highest 0); low headroom road 0 rail 0; hanging 0; water above G 0
+spot -47100,-43500: tallest 50; road 784 rail 336 covered 1120 (highest 46); low headroom road 0 rail 0; hanging 0; water above G 0
+spot -46800,-44400: tallest 42; road 0 rail 0 covered 0 (highest 0); low headroom road 0 rail 0; hanging 0; water above G 0
+spot -46200,-42000: tallest 54; road 625 rail 0 covered 625 (highest 48); low headroom road 0 rail 0; hanging 0; water above G 0
+spot -17600,24000: tallest 59; road 0 rail 0 covered 0 (highest 0); low headroom road 0 rail 0; hanging 0; water above G 0
+spot -25200,-42400: tallest 61; road 814 rail 0 covered 504 (highest 21); low headroom road 0 rail 0; hanging 0; water above G 0
 spot 1200,-1600: tallest 10; road 0 rail 0 covered 0 (highest 0); low headroom road 0 rail 0; hanging 0; water above G 0

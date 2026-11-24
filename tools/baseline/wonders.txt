@@ -1,21 +1,21 @@
 landmark ribs     at 9811 -6958 in desert ground 8 | top above it 9 | blocks {MOSSSTONE:8,STONE:6,PAINT_WHITE:565} | label 🦴 Giant's ribs
 landmark tree     at -6849 15685 in forest ground 5 | top above it 40 | blocks {GRASS:1157,LEAVES:11269,LOG:1617,MOSSSTONE:15,STONE:7} | label 🌳 Great tree
-landmark baobab   at -24749 16440 in savanna ground 16 | top above it 19 | blocks {LEAVES:1879,LOG:653,MOSSSTONE:14,GRASS:115,STONE:54} | label 🌳 Great baobab
-landmark erratic  at -14959 5284 in ice ground 6 | top above it 10 | blocks {STONE:984,MOSSSTONE:326,SNOW:574} | label 🪨 Wandering stone
+landmark baobab   at 1285 7503 in savanna ground 7 | top above it 19 | blocks {GRASS:1362,LEAVES:1336,STONE:196,MOSSSTONE:86,LOG:567} | label 🌳 Great baobab
+landmark erratic  at -14778 3108 in tundra ground 16 | top above it 9 | blocks {LEAVES:21,MOSSSTONE:312,STONE:883,GRASS:303,LOG:14,SNOW:26} | label 🪨 Wandering stone
 landmark henge    at -3209 2910 in grassland ground 2 | top above it 2 | blocks {GRASS:1574,LEAVES:289,LOG:22,MOSSSTONE:46,STONE:356} | label 🗿 Standing stones
 arch at 5339 -4355 in scrub half-span 8 height 12 | under the middle: open 8 then rock 4 | a leg STONE
+arch at 6281 -3311 in scrub half-span 9 height 14 | under the middle: open 10 then rock 4 | a leg STONE
 arch at 6469 -3589 in scrub half-span 13 height 14 | under the middle: open 10 then rock 4 | a leg STONE
-arch at 7122 -6011 in desert half-span 12 height 12 | under the middle: open 8 then rock 4 | a leg SANDSTONE
-waterfall at 4782 -3824 drop 15 (from 15 to 0) | water down the face 79 | in the pool at its foot 6 | label 💧 Waterfall
-waterfall at 5317 -4976 drop 10 (from 10 to 0) | water down the face 40 | in the pool at its foot 5 | label 💧 Waterfall
-waterfall at 5230 -3792 drop 13 (from 13 to 0) | water down the face 61 | in the pool at its foot 6 | label 💧 Waterfall
+waterfall at 4782 -3824 drop 12 (from 12 to 0) | water down the face 61 | in the pool at its foot 6 | label 💧 Waterfall
+waterfall at 5456 -4817 drop 10 (from 10 to 0) | water down the face 55 | in the pool at its foot 5 | label 💧 Waterfall
+waterfall at 5344 -3954 drop 10 (from 10 to 0) | water down the face 50 | in the pool at its foot 6 | label 💧 Waterfall
 sea stack at 3723 -6235 out 10.9 radius 2.7 | rock from -24 to 11 (planned 11)
 sea stack at 3688 -6374 out 10.7 radius 2.2 | rock from -26 to 18 (planned 18)
 sea arch  at 3465 -6527 out 15.6 radius 1.7 | rock from -25 to 8 (planned 8) | under the span: water 1, air 4
 sea stack at 3023 -6550 out 11.7 radius 3.1 | rock from -24 to 21 (planned 21)
 sea stack at 3467 -6544 out 10.8 radius 2.6 | rock from -27 to 16 (planned 16)
-glacier at -14784 8304 height 56 | in 33 x 33: {STONE:27298,GRASS:1,PACKICE:1325,MOSSSTONE:1}
+glacier at -15072 8064 height 59 | in 33 x 33: {STONE:21550,PACKICE:2273}
 fjord wall at -10883 -4610 | land 3, 6, 10 in: 16, 16, 16 | water 3, 6, 10 out, deep: 10, 14, 18
-far tarn at 7280 3893 radius 11 level 18 | ring step 4 : water boxes at its level 5 (top 19.00)
-far tarn at 7280 3893 radius 11 level 18 | ring step 8 : water boxes at its level 5 (top 19.00)
+far tarn at 7071 2872 radius 13 level 12 | ring step 4 : water boxes at its level 6 (top 13.00)
+far tarn at 7071 2872 radius 13 level 12 | ring step 8 : water boxes at its level 6 (top 13.00)
 errors 0 

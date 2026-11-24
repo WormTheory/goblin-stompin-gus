@@ -7,20 +7,20 @@ NO STAIRS
      7 cathedral/cathedral/church/church w 48-48 d 80-80 floors 11-11 gf 5-5
      2 mall/mall/shop/shop w 112-112 d 112-112 floors 4-4 gf 8-8
 HAS STAIRS
-   530 homes/house/apartment/apartment w 16-16 d 12-12 floors 2-2 gf 5-5
+   529 homes/house/apartment/apartment w 16-16 d 12-12 floors 2-2 gf 5-5
    346 mid/normal/shop/apartment w 16-20 d 16-20 floors 2-5 gf 5-8
    317 tower/normal/lobby/office w 14-24 d 14-24 floors 2-4 gf 5-10
    287 mid/normal/apartment/apartment w 16-24 d 16-24 floors 2-5 gf 5-8
    168 fire/normal/firehall/apartment w 13-13 d 13-13 floors 2-2 gf 7-7
-   140 mid/normal/shop/office w 16-20 d 16-20 floors 2-5 gf 5-8
+   139 mid/normal/shop/office w 16-20 d 16-20 floors 2-5 gf 5-8
    111 mid/normal/apartment/office w 16-24 d 16-20 floors 2-5 gf 5-8
    101 mansion/house/apartment/apartment w 16-16 d 11-11 floors 2-2 gf 5-5
     50 library/normal/library/library w 16-16 d 14-14 floors 3-3 gf 5-5
     47 bank/normal/bank/office w 16-16 d 14-14 floors 2-3 gf 6-7
     40 derelict/normal/shop/apartment w 14-14 d 13-13 floors 2-4 gf 5-5
     26 derelict/normal/apartment/apartment w 14-14 d 13-13 floors 2-4 gf 5-5
-    23 nasa/normal/mission/office w 24-24 d 16-16 floors 2-2 gf 5-5
     22 club/normal/club/apartment w 16-16 d 14-14 floors 2-2 gf 7-7
+    22 nasa/normal/mission/office w 24-24 d 16-16 floors 2-2 gf 5-5
     20 police/normal/police/police w 35-48 d 48-48 floors 2-4 gf 5-5
     20 campus/normal/lecture/school w 12-25 d 15-143 floors 2-3 gf 5-5
     19 news/normal/news/office w 16-16 d 13-13 floors 3-3 gf 5-5
@@ -29,8 +29,8 @@ HAS STAIRS
     12 campus/normal/apartment/apartment w 14-16 d 12-14 floors 5-5 gf 5-5
     10 hospital/normal/hosp/ward w 16-54 d 9-41 floors 2-11 gf 8-8
      8 armory/normal/armory/office w 13-13 d 12-12 floors 2-2 gf 8-8
-     8 nuclear/normal/office/office w 26-26 d 18-18 floors 3-3 gf 5-5
-     8 nuclear/normal/office/police w 26-26 d 18-18 floors 2-2 gf 5-5
+     7 nuclear/normal/office/office w 26-26 d 18-18 floors 3-3 gf 5-5
+     7 nuclear/normal/office/police w 26-26 d 18-18 floors 2-2 gf 5-5
      7 school/normal/school/school w 27-60 d 12-18 floors 2-2 gf 5-5
      7 lab/normal/lab/lab w 16-16 d 15-15 floors 2-2 gf 9-9
      7 airport/normal/terminal/office w 28-28 d 26-26 floors 2-2 gf 7-7

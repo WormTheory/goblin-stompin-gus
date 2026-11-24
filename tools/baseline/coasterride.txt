@@ -5,9 +5,9 @@ car 0 landed true after 1 frames; on it 2614 of 2614 (100.0%) over 2 laps; top s
   comes off: []
 car 3 landed true after 1 frames; on it 2569 of 2614 (98.3%) over 2 laps; top speed 55 hp 9999
   comes off: [{"frame":20,"th":0.02,"on":null,"gr":false,"y":1.43,"d":1.94,"state":"walk","step":0,"off":false,"halted":false,"sp":0.12,"same":true,"alive":true,"carD":false,"fly":false,"boxes":1}]
-landings round the circuit: still on after a second 0 of 1 (0 at over 25 blocks a second; fastest 5)
-drop from 3 skipped: coaster off true car dead true
-drop from 6 skipped: coaster off true car dead true
-drop from 12 skipped: coaster off true car dead true
-drop from 25 skipped: coaster off true car dead true
+landings round the circuit: still on after a second 24 of 24 (9 at over 25 blocks a second; fastest 56)
+drop from 3 landed on the car true frames on it over the next lap 1450 of 1450 derailed false car hp 40 -> 40
+drop from 6 landed on the car true frames on it over the next lap 1449 of 1449 derailed false car hp 40 -> 31
+drop from 12 landed on the car true frames on it over the next lap 1448 of 1448 derailed false car hp 31 -> 19
+drop from 25 landed on the car true frames on it over the next lap 1404 of 1404 derailed false car hp 19 -> 1
 done

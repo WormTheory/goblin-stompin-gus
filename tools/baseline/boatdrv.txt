@@ -3,7 +3,7 @@ launch: controls: [KEY:W]/[KEY:S] throttle, a notch a tap  ·  [KEY:A]/[KEY:D] r
   S held 1.2 s: swept down to -1  4 s on: speed -3.00
   S tapped: notch -1  4 s on: -3.84 (astern)
   full ahead 15.06  planing true | D 1 s: turned 1.15  leaning 0.15 (into the turn)
-  Space at 15.11 : anchor true  1.5 s on: 0.27  3.5 s on: 0.00  swung round 0.84
+  Space at 15.11 : anchor true  1.5 s on: -0.05  3.5 s on: 0.00  swung round 0.66
   Space again: anchor false
   right click: horn blast (special true )
 speedboat: full ahead: planing after 1.30 s  speed -0.04 (top 20.8)  bow up -0.07

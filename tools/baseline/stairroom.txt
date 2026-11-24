@@ -11,20 +11,20 @@
    40 derelict/shop/apartment            share avg 21% max 21% (12x11) door blocked 0 room beside 8
    26 derelict/apartment/apartment       share avg 21% max 21% (12x11) door blocked 0 room beside 8
   111 mid/apartment/office               share avg 16% max 20% (14x14) door blocked 0 room beside 11
-  140 mid/shop/office                    share avg 15% max 20% (14x14) door blocked 0 room beside 11
+  139 mid/shop/office                    share avg 16% max 20% (14x14) door blocked 0 room beside 11
   346 mid/shop/apartment                 share avg 16% max 20% (14x14) door blocked 0 room beside 11
   287 mid/apartment/apartment            share avg 15% max 20% (14x14) door blocked 0 room beside 11
-  530 homes/apartment/apartment          share avg 20% max 20% (14x10) door blocked 0 room beside 7
+  529 homes/apartment/apartment          share avg 20% max 20% (14x10) door blocked 0 room beside 7
    19 news/news/office                   share avg 18% max 18% (14x11) door blocked 0 room beside 8
    50 library/library/library            share avg 17% max 17% (14x12) door blocked 0 room beside 9
     7 school/school/school               share avg 7% max 14% (25x10) door blocked 0 room beside 6
    10 hospital/hosp/ward                 share avg 8% max 12% (46x7) door blocked 0 room beside 4
    20 campus/lecture/school              share avg 10% max 12% (23x13) door blocked 0 room beside 9
    16 mega/lobby/office                  share avg 9% max 11% (9x48) door blocked 0 room beside 6
-   23 nasa/mission/office                share avg 9% max 9% (22x14) door blocked 0 room beside 11
+   22 nasa/mission/office                share avg 9% max 9% (22x14) door blocked 0 room beside 11
     6 casino/casino/apartment            share avg 7% max 9% (46x10) door blocked 0 room beside 7
-    8 nuclear/office/office              share avg 7% max 7% (24x16) door blocked 0 room beside 13
-    8 nuclear/office/police              share avg 7% max 7% (24x16) door blocked 0 room beside 13
+    7 nuclear/office/office              share avg 7% max 7% (24x16) door blocked 0 room beside 13
+    7 nuclear/office/police              share avg 7% max 7% (24x16) door blocked 0 room beside 13
     3 prison/cells/cells                 share avg 5% max 7% (26x20) door blocked 0 room beside 6
     1 prison/office/police               share avg 6% max 6% (75x6) door blocked 0 room beside 3
     7 airport/terminal/office            share avg 6% max 6% (26x24) door blocked 0 room beside 21

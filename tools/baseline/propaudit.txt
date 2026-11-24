@@ -44,7 +44,7 @@ drug            78 props   27.1 /k   Big sites / Drugstores    shelf2:27 fridge3
 sitdown         86 props   29.9 /k   Big sites / Sit-down restaurants    chair:20 booth:12 rtable:11 bar:8 bottles:8 prep:8 stool:4 range:3
 mall          1214 props   44.6 /k   Big sites / Malls    toys:199 chair:125 bookcase:122 clothes:119 fridge2:114 bar:107 shelf2:100 monitor:81
 bigbox        1701 props   92.0 /k   Big sites / Superstores    shelf4:463 shelf2:359 clothes:289 tv:193 fridge3:175 bin:122 aislesign:25 checkout:19
-ikea           751 props   53.1 /k   Big sites / Furniture superstores    pallet:278 chair:182 rtable:91 prep:30 bar:29 sofa:28 flamp:20 shelf2:14
+ikea           730 props   51.6 /k   Big sites / Furniture superstores    pallet:257 chair:182 rtable:91 prep:30 bar:29 sofa:28 flamp:20 shelf2:14
 cathedral     1138 props  152.0 /k   Big sites / Cathedrals    pew:1128 parkbench:5 litterbin:5
 museum         243 props   32.5 /k   Big sites / Museums    statue:64 stanchion:56 armour:32 gcase:17 plant:15 bench:12 shelf2:11 stall:8
 aquarium     not found

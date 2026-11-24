@@ -1,5 +1,5 @@
 start city 2s ok, ms N
-routes built 408 country L1505 x+ | country L1026 z+ | country L1097 x+ | country L709 z+
+routes built 352 country L1505 x+ | country L1026 z+ | country L1097 x+ | country L709 z+
 on a country route mid, ms N ground 45 surface 12
 genChunk ms per chunk near route N
 weapons table club,bigclub,katana,dagger,handgun,shotgun,rifle,arifle,sniper,launcher,nuke,spellbook,landmine,grenade | foes with gear 6 ok
