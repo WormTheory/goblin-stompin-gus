@@ -352,7 +352,7 @@ function buildChunk(cx,cz){
       let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length,bo=BL?out.b.length:0;
       const wb=lit?(lx+15)+(lz+15)*BLW+(y+1)*BLA:0,wi=wb+F.wf;   // (the block, and the open one in front of the face, in block light's window)
       const gm=gmOn&&F.dy1&&skyTop&&G_MIX[b]===1;
-      const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(X*65536+Z)||0):0,V0=1-(ty+1)/AR;
+      const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(colKey(X,Z))||0):0,V0=1-(ty+1)/AR;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
         P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=mz0+lz+c.z;
@@ -483,7 +483,10 @@ function routeMarks(cx,cz){
   if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(Uint8Array.from(Bl),3,true));
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;}
+function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;
+  // (and the rest of what's remembered about a world's plan, which used to be left as the last world had it when a new
+  // one was made without loading the page again: coasts, ports, railways, airports, dumps, turbines, names)
+  for(const M of [apAtC,dumpSC,setNameC,chainC,coastOwnC,portC,coastC,nearSeaC,hwDeadC,railLinkC,railNearC,railPlotC,furnC,metroC,caveMouthC,lumberNearC,turbC,STK_C,CAP_FIELD,propBorn,bsignUp])M.clear();}
 // ---- far chunks drawn in fours: each chunk is its own draw call or three, which at a long detail distance is the bulk of a frame's.
 // So a group of up to 4 x 4 chunks a little way off that nothing has happened to for a while is copied into one mesh per material,
 // and the chunks themselves hidden. The picture's the same. Anything changing in the group (a block smashed, a chunk dropped) simply
