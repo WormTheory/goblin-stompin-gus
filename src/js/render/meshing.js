@@ -244,7 +244,19 @@ const FACE_T=FACES.map(f=>{const [dx,dy,dz]=f.dir,axis=dx?0:dy?1:2,ua=(axis+1)%3
     const s1=[dx+du[0],dy+du[1],dz+du[2]],s2=[dx+dv[0],dy+dv[1],dz+dv[2]],cc=[dx+du[0]+dv[0],dy+du[1]+dv[1],dz+du[2]+dv[2]];
     return {x:c[0],y:c[1],z:c[2],u:c[3],v:c[4],s1,s2,cc,o1:lin(...s1),o2:lin(...s2),oc:lin(...cc),w1:wl(...s1),w2:wl(...s2),wc:wl(...cc)};})};});
 // the kinds of ground that blend into each other at their edges (buildChunk's gMix)
-const G_MIX=new Uint8Array(256),GMC=[1,1,1],GM_M=12;let GM_S=new Float32Array(0),GM_T=new Float32Array(0);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
+const G_MIX=new Uint8Array(256),GMC=[1,1,1],GM_M=26;const GM_Q=new Array(49).fill(null);   // (the chunks round about, while one's blended)
+let GM_S=new Float32Array(0),GM_T=new Float32Array(0);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
+// a chunk's columns' top ground colours for the blend ([r,g,b,1] a column, or 0,0,0,0 where the top isn't ground), kept
+// with the chunk's block array (made again when the chunk is; a dug-out column keeps its old colour till then, which only
+// tints its neighbours a little)
+const GM_CC=new WeakMap();
+function gmCols(qx,qz){
+  const N=chunkArr(qx,qz);let C=GM_CC.get(N);if(C)return C;C=new Float32Array(CS*CS*4);const A2=CS*CS;
+  for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const c0=lx+lz*CS;let bb=0;
+    for(let y=H-1;y>=0;y--){const v=N[c0+y*A2];if(v){if(!BLOCK[v].liquid)bb=v;break;}}
+    if(!G_MIX[bb])continue;const t=BLOCK[bb].tiles[0]*3,o=c0*4;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
+    if(bb===GRASS){const T=bioTint(qx*CS+lx,qz*CS+lz,0);r*=T[0];g*=T[1];bl*=T[2];}C[o]=r;C[o+1]=g;C[o+2]=bl;C[o+3]=1;}
+  GM_CC.set(N,C);return C;}
 function buildChunk(cx,cz){
   const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
@@ -278,21 +290,21 @@ function buildChunk(cx,cz){
   const tnF=new Uint8Array(A2*2),tnC=new Float32Array(A2*6),tint=(lx,lz,g)=>{const i=(lz*CS+lx)*2+g;
     if(!tnF[i]){tnF[i]=1;const T=bioTint(x0+lx,z0+lz,g);tnC[i*3]=T[0];tnC[i*3+1]=T[1];tnC[i*3+2]=T[2];}return i*3;};
   // (where one kind of ground meets another, grass and sand, sand and red sand, dirt and snow..., the top faces' colours
-  // blend from one to the other over a score of blocks: each column's top ground colour (its texture's average times the
-  // grass's tint; nothing where the top isn't ground) is blurred twice with a 12-wide box each way, and each corner takes
+  // blend from one to the other over some 50 blocks: each column's top ground colour (its texture's average times the
+  // grass's tint; nothing where the top isn't ground) is blurred twice with a 25-wide box each way, and each corner takes
   // the blurred colour of the four columns round it, as a multiple of this block's own texture's average. The grid is the
-  // chunk and GM_M columns round it, enough for the two blurs)
-  const GM=GM_M,GW=CS+2*GM,GN=GW*GW,gS=GM_S.length===GN*4?GM_S:(GM_S=new Float32Array(GN*4)),gT=GM_T.length===GN*4?GM_T:(GM_T=new Float32Array(GN*4));gS.fill(0);
-  for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-GM,lz=j-GM;let y,bb=0;
-    if(lx>=0&&lx<CS&&lz>=0&&lz<CS){y=tops[lz*CS+lx];if(y>=0)bb=a[lx+lz*CS+y*A2];}
-    else{const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2,o=nj*3+ni;let N=NB[o];if(!N)N=NB[o]=chunkArr(cx+ni-1,cz+nj-1);
-      const c0=lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS;for(let yy=Math.min(H-1,yTop+2);yy>=0;yy--){const v=N[c0+yy*A2];if(v){if(!BLOCK[v].liquid)bb=v;break;}}}
-    if(!G_MIX[bb])continue;
-    const t=BLOCK[bb].tiles[0]*3,o=(j*GW+i)*4;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
-    if(bb===GRASS){const T=bioTint(x0+lx,z0+lz,0);r*=T[0];g*=T[1];bl*=T[2];}gS[o]=r;gS[o+1]=g;gS[o+2]=bl;gS[o+3]=1;}
-  // (a 12-wide box along x then z, twice: sliding sums, missing columns past the grid's edge counting as nothing)
+  // chunk and GM_M columns round it, enough for the two blurs; the other chunks' columns come from gmCols, kept per chunk)
+  const GM=GM_M,GW=CS+2*GM,GN=GW*GW,gS=GM_S.length===GN*4?GM_S:(GM_S=new Float32Array(GN*4)),gT=GM_T.length===GN*4?GM_T:(GM_T=new Float32Array(GN*4));
+  for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-GM,lz=j-GM,o=(j*GW+i)*4;
+    if(lx>=0&&lx<CS&&lz>=0&&lz<CS){const y=tops[lz*CS+lx],bb=y>=0?a[lx+lz*CS+y*A2]:0;gS[o+3]=0;gS[o]=gS[o+1]=gS[o+2]=0;
+      if(!G_MIX[bb])continue;const t=BLOCK[bb].tiles[0]*3;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
+      if(bb===GRASS){const T=bioTint(x0+lx,z0+lz,0);r*=T[0];g*=T[1];bl*=T[2];}gS[o]=r;gS[o+1]=g;gS[o+2]=bl;gS[o+3]=1;continue;}
+    const qx=Math.floor(lx/CS),qz=Math.floor(lz/CS),gi=(qz+3)*7+qx+3,C=GM_Q[gi]||(GM_Q[gi]=gmCols(cx+qx,cz+qz)),q=((lz-qz*CS)*CS+lx-qx*CS)*4;
+    gS[o]=C[q];gS[o+1]=C[q+1];gS[o+2]=C[q+2];gS[o+3]=C[q+3];}
+  GM_Q.fill(null);
+  // (a 25-wide box along x then z, twice: sliding sums, missing columns past the grid's edge counting as nothing)
   const box=(A,B,dx,dy)=>{for(let l=0;l<GW;l++){let r=0,g=0,b=0,w=0;
-    for(let k=-6;k<GW;k++){const ia=k+6,ib=k-6;
+    for(let k=-12;k<GW;k++){const ia=k+12,ib=k-13;
       if(ia<GW){const o=(l*dy+ia*dx)*4;r+=A[o];g+=A[o+1];b+=A[o+2];w+=A[o+3];}
       if(ib>=0){const o=(l*dy+ib*dx)*4;r-=A[o];g-=A[o+1];b-=A[o+2];w-=A[o+3];}
       if(k>=0){const o=(l*dy+k*dx)*4;B[o]=r;B[o+1]=g;B[o+2]=b;B[o+3]=w;}}}};
