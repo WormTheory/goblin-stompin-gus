@@ -177,8 +177,7 @@ function tenvRemove(i){
   const F=TENV&&TENV.boxes[i];if(!F)return;TENV.boxes.splice(i,1);tenvIndex();
   // (gone for good: what was smashed there goes too, so a fresh one can be spawned in its place)
   const X0=F.ax*CELL,Z0=F.az*CELL,X1=X0+F.w*CELL,Z1=Z0+F.h*CELL,inF=(x,z)=>x>=X0&&x<X1&&z>=Z0&&z<Z1;
-  for(const k in edits){const [x,,z]=k.split(',').map(Number);if(inF(x,z))delete edits[k];}
-  for(const [k,L] of chunkEdits){const f=L.filter(([x,,z])=>!inF(x,z));if(!f.length)chunkEdits.delete(k);else if(f.length<L.length)chunkEdits.set(k,f);}
+  for(const k of [...chunkEdits.keys()])editsDrop(k,(x,y,z)=>inF(x,z));
   for(const k in collapses){const [px,pz]=k.split(',').map(Number);if(px>=F.ax&&px<F.ax+F.w&&pz>=F.az&&pz<F.az+F.h)delete collapses[k];}
   for(let i2=0;i2<F.w;i2++)for(let j=0;j<F.h;j++)explored.delete((F.ax+i2)+','+(F.az+j));
   tenvRebuild(F);save();tsSet(stName(F.k)+' removed.');tpRender();

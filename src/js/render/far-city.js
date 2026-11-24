@@ -186,13 +186,13 @@ function farLeaf(F,x0,y0,z0,x1,y1,z1,hFall,hCol,c){farBox(F,x0,y0,z0,x1,y1,z1,c|
 const farTreeC=new Map();let farTreeNew=false;
 function farTreesOf(px,pz){
   const k=px*100003+pz,cx=px*CELL/CS,cz=pz*CELL/CS,E4=[];let ed=0;
-  for(let a=0;a<CELL/CS;a++)for(let b=0;b<CELL/CS;b++){const ce=chunkEdits.get(ckey(cx+a,cz+b));if(ce){E4.push(ce);ed+=ce.length;}}
+  for(let a=0;a<CELL/CS;a++)for(let b=0;b<CELL/CS;b++){const ce=chunkEdits.get(ckey(cx+a,cz+b));if(ce){E4.push(ce);ed+=ce.v+ce.size;}}   // (ed: a number that moves whenever anything smashed here does)
   const cn=craters.length+BB.jobs.length*1000,E=farTreeC.get(k);   // (asked again once a blast's job is over, as it only counts behind its ring till then)
   if(E&&E.ed===ed&&E.seed===seed&&E.cn===cn)return E.t;
   farTreeNew=true;
   // (a big blast's carving isn't kept as edits: a tree it reaches is asked of the crater instead)
   const bl=farBlastNear(px,pz);
-  let gone=null;if(ed){gone=new Map();for(const ce of E4)for(const [x,y,z,b] of ce)gone.set(x+','+y+','+z,b);}
+  const gone=ed>0;
   const t=[],X0=px*CELL,Z0=pz*CELL,pl=PLAINS_OPEN(px,pz)||!!bigPlainsAt(px,pz),S=superOf(px,pz);
   const pk=S?S.kind==='capitol'||S.kind==='bigpark':plotInfo(px,pz).type==='park';
   if(!pl&&!pk){farTreeC.set(k,{ed,seed,cn,t});return t;}
@@ -203,7 +203,7 @@ function farTreesOf(px,pz){
     let T=pl?plainsTree(x,z):null;
     if(pk&&parkTree(x,z))T=[G,4+Math.floor(hash2(x,z+99)*3),0];   // (as the chunks do, the park's pass comes last)
     if(!T)continue;
-    if(gone){let ok=true;for(let y=T[0]+1;y<=T[0]+T[1]&&ok;y++){const v=gone.get(x+','+y+','+z);if(v!==undefined&&v!==LOG)ok=false;}if(!ok)continue;}
+    if(gone){let ok=true;for(let y=T[0]+1;y<=T[0]+T[1]&&ok;y++){const v=editAt(x,y,z);if(v!==undefined&&v!==LOG)ok=false;}if(!ok)continue;}
     if(bl&&farCraterTop(x,z,x+1,z+1,T[0]+T[1])<T[0]+T[1])continue;
     t.push(x,z,T[0],T[1],T[2]);
   }

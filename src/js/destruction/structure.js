@@ -59,7 +59,7 @@ function bldgAt(x,z){if(x>=SHIP_X0)return null;let px=Math.floor(x/CELL),pz=Math
 const bSolidC=new Map(),setDestC=new Map(),setTotC=new Map(),setListC=new Map();let destroyVer=0;   // (bumped whenever anything's knocked out)
 function noteRemoved(x,y,z){
   x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);
-  if((x+','+y+','+z) in edits)return;   // (not as built: it's been changed before)
+  if(editAt(x,y,z)!==undefined)return;   // (not as built: it's been changed before)
   const v=rawGet(x,y,z);if(v===AIR)return;
   if(noteFor){noteQ.push(x,y,z,v,noteFor);return;}
   noteBlock(x,y,z,v,bldgAt(x,z));
@@ -279,7 +279,7 @@ function collapseBuilding(B,L,push){
       // (the building's own blocks don't need saving as gone: `collapses` stops the plan making them again. But rubble that
       // had landed on it, or anything else put there since, is in the edits, and would be put back hanging in the air the
       // next time this chunk's made, so that's saved as gone)
-      const ek=wx+','+y+','+wz;if(edits[ek]!==undefined&&edits[ek]!==AIR)addEdit(wx,y,wz,AIR);}
+      const ev=editAt(wx,y,wz);if(ev!==undefined&&ev!==AIR)addEdit(wx,y,wz,AIR);}
     noteFor=null;
   }
   for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));

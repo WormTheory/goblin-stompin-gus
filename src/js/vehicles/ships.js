@@ -64,7 +64,7 @@ function shipChunk(cx,cz){
       const inF=u>=K.u0&&u<=K.u1&&w>=K.w0&&w<=K.w1;
       for(let y=0;y<H;y++){let b=inF&&y>=ya&&y<=yb?K.block(u,y,w):0;if(!b&&y<G)b=WATER;if(b)a[li(lx,y,lz)]=b;}}}
   const ce=chunkEdits.get(ckey(cx,cz));
-  if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
+  if(ce)for(const [i,b] of ce)a[i]=b;
   return a;
 }
 // the pocket chunks a ship covers (its footprint, the water round it and a chunk more for the meshes' edges)
@@ -84,7 +84,6 @@ function shipForget(slot,keepEdits){
   for(const k of [...chunks.keys()]){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cx>=SHIP_CX0&&cz>=c0&&cz<=c1)chunks.delete(k);}
   if(keepEdits){lastK=-1;return;}
   for(const k of [...chunkEdits.keys()]){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cx>=SHIP_CX0&&cz>=c0&&cz<=c1)chunkEdits.delete(k);}
-  for(const k in edits){const i=k.indexOf(','),j=k.lastIndexOf(','),x=+k.slice(0,i),z=+k.slice(j+1);if(x>=SHIP_X0&&z>=z0&&z<z1)delete edits[k];}
   lastK=-1;
 }
 // a new ship, at x,z in the world facing yaw, in the first free slot of the pocket (o: an online guest's copy of one of
@@ -505,7 +504,7 @@ function seaChunk(cx,cz){
     for(let y=0;y<G-SEA_DEEP;y++)a[li(lx,y,lz)]=earthAt(x,y,z);a[li(lx,G-SEA_DEEP,lz)]=SAND;for(let y=G-SEA_DEEP+1;y<G;y++)a[li(lx,y,lz)]=WATER;}
   bbGen(a,cx,cz);
   const ce=chunkEdits.get(ckey(cx,cz));
-  if(ce)for(const [x,y,z,b] of ce)a[li(x-x0,y,z-z0)]=b;
+  if(ce)for(const [i,b] of ce)a[i]=b;
   if(WX.frozen)freezeArr(a,true);
   return a;
 }

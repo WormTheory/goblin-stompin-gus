@@ -340,7 +340,7 @@ function netOwnShot(e){if(e[4]!==NET.seat)return false;return NETP.shotAt!==unde
   if(who&&who.net&&NET.mode===1)return;return hp(x,y,z,t,k,who);};}
 // blocks: every block the host's game changes for good goes through addEdit, so that's where they're picked up
 {const ae=addEdit;addEdit=function addEdit(x,y,z,b){if(NET.mode===2&&NET.joined&&!NET_APPLY)return;ae(x,y,z,b);
-  if(NET.mode===1&&NET.guests.size){const v=edits[x+','+y+','+z];for(const p of NET.guests.values()){const out=p.net.out,L=out[out.length-1];if(L&&L[0]==='e'&&L[1].length<3000)L[1].push(x,y,z,v);else out.push(['e',[x,y,z,v]]);}}};}
+  if(NET.mode===1&&NET.guests.size){const v=editAt(Math.floor(x),Math.floor(y),Math.floor(z));for(const p of NET.guests.values()){const out=p.net.out,L=out[out.length-1];if(L&&L[0]==='e'&&L[1].length<3000)L[1].push(x,y,z,v);else out.push(['e',[x,y,z,v]]);}}};}
 // (guest: the host's game is the only one that hurts anyone or breaks anything. Anything here that would -- a fire's
 // flames, a hit worked out locally -- does nothing)
 for(const [nm,f] of [['damagePlayer',damagePlayer],['damageGoblin',damageGoblin],['hitGoblins',hitGoblins],['damageCar',damageCar],['crush',crush]]){
@@ -412,7 +412,7 @@ function netFallPose(a,b,k){
 function netCrater(L){for(const C of bbValid(L))if(!craters.some(c=>c.n===C.n))bbStart(C,false);}
 // guest: one block, as the host has it
 function netSetBlock(x,y,z,b,ch){
-  if(edits[x+','+y+','+z]===b)return;
+  if(editAt(x,y,z)===b)return;
   const cx=Math.floor(x/CS),cz=Math.floor(z/CS);
   NET_APPLY=true;try{if(chunks.has(ckey(cx,cz)))setRaw(x,y,z,b);addEdit(x,y,z,b);}finally{NET_APPLY=false;}
   for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((x+ox)/CS),Math.floor((z+oz)/CS)));

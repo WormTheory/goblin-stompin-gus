@@ -111,11 +111,8 @@ function bbGen(a,cx,cz){
 // the smashed blocks this crater has carved over aren't wanted any more (they're under it now): dropped, so the save stays small
 // and a chunk made again comes out as it is. Water's kept (the crater leaves water where it is).
 function bbPrune(C,cx,cz){
-  const k=ckey(cx,cz),L=chunkEdits.get(k);if(!L||!L.length)return;const K=bbK(C),o=bbO(),keep=[];
-  for(const e of L){const x=e[0],y=e[1],z=e[2],b=e[3];bbCol(C,K,x,z,o);
-    if(b!==WATER&&o.zone&&(y>=o.cut||y===o.floor||y>=o.l0&&y<o.l1)){const s=x+','+y+','+z;if(edits[s]===b)delete edits[s];continue;}
-    keep.push(e);}
-  if(keep.length!==L.length){if(keep.length)chunkEdits.set(k,keep);else chunkEdits.delete(k);}
+  const k=ckey(cx,cz),L=chunkEdits.get(k);if(!L||!L.size)return;const K=bbK(C),o=bbO();
+  editsDrop(k,(x,y,z,b)=>{bbCol(C,K,x,z,o);return b!==WATER&&o.zone&&(y>=o.cut||y===o.floor||y>=o.l0&&y<o.l1);});
 }
 // a chunk the job hasn't reached yet, about to be changed by something else: carved first, so the change lands on top of the
 // crater as it does on every other machine (and in the save)

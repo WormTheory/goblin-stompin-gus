@@ -11,7 +11,7 @@ function rideBang(x,y,z,s,T,r,n,cause){
 }
 // Not every park got all of its ground built (part of one can land on open country or be left to ordinary streets), so a
 // missing block only counts as broken if something broke it: that's what the edits are.
-const rideBroke=(x,y,z)=>get(x,y,z)===AIR&&edits[x+','+y+','+z]!==undefined;
+const rideBroke=(x,y,z)=>get(x,y,z)===AIR&&editAt(Math.floor(x),Math.floor(y),Math.floor(z))!==undefined;
 const rideBuilt=(x,y,z,id)=>get(x,y,z)===id||rideBroke(x,y,z);
 // a ride with nothing under it isn't put up at all. (One look a frame, as looking can mean building a chunk there and then.)
 function rideSurvey(V){
@@ -102,7 +102,7 @@ function carouselBlow(Cs){
 }
 // is the track still there at this point round the circuit? (a car's the width of it, and the height goes in steps, so look close by)
 function coasterTrackAt(C,t){const x=Math.floor(C.cu+Math.cos(t)*C.a),z=Math.floor(C.cv+Math.sin(t)*C.b),h=G+coasterH(t);
-  let broke=false;for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)for(let y=h-1;y<=h+1;y++){const b=get(x+dx,y,z+dz);if(b===METAL)return true;if(b===AIR&&edits[(x+dx)+','+y+','+(z+dz)]!==undefined)broke=true;}return !broke;}
+  let broke=false;for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)for(let y=h-1;y<=h+1;y++){const b=get(x+dx,y,z+dz);if(b===METAL)return true;if(b===AIR&&editAt(x+dx,y,z+dz)!==undefined)broke=true;}return !broke;}
 // where a car rides at this point round the circuit. The track's blocks go up and down in whole steps (coasterH, rounded),
 // so a car following them jumped a block at a time. This is the same height eased over each step instead: level on the
 // block tops between steps, and across a step the height runs up (or down) the S of a smoothstep, centred where the

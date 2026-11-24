@@ -22,11 +22,34 @@ let shipN=0;   // (how many ships there are: nothing about ships costs anything 
 const tenvShow=(px,pz)=>px<SHIP_PX0&&(!TENV||TENV_PL.has(tenvK(px,pz)));
 // d: how deep in the wrapped plan lookups we are (only the outermost is moved); raw: making a source chunk
 const TR={d:0,raw:0,on:false,c:new WeakMap()};
-let seed=0, edits={}, collapses={}, craters=[], wrecked={}, downFix=new Map(), destroyed={};   // destroyed: building key -> how many of its original blocks are gone
+let seed=0, collapses={}, craters=[], wrecked={}, downFix=new Map(), destroyed={};   // destroyed: building key -> how many of its original blocks are gone
 // big blasts (destruction/big-blast.js): craters, saved beside collapses; the jobs carving them, rim fires, clouds
 const BB={jobs:[],ms:4,speed:120,clouds:[],armed:[],quiet:0},BB_SMALL=12,BB_STUMP=3,BB_CORPSES=30,BB_FIRES=25,BB_PLUMES=4;
 const BL_DARK=new Set();   // (the buildings gone dark, destruction/lights-out.js: read by the mesher, which can run before that file)
 const chunkEdits=new Map(),chunks=new Map(),plotCache=new Map();
+// ---- what's been smashed or put in for good. chunkEdits holds, per chunk, a Map from where in the chunk a block is (the
+// same number li(lx,y,lz) gives, so a chunk made again just writes them over its array) to the block there now, with `v`
+// counting its changes (the save reuses a chunk's packed text until that moves). It used to be a list of [x,y,z,b] per
+// chunk, every change kept, beside a table keyed by the text "x,y,z": 176 bytes a block between them, a third of a
+// gigabyte for two million smashed blocks. ----
+const edIdx=(x,y,z)=>(x&15)+(z&15)*16+y*256;   // (whole numbers; CS is 16)
+function editAt(x,y,z){const m=chunkEdits.get(ckey(x>>4,z>>4));return m?m.get(edIdx(x,y,z)):undefined;}
+function editPut(x,y,z,b){if(!(y>=0&&y<256))return;const k=ckey(x>>4,z>>4);let m=chunkEdits.get(k);if(!m){m=new Map();m.v=0;chunkEdits.set(k,m);}m.set(edIdx(x,y,z),b);m.v++;}
+function editDel(x,y,z){const k=ckey(x>>4,z>>4),m=chunkEdits.get(k);if(m&&m.delete(edIdx(x,y,z))){m.v++;if(!m.size)chunkEdits.delete(k);}}
+// (a chunk's Map walked as blocks: f(x,y,z,b); and editsDrop takes out every block drop(x,y,z,b) says to)
+function editsEach(ck,m,f){const x0=(Math.floor(ck/65536)-32768)*16,z0=((ck%65536)-32768)*16;for(const [i,b] of m)f(x0+(i&15),i>>8,z0+((i>>4)&15),b);}
+function editsDrop(ck,drop){const m=chunkEdits.get(ck);if(!m)return;const x0=(Math.floor(ck/65536)-32768)*16,z0=((ck%65536)-32768)*16;let n=0;
+  for(const [i,b] of m)if(drop(x0+(i&15),i>>8,z0+((i>>4)&15),b)){m.delete(i);n++;}
+  if(n){m.v++;if(!m.size)chunkEdits.delete(ck);}}
+// `edits` as it used to read, for the tests and anything occasional: edits['x,y,z'], `in`, delete, Object.keys. It goes
+// through text, so nothing that runs often should use it: editAt, editPut and editDel are the real thing.
+const edits=new Proxy({},{
+  get(_,k){if(typeof k!=='string')return undefined;const p=k.split(',');return p.length===3?editAt(+p[0],+p[1],+p[2]):undefined;},
+  set(_,k,v){const p=String(k).split(',');if(p.length===3)editPut(+p[0],+p[1],+p[2],v);return true;},
+  has(_,k){return typeof k==='string'&&this.get(_,k)!==undefined;},
+  deleteProperty(_,k){const p=String(k).split(',');if(p.length===3)editDel(+p[0],+p[1],+p[2]);return true;},
+  ownKeys(){const out=[];for(const [ck,m] of chunkEdits)editsEach(ck,m,(x,y,z)=>out.push(x+','+y+','+z));return out;},
+  getOwnPropertyDescriptor(_,k){const v=this.get(_,k);return v===undefined?undefined:{value:v,writable:true,enumerable:true,configurable:true};}});
 const ckey=(cx,cz)=>(cx+32768)*65536+(cz+32768);
 // (one column of blocks as a number, for maps kept per column. x*65536+z, as these used to be, gave columns 65,536 apart in z
 // and one apart in x the same number once z went negative.)

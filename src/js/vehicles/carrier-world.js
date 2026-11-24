@@ -51,10 +51,10 @@ function cvUnpack(t){const s=atob(t),a=new Uint8Array(s.length);for(let i=0;i<s.
 function cvSnap(S){
   const st={x:cvR2(S.x),z:cvR2(S.z),yaw:cvR2(S.yaw),hp:cvR2(S.hp),leak:cvR2(S.leak||0)};
   // (every block smashed or put aboard and in the water round it: u, y, w and the block, a byte each)
-  const [a,b,c,d]=shipChunkBox(S),seen=new Set(),B=[];
-  for(let cx=a;cx<=b;cx++)for(let cz=c;cz<=d;cz++){const L=chunkEdits.get(ckey(cx,cz));if(!L)continue;
-    for(const q of L){const k=q[0]+','+q[1]+','+q[2];if(seen.has(k))continue;seen.add(k);const bl=edits[k],u=q[0]-S.ox,w=q[2]-S.oz;
-      if(bl===undefined||bl>255||u<-127||u>127||w<-127||w>127||q[1]<0||q[1]>255)continue;B.push(u+128,q[1],w+128,bl);}}
+  const [a,b,c,d]=shipChunkBox(S),B=[];
+  for(let cx=a;cx<=b;cx++)for(let cz=c;cz<=d;cz++){const ck=ckey(cx,cz),L=chunkEdits.get(ck);if(!L)continue;
+    editsEach(ck,L,(x,y,z,bl)=>{const u=x-S.ox,w=z-S.oz;
+      if(bl===undefined||bl>255||u<-127||u>127||w<-127||w>127||y<0||y>255)return;B.push(u+128,y,w+128,bl);});}
   if(B.length)st.ed=cvPack(B);
   const Hl=S.hull;if(Hl&&(Hl.tot!==Hl.tot0||S.K.base))st.hull=[Hl.a,Hl.b,Hl.tot,Array.from(Hl.n),Array.from(Hl.n0)];
   if(S.K.base)st.cut=[S.K.w0,S.K.w1];
@@ -74,7 +74,7 @@ function cvRestore(S,st){
   // (its smashed blocks, into the pocket's edits so its chunks are made with them; and, online, sent to the guests a
   // moment later, once they've made their copy of it: cvWorldRefresh)
   if(st.ed){const B=cvUnpack(st.ed),L=[];for(let i=0;i+3<B.length;i+=4){const x=S.ox+B[i]-128,y=B[i+1],z=S.oz+B[i+2]-128,b=B[i+3];
-    edits[x+','+y+','+z]=b;const k=ckey(Math.floor(x/CS),Math.floor(z/CS));let l=chunkEdits.get(k);if(!l){l=[];chunkEdits.set(k,l);}l.push([x,y,z,b]);L.push(x,y,z,b);}
+    editPut(x,y,z,b);L.push(x,y,z,b);}
     shipForget(S.slot,true);if(netHost())S.cvEd=L;}
   const Hl=S.hull;if(Hl&&st.hull){const [a,b,tot,n,n0]=st.hull;if(n.length===Hl.n.length){Hl.a=a;Hl.b=b;Hl.tot=tot;Hl.n.set(n);Hl.n0.set(n0);}}
   S.hp=st.hp;S.leak=st.leak||0;
