@@ -306,7 +306,6 @@ function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
 // driver's vehicle takes vd, else pdmg times VEH_SHOT_K: shotPlayer), id the goblin to blame; walls stop it, and for now
 // it passes vehicles and goblins by and breaks nothing (its switches are off). cause what kills; snd its sound (a name
 // for sfx, or a function to call). Returns what it hit ('gob', 'veh', 'wall', 'sea', 'tgt', 'air') and where it ended
-const _rdir=new V3();
 function fireRound(o){
   const mx=o.x,my=o.y,mz=o.z;let A=o.at,tgtHit=false;
   // (an enemy's: does it find him? A miss goes off to one side of him)
