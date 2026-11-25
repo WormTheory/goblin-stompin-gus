@@ -298,8 +298,19 @@ function roadLanes(a,tops,at,x0,z0){
     if(y===G){const L=routesNearBox(x0,z0,x0+CS-1,z0+CS-1);
       if(L.length)for(let cz=0;cz<=CS;cz++)for(let cx=0;cx<=CS;cx++){const n=nearestOn(L,x0+cx,z0+cz,9.6);
         if(n&&!(n.i===0&&n.t<=0||n.i===n.R.pts.length-2&&n.t>=1)&&!(n.R.kind==='moto'&&rtRamp(n.R,n.s)))O[cz*C1+cx]=Math.min(8,n.d*4/3);}}
+    // (a road through blocks that have all been destroyed: nobody drives it now, so it snows over like any ground, from
+    // when they went. -2 - t comes out as aSky 1 + t, ordinary ground whose snow started at t on the snow clock)
+    if(rdDead.size)for(let cz=0;cz<=CS;cz++)for(let cx=0;cx<=CS;cx++){const t=rdDeadAt(x0+cx-0.5,z0+cz-0.5);if(t>=0)O[cz*C1+cx]=-2-t;}
   }
 }
+// The blocks of a city destroyed (mapDead), each with when it was noticed on the snow clock (less RD_DEAD0, a start) (the clock only runs while
+// snow's settling, so a block that went before the snow came starts with the rest). rdDeadTick looks round each player
+// once a second and has the roads round a block that's just gone meshed again. A road is let go only when every block
+// it runs beside has gone: the one between a ruin and a block still standing still has its traffic.
+const rdDead=new Map();
+function rdDeadAt(x,z){const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),ex=x-px*CELL<ROADW,ez=z-pz*CELL<ROADW;let t=-1;
+  for(let i=ex?-1:0;i<=0;i++)for(let j=ez?-1:0;j<=0;j++){const v=rdDead.get(colKey(px+i,pz+j));if(v===undefined)return -1;if(v>t)t=v;}
+  return t;}
 // the kinds of ground that blend into each other at their edges (buildChunk's gMix)
 const G_MIX=new Uint8Array(256),GMC=[1,1,1],GM_M=26;const GM_Q=new Array(49).fill(null);   // (the chunks round about, while one's blended)
 let GM_T=new Float32Array(0);const GM_OWN=new Float32Array(CS*CS*4);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
@@ -588,7 +599,7 @@ function routeMesh(D,Bl){
   if(Bl)g.setAttribute('aBlk',new THREE.BufferAttribute(Bl,3,true));
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();meshForget();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;
+function clearWorld(){rebuildQ.clear();rdDead.clear();meshForget();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;
   // (and the rest of what's remembered about a world's plan, which used to be left as the last world had it when a new
   // one was made without loading the page again: coasts, ports, railways, airports, dumps, turbines, names)
   for(const M of [apAtC,dumpSC,setNameC,chainC,coastOwnC,portC,coastC,nearSeaC,hwDeadC,railLinkC,railNearC,railPlotC,furnC,metroC,caveMouthC,lumberNearC,turbC,STK_C,CAP_FIELD,propBorn,bsignUp])M.clear();}

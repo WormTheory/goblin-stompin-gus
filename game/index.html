@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:343ee136c89339e24df707269539faf829cd50b8a9849ed3c444a336ecc01492 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:3cb417e07d4951db32feb82e53570b6881f5bac62c1992efa475f75f8d7f0cf3 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1662,7 +1662,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Landforms</h3>
 <ul><li>Deserts are rolling seas of dunes, long sandy ridges with a steep face on the side away from the wind.</li><li>The badlands rise into flat-topped mesas and plateaus with stepped sides of banded clay, and canyons cut down through them. Scrubland has lower plateaus.</li><li>In middling hilly country the land steps up sheer rock cliffs that run on for kilometres.</li><li>The driest, hottest deserts have dead-flat white salt flats.</li><li>Small lakes called tarns lie in bowls high in the mountains, frozen over where it's cold.</li><li>Oases dot the deserts: a pool of water ringed with grass and palm trees, the dunes dying away round it.</li><li>Sinkholes drop straight down toward the caves, with water at the bottom in warm country.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Weather by region</h3>
-<ul><li>Roads no longer snow over like a field. Traffic keeps its wheel ruts clear in every lane, on town streets, crossroads, motorways and country highways, with the snow left along the kerbs, down the middle and on the hard shoulder. In the heaviest snow the ruts pack down grey instead of staying bare.</li><li>Vehicles leave real tracks in the snow near you: tyre lines where the traffic actually drove, including skids across the pavement, tank treads, the Mobile Gear's footprints, and the hippos' own. Falling snow slowly fills them back in. Tracks in snow can be switched off in the picture options.</li><li>The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.</li><li>Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.</li><li>The savanna and scrubland have dusty days, with dust devils whirling across the plain.</li><li>The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.</li><li>Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.</li><li>Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.</li><li>In split screen, each player sees the weather where they are.</li><li>Rain, snow, blowing sand and the clouds overhead all drift with the wind now, the same way smoke blows, and turn with it as it slowly shifts.</li></ul>
+<ul><li>Roads no longer snow over like a field. Traffic keeps its wheel ruts clear in every lane, on town streets, crossroads, motorways and country highways, with the snow left along the kerbs, down the middle and on the hard shoulder. In the heaviest snow the ruts pack down grey instead of staying bare.</li><li>Vehicles leave real tracks in the snow near you: tyre lines where the traffic actually drove, including skids across the pavement, tank treads, the Mobile Gear's footprints, and the hippos' own. Falling snow slowly fills them back in. Tracks in snow can be switched off in the picture options.</li><li>Once the city blocks on both sides of a road are destroyed, nobody drives it any more: its ruts fade and the snow builds up there like anywhere else.</li><li>The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.</li><li>Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.</li><li>The savanna and scrubland have dusty days, with dust devils whirling across the plain.</li><li>The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.</li><li>Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.</li><li>Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.</li><li>In split screen, each player sees the weather where they are.</li><li>Rain, snow, blowing sand and the clouds overhead all drift with the wind now, the same way smoke blows, and turn with it as it slowly shifts.</li></ul>
 <h3>Coasts</h3>
 <ul><li>Coasts now match the land behind them. Where the country is rugged, the shore stands up out of the sea as tall rocky headlands.</li><li>Cold shores are shingle: gravel, cobbles and the odd bit of driftwood.</li><li>Frozen shores have an ice shelf you can walk out on, with floes drifting beyond its edge.</li><li>Warm, wet shores grow mangroves, trees standing on arched roots in shallow, muddy water.</li><li>Beaches in the badlands are red sand.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Living in each biome</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='bfc546c5a49d';
+const GAME_VER='0.5.1',GAME_BUILD='7dda8caa232e';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -11455,8 +11455,19 @@ function roadLanes(a,tops,at,x0,z0){
     if(y===G){const L=routesNearBox(x0,z0,x0+CS-1,z0+CS-1);
       if(L.length)for(let cz=0;cz<=CS;cz++)for(let cx=0;cx<=CS;cx++){const n=nearestOn(L,x0+cx,z0+cz,9.6);
         if(n&&!(n.i===0&&n.t<=0||n.i===n.R.pts.length-2&&n.t>=1)&&!(n.R.kind==='moto'&&rtRamp(n.R,n.s)))O[cz*C1+cx]=Math.min(8,n.d*4/3);}}
+    // (a road through blocks that have all been destroyed: nobody drives it now, so it snows over like any ground, from
+    // when they went. -2 - t comes out as aSky 1 + t, ordinary ground whose snow started at t on the snow clock)
+    if(rdDead.size)for(let cz=0;cz<=CS;cz++)for(let cx=0;cx<=CS;cx++){const t=rdDeadAt(x0+cx-0.5,z0+cz-0.5);if(t>=0)O[cz*C1+cx]=-2-t;}
   }
 }
+// The blocks of a city destroyed (mapDead), each with when it was noticed on the snow clock (less RD_DEAD0, a start) (the clock only runs while
+// snow's settling, so a block that went before the snow came starts with the rest). rdDeadTick looks round each player
+// once a second and has the roads round a block that's just gone meshed again. A road is let go only when every block
+// it runs beside has gone: the one between a ruin and a block still standing still has its traffic.
+const rdDead=new Map();
+function rdDeadAt(x,z){const px=Math.floor(x/CELL),pz=Math.floor(z/CELL),ex=x-px*CELL<ROADW,ez=z-pz*CELL<ROADW;let t=-1;
+  for(let i=ex?-1:0;i<=0;i++)for(let j=ez?-1:0;j<=0;j++){const v=rdDead.get(colKey(px+i,pz+j));if(v===undefined)return -1;if(v>t)t=v;}
+  return t;}
 // the kinds of ground that blend into each other at their edges (buildChunk's gMix)
 const G_MIX=new Uint8Array(256),GMC=[1,1,1],GM_M=26;const GM_Q=new Array(49).fill(null);   // (the chunks round about, while one's blended)
 let GM_T=new Float32Array(0);const GM_OWN=new Float32Array(CS*CS*4);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
@@ -11745,7 +11756,7 @@ function routeMesh(D,Bl){
   if(Bl)g.setAttribute('aBlk',new THREE.BufferAttribute(Bl,3,true));
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();meshForget();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;
+function clearWorld(){rebuildQ.clear();rdDead.clear();meshForget();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;
   // (and the rest of what's remembered about a world's plan, which used to be left as the last world had it when a new
   // one was made without loading the page again: coasts, ports, railways, airports, dumps, turbines, names)
   for(const M of [apAtC,dumpSC,setNameC,chainC,coastOwnC,portC,coastC,nearSeaC,hwDeadC,railLinkC,railNearC,railPlotC,furnC,metroC,caveMouthC,lumberNearC,turbC,STK_C,CAP_FIELD,propBorn,bsignUp])M.clear();}
@@ -12452,6 +12463,14 @@ function trkCar(c){const V=VEH[c.veh||'car']||VEH.car,s=Math.sin(c.heading),k=Ma
   const two=V.hx<0.5,hz=Math.max(0.3,V.hz-0.55),hx=two?0:V.hx-0.28,r=two?0.13:V.hx>1.1?0.3:0.24;
   for(let w=0;w<(two?2:4);w++){const a=two?0:(w&1?hx:-hx),b=w<2?hz:-hz;trkWheel(c,w,c.pos.x+a*k+b*s,y,c.pos.z-a*s+b*k,r,1);}}
 let trkGone=true;
+// (the destroyed blocks round each player, rdDead in meshing.js: once a second, a few cells out past what's in view)
+let rdDeadT=0;const RD_DEAD0=0.35;   // (it starts with about the snow its ruts had, not bare)
+function rdDeadTick(dt){rdDeadT-=dt;if(rdDeadT>0)return;rdDeadT=1;const R=7;
+  for(const p of players){if(!p.active)continue;const qx=Math.floor(p.pos.x/CELL),qz=Math.floor(p.pos.z/CELL);
+    for(let px=qx-R;px<=qx+R;px++)for(let pz=qz-R;pz<=qz+R;pz++){const k=colKey(px,pz);if(rdDead.has(k)||!mapDead(px,pz))continue;
+      rdDead.set(k,WX.snowClock-RD_DEAD0);
+      // (its roads, and the next block's along its far sides, which may now have gone both sides)
+      for(let qx2=Math.floor((px*CELL-ROADW)/CS);qx2<=Math.floor(((px+1)*CELL+ROADW)/CS);qx2++)for(let qz2=Math.floor((pz*CELL-ROADW)/CS);qz2<=Math.floor(((pz+1)*CELL+ROADW)/CS);qz2++){const c=ckey(qx2,qz2);if(meshes.has(c))rebuildQ.add(c);}}}}
 function trkTick(dt){
   const on=SNOW_TRACKS&&snowMax()>0.01;
   // (the snow's gone: so are the tracks, ready for the next fall)
@@ -32078,7 +32097,7 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   }
   safe('far',()=>shipView(()=>updateFar(dt)));safe('debug',()=>updateDebug(gdt));safe('explore',()=>shipView(()=>updateExplore(dt)));   // (aboard a ship, the world round about is round where the ship is)
-  safe('blast',()=>{bbTick(gdt);bldgDarkTick(gdt);});safe('tracks',()=>trkTick(gdt));safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);planAhead();regionTick();});
+  safe('blast',()=>{bbTick(gdt);bldgDarkTick(gdt);});safe('tracks',()=>{rdDeadTick(gdt);trkTick(gdt);});safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);planAhead();regionTick();});
   camClock+=dt;
   // (a guest online is shown players it doesn't run itself: anything amiss with one mustn't stop the whole game)
   for(const p of players){try{poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);shipCam(p);drvHud(p);updateSpeedo(p,dt);shipView(()=>updateMinimap(p,dt));p.shake*=Math.exp(-gdt*7);}catch(e){if(!netGuest())throw e;safe('view',()=>{throw e;});}}

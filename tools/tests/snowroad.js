@@ -28,6 +28,19 @@ if(J){const X=J[0]*CELL,Z=J[1]*CELL+18,cz=Math.floor(Z/CS);
   // a column whose top changed since the snow came keeps its own time, as before
   T.snowBorn.set(T.colKey(X+2,Z),5);const C=tops(Math.floor(X/CS),cz,G).get((X+2)+','+Z);T.snowBorn.delete(T.colKey(X+2,Z));
   chk('a column smashed open since the snow came is left as it was',C&&C['0,0']===6,C&&C['0,0']);
+  // the blocks either side destroyed: nobody drives it now, so it's ordinary ground again, its snow from when they went.
+  // (the street runs along z at x X..X+7, the road strip of block J[0]: beside blocks J[0]-1 and J[0])
+  const bx=J[0],bz=Math.floor(Z/T.CELL),k0=T.colKey(bx-1,bz),k1=T.colKey(bx,bz);
+  T.rdDead.set(k0,7);let E1=tops(Math.floor(X/CS),cz,G).get((X+3)+','+Z);
+  chk('one side destroyed, the other standing: still driven, ruts as before',E1&&E1['0,0']<0,E1&&E1['0,0']);
+  T.rdDead.set(k1,9);E1=tops(Math.floor(X/CS),cz,G).get((X+3)+','+Z);
+  chk('both sides destroyed: ordinary ground, its snow from the later of the two',E1&&E1['0,0']===10&&E1['1,1']===10,E1&&[E1['0,0'],E1['1,1']]);
+  T.rdDead.clear();
+  // and the tick that notices: a block mapDead says has gone gets the snow clock's time, and the roads round it queued
+  {const was=T.mapDead;E('(f)=>{mapDead=f}')((px,pz)=>px===bx&&pz===bz||px===bx-1&&pz===bz);T.WX.snowClock=12.5;T.rebuildQ.clear();
+   T.rdDeadT=0;E('rdDeadTick')(0.1);const got=[T.rdDead.get(k0),T.rdDead.get(k1)],q=T.rebuildQ.has(T.ckey(Math.floor(X/CS),cz));
+   E('(f)=>{mapDead=f}')(was);T.rdDead.clear();
+   chk('noticed once a second, with the snow clock, and its road meshed again',Math.abs(got[0]-12.15)<1e-9&&got[0]===got[1]&&q,[got,q]);}
   // switched off: nothing below zero
   T.snowRoads=false;const D=tops(Math.floor(X/CS),cz,G);let neg=0;for(const c of D.values())for(const k in c)if(c[k]<0)neg++;T.snowRoads=true;
   chk('switched off, no road says anything',neg===0,neg);

@@ -52,6 +52,14 @@ function trkCar(c){const V=VEH[c.veh||'car']||VEH.car,s=Math.sin(c.heading),k=Ma
   const two=V.hx<0.5,hz=Math.max(0.3,V.hz-0.55),hx=two?0:V.hx-0.28,r=two?0.13:V.hx>1.1?0.3:0.24;
   for(let w=0;w<(two?2:4);w++){const a=two?0:(w&1?hx:-hx),b=w<2?hz:-hz;trkWheel(c,w,c.pos.x+a*k+b*s,y,c.pos.z-a*s+b*k,r,1);}}
 let trkGone=true;
+// (the destroyed blocks round each player, rdDead in meshing.js: once a second, a few cells out past what's in view)
+let rdDeadT=0;const RD_DEAD0=0.35;   // (it starts with about the snow its ruts had, not bare)
+function rdDeadTick(dt){rdDeadT-=dt;if(rdDeadT>0)return;rdDeadT=1;const R=7;
+  for(const p of players){if(!p.active)continue;const qx=Math.floor(p.pos.x/CELL),qz=Math.floor(p.pos.z/CELL);
+    for(let px=qx-R;px<=qx+R;px++)for(let pz=qz-R;pz<=qz+R;pz++){const k=colKey(px,pz);if(rdDead.has(k)||!mapDead(px,pz))continue;
+      rdDead.set(k,WX.snowClock-RD_DEAD0);
+      // (its roads, and the next block's along its far sides, which may now have gone both sides)
+      for(let qx2=Math.floor((px*CELL-ROADW)/CS);qx2<=Math.floor(((px+1)*CELL+ROADW)/CS);qx2++)for(let qz2=Math.floor((pz*CELL-ROADW)/CS);qz2<=Math.floor(((pz+1)*CELL+ROADW)/CS);qz2++){const c=ckey(qx2,qz2);if(meshes.has(c))rebuildQ.add(c);}}}}
 function trkTick(dt){
   const on=SNOW_TRACKS&&snowMax()>0.01;
   // (the snow's gone: so are the tracks, ready for the next fall)
