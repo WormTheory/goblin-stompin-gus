@@ -291,7 +291,7 @@ function roadLanes(a,tops,at,x0,z0){
 }
 // the kinds of ground that blend into each other at their edges (buildChunk's gMix)
 const G_MIX=new Uint8Array(256),GMC=[1,1,1],GM_M=26;const GM_Q=new Array(49).fill(null);   // (the chunks round about, while one's blended)
-let GM_S=new Float32Array(0),GM_T=new Float32Array(0);const GM_OWN=new Float32Array(CS*CS*4);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
+let GM_T=new Float32Array(0);const GM_OWN=new Float32Array(CS*CS*4);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
 // a chunk's columns' top ground colours for the blend ([r,g,b,1] a column, or 0,0,0,0 where the top isn't ground), kept
 // with the chunk's block array (made again when the chunk is; a dug-out column keeps its old colour till then, which only
 // tints its neighbours a little)
@@ -309,64 +309,95 @@ function gmCols(qx,qz){
 function gmSig(C){let u=0,r=0,g=0,b=0;
   for(let o=0;o<C.length;o+=4){if(!C[o+3])continue;if(!u){u=1;r=C[o];g=C[o+1];b=C[o+2];}else if(C[o]!==r||C[o+1]!==g||C[o+2]!==b){u=2;break;}}
   C.u=u;C.ur=r;C.ug=g;C.ub=b;return C;}
-function buildChunk(cx,cz){
-  const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
+// A chunk's mesh is made in three steps, so that the middle one, most of the work, can be done on a thread of its own
+// (render/mesh-worker.js): meshPrep gathers what needs the world and its plan (the blocks of the chunk and the eight round
+// it, the roads' lanes, the lights round about, the grass's tint, the ground colours for the blend, the snow, the paint on
+// the roads), meshKernel turns that into the mesh's arrays and the block light, using nothing of the game's but fixed
+// tables, and meshApply makes the three.js meshes from them. buildChunk does all three there and then.
+// copy: the blocks copied, for a job sent off to a thread (the game goes on changing its own meanwhile)
+function meshPrep(cx,cz,copy){
+  const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway;
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
-  const gfxGet=(x,y,z)=>{const qx=Math.floor(x/CS),qz=Math.floor(z/CS),k=ckey(qx,qz);let v=gfx.get(k);if(!v){v=gfxArr(qx,qz);gfx.set(k,v);}return v[li(mod(x,CS),y,mod(z,CS))];};
-  const a=lf?a0.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/A2),r=i-y*A2;return leafDown(x0+(r%CS),y,z0+Math.floor(r/CS))?AIR:b;}):a0;   // (leaves that have fallen)
+  // (leaves that have fallen)
+  const leafed=(N,qx,qz)=>N.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/A2),r=i-y*A2;return leafDown(qx*CS+(r%CS),y,qz*CS+Math.floor(r/CS))?AIR:b;});
+  const a=lf?leafed(a0,cx,cz):copy&&!gfx?a0.slice():a0;
   // (a ship's chunk is laid out from the ship's own middle, not where its pocket is: numbers that big lose their fractions on
   // the graphics card, and the deck shakes as it moves. See ships.js)
-  const pkS=cx>=SHIP_CX0?shipPg(cz):null,mx0=pkS?x0-pkS.ox:x0,mz0=pkS?z0-pkS.oz:z0;
-  // (the eight chunks round about, fetched only if a block on the edge ends up asking)
-  const NB=[null,null,null,null,null,null,null,null,null];
+  const pk=cx>=SHIP_CX0,pkS=pk?shipPg(cz):null,mx0=pkS?x0-pkS.ox:x0,mz0=pkS?z0-pkS.oz:z0;
+  // the nine chunks as the mesh sees them (hidden features filled in, fallen leaves gone; the eight round about in the
+  // hidden-features view keep their leaves, as they always did), and as the light sees them (as they are)
+  const nineM=[],nineL=[];
+  for(let j=0;j<3;j++)for(let i=0;i<3;i++){const qx=cx+i-1,qz=cz+j-1,raw=chunkArr(qx,qz);
+    if(i===1&&j===1){nineM.push(a);nineL.push(gfx||lf?(copy?raw.slice():raw):a);continue;}
+    const L=copy?raw.slice():raw;nineL.push(L);nineM.push(gfx?gfxArr(qx,qz):lf?leafed(raw,qx,qz):L);}
   const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
-    if(lx>=0&&lx<CS&&lz>=0&&lz<CS)return a[lx+lz*CS+y*A2];
-    if(gfx)return gfxGet(x0+lx,y,z0+lz);
-    const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2,o=nj*3+ni;let N=NB[o];if(!N)N=NB[o]=chunkArr(cx+ni-1,cz+nj-1);
-    const b=N[lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];return b===LEAVES&&lf&&leafDown(x0+lx,y,z0+lz)?AIR:b;};
+    const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2;return nineM[nj*3+ni][lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];};
   const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
-  const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=d.b.length=0;}
   // the top of each column (the highest thing in it, even glass or leaves): only that block's top face is open to the sky
   const tops=new Int16Array(A2).fill(-1);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)for(let y=H-1;y>=0;y--){const b=a[lx+lz*CS+y*A2];if(b){tops[lz*CS+lx]=BLOCK[b].liquid?-1:y;break;}}
   let yTop=H-1;scan:for(;yTop>0;yTop--){const o=yTop*A2;for(let i=0;i<A2;i++)if(a[o+i])break scan;}
   // (roads' tops say where across the road they are, so the snow leaves the traffic's ruts: roadLanes)
-  if(snowRoads)roadLanes(a,tops,at,x0,z0);
+  const sr=snowRoads;let rdY=[],rdOut=[];if(sr){roadLanes(a,tops,at,x0,z0);rdY=RD_Y.slice();rdOut=rdY.map((y,n)=>RD_OUT[n].slice());}
   // the lowest layer with anything open in it (here or along the neighbours' edges): everything below is buried solid
   let yLo=0;low:for(;yLo<yTop;yLo++){
     const o=yLo*A2;for(let i=0;i<A2;i++)if(!B_OPQ[a[o+i]])break low;
     for(let k=0;k<CS;k++)if(!opq(-1,yLo,k)||!opq(CS,yLo,k)||!opq(k,yLo,-1)||!opq(k,yLo,CS))break low;
   }
   yLo=Math.max(0,yLo-1);
-  // the light from lamps and neon round about (none, and nothing to do, with Block lighting off or nothing lit in reach)
-  const BL=BL_ON,lit=BL&&blkFill(cx,cz,yLo,yTop);
-  // (a column of a building whose lights are out, lights-out.js: asked once a column, only where something glows)
-  // (the biome's tint on grass and leaves, world/climate.js: asked once a column, g 0 grass, 1 leaves; 1,1,1 in grassland)
-  const tnF=new Uint8Array(A2*2),tnC=new Float32Array(A2*6),tint=(lx,lz,g)=>{const i=(lz*CS+lx)*2+g;
-    if(!tnF[i]){tnF[i]=1;const T=bioTint(x0+lx,z0+lz,g);tnC[i*3]=T[0];tnC[i*3+1]=T[1];tnC[i*3+2]=T[2];}return i*3;};
+  // the lights round about, where they start (none, and nothing to do, with Block lighting off)
+  const BL=BL_ON,seeds=BL?blkSeeds(cx,cz,yLo,yTop):null;
+  // (the biome's tint on grass and leaves, world/climate.js: g 0 grass, 1 leaves, for each column with any; (column*2+g)*3)
+  const tint=new Float32Array(A2*6),tf=new Uint8Array(A2*2);
+  for(let y=yLo;y<=yTop;y++){const o=y*A2;for(let i=0;i<A2;i++){const b=a[o+i];if(b===GRASS)tf[i*2]=1;else if(b===LEAVES||b===PINE)tf[i*2+1]=1;}}
+  for(let i=0;i<A2*2;i++)if(tf[i]){const c=i>>1,T=bioTint(x0+c%CS,z0+Math.floor(c/CS),i&1);tint[i*3]=T[0];tint[i*3+1]=T[1];tint[i*3+2]=T[2];}
   // (where one kind of ground meets another, grass and sand, sand and red sand, dirt and snow..., the top faces' colours
   // blend from one to the other over some 50 blocks: each column's top ground colour (its texture's average times the
-  // grass's tint; nothing where the top isn't ground) is blurred twice with a 25-wide box each way, and each corner takes
-  // the blurred colour of the four columns round it, as a multiple of this block's own texture's average. The grid is the
-  // chunk and GM_M columns round it, enough for the two blurs; the other chunks' columns come from gmCols, kept per chunk)
-  const GM=GM_M,GW=CS+2*GM,GN=GW*GW,gS=GM_S.length===GN*4?GM_S:(GM_S=new Float32Array(GN*4)),gT=GM_T.length===GN*4?GM_T:(GM_T=new Float32Array(GN*4));
+  // grass's tint; nothing where the top isn't ground) is blurred twice with a 25-wide box each way (meshKernel), and each
+  // corner takes the blurred colour of the four columns round it, as a multiple of this block's own texture's average. The
+  // grid is the chunk and GM_M columns round it, enough for the two blurs; the other chunks' columns come from gmCols, kept per chunk)
+  const GM=GM_M,GW=CS+2*GM;let gS=null;
   // (most chunks are inside one biome on one kind of ground, all of it the same colour as far as the blend reaches: then
   // there's nothing to blend, and the top faces take the grass's tint as they always did. The chunk's own columns as they
   // are here (fallen leaves, hidden features) and the others as gmCols has them)
   let gmOn=false;{const O=gmSig(GM_OWN);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const i=lz*CS+lx,y=tops[i],bb=y>=0?a[lx+lz*CS+y*A2]:0,o=i*4;
       O[o+3]=0;if(!G_MIX[bb])continue;const t=BLOCK[bb].tiles[0]*3;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
-      if(bb===GRASS){const T=tnC,k=tint(lx,lz,0);r*=T[k];g*=T[k+1];bl*=T[k+2];}O[o]=r;O[o+1]=g;O[o+2]=bl;O[o+3]=1;}
+      if(bb===GRASS){const k=i*6;r*=tint[k];g*=tint[k+1];bl*=tint[k+2];}O[o]=r;O[o+1]=g;O[o+2]=bl;O[o+3]=1;}
     gmSig(O);let u=O.u,r=O.ur,g=O.ug,b=O.ub;
     if(u===1){const q0=-Math.floor(GM/CS)-1,q1=Math.floor((CS+GM-1)/CS);
       for(let qz=q0;qz<=q1&&!gmOn;qz++)for(let qx=q0;qx<=q1;qx++){if(!qx&&!qz)continue;const gi=(qz+3)*7+qx+3,C=GM_Q[gi]||(GM_Q[gi]=gmCols(cx+qx,cz+qz));
         if(C.u===2||C.u===1&&(C.ur!==r||C.ug!==g||C.ub!==b)){gmOn=true;break;}}}
     else gmOn=u===2;}
-  if(gmOn)for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-GM,lz=j-GM,o=(j*GW+i)*4;
-    if(lx>=0&&lx<CS&&lz>=0&&lz<CS){const y=tops[lz*CS+lx],bb=y>=0?a[lx+lz*CS+y*A2]:0;gS[o+3]=0;gS[o]=gS[o+1]=gS[o+2]=0;
+  if(gmOn){gS=new Float32Array(GW*GW*4);for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-GM,lz=j-GM,o=(j*GW+i)*4;
+    if(lx>=0&&lx<CS&&lz>=0&&lz<CS){const y=tops[lz*CS+lx],bb=y>=0?a[lx+lz*CS+y*A2]:0;
       if(!G_MIX[bb])continue;const t=BLOCK[bb].tiles[0]*3;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
       if(bb===GRASS){const T=bioTint(x0+lx,z0+lz,0);r*=T[0];g*=T[1];bl*=T[2];}gS[o]=r;gS[o+1]=g;gS[o+2]=bl;gS[o+3]=1;continue;}
     const qx=Math.floor(lx/CS),qz=Math.floor(lz/CS),gi=(qz+3)*7+qx+3,C=GM_Q[gi]||(GM_Q[gi]=gmCols(cx+qx,cz+qz)),q=((lz-qz*CS)*CS+lx-qx*CS)*4;
-    gS[o]=C[q];gS[o+1]=C[q+1];gS[o+2]=C[q+2];gS[o+3]=C[q+3];}
+    gS[o]=C[q];gS[o+1]=C[q+1];gS[o+2]=C[q+2];gS[o+3]=C[q+3];}}
   GM_Q.fill(null);
+  // (the columns of a building whose lights are out, lights-out.js, 1 dark, -1 not: asked only where something glows above the street)
+  let dark=null;if(BL_DARK.size){dark=new Int8Array(A2);
+    for(let y=G+1;y<=yTop;y++){const o=y*A2;for(let i=0;i<A2;i++){const b=a[o+i];if(b&&BLOCK[b].glow&&!dark[i])dark[i]=bldgDarkAt(x0+i%CS,z0+Math.floor(i/CS))?1:-1;}}}
+  // (each column's top, where it's open to the sky, for the snow: 1 + when that top last changed)
+  const snow=new Float64Array(A2);for(let i=0;i<A2;i++)if(tops[i]>=0)snow[i]=1+(snowBorn.get(colKey(x0+i%CS,z0+Math.floor(i/CS)))||0);
+  // (the paint and rails laid on the roads, worked out here; only the light on them is left to meshKernel)
+  const rm=pk?null:routeMarks(cx,cz);
+  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM,nineL,rdY,rdOut,sr,BL,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
+}
+// the arrays a job hands over to a thread with it, each once (the job's own copies: nothing the game goes on using)
+function meshXfer(J){
+  const s=new Set([J.a.buffer,J.tops.buffer,J.tint.buffer,J.snow.buffer]);for(const N of J.nineM)s.add(N.buffer);for(const N of J.nineL)s.add(N.buffer);
+  for(const O of J.rdOut)s.add(O.buffer);for(const A of [J.seeds,J.gS,J.dark,J.rmS])if(A)s.add(A.buffer);return [...s];}
+// the mesh's arrays from what meshPrep gathered: L, [opaque, water] each {p,u,c,k,b,i} or null; light, how lit the chunk's
+// own blocks are (for blkEdit), and rmB, the light on the paint on the roads
+function meshKernel(J){
+  const {x0,z0,mx0,mz0,yLo,yTop,a,tops,nineM,BL,tint,gS,dark,snow}=J,A2=CS*CS,gmOn=!!gS;
+  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
+    const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2;return nineM[nj*3+ni][lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];};
+  const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
+  const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=d.b.length=0;}
+  // the light from lamps and neon round about (none, and nothing to do, with Block lighting off or nothing lit in reach)
+  const lit=BL&&blkFlood(J);
+  const GM=GM_M,GW=CS+2*GM,gT=GM_T.length===GW*GW*4?GM_T:(GM_T=new Float32Array(GW*GW*4));
   // (a 25-wide box along x then z, twice: sliding sums, missing columns past the grid's edge counting as nothing)
   const box=(A,B,dx,dy)=>{for(let l=0;l<GW;l++){let r=0,g=0,b=0,w=0;
     for(let k=-12;k<GW;k++){const ia=k+12,ib=k-13;
@@ -378,17 +409,17 @@ function buildChunk(cx,cz){
     for(let dj=-1;dj<=0;dj++)for(let di=-1;di<=0;di++){const o=((lz+cz+dj+GM)*GW+lx+cx+di+GM)*4;r+=gS[o];g+=gS[o+1];b+=gS[o+2];w+=gS[o+3];}
     const t=own*3;if(w<1e-6){GMC[0]=GMC[1]=GMC[2]=1;return GMC;}
     GMC[0]=Math.min(1.45,r/w/(TILE_AVG[t]||1));GMC[1]=Math.min(1.45,g/w/(TILE_AVG[t+1]||1));GMC[2]=Math.min(1.45,b/w/(TILE_AVG[t+2]||1));return GMC;};
-  const dkC=BL_DARK.size?new Int8Array(A2).fill(-1):null,darkCol=(lx,lz)=>{const i=lz*CS+lx;if(dkC[i]<0)dkC[i]=bldgDarkAt(x0+lx,z0+lz)?1:0;return dkC[i]===1;};
+  const rdYs=J.rdY,rdOuts=J.rdOut,sr=J.sr;
   for(let y=yLo;y<=yTop;y++){
     const midY=y>=1&&y<H-1;
     for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const i0=lx+lz*CS+y*A2,b=a[i0];if(!b)continue;
-    const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow&&!(y>G&&BL_DARK.size&&darkCol(lx,lz)),out=bufs[liquid?1:0];
+    const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow&&!(y>G&&dark&&dark[lz*CS+lx]===1),out=bufs[liquid?1:0];
     if(lit&&(info.ramp||info.thin))blkAt(x0+lx,y,z0+lz);else BL_r=BL_g=BL_b=0;
     if(info.ramp){emitRamp(out,mx0+lx,y,mz0+lz,info);continue;}
     if(info.hide)continue;
     if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
-    const skyTop=tops[lz*CS+lx]===y,tg=b===GRASS?0:b===LEAVES||b===PINE?1:-1,ti=tg<0?-1:tint(lx,lz,tg);
+    const skyTop=tops[lz*CS+lx]===y,tg=b===GRASS?0:b===LEAVES||b===PINE?1:-1,ti=tg<0?-1:(lz*CS+lx)*6+tg*3;
     const waterTop=liquid&&at(lx,y+1,lz)!==WATER;
     // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
     const inner=midY&&lx>0&&lx<CS-1&&lz>0&&lz<CS-1,tiles=info.tiles;
@@ -400,9 +431,9 @@ function buildChunk(cx,cz){
       let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length,bo=BL?out.b.length:0;
       const wb=lit?(lx+15)+(lz+15)*BLW+(y+1)*BLA:0,wi=wb+F.wf;   // (the block, and the open one in front of the face, in block light's window)
       const gm=gmOn&&F.dy1&&skyTop&&G_MIX[b]===1;
-      const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(colKey(X,Z))||0):0,V0=1-(ty+1)/AR;
+      const sky=F.dy1&&skyTop?snow[lz*CS+lx]:0,V0=1-(ty+1)/AR;
       // (a road's top that hasn't been smashed open since the snow came; a road at a fourth level in one chunk is open tarmac)
-      const rdI=sky===1&&snowRoads&&(RD_TOP[b]===1||b===METAL&&RD_TOP[at(lx-1,y,lz)]===1&&RD_TOP[at(lx+1,y,lz)]===1)?RD_Y.indexOf(y):-2,rdO=rdI>=0?RD_OUT[rdI]:null;
+      const rdI=sky===1&&sr&&(RD_TOP[b]===1||b===METAL&&RD_TOP[at(lx-1,y,lz)]===1&&RD_TOP[at(lx+1,y,lz)]===1)?rdYs.indexOf(y):-2,rdO=rdI>=0?rdOuts[rdI]:null;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
         P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=mz0+lz+c.z;
@@ -426,8 +457,8 @@ function buildChunk(cx,cz){
         }
         if(gm){const M=gMix(lx,lz,y,c.x,c.z,tile);C[co++]=s*M[0];C[co++]=s*M[1];C[co++]=s*M[2];}
         else if(ti<0||F.sel===1&&!tg){C[co++]=s;C[co++]=s;C[co++]=s;}
-        else if(tg||F.dy1){C[co++]=s*tnC[ti];C[co++]=s*tnC[ti+1];C[co++]=s*tnC[ti+2];}
-        else{C[co++]=s*(1+tnC[ti])/2;C[co++]=s*(1+tnC[ti+1])/2;C[co++]=s*(1+tnC[ti+2])/2;}   // (a grass block's side: its green edge, half)
+        else if(tg||F.dy1){C[co++]=s*tint[ti];C[co++]=s*tint[ti+1];C[co++]=s*tint[ti+2];}
+        else{C[co++]=s*(1+tint[ti])/2;C[co++]=s*(1+tint[ti+1])/2;C[co++]=s*(1+tint[ti+2])/2;}   // (a grass block's side: its green edge, half)
         K[ko++]=rdO?-1-rdO[(lz+c.z)*(CS+1)+lx+c.x]:rdI===-1?-1-RD_OPEN:sky;
       }
       out.p.length=po;out.u.length=uo;out.c.length=co;out.k.length=ko;if(BL)out.b.length=bo;
@@ -435,37 +466,46 @@ function buildChunk(cx,cz){
     }
     }
   }
-  const k=ckey(cx,cz),old=meshes.get(k);
+  const L=bufs.map((d,i)=>{
+    if(i&&(!d.i.length||J.pk))return null;   // (a ship's own water, round its hull, isn't drawn: the sea it's in is)   // (no water in this chunk: no mesh for it to go round every frame)
+    const ia=d.i.take();return {p:d.p.take(),u:d.u.take(),c:d.c.take(),k:d.k.take(),b:BL?d.b.take():null,i:d.p.length/3>65535?ia:Uint16Array.from(ia)};});
+  // (the light on the paint on the roads, while the window's still filled)
+  let rmB=null;const S=J.rmS;if(S){rmB=new Uint8Array(S.length);for(let i=0;i<S.length;i+=3){blkAt(S[i],S[i+1],S[i+2]);rmB[i]=BL_r;rmB[i+1]=BL_g;rmB[i+2]=BL_b;}}
+  return {L,light:BL?blkKeep(yLo,yTop):null,rmB};
+}
+// the chunk's meshes made from meshKernel's arrays, in place of its old ones
+function meshApply(J,R){
+  const {cx,cz,mx0,mz0,yLo,yTop,pk}=J,k=ckey(cx,cz),old=meshes.get(k);
   regionTouch(cx,cz);
   if(old)for(const m of old.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}
-  const m=[],pk=cx>=SHIP_CX0,par=pkS?pkS.grp:scene;   // (a ship's blocks hang off the ship, wherever it's got to: see ships.js)
-  bufs.forEach((d,i)=>{
-    if(i&&(!d.i.length||pk))return;   // (a ship's own water, round its hull, isn't drawn: the sea it's in is)   // (no water in this chunk: no mesh for it to go round every frame)
+  const m=[],pkS=pk?shipPg(cz):null,par=pkS?pkS.grp:scene;   // (a ship's blocks hang off the ship, wherever it's got to: see ships.js)
+  R.L.forEach((d,i)=>{if(!d)return;
     const g=new THREE.BufferGeometry();
-    g.setAttribute('position',new THREE.Float32BufferAttribute(d.p.take(),3));
-    g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u.take(),2));
-    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c.take(),3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k.take(),1));
-    if(BL)g.setAttribute('aBlk',new THREE.BufferAttribute(d.b.take(),3,true));
-    const big=d.p.length/3>65535,ia=d.i.take();
-    g.setIndex(new THREE.BufferAttribute(big?ia:Uint16Array.from(ia),1));
+    g.setAttribute('position',new THREE.Float32BufferAttribute(d.p,3));
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u,2));
+    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k,1));
+    if(d.b)g.setAttribute('aBlk',new THREE.BufferAttribute(d.b,3,true));
+    g.setIndex(new THREE.BufferAttribute(d.i,1));
     // (where it is, known already: saves three.js going through every corner to find out)
     if(THREE.Sphere)g.boundingSphere=new THREE.Sphere(new V3(mx0+CS/2,(yLo+yTop+1)/2,mz0+CS/2),Math.hypot(CS/2,(yTop+1-yLo)/2,CS/2)+0.01);
     const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;par.add(mesh);m.push(mesh);
   });
-  if(!pk){const mk=routeMarks(cx,cz);if(mk)m.push(mk);}
-  const E={cx,cz,m};meshes.set(k,E);if(!pk)markMeshed(cx,cz,true);
-  if(BL)blkDone(cx,cz,E,yLo,yTop);
+  if(J.rm){const mk=routeMesh(J.rm,R.rmB);if(mk)m.push(mk);}
+  const E={cx,cz,m,lc:null};meshes.set(k,E);if(!pk)markMeshed(cx,cz,true);
+  const Lt=R.light;if(Lt&&Lt.lc){E.lc=Lt.lc;E.ly0=Lt.ly0;E.lh=Lt.lh;}
+  return E;
 }
-// ---- the paint on the highways out on the plains: thin flat strips laid on the road surface at the road's own angle,
+function buildChunk(cx,cz){meshStale(cx,cz);const J=meshPrep(cx,cz,false);meshApply(J,meshKernel(J));}
+// ---- the paint on the highways out on the plains (worked out by meshPrep, made into a mesh by routeMesh): thin flat strips laid on the road surface at the road's own angle,
 // following its curves -- the yellow centre line and the dashed white lines between the lanes. Built with each chunk
 // (each little piece of road by the chunk its middle is in), skipping any piece whose road has been smashed away. ----
 function routeMarks(cx,cz){
   const x0=cx*CS,z0=cz*CS,L=routesNearBox(x0,z0,x0+CS-1,z0+CS-1);
-  const P=[],U=[],C=[],K=[],I=[],Bl=[];
+  const P=[],U=[],C=[],K=[],I=[],S=[];
   const uvOf=t=>[((t%AC)+0.5)/AC,1-(Math.floor(t/AC)+1)/AR+0.5/AR];
   // (yb: the height at the b end, if it isn't level -- on a ramp)
   const quad=(ax,az,bx,bz,nx,nz,o,w,y,t,yb=y)=>{const n=P.length/3,[u,v]=uvOf(t),o0=o-w/2,o1=o+w/2;
-    for(const [px,pz,py] of [[ax+nx*o0,az+nz*o0,y],[ax+nx*o1,az+nz*o1,y],[bx+nx*o0,bz+nz*o0,yb],[bx+nx*o1,bz+nz*o1,yb]]){P.push(px,py,pz);U.push(u,v);C.push(0.8,0.8,0.8);K.push(1);if(BL_ON){blkAt(px,py,pz);Bl.push(BL_r,BL_g,BL_b);}}
+    for(const [px,pz,py] of [[ax+nx*o0,az+nz*o0,y],[ax+nx*o1,az+nz*o1,y],[bx+nx*o0,bz+nz*o0,yb],[bx+nx*o1,bz+nz*o1,yb]]){P.push(px,py,pz);U.push(u,v);C.push(0.8,0.8,0.8);K.push(1);if(BL_ON)S.push(px,py,pz);}
     I.push(n,n+1,n+2,n+1,n+3,n+2);};
   const byRoute=new Map();for(let q=0;q<L.length;q+=2){if(!byRoute.has(L[q]))byRoute.set(L[q],[]);byRoute.get(L[q]).push(L[q],L[q+1]);}
   for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],[ax,az]=R.pts[i],[bx,bz]=R.pts[i+1],mx=(ax+bx)/2,mz=(az+bz)/2;
@@ -527,13 +567,16 @@ function routeMarks(cx,cz){
        const l=Math.hypot(bx-ax,bz-az)||1,tx=(bx-ax)/l,tz=(bz-az)/l;
        quad(mx-tz*1.15,mz+tx*1.15,mx+tz*1.15,mz-tx*1.15,-tx,-tz,0,0.36,G+1.07,8);
        for(const k of [-0.72,0.72])quad(ax,az,bx,bz,-tz,tx,k,0.13,G+1.2,18);}}}
-  if(!I.length)return null;
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));
-  g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(K,1));g.setIndex(I);
-  if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(Uint8Array.from(Bl),3,true));
+  return I.length?{P,U,C,K,I,S}:null;
+}
+// the paint's mesh, with the light on each corner (meshKernel's rmB, the points routeMarks gave in S)
+function routeMesh(D,Bl){
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(D.P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(D.U,2));
+  g.setAttribute('color',new THREE.Float32BufferAttribute(D.C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(D.K,1));g.setIndex(D.I);
+  if(Bl)g.setAttribute('aBlk',new THREE.BufferAttribute(Bl,3,true));
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;
+function clearWorld(){rebuildQ.clear();meshForget();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;
   // (and the rest of what's remembered about a world's plan, which used to be left as the last world had it when a new
   // one was made without loading the page again: coasts, ports, railways, airports, dumps, turbines, names)
   for(const M of [apAtC,dumpSC,setNameC,chainC,coastOwnC,portC,coastC,nearSeaC,hwDeadC,railLinkC,railNearC,railPlotC,furnC,metroC,caveMouthC,lumberNearC,turbC,STK_C,CAP_FIELD,propBorn,bsignUp])M.clear();}
@@ -613,12 +656,12 @@ function updateChunks(budget,dt){
   if(same&&chunkScan.full&&chunkScan.size===meshes.size)return;
   let made=0,gens=0;
   scan:for(const [dx,dz] of chunkOrder(R))for(const [pcx,pcz] of centers){
-    if(meshes.has(ckey(pcx+dx,pcz+dz)))continue;
+    {const k=ckey(pcx+dx,pcz+dz);if(meshes.has(k)||meshWaiting(k))continue;}
     if(made>=budget)break scan;
     // (a mesh needs its neighbours' blocks too, which may mean making all eight first: no more than three a frame, then carry on next time)
     const X=pcx+dx,Z=pcz+dz;
     for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);if(++gens>=3){chunkScan.key=key;chunkScan.full=false;return;}}
-    buildChunk(X,Z);made++;
+    meshAsk(X,Z);made++;
   }
   chunkScan.key=key;chunkScan.full=!made;chunkScan.size=meshes.size;
 }
@@ -633,12 +676,14 @@ function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
 // the chunk nearest a player goes first, as that's where the smashing being looked at is.
 const REBUILD_MS=5;
 function flushRebuilds(){
+  meshTick();
   if(!rebuildQ.size)return;
+  const full=()=>MW.ws.length&&MW.pend.size>=MW_LIM;if(full())return;
   const t0=performance.now(),ms=Math.min(REBUILD_MS,3+rebuildQ.size*0.5);   // (more waiting: a bit more time, so it can't fall far behind; at least one a frame, however long it takes)
   if(rebuildQ.size>2){let best=-1,bd=1e9;
     for(const p of players){if(!p.active)continue;const x=pwx(p)/CS-.5,z=pwz(p)/CS-.5;
       for(const k of rebuildQ){if(collHold.has(k))continue;const e=meshes.get(k);if(!e)continue;const d=Math.abs(e.cx-x)+Math.abs(e.cz-z);if(d<bd){bd=d;best=k;}}}
-    if(best!==-1){rebuildQ.delete(best);const e=meshes.get(best);buildChunk(e.cx,e.cz);if(performance.now()-t0>ms)return;}}
-  for(const k of rebuildQ){if(collHold.has(k))continue;rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;buildChunk(e.cx,e.cz);if(performance.now()-t0>ms)break;}
+    if(best!==-1){rebuildQ.delete(best);const e=meshes.get(best);meshAsk(e.cx,e.cz);if(performance.now()-t0>ms||full())return;}}
+  for(const k of rebuildQ){if(collHold.has(k))continue;rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;meshAsk(e.cx,e.cz);if(performance.now()-t0>ms||full())break;}
 }
 

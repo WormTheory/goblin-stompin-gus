@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:9517d6dca9857250cb05d908fb428462990da76193233d8abcffcf46d8104ee4 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:6226dd5c6819cfdb5fb98e81bce990ab710991f34c124722548f8a884f1fdebf -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1680,7 +1680,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Gunfire</h3>
 <ul><li>The flash of light from a gunshot now comes from the barrel, not from a spot partway along the bullet's streak. That goes for every gun: goblins', Gnash's, vehicles', the Mobile Gear's and the carrier's, and online too.</li><li>Gnash's bullets now start from the tip of the gun in your hands.</li></ul>
 <h3>Knock everything over</h3>
-<ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>A building coming down is spread over a few frames instead of landing on one, and several coming down at once take turns, so bringing down a whole block of towers no longer freezes the game for a moment.</li><li>Smashing through town keeps a steadier frame rate: the ground and buildings you've broken catch up over a few frames, nearest you first, and street lamps and benches on their way down no longer make the game redraw every fixture around you.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
+<ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>A building coming down is spread over a few frames instead of landing on one, and several coming down at once take turns, so bringing down a whole block of towers no longer freezes the game for a moment.</li><li>Smashing through town keeps a steadier frame rate: the ground and buildings you've broken catch up over a few frames, nearest you first, and street lamps and benches on their way down no longer make the game redraw every fixture around you.</li><li>The world's blocks are now drawn up on your computer's spare processor cores, alongside the game rather than in the middle of its frames, so smashing buildings and the ground, and new parts of the world coming into view, cost the game far less time.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Nukes</h3>
 <ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>A nuke fired a long way no longer goes off early in mid-air: it flies on until it hits something.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.</li><li>Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.</li><li>Smoke from fires shows through the nuke's dust, and the dust through the smoke.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li></ul>
 <h3>Screen layout</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='1f0fc1db4c4f';
+const GAME_VER='0.5.1',GAME_BUILD='53226efd9b22';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -10875,7 +10875,7 @@ function blkHaloPick(){
   const LP=[],add=(x,y,z,r,g,b,s,k,T=L)=>{const d=near(x,z);if(d<(T===L?R:RP))T.push([x,y,z,r,g,b,d,s,k]);};
   const cs=new Set();for(const q of P)for(let qx=Math.floor((q.pos.x-RP)/CS);qx<=Math.floor((q.pos.x+RP)/CS);qx++)for(let qz=Math.floor((q.pos.z-RP)/CS);qz<=Math.floor((q.pos.z+RP)/CS);qz++)cs.add(qx+','+qz);
   for(const c of cs){const [qx,qz]=c.split(',').map(Number);if(!meshes.has(ckey(qx,qz)))continue;
-    // (the street lamps that stand and are lit, as blkFill has them)
+    // (the street lamps that stand and are lit, as blkSeeds has them)
     if(qx<SHIP_CX0&&near((qx+0.5)*CS,(qz+0.5)*CS)<R+CS)for(const S of blkLamps(qx,qz)){if(downFix.has(S.key)||falling.has(S.key)||blkLampOut.has(S.key)||blkNuked(S.fx,S.fz))continue;
       if(chunks.has(ckey(Math.floor(S.fx/CS),Math.floor(S.fz/CS)))&&(get(S.fx,G,S.fz)===ASPHALT||get(S.fx,G+1,S.fz)!==AIR))continue;
       if(get(S.x,S.y,S.z)!==AIR)continue;add(S.x+0.5,S.y+0.3,S.z+0.5,BL_STREET[0],BL_STREET[1],BL_STREET[2]);}
@@ -10947,7 +10947,7 @@ function blkGlowScan(){
   BL_GLOW=L;BL_MOVC=M;blkGlowLight(L);
 }
 // ...and the ones that stay put (a sign, a billboard, a marquee: not a vehicle's lamps, nor anything that flashes) light
-// what's round them as the lamps do: the BL_GLOWL_N nearest the players, into the fill (blkFill) like the fires, at a level
+// what's round them as the lamps do: the BL_GLOWL_N nearest the players, into the fill (blkSeeds) like the fires, at a level
 // by their size and brightness; one coming, going or changing remeshes round it. Each look notes where every one was and
 // its colour, and it's only counted once it's been the same two looks running (anything ever seen to change colour, never).
 const BL_GLOWL=new Map(),BL_GLOWL_N=48;
@@ -11044,18 +11044,15 @@ function blkEdit(x,y,z,old,nb,A){
   const c=Math.max(blkCls(x,y,z),blkCls(x-1,y,z),blkCls(x+1,y,z),blkCls(x,y-1,z),blkCls(x,y+1,z),blkCls(x,y,z-1),blkCls(x,y,z+1));
   if(c)blkAround(x,z,[0,4,9,14][c]);
 }
-// the fill for chunk (cx,cz), whose faces run from layer yLo to yTop: the light in every open block of the window
-// (BL_R/G/B, at (x-BL_x0)+(z-BL_z0)*BLW+(y+1)*BLA). Returns whether any light got anywhere.
-function blkFill(cx,cz,yLo,yTop){
-  const x0=cx*CS-15,z0=cz*CS-15,NB=[];BL_x0=x0;BL_z0=z0;BL_any=false;
-  for(let j=0;j<3;j++)for(let i=0;i<3;i++)NB.push(chunkArr(cx+i-1,cz+j-1));
-  const tLo=yLo-1,tHi=yTop+1;let qt=0,ylo=H,yhi=-1;
+// the lights that start the fill for chunk (cx,cz), whose faces run from layer yLo to yTop: [x, z, y in the window, r, g, b]
+// each, in the order they're met, leaving out those too far off to reach. Gathered on the main thread (it asks the plan, the
+// lamps and the props); blkFlood does the rest, wherever the mesh is being made
+function blkSeeds(cx,cz,yLo,yTop){
+  const x0=cx*CS-15,z0=cz*CS-15,tLo=yLo-1,tHi=yTop+1,S=[];
   const seed=(wx,wz,y,r,g,b)=>{if(wx<0||wx>=BLW||wz<0||wz>=BLW||y<0||y>=H)return;
     if(Math.max(r,g,b)<=BL_D[wx]+BL_D[wz]+(y<tLo?tLo-y:y>tHi?y-tHi:0))return;   // (too far off to reach)
-    const n=wx+wz*BLW+(y+1)*BLA;
-    if(BL_R[n]>=r&&BL_G[n]>=g&&BL_B[n]>=b)return;if(BL_R[n]<r)BL_R[n]=r;if(BL_G[n]<g)BL_G[n]=g;if(BL_B[n]<b)BL_B[n]=b;
-    if(!BL_INQ[n]){BL_INQ[n]=1;BL_Q[qt]=n;qt=(qt+1)&BL_QM;}if(y<ylo)ylo=y;if(y>yhi)yhi=y;};
-  for(let j=0;j<3;j++)for(let i=0;i<3;i++){const A=NB[j*3+i],E=blkEmitters(A,cx+i-1,cz+j-1),ox=(i-1)*CS+15,oz=(j-1)*CS+15,qx=cx+i-1,qz=cz+j-1;
+    S.push(wx,wz,y,r,g,b);};
+  for(let j=0;j<3;j++)for(let i=0;i<3;i++){const qx=cx+i-1,qz=cz+j-1,A=chunkArr(qx,qz),E=blkEmitters(A,qx,qz),ox=(i-1)*CS+15,oz=(j-1)*CS+15;
     for(let q=0;q<E.length;q++){const e=E[q],y=Math.floor(e/(CS*CS)),r=e-y*CS*CS,b=A[e];seed(ox+(r%CS),oz+Math.floor(r/CS),y,B_LR[b],B_LG[b],B_LB[b]);}
     if(qx<SHIP_CX0){
       for(const L of blkLamps(qx,qz)){if(downFix.has(L.key)||falling.has(L.key)||blkNuked(L.fx,L.fz))continue;
@@ -11067,6 +11064,16 @@ function blkFill(cx,cz,yLo,yTop){
   }
   for(const P of BL_FIRE.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);   // (fires: seed leaves out those too far off)
   for(const P of BL_GLOWL.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);
+  return Int16Array.from(S);
+}
+// the fill for a mesh job (meshPrep): from its seeds, the light in every open block of the window (BL_R/G/B, at
+// (x-BL_x0)+(z-BL_z0)*BLW+(y+1)*BLA), through the nine chunks' blocks as the job has them. Returns whether any light got anywhere.
+function blkFlood(J){
+  const x0=J.cx*CS-15,z0=J.cz*CS-15,NB=J.nineL,SD=J.seeds;BL_x0=x0;BL_z0=z0;BL_any=false;
+  const tLo=J.yLo-1,tHi=J.yTop+1;let qt=0,ylo=H,yhi=-1;
+  for(let s=0;s<SD.length;s+=6){const y=SD[s+2],r=SD[s+3],g=SD[s+4],b=SD[s+5],n=SD[s]+SD[s+1]*BLW+(y+1)*BLA;
+    if(BL_R[n]>=r&&BL_G[n]>=g&&BL_B[n]>=b)continue;if(BL_R[n]<r)BL_R[n]=r;if(BL_G[n]<g)BL_G[n]=g;if(BL_B[n]<b)BL_B[n]=b;
+    if(!BL_INQ[n]){BL_INQ[n]=1;BL_Q[qt]=n;qt=(qt+1)&BL_QM;}if(y<ylo)ylo=y;if(y>yhi)yhi=y;}
   if(!qt){BL_y0=0;BL_y1=-1;return false;}
   // the columns of the window: which of the nine chunks each is in, and where in it
   for(let c=0;c<BLA;c++){const wx=BL_CX[c],wz=BL_CZ[c],i=wx<15?0:wx<15+CS?1:2,j=wz<15?0:wz<15+CS?1:2;BL_COLA[c]=NB[j*3+i];BL_COLO[c]=(wx-15-(i-1)*CS)+(wz-15-(j-1)*CS)*CS;}
@@ -11083,6 +11090,7 @@ function blkFill(cx,cz,yLo,yTop){
     if(y>0&&mx>dxz+(y-1<tLo?tLo-y+1:y-1>tHi?y-1-tHi:0)){k=n-BLA;cc=c;if(!B_OPQ[BL_COLA[cc][BL_COLO[cc]+(y-1)*A2]]){up=0;if(R[k]<r){R[k]=r;up=1;}if(Gn[k]<g){Gn[k]=g;up=1;}if(Bn[k]<bb){Bn[k]=bb;up=1;}if(up&&!INQ[k]){INQ[k]=1;Q[qe]=k;qe=(qe+1)&QM;if(y-1<yl)yl=y-1;if(y-1>yh)yh=y-1;}}}
     if(y<H-1&&mx>dxz+(y+1<tLo?tLo-y-1:y+1>tHi?y+1-tHi:0)){k=n+BLA;cc=c;if(!B_OPQ[BL_COLA[cc][BL_COLO[cc]+(y+1)*A2]]){up=0;if(R[k]<r){R[k]=r;up=1;}if(Gn[k]<g){Gn[k]=g;up=1;}if(Bn[k]<bb){Bn[k]=bb;up=1;}if(up&&!INQ[k]){INQ[k]=1;Q[qe]=k;qe=(qe+1)&QM;if(y+1<yl)yl=y+1;if(y+1>yh)yh=y+1;}}}
   }
+  BL_COLA.fill(null);   // (the job's blocks not held on to after)
   BL_y0=yl;BL_y1=yh;BL_any=true;return true;
 }
 // the light in block (x,y,z) of the world (as a channel's level times 17, 0 to 255), while a chunk's being meshed
@@ -11091,17 +11099,18 @@ function blkAt(x,y,z){
   if(!BL_any||wx<0||wx>=BLW||wz<0||wz>=BLW||y<-1||y>H){BL_r=BL_g=BL_b=0;return;}
   const n=wx+wz*BLW+(y+1)*BLA;BL_r=BL_R[n]*17;BL_g=BL_G[n]*17;BL_b=BL_B[n]*17;
 }
-// after meshing: how lit each of the chunk's own blocks is, for blkEdit, kept on its mesh entry; then the window wiped
-function blkDone(cx,cz,e,yLo,yTop){
-  e.lc=null;
+// after meshing: how lit each of the chunk's own blocks is, for blkEdit, to keep on its mesh entry ({lc, ly0, lh}, lc null
+// for none); then the window wiped
+function blkKeep(yLo,yTop){
+  let K={lc:null};
   if(BL_any){
     const ly0=Math.max(0,yLo-1),ly1=Math.min(H-1,yTop+1),lh=ly1-ly0+1,lc=new Uint8Array((lh*CS*CS+3)>>2);let any=false;
     for(let y=ly0;y<=ly1;y++)for(let lz=0;lz<CS;lz++){let n=15+(lz+15)*BLW+(y+1)*BLA,i=(y-ly0)*CS*CS+lz*CS;
       for(let lx=0;lx<CS;lx++,n++,i++){const m=Math.max(BL_R[n],BL_G[n],BL_B[n]);if(m){lc[i>>2]|=(m>10?3:m>5?2:1)<<((i&3)*2);any=true;}}}
-    if(any){e.lc=lc;e.ly0=ly0;e.lh=lh;}
+    if(any)K={lc,ly0,lh};
     if(BL_y1>=BL_y0){BL_R.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);BL_G.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);BL_B.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);}
   }
-  BL_any=false;BL_y0=0;BL_y1=-1;
+  BL_any=false;BL_y0=0;BL_y1=-1;return K;
 }
 // the shader's side: with Block lighting on, the materials are compiled with BLOCK_LIGHT (see nightPatch)
 function blkDefines(mat){if(BL_ON)mat.defines=Object.assign(mat.defines||{},{BLOCK_LIGHT:''});else if(mat.defines)delete mat.defines.BLOCK_LIGHT;}
@@ -11407,7 +11416,7 @@ function roadLanes(a,tops,at,x0,z0){
 }
 // the kinds of ground that blend into each other at their edges (buildChunk's gMix)
 const G_MIX=new Uint8Array(256),GMC=[1,1,1],GM_M=26;const GM_Q=new Array(49).fill(null);   // (the chunks round about, while one's blended)
-let GM_S=new Float32Array(0),GM_T=new Float32Array(0);const GM_OWN=new Float32Array(CS*CS*4);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
+let GM_T=new Float32Array(0);const GM_OWN=new Float32Array(CS*CS*4);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
 // a chunk's columns' top ground colours for the blend ([r,g,b,1] a column, or 0,0,0,0 where the top isn't ground), kept
 // with the chunk's block array (made again when the chunk is; a dug-out column keeps its old colour till then, which only
 // tints its neighbours a little)
@@ -11425,64 +11434,95 @@ function gmCols(qx,qz){
 function gmSig(C){let u=0,r=0,g=0,b=0;
   for(let o=0;o<C.length;o+=4){if(!C[o+3])continue;if(!u){u=1;r=C[o];g=C[o+1];b=C[o+2];}else if(C[o]!==r||C[o+1]!==g||C[o+2]!==b){u=2;break;}}
   C.u=u;C.ur=r;C.ug=g;C.ub=b;return C;}
-function buildChunk(cx,cz){
-  const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway?new Map():null;
+// A chunk's mesh is made in three steps, so that the middle one, most of the work, can be done on a thread of its own
+// (render/mesh-worker.js): meshPrep gathers what needs the world and its plan (the blocks of the chunk and the eight round
+// it, the roads' lanes, the lights round about, the grass's tint, the ground colours for the blend, the snow, the paint on
+// the roads), meshKernel turns that into the mesh's arrays and the block light, using nothing of the game's but fixed
+// tables, and meshApply makes the three.js meshes from them. buildChunk does all three there and then.
+// copy: the blocks copied, for a job sent off to a thread (the game goes on changing its own meanwhile)
+function meshPrep(cx,cz,copy){
+  const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway;
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
-  const gfxGet=(x,y,z)=>{const qx=Math.floor(x/CS),qz=Math.floor(z/CS),k=ckey(qx,qz);let v=gfx.get(k);if(!v){v=gfxArr(qx,qz);gfx.set(k,v);}return v[li(mod(x,CS),y,mod(z,CS))];};
-  const a=lf?a0.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/A2),r=i-y*A2;return leafDown(x0+(r%CS),y,z0+Math.floor(r/CS))?AIR:b;}):a0;   // (leaves that have fallen)
+  // (leaves that have fallen)
+  const leafed=(N,qx,qz)=>N.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/A2),r=i-y*A2;return leafDown(qx*CS+(r%CS),y,qz*CS+Math.floor(r/CS))?AIR:b;});
+  const a=lf?leafed(a0,cx,cz):copy&&!gfx?a0.slice():a0;
   // (a ship's chunk is laid out from the ship's own middle, not where its pocket is: numbers that big lose their fractions on
   // the graphics card, and the deck shakes as it moves. See ships.js)
-  const pkS=cx>=SHIP_CX0?shipPg(cz):null,mx0=pkS?x0-pkS.ox:x0,mz0=pkS?z0-pkS.oz:z0;
-  // (the eight chunks round about, fetched only if a block on the edge ends up asking)
-  const NB=[null,null,null,null,null,null,null,null,null];
+  const pk=cx>=SHIP_CX0,pkS=pk?shipPg(cz):null,mx0=pkS?x0-pkS.ox:x0,mz0=pkS?z0-pkS.oz:z0;
+  // the nine chunks as the mesh sees them (hidden features filled in, fallen leaves gone; the eight round about in the
+  // hidden-features view keep their leaves, as they always did), and as the light sees them (as they are)
+  const nineM=[],nineL=[];
+  for(let j=0;j<3;j++)for(let i=0;i<3;i++){const qx=cx+i-1,qz=cz+j-1,raw=chunkArr(qx,qz);
+    if(i===1&&j===1){nineM.push(a);nineL.push(gfx||lf?(copy?raw.slice():raw):a);continue;}
+    const L=copy?raw.slice():raw;nineL.push(L);nineM.push(gfx?gfxArr(qx,qz):lf?leafed(raw,qx,qz):L);}
   const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
-    if(lx>=0&&lx<CS&&lz>=0&&lz<CS)return a[lx+lz*CS+y*A2];
-    if(gfx)return gfxGet(x0+lx,y,z0+lz);
-    const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2,o=nj*3+ni;let N=NB[o];if(!N)N=NB[o]=chunkArr(cx+ni-1,cz+nj-1);
-    const b=N[lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];return b===LEAVES&&lf&&leafDown(x0+lx,y,z0+lz)?AIR:b;};
+    const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2;return nineM[nj*3+ni][lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];};
   const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
-  const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=d.b.length=0;}
   // the top of each column (the highest thing in it, even glass or leaves): only that block's top face is open to the sky
   const tops=new Int16Array(A2).fill(-1);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)for(let y=H-1;y>=0;y--){const b=a[lx+lz*CS+y*A2];if(b){tops[lz*CS+lx]=BLOCK[b].liquid?-1:y;break;}}
   let yTop=H-1;scan:for(;yTop>0;yTop--){const o=yTop*A2;for(let i=0;i<A2;i++)if(a[o+i])break scan;}
   // (roads' tops say where across the road they are, so the snow leaves the traffic's ruts: roadLanes)
-  if(snowRoads)roadLanes(a,tops,at,x0,z0);
+  const sr=snowRoads;let rdY=[],rdOut=[];if(sr){roadLanes(a,tops,at,x0,z0);rdY=RD_Y.slice();rdOut=rdY.map((y,n)=>RD_OUT[n].slice());}
   // the lowest layer with anything open in it (here or along the neighbours' edges): everything below is buried solid
   let yLo=0;low:for(;yLo<yTop;yLo++){
     const o=yLo*A2;for(let i=0;i<A2;i++)if(!B_OPQ[a[o+i]])break low;
     for(let k=0;k<CS;k++)if(!opq(-1,yLo,k)||!opq(CS,yLo,k)||!opq(k,yLo,-1)||!opq(k,yLo,CS))break low;
   }
   yLo=Math.max(0,yLo-1);
-  // the light from lamps and neon round about (none, and nothing to do, with Block lighting off or nothing lit in reach)
-  const BL=BL_ON,lit=BL&&blkFill(cx,cz,yLo,yTop);
-  // (a column of a building whose lights are out, lights-out.js: asked once a column, only where something glows)
-  // (the biome's tint on grass and leaves, world/climate.js: asked once a column, g 0 grass, 1 leaves; 1,1,1 in grassland)
-  const tnF=new Uint8Array(A2*2),tnC=new Float32Array(A2*6),tint=(lx,lz,g)=>{const i=(lz*CS+lx)*2+g;
-    if(!tnF[i]){tnF[i]=1;const T=bioTint(x0+lx,z0+lz,g);tnC[i*3]=T[0];tnC[i*3+1]=T[1];tnC[i*3+2]=T[2];}return i*3;};
+  // the lights round about, where they start (none, and nothing to do, with Block lighting off)
+  const BL=BL_ON,seeds=BL?blkSeeds(cx,cz,yLo,yTop):null;
+  // (the biome's tint on grass and leaves, world/climate.js: g 0 grass, 1 leaves, for each column with any; (column*2+g)*3)
+  const tint=new Float32Array(A2*6),tf=new Uint8Array(A2*2);
+  for(let y=yLo;y<=yTop;y++){const o=y*A2;for(let i=0;i<A2;i++){const b=a[o+i];if(b===GRASS)tf[i*2]=1;else if(b===LEAVES||b===PINE)tf[i*2+1]=1;}}
+  for(let i=0;i<A2*2;i++)if(tf[i]){const c=i>>1,T=bioTint(x0+c%CS,z0+Math.floor(c/CS),i&1);tint[i*3]=T[0];tint[i*3+1]=T[1];tint[i*3+2]=T[2];}
   // (where one kind of ground meets another, grass and sand, sand and red sand, dirt and snow..., the top faces' colours
   // blend from one to the other over some 50 blocks: each column's top ground colour (its texture's average times the
-  // grass's tint; nothing where the top isn't ground) is blurred twice with a 25-wide box each way, and each corner takes
-  // the blurred colour of the four columns round it, as a multiple of this block's own texture's average. The grid is the
-  // chunk and GM_M columns round it, enough for the two blurs; the other chunks' columns come from gmCols, kept per chunk)
-  const GM=GM_M,GW=CS+2*GM,GN=GW*GW,gS=GM_S.length===GN*4?GM_S:(GM_S=new Float32Array(GN*4)),gT=GM_T.length===GN*4?GM_T:(GM_T=new Float32Array(GN*4));
+  // grass's tint; nothing where the top isn't ground) is blurred twice with a 25-wide box each way (meshKernel), and each
+  // corner takes the blurred colour of the four columns round it, as a multiple of this block's own texture's average. The
+  // grid is the chunk and GM_M columns round it, enough for the two blurs; the other chunks' columns come from gmCols, kept per chunk)
+  const GM=GM_M,GW=CS+2*GM;let gS=null;
   // (most chunks are inside one biome on one kind of ground, all of it the same colour as far as the blend reaches: then
   // there's nothing to blend, and the top faces take the grass's tint as they always did. The chunk's own columns as they
   // are here (fallen leaves, hidden features) and the others as gmCols has them)
   let gmOn=false;{const O=gmSig(GM_OWN);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){const i=lz*CS+lx,y=tops[i],bb=y>=0?a[lx+lz*CS+y*A2]:0,o=i*4;
       O[o+3]=0;if(!G_MIX[bb])continue;const t=BLOCK[bb].tiles[0]*3;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
-      if(bb===GRASS){const T=tnC,k=tint(lx,lz,0);r*=T[k];g*=T[k+1];bl*=T[k+2];}O[o]=r;O[o+1]=g;O[o+2]=bl;O[o+3]=1;}
+      if(bb===GRASS){const k=i*6;r*=tint[k];g*=tint[k+1];bl*=tint[k+2];}O[o]=r;O[o+1]=g;O[o+2]=bl;O[o+3]=1;}
     gmSig(O);let u=O.u,r=O.ur,g=O.ug,b=O.ub;
     if(u===1){const q0=-Math.floor(GM/CS)-1,q1=Math.floor((CS+GM-1)/CS);
       for(let qz=q0;qz<=q1&&!gmOn;qz++)for(let qx=q0;qx<=q1;qx++){if(!qx&&!qz)continue;const gi=(qz+3)*7+qx+3,C=GM_Q[gi]||(GM_Q[gi]=gmCols(cx+qx,cz+qz));
         if(C.u===2||C.u===1&&(C.ur!==r||C.ug!==g||C.ub!==b)){gmOn=true;break;}}}
     else gmOn=u===2;}
-  if(gmOn)for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-GM,lz=j-GM,o=(j*GW+i)*4;
-    if(lx>=0&&lx<CS&&lz>=0&&lz<CS){const y=tops[lz*CS+lx],bb=y>=0?a[lx+lz*CS+y*A2]:0;gS[o+3]=0;gS[o]=gS[o+1]=gS[o+2]=0;
+  if(gmOn){gS=new Float32Array(GW*GW*4);for(let j=0;j<GW;j++)for(let i=0;i<GW;i++){const lx=i-GM,lz=j-GM,o=(j*GW+i)*4;
+    if(lx>=0&&lx<CS&&lz>=0&&lz<CS){const y=tops[lz*CS+lx],bb=y>=0?a[lx+lz*CS+y*A2]:0;
       if(!G_MIX[bb])continue;const t=BLOCK[bb].tiles[0]*3;let r=TILE_AVG[t],g=TILE_AVG[t+1],bl=TILE_AVG[t+2];
       if(bb===GRASS){const T=bioTint(x0+lx,z0+lz,0);r*=T[0];g*=T[1];bl*=T[2];}gS[o]=r;gS[o+1]=g;gS[o+2]=bl;gS[o+3]=1;continue;}
     const qx=Math.floor(lx/CS),qz=Math.floor(lz/CS),gi=(qz+3)*7+qx+3,C=GM_Q[gi]||(GM_Q[gi]=gmCols(cx+qx,cz+qz)),q=((lz-qz*CS)*CS+lx-qx*CS)*4;
-    gS[o]=C[q];gS[o+1]=C[q+1];gS[o+2]=C[q+2];gS[o+3]=C[q+3];}
+    gS[o]=C[q];gS[o+1]=C[q+1];gS[o+2]=C[q+2];gS[o+3]=C[q+3];}}
   GM_Q.fill(null);
+  // (the columns of a building whose lights are out, lights-out.js, 1 dark, -1 not: asked only where something glows above the street)
+  let dark=null;if(BL_DARK.size){dark=new Int8Array(A2);
+    for(let y=G+1;y<=yTop;y++){const o=y*A2;for(let i=0;i<A2;i++){const b=a[o+i];if(b&&BLOCK[b].glow&&!dark[i])dark[i]=bldgDarkAt(x0+i%CS,z0+Math.floor(i/CS))?1:-1;}}}
+  // (each column's top, where it's open to the sky, for the snow: 1 + when that top last changed)
+  const snow=new Float64Array(A2);for(let i=0;i<A2;i++)if(tops[i]>=0)snow[i]=1+(snowBorn.get(colKey(x0+i%CS,z0+Math.floor(i/CS)))||0);
+  // (the paint and rails laid on the roads, worked out here; only the light on them is left to meshKernel)
+  const rm=pk?null:routeMarks(cx,cz);
+  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM,nineL,rdY,rdOut,sr,BL,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
+}
+// the arrays a job hands over to a thread with it, each once (the job's own copies: nothing the game goes on using)
+function meshXfer(J){
+  const s=new Set([J.a.buffer,J.tops.buffer,J.tint.buffer,J.snow.buffer]);for(const N of J.nineM)s.add(N.buffer);for(const N of J.nineL)s.add(N.buffer);
+  for(const O of J.rdOut)s.add(O.buffer);for(const A of [J.seeds,J.gS,J.dark,J.rmS])if(A)s.add(A.buffer);return [...s];}
+// the mesh's arrays from what meshPrep gathered: L, [opaque, water] each {p,u,c,k,b,i} or null; light, how lit the chunk's
+// own blocks are (for blkEdit), and rmB, the light on the paint on the roads
+function meshKernel(J){
+  const {x0,z0,mx0,mz0,yLo,yTop,a,tops,nineM,BL,tint,gS,dark,snow}=J,A2=CS*CS,gmOn=!!gS;
+  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
+    const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2;return nineM[nj*3+ni][lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];};
+  const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
+  const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=d.b.length=0;}
+  // the light from lamps and neon round about (none, and nothing to do, with Block lighting off or nothing lit in reach)
+  const lit=BL&&blkFlood(J);
+  const GM=GM_M,GW=CS+2*GM,gT=GM_T.length===GW*GW*4?GM_T:(GM_T=new Float32Array(GW*GW*4));
   // (a 25-wide box along x then z, twice: sliding sums, missing columns past the grid's edge counting as nothing)
   const box=(A,B,dx,dy)=>{for(let l=0;l<GW;l++){let r=0,g=0,b=0,w=0;
     for(let k=-12;k<GW;k++){const ia=k+12,ib=k-13;
@@ -11494,17 +11534,17 @@ function buildChunk(cx,cz){
     for(let dj=-1;dj<=0;dj++)for(let di=-1;di<=0;di++){const o=((lz+cz+dj+GM)*GW+lx+cx+di+GM)*4;r+=gS[o];g+=gS[o+1];b+=gS[o+2];w+=gS[o+3];}
     const t=own*3;if(w<1e-6){GMC[0]=GMC[1]=GMC[2]=1;return GMC;}
     GMC[0]=Math.min(1.45,r/w/(TILE_AVG[t]||1));GMC[1]=Math.min(1.45,g/w/(TILE_AVG[t+1]||1));GMC[2]=Math.min(1.45,b/w/(TILE_AVG[t+2]||1));return GMC;};
-  const dkC=BL_DARK.size?new Int8Array(A2).fill(-1):null,darkCol=(lx,lz)=>{const i=lz*CS+lx;if(dkC[i]<0)dkC[i]=bldgDarkAt(x0+lx,z0+lz)?1:0;return dkC[i]===1;};
+  const rdYs=J.rdY,rdOuts=J.rdOut,sr=J.sr;
   for(let y=yLo;y<=yTop;y++){
     const midY=y>=1&&y<H-1;
     for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++){
     const i0=lx+lz*CS+y*A2,b=a[i0];if(!b)continue;
-    const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow&&!(y>G&&BL_DARK.size&&darkCol(lx,lz)),out=bufs[liquid?1:0];
+    const info=BLOCK[b],liquid=!!info.liquid,glow=!!info.glow&&!(y>G&&dark&&dark[lz*CS+lx]===1),out=bufs[liquid?1:0];
     if(lit&&(info.ramp||info.thin))blkAt(x0+lx,y,z0+lz);else BL_r=BL_g=BL_b=0;
     if(info.ramp){emitRamp(out,mx0+lx,y,mz0+lz,info);continue;}
     if(info.hide)continue;
     if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
-    const skyTop=tops[lz*CS+lx]===y,tg=b===GRASS?0:b===LEAVES||b===PINE?1:-1,ti=tg<0?-1:tint(lx,lz,tg);
+    const skyTop=tops[lz*CS+lx]===y,tg=b===GRASS?0:b===LEAVES||b===PINE?1:-1,ti=tg<0?-1:(lz*CS+lx)*6+tg*3;
     const waterTop=liquid&&at(lx,y+1,lz)!==WATER;
     // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
     const inner=midY&&lx>0&&lx<CS-1&&lz>0&&lz<CS-1,tiles=info.tiles;
@@ -11516,9 +11556,9 @@ function buildChunk(cx,cz){
       let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length,bo=BL?out.b.length:0;
       const wb=lit?(lx+15)+(lz+15)*BLW+(y+1)*BLA:0,wi=wb+F.wf;   // (the block, and the open one in front of the face, in block light's window)
       const gm=gmOn&&F.dy1&&skyTop&&G_MIX[b]===1;
-      const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(colKey(X,Z))||0):0,V0=1-(ty+1)/AR;
+      const sky=F.dy1&&skyTop?snow[lz*CS+lx]:0,V0=1-(ty+1)/AR;
       // (a road's top that hasn't been smashed open since the snow came; a road at a fourth level in one chunk is open tarmac)
-      const rdI=sky===1&&snowRoads&&(RD_TOP[b]===1||b===METAL&&RD_TOP[at(lx-1,y,lz)]===1&&RD_TOP[at(lx+1,y,lz)]===1)?RD_Y.indexOf(y):-2,rdO=rdI>=0?RD_OUT[rdI]:null;
+      const rdI=sky===1&&sr&&(RD_TOP[b]===1||b===METAL&&RD_TOP[at(lx-1,y,lz)]===1&&RD_TOP[at(lx+1,y,lz)]===1)?rdYs.indexOf(y):-2,rdO=rdI>=0?rdOuts[rdI]:null;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
         P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=mz0+lz+c.z;
@@ -11542,8 +11582,8 @@ function buildChunk(cx,cz){
         }
         if(gm){const M=gMix(lx,lz,y,c.x,c.z,tile);C[co++]=s*M[0];C[co++]=s*M[1];C[co++]=s*M[2];}
         else if(ti<0||F.sel===1&&!tg){C[co++]=s;C[co++]=s;C[co++]=s;}
-        else if(tg||F.dy1){C[co++]=s*tnC[ti];C[co++]=s*tnC[ti+1];C[co++]=s*tnC[ti+2];}
-        else{C[co++]=s*(1+tnC[ti])/2;C[co++]=s*(1+tnC[ti+1])/2;C[co++]=s*(1+tnC[ti+2])/2;}   // (a grass block's side: its green edge, half)
+        else if(tg||F.dy1){C[co++]=s*tint[ti];C[co++]=s*tint[ti+1];C[co++]=s*tint[ti+2];}
+        else{C[co++]=s*(1+tint[ti])/2;C[co++]=s*(1+tint[ti+1])/2;C[co++]=s*(1+tint[ti+2])/2;}   // (a grass block's side: its green edge, half)
         K[ko++]=rdO?-1-rdO[(lz+c.z)*(CS+1)+lx+c.x]:rdI===-1?-1-RD_OPEN:sky;
       }
       out.p.length=po;out.u.length=uo;out.c.length=co;out.k.length=ko;if(BL)out.b.length=bo;
@@ -11551,37 +11591,46 @@ function buildChunk(cx,cz){
     }
     }
   }
-  const k=ckey(cx,cz),old=meshes.get(k);
+  const L=bufs.map((d,i)=>{
+    if(i&&(!d.i.length||J.pk))return null;   // (a ship's own water, round its hull, isn't drawn: the sea it's in is)   // (no water in this chunk: no mesh for it to go round every frame)
+    const ia=d.i.take();return {p:d.p.take(),u:d.u.take(),c:d.c.take(),k:d.k.take(),b:BL?d.b.take():null,i:d.p.length/3>65535?ia:Uint16Array.from(ia)};});
+  // (the light on the paint on the roads, while the window's still filled)
+  let rmB=null;const S=J.rmS;if(S){rmB=new Uint8Array(S.length);for(let i=0;i<S.length;i+=3){blkAt(S[i],S[i+1],S[i+2]);rmB[i]=BL_r;rmB[i+1]=BL_g;rmB[i+2]=BL_b;}}
+  return {L,light:BL?blkKeep(yLo,yTop):null,rmB};
+}
+// the chunk's meshes made from meshKernel's arrays, in place of its old ones
+function meshApply(J,R){
+  const {cx,cz,mx0,mz0,yLo,yTop,pk}=J,k=ckey(cx,cz),old=meshes.get(k);
   regionTouch(cx,cz);
   if(old)for(const m of old.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}
-  const m=[],pk=cx>=SHIP_CX0,par=pkS?pkS.grp:scene;   // (a ship's blocks hang off the ship, wherever it's got to: see ships.js)
-  bufs.forEach((d,i)=>{
-    if(i&&(!d.i.length||pk))return;   // (a ship's own water, round its hull, isn't drawn: the sea it's in is)   // (no water in this chunk: no mesh for it to go round every frame)
+  const m=[],pkS=pk?shipPg(cz):null,par=pkS?pkS.grp:scene;   // (a ship's blocks hang off the ship, wherever it's got to: see ships.js)
+  R.L.forEach((d,i)=>{if(!d)return;
     const g=new THREE.BufferGeometry();
-    g.setAttribute('position',new THREE.Float32BufferAttribute(d.p.take(),3));
-    g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u.take(),2));
-    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c.take(),3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k.take(),1));
-    if(BL)g.setAttribute('aBlk',new THREE.BufferAttribute(d.b.take(),3,true));
-    const big=d.p.length/3>65535,ia=d.i.take();
-    g.setIndex(new THREE.BufferAttribute(big?ia:Uint16Array.from(ia),1));
+    g.setAttribute('position',new THREE.Float32BufferAttribute(d.p,3));
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(d.u,2));
+    g.setAttribute('color',new THREE.Float32BufferAttribute(d.c,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(d.k,1));
+    if(d.b)g.setAttribute('aBlk',new THREE.BufferAttribute(d.b,3,true));
+    g.setIndex(new THREE.BufferAttribute(d.i,1));
     // (where it is, known already: saves three.js going through every corner to find out)
     if(THREE.Sphere)g.boundingSphere=new THREE.Sphere(new V3(mx0+CS/2,(yLo+yTop+1)/2,mz0+CS/2),Math.hypot(CS/2,(yTop+1-yLo)/2,CS/2)+0.01);
     const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;par.add(mesh);m.push(mesh);
   });
-  if(!pk){const mk=routeMarks(cx,cz);if(mk)m.push(mk);}
-  const E={cx,cz,m};meshes.set(k,E);if(!pk)markMeshed(cx,cz,true);
-  if(BL)blkDone(cx,cz,E,yLo,yTop);
+  if(J.rm){const mk=routeMesh(J.rm,R.rmB);if(mk)m.push(mk);}
+  const E={cx,cz,m,lc:null};meshes.set(k,E);if(!pk)markMeshed(cx,cz,true);
+  const Lt=R.light;if(Lt&&Lt.lc){E.lc=Lt.lc;E.ly0=Lt.ly0;E.lh=Lt.lh;}
+  return E;
 }
-// ---- the paint on the highways out on the plains: thin flat strips laid on the road surface at the road's own angle,
+function buildChunk(cx,cz){meshStale(cx,cz);const J=meshPrep(cx,cz,false);meshApply(J,meshKernel(J));}
+// ---- the paint on the highways out on the plains (worked out by meshPrep, made into a mesh by routeMesh): thin flat strips laid on the road surface at the road's own angle,
 // following its curves -- the yellow centre line and the dashed white lines between the lanes. Built with each chunk
 // (each little piece of road by the chunk its middle is in), skipping any piece whose road has been smashed away. ----
 function routeMarks(cx,cz){
   const x0=cx*CS,z0=cz*CS,L=routesNearBox(x0,z0,x0+CS-1,z0+CS-1);
-  const P=[],U=[],C=[],K=[],I=[],Bl=[];
+  const P=[],U=[],C=[],K=[],I=[],S=[];
   const uvOf=t=>[((t%AC)+0.5)/AC,1-(Math.floor(t/AC)+1)/AR+0.5/AR];
   // (yb: the height at the b end, if it isn't level -- on a ramp)
   const quad=(ax,az,bx,bz,nx,nz,o,w,y,t,yb=y)=>{const n=P.length/3,[u,v]=uvOf(t),o0=o-w/2,o1=o+w/2;
-    for(const [px,pz,py] of [[ax+nx*o0,az+nz*o0,y],[ax+nx*o1,az+nz*o1,y],[bx+nx*o0,bz+nz*o0,yb],[bx+nx*o1,bz+nz*o1,yb]]){P.push(px,py,pz);U.push(u,v);C.push(0.8,0.8,0.8);K.push(1);if(BL_ON){blkAt(px,py,pz);Bl.push(BL_r,BL_g,BL_b);}}
+    for(const [px,pz,py] of [[ax+nx*o0,az+nz*o0,y],[ax+nx*o1,az+nz*o1,y],[bx+nx*o0,bz+nz*o0,yb],[bx+nx*o1,bz+nz*o1,yb]]){P.push(px,py,pz);U.push(u,v);C.push(0.8,0.8,0.8);K.push(1);if(BL_ON)S.push(px,py,pz);}
     I.push(n,n+1,n+2,n+1,n+3,n+2);};
   const byRoute=new Map();for(let q=0;q<L.length;q+=2){if(!byRoute.has(L[q]))byRoute.set(L[q],[]);byRoute.get(L[q]).push(L[q],L[q+1]);}
   for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],[ax,az]=R.pts[i],[bx,bz]=R.pts[i+1],mx=(ax+bx)/2,mz=(az+bz)/2;
@@ -11643,13 +11692,16 @@ function routeMarks(cx,cz){
        const l=Math.hypot(bx-ax,bz-az)||1,tx=(bx-ax)/l,tz=(bz-az)/l;
        quad(mx-tz*1.15,mz+tx*1.15,mx+tz*1.15,mz-tx*1.15,-tx,-tz,0,0.36,G+1.07,8);
        for(const k of [-0.72,0.72])quad(ax,az,bx,bz,-tz,tx,k,0.13,G+1.2,18);}}}
-  if(!I.length)return null;
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));
-  g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(K,1));g.setIndex(I);
-  if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(Uint8Array.from(Bl),3,true));
+  return I.length?{P,U,C,K,I,S}:null;
+}
+// the paint's mesh, with the light on each corner (meshKernel's rmB, the points routeMarks gave in S)
+function routeMesh(D,Bl){
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(D.P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(D.U,2));
+  g.setAttribute('color',new THREE.Float32BufferAttribute(D.C,3));g.setAttribute('aSky',new THREE.Float32BufferAttribute(D.K,1));g.setIndex(D.I);
+  if(Bl)g.setAttribute('aBlk',new THREE.BufferAttribute(Bl,3,true));
   const mesh=new THREE.Mesh(g,matDecal);scene.add(mesh);return mesh;
 }
-function clearWorld(){rebuildQ.clear();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;
+function clearWorld(){rebuildQ.clear();meshForget();regionsClear();planJob.S=null;for(const e of meshes.values())for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.clear();MESHED.fill(0);meshedDirty=true;farDirty=true;chunks.clear();FAR_BS.clear();gfxRecC.clear();plotCache.clear();if(RLF_SH)RLF_SH.clear();plotTypeC.clear();lampSpotC.clear();blkLampC.clear();BL_PROPS.clear();blkLampOut.clear();bridgeCache.clear();superCache.clear();siteC.clear();siteI.clear();setCache.clear();setAtCache.clear();jDegC.clear();linkNearC.clear();if(RIV_H){RIV_H.clear();RIV_LV.clear();}ctlCache.clear();zoneCache.clear();farmC.clear();cloverCache.clear();clearLayout();joinCache.clear();icCache.clear();ctlCache.clear();lastK=-1;
   // (and the rest of what's remembered about a world's plan, which used to be left as the last world had it when a new
   // one was made without loading the page again: coasts, ports, railways, airports, dumps, turbines, names)
   for(const M of [apAtC,dumpSC,setNameC,chainC,coastOwnC,portC,coastC,nearSeaC,hwDeadC,railLinkC,railNearC,railPlotC,furnC,metroC,caveMouthC,lumberNearC,turbC,STK_C,CAP_FIELD,propBorn,bsignUp])M.clear();}
@@ -11729,12 +11781,12 @@ function updateChunks(budget,dt){
   if(same&&chunkScan.full&&chunkScan.size===meshes.size)return;
   let made=0,gens=0;
   scan:for(const [dx,dz] of chunkOrder(R))for(const [pcx,pcz] of centers){
-    if(meshes.has(ckey(pcx+dx,pcz+dz)))continue;
+    {const k=ckey(pcx+dx,pcz+dz);if(meshes.has(k)||meshWaiting(k))continue;}
     if(made>=budget)break scan;
     // (a mesh needs its neighbours' blocks too, which may mean making all eight first: no more than three a frame, then carry on next time)
     const X=pcx+dx,Z=pcz+dz;
     for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);if(++gens>=3){chunkScan.key=key;chunkScan.full=false;return;}}
-    buildChunk(X,Z);made++;
+    meshAsk(X,Z);made++;
   }
   chunkScan.key=key;chunkScan.full=!made;chunkScan.size=meshes.size;
 }
@@ -11749,15 +11801,92 @@ function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
 // the chunk nearest a player goes first, as that's where the smashing being looked at is.
 const REBUILD_MS=5;
 function flushRebuilds(){
+  meshTick();
   if(!rebuildQ.size)return;
+  const full=()=>MW.ws.length&&MW.pend.size>=MW_LIM;if(full())return;
   const t0=performance.now(),ms=Math.min(REBUILD_MS,3+rebuildQ.size*0.5);   // (more waiting: a bit more time, so it can't fall far behind; at least one a frame, however long it takes)
   if(rebuildQ.size>2){let best=-1,bd=1e9;
     for(const p of players){if(!p.active)continue;const x=pwx(p)/CS-.5,z=pwz(p)/CS-.5;
       for(const k of rebuildQ){if(collHold.has(k))continue;const e=meshes.get(k);if(!e)continue;const d=Math.abs(e.cx-x)+Math.abs(e.cz-z);if(d<bd){bd=d;best=k;}}}
-    if(best!==-1){rebuildQ.delete(best);const e=meshes.get(best);buildChunk(e.cx,e.cz);if(performance.now()-t0>ms)return;}}
-  for(const k of rebuildQ){if(collHold.has(k))continue;rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;buildChunk(e.cx,e.cz);if(performance.now()-t0>ms)break;}
+    if(best!==-1){rebuildQ.delete(best);const e=meshes.get(best);meshAsk(e.cx,e.cz);if(performance.now()-t0>ms||full())return;}}
+  for(const k of rebuildQ){if(collHold.has(k))continue;rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;meshAsk(e.cx,e.cz);if(performance.now()-t0>ms||full())break;}
 }
 
+// ---------- Chunk meshes made on threads of their own ----------
+// Making a chunk's mesh takes 1 to 2.5 ms, and a building coming down asks for dozens of them, so most of it is done off the
+// main thread: meshAsk gathers what the chunk needs (meshPrep, render/meshing.js), sends it to one of a couple of workers,
+// which run meshKernel on it, and the meshes are made from what comes back at the start of a later frame (meshTick), a
+// frame or two late. The workers are made from this very page's own functions (their source, taken here while the page
+// loads, before the profiler wraps any of them) and fixed tables, sent as a Blob, so the game stays one file. Where there
+// are no workers (the tests, in Node) or they fail, or for ships' chunks and the debug menu's hidden caves, sewers and
+// subways, it's all done there and then as before (buildChunk), and the picture comes out the same either way.
+const MW_FNS=[meshKernel,blkFlood,blkAt,blkKeep,emitBox,emitFence,emitRamp].map(f=>f.toString()).join('\n')+'\n'+MBuf.toString()+'\nconst FENCEISH='+FENCEISH.toString()+',mkBufs='+mkBufs.toString()+';\n';
+// (at most this many waiting for a worker at once, so a crater's worth of rebuilds can't queue up seconds of work behind
+// the chunks that come into view)
+const MW_LIM=8;
+const MW={ws:[],off:false,pend:new Map(),done:[],id:0,why:''};
+// the worker's script: the tables it reads, its own working arrays, and the functions
+function mwBody(){
+  const val=x=>ArrayBuffer.isView(x)?'new '+x.constructor.name+'(['+Array.from(x).join(',')+'])':JSON.stringify(x);
+  const blk=BLOCK.map(b=>b&&{tiles:b.tiles,liquid:b.liquid,glow:b.glow,ramp:b.ramp,thin:b.thin,hide:b.hide,post:b.post,stair:b.stair,solid:b.solid,transparent:b.transparent,brittle:b.brittle});
+  const K={CS,H,G,AC,AR,DIM,AO,RD_OPEN,BLW,BLA,BLN,BL_QM,GM_M,FACES,FACE_T,B_OPQ,B_SEE,RD_TOP,G_MIX,TILE_AVG,BL_D,BL_CX,BL_CZ,GMC,BLOCK:blk,
+    AIR,STONE,WATER,GRASS,LEAVES,PINE,METAL,FENCE,FENCE_W,CHAINLINK};
+  let s='"use strict";\n';for(const k in K)s+='const '+k+'='+val(K[k])+';\n';
+  s+='let BL_ON=true,snowRoads=true,BL_x0=0,BL_z0=0,BL_any=false,BL_y0=0,BL_y1=-1,BL_r=0,BL_g=0,BL_b=0,GM_T=new Float32Array(0);\n';
+  s+='const BL_R=new Uint8Array(BLN),BL_G=new Uint8Array(BLN),BL_B=new Uint8Array(BLN),BL_INQ=new Uint8Array(BLN),BL_Q=new Int32Array(BL_QM+1),BL_COLO=new Int32Array(BLA),BL_COLA=new Array(BLA).fill(null);\n';
+  s+=MW_FNS+'const MB=[mkBufs(),mkBufs()];\n';
+  // (what comes back is handed over, not copied)
+  s+='onmessage=e=>{const J=e.data;BL_ON=J.BL;snowRoads=J.sr;let R;try{R=meshKernel(J);}catch(err){postMessage({id:J.id,k:J.k,err:String(err&&err.stack||err)});return;}\n'+
+     '  const t=[];for(const d of R.L)if(d)for(const n of ["p","u","c","k","b","i"])if(d[n])t.push(d[n].buffer);if(R.light&&R.light.lc)t.push(R.light.lc.buffer);if(R.rmB)t.push(R.rmB.buffer);\n'+
+     '  postMessage({id:J.id,k:J.k,R},t);};\n';
+  return s;
+}
+// the workers, made the first time they're wanted: two, or one on a machine with only two cores
+function mwUp(){
+  if(MW.ws.length)return true;if(MW.off)return false;
+  if(typeof Worker==='undefined'||typeof Blob==='undefined'||typeof URL==='undefined'||!URL.createObjectURL){MW.off=true;MW.why='no workers here';return false;}
+  try{const u=URL.createObjectURL(new Blob([mwBody()],{type:'text/javascript'})),n=Math.max(1,Math.min(2,(navigator.hardwareConcurrency||2)-1));
+    for(let i=0;i<n;i++){const w=new Worker(u);w.n=0;w.onmessage=mwGot;w.onerror=e=>mwFail('worker: '+(e&&e.message));MW.ws.push(w);}}
+  catch(e){mwFail(e);return false;}
+  return true;
+}
+// back to making them all on the main thread, for the rest of the game: what was waiting is asked for again
+function mwFail(why){
+  MW.off=true;MW.why=String(why);console.warn('chunk meshes made on the main thread from now on:',MW.why);
+  for(const w of MW.ws)try{w.terminate();}catch(e){}MW.ws.length=0;
+  for(const [k,P] of MW.pend)if(P.re&&meshes.has(k))rebuildQ.add(k);
+  MW.pend.clear();MW.done.length=0;chunkScan.key='';   // (new chunks that were waiting: updateChunks looks again)
+}
+function mwGot(e){
+  const d=e.data;this.n--;const P=MW.pend.get(d.k);if(!P||P.id!==d.id)return;
+  if(d.err){mwFail(d.err);return;}
+  MW.pend.delete(d.k);MW.done.push([P,d.R]);
+}
+// a chunk's mesh, made on a worker if there are any (and the result taken up by meshTick), or there and then
+function meshAsk(cx,cz){
+  if(cx>=SHIP_CX0||GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway||!mwUp()){buildChunk(cx,cz);return;}
+  const k=ckey(cx,cz),Q=MW.pend.get(k);if(Q){Q.again=true;return;}   // (one at a time for a chunk; changed meanwhile, it's asked again once that one's back)
+  const J=meshPrep(cx,cz,true),id=++MW.id,w=MW.ws.reduce((a,b)=>b.n<a.n?b:a);
+  MW.pend.set(k,{id,re:meshes.has(k),again:false,stale:false,t:performance.now(),J:{cx,cz,mx0:J.mx0,mz0:J.mz0,yLo:J.yLo,yTop:J.yTop,pk:J.pk,rm:J.rm}});
+  J.rm=null;J.id=id;J.k=k;w.n++;
+  try{w.postMessage(J,meshXfer(J));}catch(e){mwFail(e);buildChunk(cx,cz);}
+}
+// (made there and then while one was on its way: what comes back is out of date)
+function meshStale(cx,cz){if(MW.pend.size){const P=MW.pend.get(ckey(cx,cz));if(P)P.stale=true;}}
+// whether a chunk's mesh is on its way
+const meshWaiting=k=>MW.pend.has(k);
+// the meshes that have come back, made (each frame, before the rebuilds)
+function meshTick(){
+  if(!MW.done.length&&!MW.pend.size)return;
+  const now=performance.now();for(const P of MW.pend.values())if(now-P.t>5000){mwFail('no answer in 5 s');return;}
+  for(const [P,R] of MW.done){const k=ckey(P.J.cx,P.J.cz);
+    // (a rebuild for a chunk since dropped, out of view, is thrown away)
+    if(!P.stale&&(!P.re||meshes.has(k)))meshApply(P.J,R);else if(!P.re)chunkScan.key='';   // (a new one not used: updateChunks looks again)
+    if(P.again&&meshes.has(k))rebuildQ.add(k);}
+  MW.done.length=0;
+}
+// (a new world: whatever was on its way is for the old one)
+function meshForget(){for(const P of MW.pend.values())P.stale=true;MW.done.length=0;}
 // ---------- The world, saved and loaded: the smashed blocks packed chunk by chunk, save() and load() ----------
 // (It was the top of render/sky.js. What goes where once it is saved, the browser or a file, is ui/saves.js.)
 let saveTimer=null;
@@ -35475,7 +35604,7 @@ const profEvWrap=(k,f,ok)=>function(){if(PROF.on&&(!ok||ok.apply(null,arguments)
 // them up by name)
 genChunk=profWrap('gen',profEvWrap('chunk made',genChunk));
 buildChunk=profWrap('meshing',buildChunk);
-blkFill=profWrap('lighting',blkFill);
+blkFlood=profWrap('lighting',blkFlood);meshAsk=profWrap('meshing',meshAsk);meshTick=profWrap('meshing',meshTick);
 regionTick=profWrap('regions',regionTick);
 renderView=profWrap('render',renderView);
 collapseBuilding=profEvWrap('collapse',collapseBuilding);

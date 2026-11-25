@@ -3,7 +3,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,frame,meshes,buildChunk,crush,G,CS,CELL,DT,ckey,get BL(){return BL_ON},set BL(v){BL_ON=v},blkFill,blkDone,chunkArr,blkEmitters,rebuildQ,setRaw,get:get,B_LIT};})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,frame,meshes,buildChunk,crush,G,CS,CELL,DT,ckey,get BL(){return BL_ON},set BL(v){BL_ON=v},blkSeeds,blkFlood,blkKeep,chunkArr,blkEmitters,rebuildQ,setRaw,get:get,B_LIT};})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 const {Q,V3,Rot,Col,Mat,O3,M4,THREE}=require('./stub-three.js');   // (the stand-in three.js every suite shares)
 const listeners={};
@@ -48,5 +48,5 @@ console.log('same geometry',same+'/'+list.length,'lit corners',(100*lit/verts).t
 // an edit: a lamp block put in and taken out again rebuilds the chunks round it
 T.rebuildQ.clear();const x=cx0*CS+8,z=cz0*CS+8,y=T.G+3;const was=T.get(x,y,z);T.setRaw(x,y,z,26+0);const q1=T.rebuildQ.size;T.rebuildQ.clear();T.setRaw(x,y,z,was);
 console.log('rebuilds queued by a lamp block',q1);
-{T.BL=true;const t=process.hrtime.bigint();for(let r=0;r<10;r++)for(const c of dense){T.blkFill(c[0],c[1],0,140);T.blkDone(c[0],c[1],{},0,140);}console.log('fill alone (densest)',(Number(process.hrtime.bigint()-t)/1e6/10/dense.length).toFixed(2),'ms');}
+{T.BL=true;const t=process.hrtime.bigint();for(let r=0;r<10;r++)for(const c of dense){const NL=[];for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++)NL.push(T.chunkArr(c[0]+i,c[1]+j));T.blkFlood({cx:c[0],cz:c[1],yLo:0,yTop:140,nineL:NL,seeds:T.blkSeeds(c[0],c[1],0,140)});T.blkKeep(0,140);}console.log('fill alone (densest)',(Number(process.hrtime.bigint()-t)/1e6/10/dense.length).toFixed(2),'ms');}
 process.exit(0);

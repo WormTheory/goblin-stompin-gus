@@ -31,6 +31,7 @@ world/generate.js
 world/sites.js
 render/block-light.js
 render/meshing.js
+render/mesh-worker.js
 core/world-save.js
 render/sky.js
 render/weather.js

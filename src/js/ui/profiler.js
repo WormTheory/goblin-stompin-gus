@@ -36,7 +36,7 @@ const profEvWrap=(k,f,ok)=>function(){if(PROF.on&&(!ok||ok.apply(null,arguments)
 // them up by name)
 genChunk=profWrap('gen',profEvWrap('chunk made',genChunk));
 buildChunk=profWrap('meshing',buildChunk);
-blkFill=profWrap('lighting',blkFill);
+blkFlood=profWrap('lighting',blkFlood);meshAsk=profWrap('meshing',meshAsk);meshTick=profWrap('meshing',meshTick);
 regionTick=profWrap('regions',regionTick);
 renderView=profWrap('render',renderView);
 collapseBuilding=profEvWrap('collapse',collapseBuilding);

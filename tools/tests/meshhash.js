@@ -27,7 +27,7 @@ for(const f of els.play.L.click)f();pads.length=0;
 for(let i=0;i<30;i++){now+=16.7;T.frame(now);}
 const P=T.players[0];
 const fnv=(h,a)=>{for(let i=0;i<a.length;i++){const v=Math.round(a[i]*1000);h=Math.imul(h^v,16777619)>>>0;}return h;};
-const hashMesh=e=>{let h=2166136261,n=0;for(const m of e.m){const g=m.geometry;for(const k of ['position','uv','color','aSky'])h=fnv(h,Float32Array.from(g.attributes[k].array));   /* (as the graphics card gets them) */const I=g.index&&(g.index.array||g.index);h=fnv(h,I);n+=I.length;}return [h,n];};
+const hashMesh=e=>{let h=2166136261,n=0;for(const m of e.m){const g=m.geometry;for(const k of ['position','uv','color','aSky','aBlk'])if(g.attributes[k])h=fnv(h,Float32Array.from(g.attributes[k].array));   /* (as the graphics card gets them) */const I=g.index&&(g.index.array||g.index);h=fnv(h,I);n+=I.length;}return [h,n];};
 let tot=2166136261,faces=0,chunks=0;const lines=[];
 const spots=[[0,0],[17,5],[-23,31],[40,-12],[-60,-60],[90,70]];
 const cx0=Math.floor(P.pos.x/T.CS),cz0=Math.floor(P.pos.z/T.CS);

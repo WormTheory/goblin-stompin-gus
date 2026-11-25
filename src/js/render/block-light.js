@@ -164,7 +164,7 @@ function blkHaloPick(){
   const LP=[],add=(x,y,z,r,g,b,s,k,T=L)=>{const d=near(x,z);if(d<(T===L?R:RP))T.push([x,y,z,r,g,b,d,s,k]);};
   const cs=new Set();for(const q of P)for(let qx=Math.floor((q.pos.x-RP)/CS);qx<=Math.floor((q.pos.x+RP)/CS);qx++)for(let qz=Math.floor((q.pos.z-RP)/CS);qz<=Math.floor((q.pos.z+RP)/CS);qz++)cs.add(qx+','+qz);
   for(const c of cs){const [qx,qz]=c.split(',').map(Number);if(!meshes.has(ckey(qx,qz)))continue;
-    // (the street lamps that stand and are lit, as blkFill has them)
+    // (the street lamps that stand and are lit, as blkSeeds has them)
     if(qx<SHIP_CX0&&near((qx+0.5)*CS,(qz+0.5)*CS)<R+CS)for(const S of blkLamps(qx,qz)){if(downFix.has(S.key)||falling.has(S.key)||blkLampOut.has(S.key)||blkNuked(S.fx,S.fz))continue;
       if(chunks.has(ckey(Math.floor(S.fx/CS),Math.floor(S.fz/CS)))&&(get(S.fx,G,S.fz)===ASPHALT||get(S.fx,G+1,S.fz)!==AIR))continue;
       if(get(S.x,S.y,S.z)!==AIR)continue;add(S.x+0.5,S.y+0.3,S.z+0.5,BL_STREET[0],BL_STREET[1],BL_STREET[2]);}
@@ -236,7 +236,7 @@ function blkGlowScan(){
   BL_GLOW=L;BL_MOVC=M;blkGlowLight(L);
 }
 // ...and the ones that stay put (a sign, a billboard, a marquee: not a vehicle's lamps, nor anything that flashes) light
-// what's round them as the lamps do: the BL_GLOWL_N nearest the players, into the fill (blkFill) like the fires, at a level
+// what's round them as the lamps do: the BL_GLOWL_N nearest the players, into the fill (blkSeeds) like the fires, at a level
 // by their size and brightness; one coming, going or changing remeshes round it. Each look notes where every one was and
 // its colour, and it's only counted once it's been the same two looks running (anything ever seen to change colour, never).
 const BL_GLOWL=new Map(),BL_GLOWL_N=48;
@@ -333,18 +333,15 @@ function blkEdit(x,y,z,old,nb,A){
   const c=Math.max(blkCls(x,y,z),blkCls(x-1,y,z),blkCls(x+1,y,z),blkCls(x,y-1,z),blkCls(x,y+1,z),blkCls(x,y,z-1),blkCls(x,y,z+1));
   if(c)blkAround(x,z,[0,4,9,14][c]);
 }
-// the fill for chunk (cx,cz), whose faces run from layer yLo to yTop: the light in every open block of the window
-// (BL_R/G/B, at (x-BL_x0)+(z-BL_z0)*BLW+(y+1)*BLA). Returns whether any light got anywhere.
-function blkFill(cx,cz,yLo,yTop){
-  const x0=cx*CS-15,z0=cz*CS-15,NB=[];BL_x0=x0;BL_z0=z0;BL_any=false;
-  for(let j=0;j<3;j++)for(let i=0;i<3;i++)NB.push(chunkArr(cx+i-1,cz+j-1));
-  const tLo=yLo-1,tHi=yTop+1;let qt=0,ylo=H,yhi=-1;
+// the lights that start the fill for chunk (cx,cz), whose faces run from layer yLo to yTop: [x, z, y in the window, r, g, b]
+// each, in the order they're met, leaving out those too far off to reach. Gathered on the main thread (it asks the plan, the
+// lamps and the props); blkFlood does the rest, wherever the mesh is being made
+function blkSeeds(cx,cz,yLo,yTop){
+  const x0=cx*CS-15,z0=cz*CS-15,tLo=yLo-1,tHi=yTop+1,S=[];
   const seed=(wx,wz,y,r,g,b)=>{if(wx<0||wx>=BLW||wz<0||wz>=BLW||y<0||y>=H)return;
     if(Math.max(r,g,b)<=BL_D[wx]+BL_D[wz]+(y<tLo?tLo-y:y>tHi?y-tHi:0))return;   // (too far off to reach)
-    const n=wx+wz*BLW+(y+1)*BLA;
-    if(BL_R[n]>=r&&BL_G[n]>=g&&BL_B[n]>=b)return;if(BL_R[n]<r)BL_R[n]=r;if(BL_G[n]<g)BL_G[n]=g;if(BL_B[n]<b)BL_B[n]=b;
-    if(!BL_INQ[n]){BL_INQ[n]=1;BL_Q[qt]=n;qt=(qt+1)&BL_QM;}if(y<ylo)ylo=y;if(y>yhi)yhi=y;};
-  for(let j=0;j<3;j++)for(let i=0;i<3;i++){const A=NB[j*3+i],E=blkEmitters(A,cx+i-1,cz+j-1),ox=(i-1)*CS+15,oz=(j-1)*CS+15,qx=cx+i-1,qz=cz+j-1;
+    S.push(wx,wz,y,r,g,b);};
+  for(let j=0;j<3;j++)for(let i=0;i<3;i++){const qx=cx+i-1,qz=cz+j-1,A=chunkArr(qx,qz),E=blkEmitters(A,qx,qz),ox=(i-1)*CS+15,oz=(j-1)*CS+15;
     for(let q=0;q<E.length;q++){const e=E[q],y=Math.floor(e/(CS*CS)),r=e-y*CS*CS,b=A[e];seed(ox+(r%CS),oz+Math.floor(r/CS),y,B_LR[b],B_LG[b],B_LB[b]);}
     if(qx<SHIP_CX0){
       for(const L of blkLamps(qx,qz)){if(downFix.has(L.key)||falling.has(L.key)||blkNuked(L.fx,L.fz))continue;
@@ -356,6 +353,16 @@ function blkFill(cx,cz,yLo,yTop){
   }
   for(const P of BL_FIRE.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);   // (fires: seed leaves out those too far off)
   for(const P of BL_GLOWL.values())seed(P[0]-x0,P[2]-z0,P[1],P[3],P[4],P[5]);
+  return Int16Array.from(S);
+}
+// the fill for a mesh job (meshPrep): from its seeds, the light in every open block of the window (BL_R/G/B, at
+// (x-BL_x0)+(z-BL_z0)*BLW+(y+1)*BLA), through the nine chunks' blocks as the job has them. Returns whether any light got anywhere.
+function blkFlood(J){
+  const x0=J.cx*CS-15,z0=J.cz*CS-15,NB=J.nineL,SD=J.seeds;BL_x0=x0;BL_z0=z0;BL_any=false;
+  const tLo=J.yLo-1,tHi=J.yTop+1;let qt=0,ylo=H,yhi=-1;
+  for(let s=0;s<SD.length;s+=6){const y=SD[s+2],r=SD[s+3],g=SD[s+4],b=SD[s+5],n=SD[s]+SD[s+1]*BLW+(y+1)*BLA;
+    if(BL_R[n]>=r&&BL_G[n]>=g&&BL_B[n]>=b)continue;if(BL_R[n]<r)BL_R[n]=r;if(BL_G[n]<g)BL_G[n]=g;if(BL_B[n]<b)BL_B[n]=b;
+    if(!BL_INQ[n]){BL_INQ[n]=1;BL_Q[qt]=n;qt=(qt+1)&BL_QM;}if(y<ylo)ylo=y;if(y>yhi)yhi=y;}
   if(!qt){BL_y0=0;BL_y1=-1;return false;}
   // the columns of the window: which of the nine chunks each is in, and where in it
   for(let c=0;c<BLA;c++){const wx=BL_CX[c],wz=BL_CZ[c],i=wx<15?0:wx<15+CS?1:2,j=wz<15?0:wz<15+CS?1:2;BL_COLA[c]=NB[j*3+i];BL_COLO[c]=(wx-15-(i-1)*CS)+(wz-15-(j-1)*CS)*CS;}
@@ -372,6 +379,7 @@ function blkFill(cx,cz,yLo,yTop){
     if(y>0&&mx>dxz+(y-1<tLo?tLo-y+1:y-1>tHi?y-1-tHi:0)){k=n-BLA;cc=c;if(!B_OPQ[BL_COLA[cc][BL_COLO[cc]+(y-1)*A2]]){up=0;if(R[k]<r){R[k]=r;up=1;}if(Gn[k]<g){Gn[k]=g;up=1;}if(Bn[k]<bb){Bn[k]=bb;up=1;}if(up&&!INQ[k]){INQ[k]=1;Q[qe]=k;qe=(qe+1)&QM;if(y-1<yl)yl=y-1;if(y-1>yh)yh=y-1;}}}
     if(y<H-1&&mx>dxz+(y+1<tLo?tLo-y-1:y+1>tHi?y+1-tHi:0)){k=n+BLA;cc=c;if(!B_OPQ[BL_COLA[cc][BL_COLO[cc]+(y+1)*A2]]){up=0;if(R[k]<r){R[k]=r;up=1;}if(Gn[k]<g){Gn[k]=g;up=1;}if(Bn[k]<bb){Bn[k]=bb;up=1;}if(up&&!INQ[k]){INQ[k]=1;Q[qe]=k;qe=(qe+1)&QM;if(y+1<yl)yl=y+1;if(y+1>yh)yh=y+1;}}}
   }
+  BL_COLA.fill(null);   // (the job's blocks not held on to after)
   BL_y0=yl;BL_y1=yh;BL_any=true;return true;
 }
 // the light in block (x,y,z) of the world (as a channel's level times 17, 0 to 255), while a chunk's being meshed
@@ -380,17 +388,18 @@ function blkAt(x,y,z){
   if(!BL_any||wx<0||wx>=BLW||wz<0||wz>=BLW||y<-1||y>H){BL_r=BL_g=BL_b=0;return;}
   const n=wx+wz*BLW+(y+1)*BLA;BL_r=BL_R[n]*17;BL_g=BL_G[n]*17;BL_b=BL_B[n]*17;
 }
-// after meshing: how lit each of the chunk's own blocks is, for blkEdit, kept on its mesh entry; then the window wiped
-function blkDone(cx,cz,e,yLo,yTop){
-  e.lc=null;
+// after meshing: how lit each of the chunk's own blocks is, for blkEdit, to keep on its mesh entry ({lc, ly0, lh}, lc null
+// for none); then the window wiped
+function blkKeep(yLo,yTop){
+  let K={lc:null};
   if(BL_any){
     const ly0=Math.max(0,yLo-1),ly1=Math.min(H-1,yTop+1),lh=ly1-ly0+1,lc=new Uint8Array((lh*CS*CS+3)>>2);let any=false;
     for(let y=ly0;y<=ly1;y++)for(let lz=0;lz<CS;lz++){let n=15+(lz+15)*BLW+(y+1)*BLA,i=(y-ly0)*CS*CS+lz*CS;
       for(let lx=0;lx<CS;lx++,n++,i++){const m=Math.max(BL_R[n],BL_G[n],BL_B[n]);if(m){lc[i>>2]|=(m>10?3:m>5?2:1)<<((i&3)*2);any=true;}}}
-    if(any){e.lc=lc;e.ly0=ly0;e.lh=lh;}
+    if(any)K={lc,ly0,lh};
     if(BL_y1>=BL_y0){BL_R.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);BL_G.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);BL_B.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);}
   }
-  BL_any=false;BL_y0=0;BL_y1=-1;
+  BL_any=false;BL_y0=0;BL_y1=-1;return K;
 }
 // the shader's side: with Block lighting on, the materials are compiled with BLOCK_LIGHT (see nightPatch)
 function blkDefines(mat){if(BL_ON)mat.defines=Object.assign(mat.defines||{},{BLOCK_LIGHT:''});else if(mat.defines)delete mat.defines.BLOCK_LIGHT;}
