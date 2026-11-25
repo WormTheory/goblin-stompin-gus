@@ -4,7 +4,7 @@ let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;retur
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
 let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={WX,set leafFall(v){leafFall=v},goblins,players,cars,frame,scene,DT,plotInfo,collapseBuilding,bldgAt,settle,topples,bodies,chunks,meshes,get,G,H,CELL,FH,keys,crush,rebuildSet,buildChunk,updateTopples,updateBodies,updateRubble,updateParts,ckey,CS,edits,save};})();');
-src=src.replace("const safe=(name,f)=>{try{f();}","const safe=(name,f)=>{const __t0=process.hrtime.bigint();try{f();global.__sec[name]=(global.__sec[name]||0)+Number(process.hrtime.bigint()-__t0)/1e6;}");global.__sec={};
+src=src.replace("safeT(name,f);return;}try{f();}","safeT(name,f);return;}const __t0=process.hrtime.bigint();try{f();global.__sec[name]=(global.__sec[name]||0)+Number(process.hrtime.bigint()-__t0)/1e6;}");global.__sec={};
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 const {Q,V3,Rot,Col,Mat,O3,M4,THREE}=require('./stub-three.js');   // (the stand-in three.js every suite shares)
 const listeners={};

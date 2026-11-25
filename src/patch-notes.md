@@ -185,6 +185,7 @@
 
 ### Knock everything over
 
+- A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.
 - Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.
 
 ### Nukes

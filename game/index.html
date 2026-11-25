@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:c0034a06a34944d9a86fb57bde9caa476a75798bde992a55f5c80d4bf28a5b16 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:19a0deb7c927f72f57f771e6e6980ab7fda235839af41bb7c9c285324f61383d -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1680,7 +1680,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Gunfire</h3>
 <ul><li>The flash of light from a gunshot now comes from the barrel, not from a spot partway along the bullet's streak. That goes for every gun: goblins', Gnash's, vehicles', the Mobile Gear's and the carrier's, and online too.</li><li>Gnash's bullets now start from the tip of the gun in your hands.</li></ul>
 <h3>Knock everything over</h3>
-<ul><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
+<ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Nukes</h3>
 <ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>A nuke fired a long way no longer goes off early in mid-air: it flies on until it hits something.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.</li><li>Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.</li><li>Smoke from fires shows through the nuke's dust, and the dust through the smoke.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li></ul>
 <h3>Screen layout</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='282d4890390b';
+const GAME_VER='0.5',GAME_BUILD='f291d6457ea9';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -12651,7 +12651,7 @@ function smashSoftCells(list,opt){
   for(const [bx,by,bz] of list){
     if(by<1||by>=H)continue;const b=get(bx,by,bz);if(!SOFT.has(b))continue;
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+    chNear(ch,bx,bz);
   }
   if(broken.length){rebuildSet(ch);save();destroyFX(broken,opt);settle(broken,opt);pumpsHit(broken);}
   return broken.length;
@@ -12675,6 +12675,12 @@ function smashSoftUnder(p,g){
 }
 // trampling's block-breaking zone: the same round area in front of the hippo that tramples goblins (radius R), from
 // his feet up through his body (h blocks); ramps underfoot are left alone so he can still run up and down them
+// (the chunks to redraw for a block gone at bx,bz: its own, and any it's on the edge of, corners too. One to four of them,
+// rather than nine looked up for every block)
+function chNear(ch,bx,bz){
+  const a=Math.floor((bx-1)/CS),b=Math.floor((bx+1)/CS),c=Math.floor((bz-1)/CS),d=Math.floor((bz+1)/CS);
+  ch.add(ckey(a,c));if(b!==a)ch.add(ckey(b,c));if(d!==c){ch.add(ckey(a,d));if(b!==a)ch.add(ckey(b,d));}
+}
 function crushDisc(x,y,z,R,h,opt={}){
   if(shipN&&x<SHIP_X0)shipSmash(x,y,z,R,opt,(X,Y,Z,o)=>crushDisc(X,Y,Z,R,h,o));   // (a ship there: see ships.js)
   const o={force:opt.force||1,dx:opt.dx||0,dz:opt.dz||0,up:opt.up||1},y0=Math.floor(y+0.05);
@@ -12690,7 +12696,7 @@ function crushDisc(x,y,z,R,h,opt={}){
     const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||BLOCK[b].ramp&&!BLOCK[b].stair)continue;
     {const ab=BLOCK[get(bx,by+1,bz)];if(ab&&ab.ramp&&!ab.stair)continue;}   // (nor what a ramp rests on: without it his feet lose the slope at every block)
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+    chNear(ch,bx,bz);
   }
   if(SC){sbxCells(SC);return 0;}
   if(broken.length){rebuildSet(ch);save();destroyFX(broken,o);settle(broken,o);pumpsHit(broken);}
@@ -12718,7 +12724,7 @@ function crushShape(shape,x,y,z,R,hx,hz,opt={}){
     if(SC){SC.push(bx,by,bz);continue;}
     const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK)continue;
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+    chNear(ch,bx,bz);
   }
   if(SC){sbxCells(SC);return 0;}
   if(broken.length){rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);}
@@ -12740,7 +12746,7 @@ function crush(x,y,z,r,d0,d1,opt={}){
     if(SC){SC.push(bx,by,bz);continue;}
     const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK)continue;
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+    chNear(ch,bx,bz);
   }
   if(SC){sbxCells(SC);return 0;}
   if(broken.length){rebuildSet(ch);save();destroyFX(broken,o);settle(broken,o);pumpsHit(broken);}
@@ -12959,6 +12965,16 @@ function nearStanding(x,z,r=14){
       if(Math.hypot(dx,dz)<=r&&bldgStanding(b,qx,qz,k0+','+i))return true;}}
   return false;
 }
+// (which blocks of one level of a building hold it up, as x,z pairs within its plot: by its plan alone, so worked out once
+// and kept on the building. A tower falling into another breaks into a dozen of its levels a frame, and asking the plan
+// about every block of each, each time, was most of what settle cost)
+const structLv=new WeakMap();
+function structCells(B,y){
+  const b=B.b;let M=structLv.get(b);if(!M){M=new Map();structLv.set(b,M);}
+  let C=M.get(y);if(C)return C;const out=[];
+  for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){blockAt(b,x,z,y,B.px,B.pz);if(STRUCT)out.push(x,z);}
+  C=Int16Array.from(out);M.set(y,C);return C;
+}
 function settle(broken,o={}){
   // 1. buildings: losing about half of a floor's cross-section brings down everything above it
   const cand=new Map();
@@ -12971,8 +12987,8 @@ function settle(broken,o={}){
     const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL;
     for(const y of [...levels].sort((p,q)=>p-q)){
       // only walls and pillars hold a building up; floors and furniture don't count
-      let solid=0,base=0;
-      for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){blockAt(b,x,z,y,B.px,B.pz);if(!STRUCT)continue;base++;if(get(X0+x,y,Z0+z)!==AIR)solid++;}
+      const C=structCells(B,y),base=C.length>>1;let solid=0;
+      for(let i=0;i<C.length;i+=2)if(get(X0+C[i],y,Z0+C[i+1])!==AIR)solid++;
       if(base>0&&solid<base*0.5){collapseBuilding(B,y,o.impact?{x:o.dx,z:o.dz}:null);break;}
     }
   }

@@ -210,6 +210,16 @@ function nearStanding(x,z,r=14){
       if(Math.hypot(dx,dz)<=r&&bldgStanding(b,qx,qz,k0+','+i))return true;}}
   return false;
 }
+// (which blocks of one level of a building hold it up, as x,z pairs within its plot: by its plan alone, so worked out once
+// and kept on the building. A tower falling into another breaks into a dozen of its levels a frame, and asking the plan
+// about every block of each, each time, was most of what settle cost)
+const structLv=new WeakMap();
+function structCells(B,y){
+  const b=B.b;let M=structLv.get(b);if(!M){M=new Map();structLv.set(b,M);}
+  let C=M.get(y);if(C)return C;const out=[];
+  for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){blockAt(b,x,z,y,B.px,B.pz);if(STRUCT)out.push(x,z);}
+  C=Int16Array.from(out);M.set(y,C);return C;
+}
 function settle(broken,o={}){
   // 1. buildings: losing about half of a floor's cross-section brings down everything above it
   const cand=new Map();
@@ -222,8 +232,8 @@ function settle(broken,o={}){
     const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL;
     for(const y of [...levels].sort((p,q)=>p-q)){
       // only walls and pillars hold a building up; floors and furniture don't count
-      let solid=0,base=0;
-      for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){blockAt(b,x,z,y,B.px,B.pz);if(!STRUCT)continue;base++;if(get(X0+x,y,Z0+z)!==AIR)solid++;}
+      const C=structCells(B,y),base=C.length>>1;let solid=0;
+      for(let i=0;i<C.length;i+=2)if(get(X0+C[i],y,Z0+C[i+1])!==AIR)solid++;
       if(base>0&&solid<base*0.5){collapseBuilding(B,y,o.impact?{x:o.dx,z:o.dz}:null);break;}
     }
   }

@@ -226,7 +226,7 @@ function smashSoftCells(list,opt){
   for(const [bx,by,bz] of list){
     if(by<1||by>=H)continue;const b=get(bx,by,bz);if(!SOFT.has(b))continue;
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+    chNear(ch,bx,bz);
   }
   if(broken.length){rebuildSet(ch);save();destroyFX(broken,opt);settle(broken,opt);pumpsHit(broken);}
   return broken.length;
@@ -250,6 +250,12 @@ function smashSoftUnder(p,g){
 }
 // trampling's block-breaking zone: the same round area in front of the hippo that tramples goblins (radius R), from
 // his feet up through his body (h blocks); ramps underfoot are left alone so he can still run up and down them
+// (the chunks to redraw for a block gone at bx,bz: its own, and any it's on the edge of, corners too. One to four of them,
+// rather than nine looked up for every block)
+function chNear(ch,bx,bz){
+  const a=Math.floor((bx-1)/CS),b=Math.floor((bx+1)/CS),c=Math.floor((bz-1)/CS),d=Math.floor((bz+1)/CS);
+  ch.add(ckey(a,c));if(b!==a)ch.add(ckey(b,c));if(d!==c){ch.add(ckey(a,d));if(b!==a)ch.add(ckey(b,d));}
+}
 function crushDisc(x,y,z,R,h,opt={}){
   if(shipN&&x<SHIP_X0)shipSmash(x,y,z,R,opt,(X,Y,Z,o)=>crushDisc(X,Y,Z,R,h,o));   // (a ship there: see ships.js)
   const o={force:opt.force||1,dx:opt.dx||0,dz:opt.dz||0,up:opt.up||1},y0=Math.floor(y+0.05);
@@ -265,7 +271,7 @@ function crushDisc(x,y,z,R,h,opt={}){
     const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||BLOCK[b].ramp&&!BLOCK[b].stair)continue;
     {const ab=BLOCK[get(bx,by+1,bz)];if(ab&&ab.ramp&&!ab.stair)continue;}   // (nor what a ramp rests on: without it his feet lose the slope at every block)
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+    chNear(ch,bx,bz);
   }
   if(SC){sbxCells(SC);return 0;}
   if(broken.length){rebuildSet(ch);save();destroyFX(broken,o);settle(broken,o);pumpsHit(broken);}
@@ -293,7 +299,7 @@ function crushShape(shape,x,y,z,R,hx,hz,opt={}){
     if(SC){SC.push(bx,by,bz);continue;}
     const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK)continue;
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+    chNear(ch,bx,bz);
   }
   if(SC){sbxCells(SC);return 0;}
   if(broken.length){rebuildSet(ch);save();destroyFX(broken.slice(0,120),o);settle(broken,o);pumpsHit(broken);}
@@ -315,7 +321,7 @@ function crush(x,y,z,r,d0,d1,opt={}){
     if(SC){SC.push(bx,by,bz);continue;}
     const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK)continue;
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
-    for(const ox of[-1,0,1])for(const oz of[-1,0,1])ch.add(ckey(Math.floor((bx+ox)/CS),Math.floor((bz+oz)/CS)));
+    chNear(ch,bx,bz);
   }
   if(SC){sbxCells(SC);return 0;}
   if(broken.length){rebuildSet(ch);save();destroyFX(broken,o);settle(broken,o);pumpsHit(broken);}
