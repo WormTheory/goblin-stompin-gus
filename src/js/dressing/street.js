@@ -125,6 +125,7 @@ function fixSpot(f,M,k,yaw,by){const p=M.spots[k]||[0,0,0],c=Math.cos(yaw),n=Mat
 function placeGroup(g,x,y,z,yaw){_B.makeRotationY(yaw);_B.setPosition(x,y,z);g.matrix.multiplyMatrices(_F,_B);g.matrixWorldNeedsUpdate=true;g.visible=true;}
 function drawFix(f,near){
   const dn=downFix.get(f.key),fl=falling.get(f.key);
+  f._r=[nBar,nGlow,nCol,nHead,nSign,nBoard];f._near=near;if(fl&&fixFull)fixFallFix.push(f);   // (where its boxes went: fixFallRedraw)
   let theta=0,ang=0;
   if(dn!==undefined){theta=Math.PI/2*0.97;ang=dn;}else if(fl){const k=Math.min(1,fl.t/0.7);theta=Math.PI/2*0.97*k*k;ang=fl.ang;}
   const lit=dn===undefined&&!fl,by=f.y0||G+1;

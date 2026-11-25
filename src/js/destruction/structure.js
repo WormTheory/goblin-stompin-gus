@@ -279,22 +279,56 @@ function outerWalls(b,y,px,pz){
   for(let x=0;x<W;x++){let a=-1,c=-1;for(let z=0;z<D;z++)if(st[x*D+z]){if(a<0)a=z;c=z;}if(a>=0){out.add(x*D+a);out.add(x*D+c);}}
   return out;
 }
+// A building coming down is spread over a few frames (it was 30 to 70 ms in one, and eight at once made a frame of
+// 290). Taking its blocks out goes a column at a time, COLL_MS a frame between all of them, oldest first; then, once it's
+// all out, one a frame is finished: its chunks redrawn and the falling piece made. Its chunks aren't redrawn while it's
+// under way (flushRebuilds passes over collHold), so it stands whole on screen till the moment it goes. Outside a frame
+// (a test, a tool) it's all done there and then.
+const collJobs=[],collHold=new Set();let collInFrame=false;const COLL_MS=4;
+function collHoldSet(){collHold.clear();for(const J of collJobs)for(const k of J.ch)collHold.add(k);}
 function collapseBuilding(B,L,push){
-  const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL,body=[],crumble=[],stood=[],ch=new Set();
+  const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL;
+  {const J=collJobs.find(j=>j.B.key===B.key);
+   if(J){if(L>=J.L){if(push&&!J.push)J.push=push;return;}collJobs.splice(collJobs.indexOf(J),1);collRun(J);}}   // (a floor further down given way: that one's finished first)
   if(BLAME!=='acc')reportCrime(X0+(b.x0+b.x1)/2,Z0+(b.z0+b.z1)/2);
-  for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){
-    const wx=X0+x,wz=Z0+z;
+  const ch=new Set();for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
+  for(let x=b.x0;x<b.x1;x+=8)for(let z=b.z0;z<b.z1;z+=8)get(X0+x,G,Z0+z);get(X0+b.x1-1,G,Z0+b.z1-1);get(X0+b.x0,G,Z0+b.z1-1);get(X0+b.x1-1,G,Z0+b.z0);   // (its chunks made now, with all its blocks, before `collapses` leaves them out)
+  const J={B,L,push,ch,i:0,body:[],crumble:[],stood:[],emit:!(collapses[B.key]<=L)};
+  // (saved as down from the start: a save part-way through mustn't bring it back standing)
+  collapses[B.key]=Math.min(collapses[B.key]??1e9,L);rampBldg(B.key);   // (This rampage's count: rampage.js)
+  // (one within a big blast's reach goes at once, as it always did: the blast heaps its rim on the ground as it finds it,
+  // and a chunk made again from the save takes the building out first, so the order the two come in has to stay the same)
+  if(!collInFrame||craters.some(C=>Math.hypot(X0+(b.x0+b.x1)/2-C.x,Z0+(b.z0+b.z1)/2-C.z)<C.R*1.1+Math.max(b.x1-b.x0,b.z1-b.z0))){collRun(J);return;}
+  collJobs.push(J);collHoldSet();
+}
+// (a column at a time, until the time's up)
+function collCols(J,until){
+  const B=J.B,b=B.b,X0=B.px*CELL,Z0=B.pz*CELL,D=b.z1-b.z0,n=(b.x1-b.x0)*D,L=J.L;
+  while(J.i<n){
+    const x=b.x0+Math.floor(J.i/D),z=b.z0+J.i%D,wx=X0+x,wz=Z0+z;J.i++;
     noteFor=B;
-    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);
+    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)J.stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?J.crumble:J.body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);
       // (the building's own blocks don't need saving as gone: `collapses` stops the plan making them again. But rubble that
       // had landed on it, or anything else put there since, is in the edits, and would be put back hanging in the air the
       // next time this chunk's made, so that's saved as gone)
       const ev=editAt(wx,y,wz);if(ev!==undefined&&ev!==AIR)addEdit(wx,y,wz,AIR);}
     noteFor=null;
+    if(performance.now()>until)break;
   }
-  for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
-  collapses[B.key]=Math.min(collapses[B.key]??1e9,L);rampBldg(B.key);   // (This rampage's count: rampage.js)
-  rebuildSet(ch);save();
+  return J.i>=n;
+}
+function collRun(J){collCols(J,Infinity);collFinish(J);}
+// (each frame, before the falling pieces move)
+function collapseTick(){
+  if(!collJobs.length)return;const t0=performance.now();
+  while(collJobs.length){const J=collJobs[0];
+    if(!collCols(J,t0+COLL_MS))return;
+    collJobs.shift();collHoldSet();collFinish(J);
+    return;}   // (one finished a frame: that's the dear part)
+}
+function collFinish(J){
+  const B=J.B,b=B.b,X0=B.px*CELL,Z0=B.pz*CELL,L=J.L,push=J.push,body=J.body,crumble=J.crumble,stood=J.stood;
+  rebuildSet(J.ch);save();
   // whatever the collapse left hanging: bits of the stump or the furniture whose support was already smashed away,
   // and anything fixed to the outside of the building (signs, awnings, a skybridge) -- all of it comes down too
   {const st=[],top=Math.min(H-1,b.top+(b.roof||0)+(b.ant||0)+3);
@@ -343,21 +377,25 @@ const clipMat=plane=>nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColor
 {const g=new THREE.BufferGeometry(),z=()=>new THREE.Float32BufferAttribute([0,0,0,0,0,0,0,0,0],3);
  g.setAttribute('position',z());g.setAttribute('color',z());g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,0,0,0,0],2));
  const m=new THREE.Mesh(g,clipMat(new THREE.Plane(new V3(0,1,0),1e6)));m.frustumCulled=false;m.onAfterRender=()=>{m.visible=false;};scene.add(m);}
+// (which of its blocks' faces show is asked of a grid over its box rather than of the set, and the faces counted before
+// they're written, straight into typed arrays: a tower's piece took 7 to 40 ms, most of it there, on the frame it goes)
 function buildBodyMesh(blocks,plane){
-  const set=new Set();for(const q of blocks)set.add(bkey(q.x,q.y,q.z));
-  const P=[],U=[],C=[],I=[],surface=[];
-  for(const q of blocks){
-    const info=BLOCK[q.b];if(!info||!info.tiles)continue;let ex=false;
-    for(const f of FACES){
-      const [dx,dy,dz]=f.dir;if(set.has(bkey(q.x+dx,q.y+dy,q.z+dz)))continue;ex=true;
-      const tile=dy===1?info.tiles[0]:dy===-1?info.tiles[1]:info.tiles[2],tx=tile%AC,ty=Math.floor(tile/AC),n=P.length/3,s=f.shade*DIM;   // (a piece coming down never glows: its lights are out)
-      for(const c of f.c){P.push(q.x+c[0],q.y+c[1],q.z+c[2]);U.push((tx+0.002+c[3]*0.996)/AC,1-(ty+1)/AR+(0.002+c[4]*0.996)/AR);C.push(s,s,s);}
-      I.push(n,n+1,n+2,n+2,n+1,n+3);
-    }
-    if(ex)surface.push(q);
-  }
+  const set=new Set();let x0=1e9,y0=1e9,z0=1e9,x1=-1e9,y1=-1e9,z1=-1e9;
+  for(const q of blocks){set.add(bkey(q.x,q.y,q.z));if(q.x<x0)x0=q.x;if(q.x>x1)x1=q.x;if(q.y<y0)y0=q.y;if(q.y>y1)y1=q.y;if(q.z<z0)z0=q.z;if(q.z>z1)z1=q.z;}
+  const GY=y1-y0+3,GZ=z1-z0+3,grid=new Uint8Array(blocks.length?(x1-x0+3)*GY*GZ:0),gi=(x,y,z)=>((x-x0+1)*GY+(y-y0+1))*GZ+(z-z0+1);
+  for(const q of blocks)grid[gi(q.x,q.y,q.z)]=1;
+  const FD=FACES.map(f=>(f.dir[0]*GY+f.dir[1])*GZ+f.dir[2]),open=new Uint8Array(blocks.length);let nf=0;
+  blocks.forEach((q,j)=>{const info=BLOCK[q.b];if(!info||!info.tiles)return;const k=gi(q.x,q.y,q.z);let m=0;for(let d=0;d<6;d++)if(!grid[k+FD[d]]){m|=1<<d;nf++;}open[j]=m;});
+  const P=new Float32Array(nf*12),U=new Float32Array(nf*8),C=new Float32Array(nf*12),I=nf*4>65535?new Uint32Array(nf*6):new Uint16Array(nf*6),surface=[];
+  let n=0,iu=0,ii=0;
+  blocks.forEach((q,j)=>{const m=open[j];if(!m)return;const info=BLOCK[q.b];
+    for(let d=0;d<6;d++){if(!(m&1<<d))continue;const f=FACES[d],dy=f.dir[1];
+      const tile=dy===1?info.tiles[0]:dy===-1?info.tiles[1]:info.tiles[2],tx=tile%AC,ty=Math.floor(tile/AC),s=f.shade*DIM;   // (a piece coming down never glows: its lights are out)
+      for(const c of f.c){const v=n*3;P[v]=q.x+c[0];P[v+1]=q.y+c[1];P[v+2]=q.z+c[2];U[iu++]=(tx+0.002+c[3]*0.996)/AC;U[iu++]=1-(ty+1)/AR+(0.002+c[4]*0.996)/AR;C[v]=C[v+1]=C[v+2]=s;n++;}
+      I[ii++]=n-4;I[ii++]=n-3;I[ii++]=n-2;I[ii++]=n-2;I[ii++]=n-3;I[ii++]=n-1;}
+    surface.push(q);});
   const g=new THREE.BufferGeometry();
-  g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(I);
+  g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(new THREE.BufferAttribute(I,1));
   if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(new Uint8Array(P.length),3,true));   // (no light of its own while it falls: render/block-light.js)
   // (a toppling piece looks just like the world's own blocks; one sinking into the ground needs a clipping plane of its own)
   const mesh=new THREE.Mesh(g,plane?clipMat(plane):matOpaque);
@@ -436,5 +474,5 @@ function placePile(B){
   ruinFires([...B.cols.values()],B.mass);
   if(B.big){smoke(B.cx,B.clipY+1,B.cz,12,0x77756e);thud(1);}
 }
-function clearBodies(){for(const B of bodies){if(B.mesh.parent)B.mesh.parent.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){if(T.grp.parent)T.grp.parent.remove(T.grp);T.mesh.geometry.dispose();}topples.length=0;}
+function clearBodies(){collJobs.length=0;collHold.clear();for(const B of bodies){if(B.mesh.parent)B.mesh.parent.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){if(T.grp.parent)T.grp.parent.remove(T.grp);T.mesh.geometry.dispose();}topples.length=0;}
 

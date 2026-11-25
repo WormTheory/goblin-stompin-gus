@@ -628,9 +628,17 @@ function updateChunks(budget,dt){
 // only the picture that may be a frame or two behind while a building comes down.) ----
 const rebuildQ=new Set();
 function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
+// At most 5 ms a frame (it was 9): in a rampage there's nearly always a queue, and a chunk takes 1 to 2.5 ms, so the
+// difference was most of what pushed those frames past 16.7 ms. The cost is that a far hole may show a few frames late, so
+// the chunk nearest a player goes first, as that's where the smashing being looked at is.
+const REBUILD_MS=5;
 function flushRebuilds(){
   if(!rebuildQ.size)return;
-  const t0=performance.now(),ms=Math.min(9,3+rebuildQ.size*0.5);let n=0;   // (more waiting: a bit more time, so it can't fall far behind)
-  for(const k of rebuildQ){rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;buildChunk(e.cx,e.cz);n++;if(n>=2&&performance.now()-t0>ms)break;}
+  const t0=performance.now(),ms=Math.min(REBUILD_MS,3+rebuildQ.size*0.5);   // (more waiting: a bit more time, so it can't fall far behind; at least one a frame, however long it takes)
+  if(rebuildQ.size>2){let best=-1,bd=1e9;
+    for(const p of players){if(!p.active)continue;const x=pwx(p)/CS-.5,z=pwz(p)/CS-.5;
+      for(const k of rebuildQ){if(collHold.has(k))continue;const e=meshes.get(k);if(!e)continue;const d=Math.abs(e.cx-x)+Math.abs(e.cz-z);if(d<bd){bd=d;best=k;}}}
+    if(best!==-1){rebuildQ.delete(best);const e=meshes.get(best);buildChunk(e.cx,e.cz);if(performance.now()-t0>ms)return;}}
+  for(const k of rebuildQ){if(collHold.has(k))continue;rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;buildChunk(e.cx,e.cz);if(performance.now()-t0>ms)break;}
 }
 

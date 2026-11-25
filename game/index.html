@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:19a0deb7c927f72f57f771e6e6980ab7fda235839af41bb7c9c285324f61383d -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:4d6a21b320899c117848da5d3431cd5792e8be0daea71d978430d611e89d6b1f -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1680,7 +1680,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Gunfire</h3>
 <ul><li>The flash of light from a gunshot now comes from the barrel, not from a spot partway along the bullet's streak. That goes for every gun: goblins', Gnash's, vehicles', the Mobile Gear's and the carrier's, and online too.</li><li>Gnash's bullets now start from the tip of the gun in your hands.</li></ul>
 <h3>Knock everything over</h3>
-<ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
+<ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>A building coming down is spread over a few frames instead of landing on one, and several coming down at once take turns, so bringing down a whole block of towers no longer freezes the game for a moment.</li><li>Smashing through town keeps a steadier frame rate: the ground and buildings you've broken catch up over a few frames, nearest you first, and street lamps and benches on their way down no longer make the game redraw every fixture around you.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Nukes</h3>
 <ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>A nuke fired a long way no longer goes off early in mid-air: it flies on until it hits something.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.</li><li>Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.</li><li>Smoke from fires shows through the nuke's dust, and the dust through the smoke.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li></ul>
 <h3>Screen layout</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='f291d6457ea9';
+const GAME_VER='0.5',GAME_BUILD='85f5a25f1710';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -11744,10 +11744,18 @@ function updateChunks(budget,dt){
 // only the picture that may be a frame or two behind while a building comes down.) ----
 const rebuildQ=new Set();
 function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
+// At most 5 ms a frame (it was 9): in a rampage there's nearly always a queue, and a chunk takes 1 to 2.5 ms, so the
+// difference was most of what pushed those frames past 16.7 ms. The cost is that a far hole may show a few frames late, so
+// the chunk nearest a player goes first, as that's where the smashing being looked at is.
+const REBUILD_MS=5;
 function flushRebuilds(){
   if(!rebuildQ.size)return;
-  const t0=performance.now(),ms=Math.min(9,3+rebuildQ.size*0.5);let n=0;   // (more waiting: a bit more time, so it can't fall far behind)
-  for(const k of rebuildQ){rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;buildChunk(e.cx,e.cz);n++;if(n>=2&&performance.now()-t0>ms)break;}
+  const t0=performance.now(),ms=Math.min(REBUILD_MS,3+rebuildQ.size*0.5);   // (more waiting: a bit more time, so it can't fall far behind; at least one a frame, however long it takes)
+  if(rebuildQ.size>2){let best=-1,bd=1e9;
+    for(const p of players){if(!p.active)continue;const x=pwx(p)/CS-.5,z=pwz(p)/CS-.5;
+      for(const k of rebuildQ){if(collHold.has(k))continue;const e=meshes.get(k);if(!e)continue;const d=Math.abs(e.cx-x)+Math.abs(e.cz-z);if(d<bd){bd=d;best=k;}}}
+    if(best!==-1){rebuildQ.delete(best);const e=meshes.get(best);buildChunk(e.cx,e.cz);if(performance.now()-t0>ms)return;}}
+  for(const k of rebuildQ){if(collHold.has(k))continue;rebuildQ.delete(k);const e=meshes.get(k);if(!e)continue;buildChunk(e.cx,e.cz);if(performance.now()-t0>ms)break;}
 }
 
 // ---------- The world, saved and loaded: the smashed blocks packed chunk by chunk, save() and load() ----------
@@ -13034,22 +13042,56 @@ function outerWalls(b,y,px,pz){
   for(let x=0;x<W;x++){let a=-1,c=-1;for(let z=0;z<D;z++)if(st[x*D+z]){if(a<0)a=z;c=z;}if(a>=0){out.add(x*D+a);out.add(x*D+c);}}
   return out;
 }
+// A building coming down is spread over a few frames (it was 30 to 70 ms in one, and eight at once made a frame of
+// 290). Taking its blocks out goes a column at a time, COLL_MS a frame between all of them, oldest first; then, once it's
+// all out, one a frame is finished: its chunks redrawn and the falling piece made. Its chunks aren't redrawn while it's
+// under way (flushRebuilds passes over collHold), so it stands whole on screen till the moment it goes. Outside a frame
+// (a test, a tool) it's all done there and then.
+const collJobs=[],collHold=new Set();let collInFrame=false;const COLL_MS=4;
+function collHoldSet(){collHold.clear();for(const J of collJobs)for(const k of J.ch)collHold.add(k);}
 function collapseBuilding(B,L,push){
-  const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL,body=[],crumble=[],stood=[],ch=new Set();
+  const b=B.b,X0=B.px*CELL,Z0=B.pz*CELL;
+  {const J=collJobs.find(j=>j.B.key===B.key);
+   if(J){if(L>=J.L){if(push&&!J.push)J.push=push;return;}collJobs.splice(collJobs.indexOf(J),1);collRun(J);}}   // (a floor further down given way: that one's finished first)
   if(BLAME!=='acc')reportCrime(X0+(b.x0+b.x1)/2,Z0+(b.z0+b.z1)/2);
-  for(let x=b.x0;x<b.x1;x++)for(let z=b.z0;z<b.z1;z++){
-    const wx=X0+x,wz=Z0+z;
+  const ch=new Set();for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
+  for(let x=b.x0;x<b.x1;x+=8)for(let z=b.z0;z<b.z1;z+=8)get(X0+x,G,Z0+z);get(X0+b.x1-1,G,Z0+b.z1-1);get(X0+b.x0,G,Z0+b.z1-1);get(X0+b.x1-1,G,Z0+b.z0);   // (its chunks made now, with all its blocks, before `collapses` leaves them out)
+  const J={B,L,push,ch,i:0,body:[],crumble:[],stood:[],emit:!(collapses[B.key]<=L)};
+  // (saved as down from the start: a save part-way through mustn't bring it back standing)
+  collapses[B.key]=Math.min(collapses[B.key]??1e9,L);rampBldg(B.key);   // (This rampage's count: rampage.js)
+  // (one within a big blast's reach goes at once, as it always did: the blast heaps its rim on the ground as it finds it,
+  // and a chunk made again from the save takes the building out first, so the order the two come in has to stay the same)
+  if(!collInFrame||craters.some(C=>Math.hypot(X0+(b.x0+b.x1)/2-C.x,Z0+(b.z0+b.z1)/2-C.z)<C.R*1.1+Math.max(b.x1-b.x0,b.z1-b.z0))){collRun(J);return;}
+  collJobs.push(J);collHoldSet();
+}
+// (a column at a time, until the time's up)
+function collCols(J,until){
+  const B=J.B,b=B.b,X0=B.px*CELL,Z0=B.pz*CELL,D=b.z1-b.z0,n=(b.x1-b.x0)*D,L=J.L;
+  while(J.i<n){
+    const x=b.x0+Math.floor(J.i/D),z=b.z0+J.i%D,wx=X0+x,wz=Z0+z;J.i++;
     noteFor=B;
-    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?crumble:body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);
+    for(let y=L;y<H;y++){const v=get(wx,y,wz);if(v===AIR)continue;if(y===L)J.stood.push({x:wx,z:wz});if(y<L+FH+1&&collapseKeep(b,B.px,B.pz,x,z,y,L))continue;(y===L?J.crumble:J.body).push({x:wx,y,z:wz,b:v});setRaw(wx,y,wz,AIR);
       // (the building's own blocks don't need saving as gone: `collapses` stops the plan making them again. But rubble that
       // had landed on it, or anything else put there since, is in the edits, and would be put back hanging in the air the
       // next time this chunk's made, so that's saved as gone)
       const ev=editAt(wx,y,wz);if(ev!==undefined&&ev!==AIR)addEdit(wx,y,wz,AIR);}
     noteFor=null;
+    if(performance.now()>until)break;
   }
-  for(let x=b.x0-1;x<=b.x1;x++)for(let z=b.z0-1;z<=b.z1;z++)ch.add(ckey(Math.floor((X0+x)/CS),Math.floor((Z0+z)/CS)));
-  collapses[B.key]=Math.min(collapses[B.key]??1e9,L);rampBldg(B.key);   // (This rampage's count: rampage.js)
-  rebuildSet(ch);save();
+  return J.i>=n;
+}
+function collRun(J){collCols(J,Infinity);collFinish(J);}
+// (each frame, before the falling pieces move)
+function collapseTick(){
+  if(!collJobs.length)return;const t0=performance.now();
+  while(collJobs.length){const J=collJobs[0];
+    if(!collCols(J,t0+COLL_MS))return;
+    collJobs.shift();collHoldSet();collFinish(J);
+    return;}   // (one finished a frame: that's the dear part)
+}
+function collFinish(J){
+  const B=J.B,b=B.b,X0=B.px*CELL,Z0=B.pz*CELL,L=J.L,push=J.push,body=J.body,crumble=J.crumble,stood=J.stood;
+  rebuildSet(J.ch);save();
   // whatever the collapse left hanging: bits of the stump or the furniture whose support was already smashed away,
   // and anything fixed to the outside of the building (signs, awnings, a skybridge) -- all of it comes down too
   {const st=[],top=Math.min(H-1,b.top+(b.roof||0)+(b.ant||0)+3);
@@ -13098,21 +13140,25 @@ const clipMat=plane=>nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColor
 {const g=new THREE.BufferGeometry(),z=()=>new THREE.Float32BufferAttribute([0,0,0,0,0,0,0,0,0],3);
  g.setAttribute('position',z());g.setAttribute('color',z());g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,0,0,0,0],2));
  const m=new THREE.Mesh(g,clipMat(new THREE.Plane(new V3(0,1,0),1e6)));m.frustumCulled=false;m.onAfterRender=()=>{m.visible=false;};scene.add(m);}
+// (which of its blocks' faces show is asked of a grid over its box rather than of the set, and the faces counted before
+// they're written, straight into typed arrays: a tower's piece took 7 to 40 ms, most of it there, on the frame it goes)
 function buildBodyMesh(blocks,plane){
-  const set=new Set();for(const q of blocks)set.add(bkey(q.x,q.y,q.z));
-  const P=[],U=[],C=[],I=[],surface=[];
-  for(const q of blocks){
-    const info=BLOCK[q.b];if(!info||!info.tiles)continue;let ex=false;
-    for(const f of FACES){
-      const [dx,dy,dz]=f.dir;if(set.has(bkey(q.x+dx,q.y+dy,q.z+dz)))continue;ex=true;
-      const tile=dy===1?info.tiles[0]:dy===-1?info.tiles[1]:info.tiles[2],tx=tile%AC,ty=Math.floor(tile/AC),n=P.length/3,s=f.shade*DIM;   // (a piece coming down never glows: its lights are out)
-      for(const c of f.c){P.push(q.x+c[0],q.y+c[1],q.z+c[2]);U.push((tx+0.002+c[3]*0.996)/AC,1-(ty+1)/AR+(0.002+c[4]*0.996)/AR);C.push(s,s,s);}
-      I.push(n,n+1,n+2,n+2,n+1,n+3);
-    }
-    if(ex)surface.push(q);
-  }
+  const set=new Set();let x0=1e9,y0=1e9,z0=1e9,x1=-1e9,y1=-1e9,z1=-1e9;
+  for(const q of blocks){set.add(bkey(q.x,q.y,q.z));if(q.x<x0)x0=q.x;if(q.x>x1)x1=q.x;if(q.y<y0)y0=q.y;if(q.y>y1)y1=q.y;if(q.z<z0)z0=q.z;if(q.z>z1)z1=q.z;}
+  const GY=y1-y0+3,GZ=z1-z0+3,grid=new Uint8Array(blocks.length?(x1-x0+3)*GY*GZ:0),gi=(x,y,z)=>((x-x0+1)*GY+(y-y0+1))*GZ+(z-z0+1);
+  for(const q of blocks)grid[gi(q.x,q.y,q.z)]=1;
+  const FD=FACES.map(f=>(f.dir[0]*GY+f.dir[1])*GZ+f.dir[2]),open=new Uint8Array(blocks.length);let nf=0;
+  blocks.forEach((q,j)=>{const info=BLOCK[q.b];if(!info||!info.tiles)return;const k=gi(q.x,q.y,q.z);let m=0;for(let d=0;d<6;d++)if(!grid[k+FD[d]]){m|=1<<d;nf++;}open[j]=m;});
+  const P=new Float32Array(nf*12),U=new Float32Array(nf*8),C=new Float32Array(nf*12),I=nf*4>65535?new Uint32Array(nf*6):new Uint16Array(nf*6),surface=[];
+  let n=0,iu=0,ii=0;
+  blocks.forEach((q,j)=>{const m=open[j];if(!m)return;const info=BLOCK[q.b];
+    for(let d=0;d<6;d++){if(!(m&1<<d))continue;const f=FACES[d],dy=f.dir[1];
+      const tile=dy===1?info.tiles[0]:dy===-1?info.tiles[1]:info.tiles[2],tx=tile%AC,ty=Math.floor(tile/AC),s=f.shade*DIM;   // (a piece coming down never glows: its lights are out)
+      for(const c of f.c){const v=n*3;P[v]=q.x+c[0];P[v+1]=q.y+c[1];P[v+2]=q.z+c[2];U[iu++]=(tx+0.002+c[3]*0.996)/AC;U[iu++]=1-(ty+1)/AR+(0.002+c[4]*0.996)/AR;C[v]=C[v+1]=C[v+2]=s;n++;}
+      I[ii++]=n-4;I[ii++]=n-3;I[ii++]=n-2;I[ii++]=n-2;I[ii++]=n-3;I[ii++]=n-1;}
+    surface.push(q);});
   const g=new THREE.BufferGeometry();
-  g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(I);
+  g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(new THREE.BufferAttribute(I,1));
   if(BL_ON)g.setAttribute('aBlk',new THREE.BufferAttribute(new Uint8Array(P.length),3,true));   // (no light of its own while it falls: render/block-light.js)
   // (a toppling piece looks just like the world's own blocks; one sinking into the ground needs a clipping plane of its own)
   const mesh=new THREE.Mesh(g,plane?clipMat(plane):matOpaque);
@@ -13191,7 +13237,7 @@ function placePile(B){
   ruinFires([...B.cols.values()],B.mass);
   if(B.big){smoke(B.cx,B.clipY+1,B.cz,12,0x77756e);thud(1);}
 }
-function clearBodies(){for(const B of bodies){if(B.mesh.parent)B.mesh.parent.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){if(T.grp.parent)T.grp.parent.remove(T.grp);T.mesh.geometry.dispose();}topples.length=0;}
+function clearBodies(){collJobs.length=0;collHold.clear();for(const B of bodies){if(B.mesh.parent)B.mesh.parent.remove(B.mesh);B.mesh.geometry.dispose();B.mesh.material.dispose();}bodies.length=0;for(const T of topples){if(T.grp.parent)T.grp.parent.remove(T.grp);T.mesh.geometry.dispose();}topples.length=0;}
 
 // ---------- Lights out: a building that counts as destroyed, or has come down, goes dark ----------
 // Its glowing blocks (windows, neon, lamps, screens) stop glowing at night and stop lighting what's round them (buildChunk and
@@ -25289,6 +25335,7 @@ function fixSpot(f,M,k,yaw,by){const p=M.spots[k]||[0,0,0],c=Math.cos(yaw),n=Mat
 function placeGroup(g,x,y,z,yaw){_B.makeRotationY(yaw);_B.setPosition(x,y,z);g.matrix.multiplyMatrices(_F,_B);g.matrixWorldNeedsUpdate=true;g.visible=true;}
 function drawFix(f,near){
   const dn=downFix.get(f.key),fl=falling.get(f.key);
+  f._r=[nBar,nGlow,nCol,nHead,nSign,nBoard];f._near=near;if(fl&&fixFull)fixFallFix.push(f);   // (where its boxes went: fixFallRedraw)
   let theta=0,ang=0;
   if(dn!==undefined){theta=Math.PI/2*0.97;ang=dn;}else if(fl){const k=Math.min(1,fl.t/0.7);theta=Math.PI/2*0.97*k*k;ang=fl.ang;}
   const lit=dn===undefined&&!fl,by=f.y0||G+1;
@@ -25357,7 +25404,7 @@ function drawProp(f){
   const dn=downFix.get(f.key),fl=falling.get(f.key);let theta=0,ang=0;
   if(dn!==undefined){theta=Math.PI/2*0.97;ang=dn;}else if(fl){const k=Math.min(1,fl.t/0.7);theta=Math.PI/2*0.97*k*k;ang=fl.ang;}
   if(PROP_LT[f.type])blkProp(f,dn===undefined&&!fl);   // (a lamp or screen lights the room round it: render/block-light.js)
-  fallMatrix(f.x,f.z,theta,ang,f.y0);f._iL=nPropL;f._iG=nPropG;f._gen=propGen;propSeen.add(f.key);
+  fallMatrix(f.x,f.z,theta,ang,f.y0);f._iL=nPropL;f._iG=nPropG;f._gen=propGen;propSeen.add(f.key);if(fl&&fixFull)fixFallProp.push(f);
   const s=propScale(f);
   _C.makeRotationY(f.yaw);if(s<1){_B.makeScale(s,s,s);_C.multiply(_B);}_B.makeTranslation(f.x,f.y0,f.z);_C.premultiply(_B);_C.premultiply(_F);
   for(const q of PROPS[f.type]){
@@ -26644,7 +26691,30 @@ function lampSpotsOf(px,pz,X0,Z0,PBf){
 // it would be a dozen or more at once; the rest get their turn in 0.4 s, by when updateChunks may well have made them anyway.
 let fixGen=0;
 function fixCanAsk(x,z){if(chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||ST.dressing)return true;return fixGen++<2;}
-function refreshFixtures(){
+// While a lamp post or a bench is on its way down, only it moves: the rest of the street's fixtures and props are just where the
+// last full refresh put them (every 0.4 s), so each frame between, only those falling are drawn again, over their own boxes.
+// Going over every plot near the players for all of them took over a millisecond a frame through a street being smashed.
+// (A full refresh lists which were falling and where their boxes went; anything knocked since, which the count says, needs
+// another, as a fixture going down changes how many boxes it has, its lamp no longer lit.)
+let fixFull=false,fixKnockN=0,fixDrawnN=-1;const fixFallFix=[],fixFallProp=[];
+const fixLo=[0,0,0,0,0],fixHi=[0,0,0,0,0];
+function fixSpan(i,a,b){if(b>a){fixLo[i]=Math.min(fixLo[i],a);fixHi[i]=Math.max(fixHi[i],b);}}
+function fixSentPart(M,i){const a=fixLo[i],b=fixHi[i];if(b<=a)return;
+  for(const [A,w] of [[M.instanceMatrix,16],[M.instanceColor,3]])if(A){A.needsUpdate=true;if(A.updateRange){A.updateRange.offset=a*w;A.updateRange.count=(b-a)*w;}}}
+// (false: it can't, and a full refresh is wanted)
+function fixFallRedraw(){
+  if(fixDrawnN!==fixKnockN||GFX_OFF.fixtures)return false;
+  const s=[nBar,nGlow,nCol,nHead,nSign,nBoard,nPropL,nPropG];fixLo.fill(1e9);fixHi.fill(0);
+  for(const f of fixFallFix){[nBar,nGlow,nCol,nHead,nSign,nBoard]=f._r;const b0=nBar,g0=nGlow,c0=nCol;drawFix(f,f._near);fixSpan(0,b0,nBar);fixSpan(1,g0,nGlow);fixSpan(2,c0,nCol);}
+  for(const f of fixFallProp){if(f._gen!==propGen)continue;nPropL=f._iL;nPropG=f._iG;drawProp(f);fixSpan(3,f._iL,nPropL);fixSpan(4,f._iG,nPropG);}
+  [nBar,nGlow,nCol,nHead,nSign,nBoard,nPropL,nPropG]=s;fallMatrix(0,0,0,0);
+  fixSentPart(FIX_BAR,0);fixSentPart(FIX_GLOW,1);fixSentPart(FIX_COL,2);fixSentPart(PROP_L,3);fixSentPart(PROP_G,4);
+  // (one that's landed has just been drawn lying flat, and stays so)
+  for(const L of [fixFallFix,fixFallProp])for(let i=L.length-1;i>=0;i--)if(!falling.has(L[i].key))L.splice(i,1);
+  return true;
+}
+function refreshFixtures(){fixFull=true;fixFallFix.length=0;fixFallProp.length=0;fixDrawnN=fixKnockN;try{refreshFixtures0();}finally{fixFull=false;}}
+function refreshFixtures0(){
   fixGen=0;nBar=nGlow=nHead=nSign=nCol=nBoard=0;activeFix.length=0;const seen=new Set(),R=Math.min(viewFar(),96),bseen=new Set();
   for(const p of viewers()){
     
@@ -26689,6 +26759,7 @@ function refreshFixtures(){
 function knockFix(f,dx,dz){
   if(downFix.has(f.key)||falling.has(f.key))return false;
   const ang=(dx||dz)?Math.atan2(dx,dz):Math.random()*Math.PI*2;
+  fixKnockN++;
   if(f.prop){falling.set(f.key,{t:0,ang,x:f.x,z:f.z,prop:true,y:f.y0});tone('square',320,140,0.1,0.03);puff(f.x,f.y0+.5,f.z,2,0xbfc5ca,0.25);award(5,null,f.x,f.y0+1,f.z);trafficRefreshT=0;return true;}
   falling.set(f.key,{t:0,ang,x:f.x,z:f.z});
   clang();tone('square',240,90,0.22,0.05);
@@ -30306,7 +30377,7 @@ function updateTraffic(dt){
   // (what's near the players is gone over every 0.4 s, one job a frame so they don't all land on the same frame. A lamp post on
   // its way down needs the fixtures redrawn every frame, but only those.)
   if(trafficRefreshT<=0){trafficRefreshT=0.4;trafficJob=0;}
-  if(trafficJob===0||anyFall)refreshFixtures();
+  if(trafficJob===0||anyFall&&!fixFallRedraw())refreshFixtures();
   growProps();   // (props that have just come into range, growing in)
   if(trafficJob===1)refreshBrandSigns();else if(trafficJob===2)refreshDoors();else if(trafficJob===3)refreshLandmarks();
   if(trafficJob<4)trafficJob++;
@@ -31708,9 +31779,9 @@ function warmShaders(){
 // dead for good. Now that frame is lost and the next one carries on; each kind of error is reported once.)
 const frameErrs=new Set();
 function frame(now,bg){
-  try{frame0(now,bg);}
+  try{collInFrame=true;frame0(now,bg);}
   catch(e){const k=String(e&&e.message||e);if(!frameErrs.has(k)&&frameErrs.size<20){frameErrs.add(k);console.error('[frame]',e);}}
-  finally{if(!bg)requestAnimationFrame(frame);}   // (bg: nobody's looking, and the browser has stopped giving this tab frames)
+  finally{collInFrame=false;if(!bg)requestAnimationFrame(frame);}   // (bg: nobody's looking, and the browser has stopped giving this tab frames)
 }
 function frame0(now,bg){   // (bg: a tab in the background while online, kept going by netBgClock without being drawn)
   if(warmT<2&&++warmT===2)warmShaders();
@@ -31744,7 +31815,7 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
     safe('goblins',()=>updateGoblins(sdt));safe('fireballs',()=>{updateFireballs(sdt);updateShots(sdt);updateMines(sdt);gobPickups(sdt);});safe('cars',()=>updateCars(sdt));safe('stations',()=>updateStations(sdt));safe('services',()=>updateServices(sdt));
     safe('traffic',()=>updateTraffic(sdt));safe('farmlift',()=>farmLiftPost(sdt));safe('ships',shipCrossAll);for(const p of players)if(p.drv)safe('drive',()=>drvSeat(p));for(const p of players)if(p.vcl&&p.state==='climb')safe('vpin',()=>vRepin(p));safe('spikes',()=>updateSpikes(sdt));safe('weather',()=>updateWeather(sdt));safe('sky',()=>updateSky(sdt));
     for(const p of players)safe('health',()=>updateHealth(p,sdt));
-    safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>updateTopples(sdt));safe('water',()=>updateWater(sdt));
+    safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>{collapseTick();updateTopples(sdt);});safe('water',()=>updateWater(sdt));
     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   }
   safe('far',()=>shipView(()=>updateFar(dt)));safe('debug',()=>updateDebug(gdt));safe('explore',()=>shipView(()=>updateExplore(dt)));   // (aboard a ship, the world round about is round where the ship is)
@@ -33734,9 +33805,10 @@ const netUnflat=a=>{const L=[];for(let i=0;i+3<a.length;i+=4)L.push({x:a[i],y:a[
 // `collapses`), so none of them pass through addEdit. The guest's told which building and from which floor, before the
 // pieces that fall from it, and takes the same blocks out of its own chunks (otherwise the building stayed standing
 // there, with its toppling copy falling out of it)
-{const cb=collapseBuilding;collapseBuilding=function collapseBuilding(B,L,push){
-  if(NET.mode===1&&NET.guests.size&&!(collapses[B.key]<=L))netEmit(['c',B.key,L]);
-  return cb(B,L,push);};}
+// (when it's finished, not when it starts: it's taken out over a few frames, and on the guest it goes all at once)
+{const cf=collFinish;collFinish=function collFinish(J){
+  if(NET.mode===1&&NET.guests.size&&J.emit)netEmit(['c',J.B.key,J.L]);
+  return cf(J);};}
 const NET_COLL=new Map();let netCollSeeded=false;   // (guest: each building's collapse it's taken out of its chunks, and from which floor)
 function netCollSeed(){if(netCollSeeded)return;netCollSeeded=true;for(const k in collapses)NET_COLL.set(k,collapses[k]);}   // (those in the save it built the city from are in its chunks already)
 function netCollapse(key,L,ch){
@@ -33755,7 +33827,7 @@ function netCollapse(key,L,ch){
 {const kf=knockFix;knockFix=function knockFix(f,dx,dz){const r=kf(f,dx,dz);
   if(r&&NET.mode===1&&NET.guests.size){const F=falling.get(f.key);if(F)netEmit(['k',f.key,+F.ang.toFixed(4),F.prop?1:0,r3(F.x),r3(F.z),F.y===undefined?null:r3(F.y)]);}
   return r;};}
-function netKnock(e){if(downFix.has(e[1])||falling.has(e[1]))return;const F={t:0,ang:e[2],x:e[4],z:e[5]};if(e[3]){F.prop=true;F.y=e[6];}falling.set(e[1],F);}
+function netKnock(e){if(downFix.has(e[1])||falling.has(e[1]))return;const F={t:0,ang:e[2],x:e[4],z:e[5]};if(e[3]){F.prop=true;F.y=e[6];}falling.set(e[1],F);fixKnockN++;}
 // (guest, each frame: the falls under way, as updateTraffic moves them on the host, without its dust and sound, which come from the host)
 function netFallingTick(dt){let any=false;for(const [k,F] of falling){F.t+=dt;any=true;if(F.t>=0.7){falling.delete(k);downFix.set(k,F.ang);}}return any;}
 function netFalls(){const t=[],b=[];
@@ -34055,7 +34127,7 @@ let netDressT=0,netDressJ=0;
 function netGuestDress(dt){
   netDressT-=dt;if(netDressT<=0){netDressT=0.4;netDressJ=0;}
   const fall=netFallingTick(dt);
-  if(netDressJ===0||fall)refreshFixtures();if(netDressJ===1)refreshBrandSigns();else if(netDressJ===2)refreshDoors();else if(netDressJ===3)refreshLandmarks();
+  if(netDressJ===0||fall&&!fixFallRedraw())refreshFixtures();if(netDressJ===1)refreshBrandSigns();else if(netDressJ===2)refreshDoors();else if(netDressJ===3)refreshLandmarks();
   if(netDressJ<4)netDressJ++;
   updateDoors(dt);updateLandmarks(dt);headLamps();
   // the venues, run here only so their models are made and kept (quietly: the host's sounds and dust stand in for theirs)

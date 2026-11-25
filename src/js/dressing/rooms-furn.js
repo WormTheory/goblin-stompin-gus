@@ -299,7 +299,30 @@ function lampSpotsOf(px,pz,X0,Z0,PBf){
 // it would be a dozen or more at once; the rest get their turn in 0.4 s, by when updateChunks may well have made them anyway.
 let fixGen=0;
 function fixCanAsk(x,z){if(chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS)))||ST.dressing)return true;return fixGen++<2;}
-function refreshFixtures(){
+// While a lamp post or a bench is on its way down, only it moves: the rest of the street's fixtures and props are just where the
+// last full refresh put them (every 0.4 s), so each frame between, only those falling are drawn again, over their own boxes.
+// Going over every plot near the players for all of them took over a millisecond a frame through a street being smashed.
+// (A full refresh lists which were falling and where their boxes went; anything knocked since, which the count says, needs
+// another, as a fixture going down changes how many boxes it has, its lamp no longer lit.)
+let fixFull=false,fixKnockN=0,fixDrawnN=-1;const fixFallFix=[],fixFallProp=[];
+const fixLo=[0,0,0,0,0],fixHi=[0,0,0,0,0];
+function fixSpan(i,a,b){if(b>a){fixLo[i]=Math.min(fixLo[i],a);fixHi[i]=Math.max(fixHi[i],b);}}
+function fixSentPart(M,i){const a=fixLo[i],b=fixHi[i];if(b<=a)return;
+  for(const [A,w] of [[M.instanceMatrix,16],[M.instanceColor,3]])if(A){A.needsUpdate=true;if(A.updateRange){A.updateRange.offset=a*w;A.updateRange.count=(b-a)*w;}}}
+// (false: it can't, and a full refresh is wanted)
+function fixFallRedraw(){
+  if(fixDrawnN!==fixKnockN||GFX_OFF.fixtures)return false;
+  const s=[nBar,nGlow,nCol,nHead,nSign,nBoard,nPropL,nPropG];fixLo.fill(1e9);fixHi.fill(0);
+  for(const f of fixFallFix){[nBar,nGlow,nCol,nHead,nSign,nBoard]=f._r;const b0=nBar,g0=nGlow,c0=nCol;drawFix(f,f._near);fixSpan(0,b0,nBar);fixSpan(1,g0,nGlow);fixSpan(2,c0,nCol);}
+  for(const f of fixFallProp){if(f._gen!==propGen)continue;nPropL=f._iL;nPropG=f._iG;drawProp(f);fixSpan(3,f._iL,nPropL);fixSpan(4,f._iG,nPropG);}
+  [nBar,nGlow,nCol,nHead,nSign,nBoard,nPropL,nPropG]=s;fallMatrix(0,0,0,0);
+  fixSentPart(FIX_BAR,0);fixSentPart(FIX_GLOW,1);fixSentPart(FIX_COL,2);fixSentPart(PROP_L,3);fixSentPart(PROP_G,4);
+  // (one that's landed has just been drawn lying flat, and stays so)
+  for(const L of [fixFallFix,fixFallProp])for(let i=L.length-1;i>=0;i--)if(!falling.has(L[i].key))L.splice(i,1);
+  return true;
+}
+function refreshFixtures(){fixFull=true;fixFallFix.length=0;fixFallProp.length=0;fixDrawnN=fixKnockN;try{refreshFixtures0();}finally{fixFull=false;}}
+function refreshFixtures0(){
   fixGen=0;nBar=nGlow=nHead=nSign=nCol=nBoard=0;activeFix.length=0;const seen=new Set(),R=Math.min(viewFar(),96),bseen=new Set();
   for(const p of viewers()){
     
@@ -344,6 +367,7 @@ function refreshFixtures(){
 function knockFix(f,dx,dz){
   if(downFix.has(f.key)||falling.has(f.key))return false;
   const ang=(dx||dz)?Math.atan2(dx,dz):Math.random()*Math.PI*2;
+  fixKnockN++;
   if(f.prop){falling.set(f.key,{t:0,ang,x:f.x,z:f.z,prop:true,y:f.y0});tone('square',320,140,0.1,0.03);puff(f.x,f.y0+.5,f.z,2,0xbfc5ca,0.25);award(5,null,f.x,f.y0+1,f.z);trafficRefreshT=0;return true;}
   falling.set(f.key,{t:0,ang,x:f.x,z:f.z});
   clang();tone('square',240,90,0.22,0.05);

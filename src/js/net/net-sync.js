@@ -359,9 +359,10 @@ const netUnflat=a=>{const L=[];for(let i=0;i+3<a.length;i+=4)L.push({x:a[i],y:a[
 // `collapses`), so none of them pass through addEdit. The guest's told which building and from which floor, before the
 // pieces that fall from it, and takes the same blocks out of its own chunks (otherwise the building stayed standing
 // there, with its toppling copy falling out of it)
-{const cb=collapseBuilding;collapseBuilding=function collapseBuilding(B,L,push){
-  if(NET.mode===1&&NET.guests.size&&!(collapses[B.key]<=L))netEmit(['c',B.key,L]);
-  return cb(B,L,push);};}
+// (when it's finished, not when it starts: it's taken out over a few frames, and on the guest it goes all at once)
+{const cf=collFinish;collFinish=function collFinish(J){
+  if(NET.mode===1&&NET.guests.size&&J.emit)netEmit(['c',J.B.key,J.L]);
+  return cf(J);};}
 const NET_COLL=new Map();let netCollSeeded=false;   // (guest: each building's collapse it's taken out of its chunks, and from which floor)
 function netCollSeed(){if(netCollSeeded)return;netCollSeeded=true;for(const k in collapses)NET_COLL.set(k,collapses[k]);}   // (those in the save it built the city from are in its chunks already)
 function netCollapse(key,L,ch){
@@ -380,7 +381,7 @@ function netCollapse(key,L,ch){
 {const kf=knockFix;knockFix=function knockFix(f,dx,dz){const r=kf(f,dx,dz);
   if(r&&NET.mode===1&&NET.guests.size){const F=falling.get(f.key);if(F)netEmit(['k',f.key,+F.ang.toFixed(4),F.prop?1:0,r3(F.x),r3(F.z),F.y===undefined?null:r3(F.y)]);}
   return r;};}
-function netKnock(e){if(downFix.has(e[1])||falling.has(e[1]))return;const F={t:0,ang:e[2],x:e[4],z:e[5]};if(e[3]){F.prop=true;F.y=e[6];}falling.set(e[1],F);}
+function netKnock(e){if(downFix.has(e[1])||falling.has(e[1]))return;const F={t:0,ang:e[2],x:e[4],z:e[5]};if(e[3]){F.prop=true;F.y=e[6];}falling.set(e[1],F);fixKnockN++;}
 // (guest, each frame: the falls under way, as updateTraffic moves them on the host, without its dust and sound, which come from the host)
 function netFallingTick(dt){let any=false;for(const [k,F] of falling){F.t+=dt;any=true;if(F.t>=0.7){falling.delete(k);downFix.set(k,F.ang);}}return any;}
 function netFalls(){const t=[],b=[];
@@ -680,7 +681,7 @@ let netDressT=0,netDressJ=0;
 function netGuestDress(dt){
   netDressT-=dt;if(netDressT<=0){netDressT=0.4;netDressJ=0;}
   const fall=netFallingTick(dt);
-  if(netDressJ===0||fall)refreshFixtures();if(netDressJ===1)refreshBrandSigns();else if(netDressJ===2)refreshDoors();else if(netDressJ===3)refreshLandmarks();
+  if(netDressJ===0||fall&&!fixFallRedraw())refreshFixtures();if(netDressJ===1)refreshBrandSigns();else if(netDressJ===2)refreshDoors();else if(netDressJ===3)refreshLandmarks();
   if(netDressJ<4)netDressJ++;
   updateDoors(dt);updateLandmarks(dt);headLamps();
   // the venues, run here only so their models are made and kept (quietly: the host's sounds and dust stand in for theirs)

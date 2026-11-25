@@ -39,7 +39,8 @@ const S={
     // (eight tall ones close together: those nearest the tallest)
     const [ax,az]=c(list[0]),near=list.slice(0,80).sort((p,q)=>Math.hypot(c(p)[0]-ax,c(p)[1]-az)-Math.hypot(c(q)[0]-ax,c(q)[1]-az)).slice(0,8);
     put(ax+45,az+45);settle(240);
-    run('topple',+(process.env.SECS||20),i=>{if(i!==5)return;for(const e of near){const [x,z]=c(e),B=T.bldgAt(x,z);if(B)T.collapseBuilding(B,G+1+T.FH*2,{x:1,z:0});}});
+    run('topple',+(process.env.SECS||20),i=>{if(i!==5)return;T.collInFrame=true;   // (as if a frame's smashing had brought them down)
+      for(const e of near){const [x,z]=c(e),B=T.bldgAt(x,z);if(B)T.collapseBuilding(B,G+1+T.FH*2,{x:1,z:0});}T.collInFrame=false;});
   },
   trees(){
     const at=findPlot((a,c)=>T.farTreesOf(a,c).length>=30&&T.farTreesOf(a+1,c).length>=30);if(!at)return console.log('trees: no wood found');

@@ -10,7 +10,7 @@ function updateTraffic(dt){
   // (what's near the players is gone over every 0.4 s, one job a frame so they don't all land on the same frame. A lamp post on
   // its way down needs the fixtures redrawn every frame, but only those.)
   if(trafficRefreshT<=0){trafficRefreshT=0.4;trafficJob=0;}
-  if(trafficJob===0||anyFall)refreshFixtures();
+  if(trafficJob===0||anyFall&&!fixFallRedraw())refreshFixtures();
   growProps();   // (props that have just come into range, growing in)
   if(trafficJob===1)refreshBrandSigns();else if(trafficJob===2)refreshDoors();else if(trafficJob===3)refreshLandmarks();
   if(trafficJob<4)trafficJob++;

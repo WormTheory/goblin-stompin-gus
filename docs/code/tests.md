@@ -133,6 +133,8 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - loadt2: load-in doesn't break blocks
   - wv / lodt: wind farm LOD
   - destroyperf: frame times during mass destruction, by scenario (`topple`, `trees`, `dash`, `woods`, `land`, `nuke`; `SLOW=25` lists the slow frames and what they spent it on): measurements only, compare before and after a change
+  - collsplit: tall buildings brought down during a frame (taken out over several) and outside one (at once), each in a game of its own: the same falling piece and stump, nothing falling or redrawn early, eight at once finished one a frame. Fails if not
+  - fixfall: lamps, a bench and props knocked over at different moments: every frame of their fall drawn as a full `refreshFixtures` would, and the time against one (the real three.js's Matrix4 lent to the stub where `three` is installed). Fails if not
   - farspeed: the far view at speed: `updateFar` alone with player one flown at 20, 90, 213 and 600 blocks a second (`VIEW`, `SECS`, `SPEEDS`), per ring how much of the time its shown build no longer covered its band, and the backdrop; fails if a ring is uncovered over 2% of the time at up to 213, or the backdrop ever (last line `farspeed ok`). `tools/ui/farfastshot.js outDir` (after `build_3d.py`) photographs the same in the real renderer, and after being put down 6,000 blocks away
   - stt: structures list
   - stdress: the structures previewer dresses what it shows (counts of lamps, props, doors, signs, venues per kind)
