@@ -53,7 +53,7 @@ function meshAsk(cx,cz){
   if(cx>=SHIP_CX0||GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway||!mwUp()){buildChunk(cx,cz);return;}
   const k=ckey(cx,cz),Q=MW.pend.get(k);if(Q){Q.again=true;return;}   // (one at a time for a chunk; changed meanwhile, it's asked again once that one's back)
   const J=meshPrep(cx,cz,true),id=++MW.id,w=MW.ws.reduce((a,b)=>b.n<a.n?b:a);
-  MW.pend.set(k,{id,re:meshes.has(k),again:false,stale:false,t:performance.now(),J:{cx,cz,mx0:J.mx0,mz0:J.mz0,yLo:J.yLo,yTop:J.yTop,pk:J.pk,rm:J.rm}});
+  MW.pend.set(k,{id,re:meshes.has(k),again:false,stale:false,t:performance.now(),J:{cx,cz,day:J.day,mx0:J.mx0,mz0:J.mz0,yLo:J.yLo,yTop:J.yTop,pk:J.pk,rm:J.rm}});
   J.rm=null;J.id=id;J.k=k;w.n++;
   try{w.postMessage(J,meshXfer(J));}catch(e){mwFail(e);buildChunk(cx,cz);}
 }

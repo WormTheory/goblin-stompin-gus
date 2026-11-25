@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:96fbb670e9cd270a96095b6a781dbc10ff5b1cd14e125ef1f7e90b4a31a6f209 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:343ee136c89339e24df707269539faf829cd50b8a9849ed3c444a336ecc01492 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1680,7 +1680,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Gunfire</h3>
 <ul><li>The flash of light from a gunshot now comes from the barrel, not from a spot partway along the bullet's streak. That goes for every gun: goblins', Gnash's, vehicles', the Mobile Gear's and the carrier's, and online too.</li><li>Gnash's bullets now start from the tip of the gun in your hands.</li></ul>
 <h3>Knock everything over</h3>
-<ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>A building coming down is spread over a few frames instead of landing on one, and several coming down at once take turns, so bringing down a whole block of towers no longer freezes the game for a moment.</li><li>Smashing through town keeps a steadier frame rate: the ground and buildings you've broken catch up over a few frames, nearest you first, and street lamps and benches on their way down no longer make the game redraw every fixture around you.</li><li>The world's blocks are now drawn up on your computer's spare processor cores, alongside the game rather than in the middle of its frames, so smashing buildings and the ground, and new parts of the world coming into view, cost the game far less time.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
+<ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>A building coming down is spread over a few frames instead of landing on one, and several coming down at once take turns, so bringing down a whole block of towers no longer freezes the game for a moment.</li><li>Smashing through town keeps a steadier frame rate: the ground and buildings you've broken catch up over a few frames, nearest you first, and street lamps and benches on their way down no longer make the game redraw every fixture around you.</li><li>The world's blocks are now drawn up on your computer's spare processor cores, alongside the game rather than in the middle of its frames, so smashing buildings and the ground, and new parts of the world coming into view, cost the game far less time.</li><li>By day, when the street lights and neon can't be seen anyway, the world is drawn without working out their light, which makes it quicker still. It's all lit again before dusk, or before a storm darkens the sky.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Nukes</h3>
 <ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>A nuke fired a long way no longer goes off early in mid-air: it flies on until it hits something.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.</li><li>Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.</li><li>Smoke from fires shows through the nuke's dust, and the dust through the smoke.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li></ul>
 <h3>Screen layout</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='93493612bca8';
+const GAME_VER='0.5.1',GAME_BUILD='bfc546c5a49d';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -10786,6 +10786,7 @@ function blkLampDown(f,lit){
 // fixtures), at level 9 in its colour (the heads hang high, so less would hardly reach the road), so the junction's lit red, then green, then amber; each change remeshes round it.
 const BL_FIRE=new Map(),BL_FIRE_N=24,BL_FIRE_C=0xff8a30,BL_SIG_N=12,_bsV=new THREE.Vector3();let blFireT=0;
 function blkFireTick(dt){
+  blkDayTick();
   if((blFireT-=dt)>0)return;blFireT=0.5;
   const want=new Map();
   if(BL_ON&&Math.max(WORLD_LIGHT.value.r,WORLD_LIGHT.value.g,WORLD_LIGHT.value.b)<0.8){
@@ -11111,6 +11112,37 @@ function blkKeep(yLo,yTop){
     if(BL_y1>=BL_y0){BL_R.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);BL_G.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);BL_B.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);}
   }
   BL_any=false;BL_y0=0;BL_y1=-1;return K;
+}
+// ---- by day, chunks are meshed without block light. The light only shows as far as the world's own light is down
+// (LIT_FRAG lifts uLight toward it by 1 - uLight), so in clear daylight it can't be seen, and the fill and its seeds
+// are a good part of a chunk's mesh. Such a chunk is marked (e.dayL), and some 20 seconds before the light will start to
+// show (dusk coming, or weather dark enough on its way: the darker of each player's weather now and where it's heading)
+// every one of them, and the chunks round them (whose light a block changed by day may reach), is meshed again, nearest
+// a player first. blkDaySkip off: every chunk lit, day or night, as before (the tests that check the light). ----
+const BL_DAYL=0.97,BL_DAYON=0.975,BL_LEAD=20;   // (the light it's skipped above; above this to start skipping; seconds of warning)
+let blkDay=false,blkDaySkip=true;
+// the world's light at time of day t, as updateSky works it out (daynight.js), its brightest channel, before the weather
+function todLight(t){
+  const ang=t<DAY_FRAC?Math.PI*t/DAY_FRAC:Math.PI+Math.PI*(t-DAY_FRAC)/(1-DAY_FRAC),sy=Math.sin(ang);
+  const dk=smooth(-0.12,0.3,sy),tw=Math.max(0,1-Math.abs(sy)/0.28)*(sy>-0.18?1:0),N=SKYC.lightNight,D=SKYC.dusk,m=Math.max(0.35,dk),k=tw*0.55;
+  let best=0;for(const c of ['r','g','b']){let v=N[c]+(1-N[c])*dk;v+=(D[c]*m-v)*k;if(v>best)best=v;}return best;
+}
+// whether the world's light is, and will be for the next BL_LEAD seconds, at least L
+function blkBright(L){
+  let wd=WX_TYPES[WX.type]?WX_TYPES[WX.type].dark||0:0;
+  for(const p of players){if(!p.active)continue;if(p.wxk)wd=Math.max(wd,p.wxk.dark||0);const T=WX_TYPES[p.wxL];if(T)wd=Math.max(wd,T.dark||0);}
+  const w=1-0.42*wd,sp=DT.todStop?0:BL_LEAD*DAY_SPEEDS[daySpd]/DAY_LEN;
+  for(let i=0;i<=4;i++)if(todLight((tod+sp*i/4)%1)*w<L)return false;
+  return true;
+}
+function blkDayTick(){
+  const was=blkDay;blkDay=BL_ON&&blkDaySkip&&blkBright(blkDay?BL_DAYL:BL_DAYON);
+  if(!was||blkDay)return;
+  // (the dark's coming: everything meshed without light, and its neighbours, meshed again, nearest first)
+  const S=new Set();for(const e of meshes.values())if(e.dayL)for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const k=ckey(e.cx+i,e.cz+j);if(meshes.has(k))S.add(k);}
+  if(!S.size)return;
+  const P=players.find(q=>q.active),px=P?pwx(P)/CS:0,pz=P?pwz(P)/CS:0,d=k=>{const e=meshes.get(k);return Math.abs(e.cx-px)+Math.abs(e.cz-pz);};
+  for(const k of [...S].sort((a,b)=>d(a)-d(b)))rebuildQ.add(k);
 }
 // the shader's side: with Block lighting on, the materials are compiled with BLOCK_LIGHT (see nightPatch)
 function blkDefines(mat){if(BL_ON)mat.defines=Object.assign(mat.defines||{},{BLOCK_LIGHT:''});else if(mat.defines)delete mat.defines.BLOCK_LIGHT;}
@@ -11481,7 +11513,8 @@ function meshPrep(cx,cz,copy){
   }
   yLo=Math.max(0,yLo-1);
   // the lights round about, where they start (none, and nothing to do, with Block lighting off)
-  const BL=BL_ON,seeds=BL?blkSeeds(cx,cz,yLo,yTop):null;
+  // (by day, none: blkDay)
+  const BL=BL_ON,day=BL&&blkDay,seeds=BL?(day?new Int16Array(0):blkSeeds(cx,cz,yLo,yTop)):null;
   // (the biome's tint on grass and leaves, world/climate.js: g 0 grass, 1 leaves, for each column with any; (column*2+g)*3)
   const tint=new Float32Array(A2*6),tf=new Uint8Array(A2*2);
   for(let y=yLo;y<=yTop;y++){const o=y*A2;for(let i=0;i<A2;i++){const b=a[o+i];if(b===GRASS)tf[i*2]=1;else if(b===LEAVES||b===PINE)tf[i*2+1]=1;}}
@@ -11517,7 +11550,7 @@ function meshPrep(cx,cz,copy){
   const snow=new Float64Array(A2);for(let i=0;i<A2;i++)if(tops[i]>=0)snow[i]=1+(snowBorn.get(colKey(x0+i%CS,z0+Math.floor(i/CS)))||0);
   // (the paint and rails laid on the roads, worked out here; only the light on them is left to meshKernel)
   const rm=pk?null:routeMarks(cx,cz);
-  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM,nineL,rdY,rdOut,sr,BL,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
+  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM,nineL,rdY,rdOut,sr,BL,day,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
 }
 // the arrays a job hands over to a thread with it, each once (the job's own copies: nothing the game goes on using)
 function meshXfer(J){
@@ -11627,7 +11660,7 @@ function meshApply(J,R){
     const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;par.add(mesh);m.push(mesh);
   });
   if(J.rm){const mk=routeMesh(J.rm,R.rmB);if(mk)m.push(mk);}
-  const E={cx,cz,m,lc:null};meshes.set(k,E);if(!pk)markMeshed(cx,cz,true);
+  const E={cx,cz,m,lc:null,dayL:!!J.day};meshes.set(k,E);if(!pk)markMeshed(cx,cz,true);
   const Lt=R.light;if(Lt&&Lt.lc){E.lc=Lt.lc;E.ly0=Lt.ly0;E.lh=Lt.lh;}
   return E;
 }
@@ -11878,7 +11911,7 @@ function meshAsk(cx,cz){
   if(cx>=SHIP_CX0||GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway||!mwUp()){buildChunk(cx,cz);return;}
   const k=ckey(cx,cz),Q=MW.pend.get(k);if(Q){Q.again=true;return;}   // (one at a time for a chunk; changed meanwhile, it's asked again once that one's back)
   const J=meshPrep(cx,cz,true),id=++MW.id,w=MW.ws.reduce((a,b)=>b.n<a.n?b:a);
-  MW.pend.set(k,{id,re:meshes.has(k),again:false,stale:false,t:performance.now(),J:{cx,cz,mx0:J.mx0,mz0:J.mz0,yLo:J.yLo,yTop:J.yTop,pk:J.pk,rm:J.rm}});
+  MW.pend.set(k,{id,re:meshes.has(k),again:false,stale:false,t:performance.now(),J:{cx,cz,day:J.day,mx0:J.mx0,mz0:J.mz0,yLo:J.yLo,yTop:J.yTop,pk:J.pk,rm:J.rm}});
   J.rm=null;J.id=id;J.k=k;w.n++;
   try{w.postMessage(J,meshXfer(J));}catch(e){mwFail(e);buildChunk(cx,cz);}
 }

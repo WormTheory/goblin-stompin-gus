@@ -356,7 +356,8 @@ function meshPrep(cx,cz,copy){
   }
   yLo=Math.max(0,yLo-1);
   // the lights round about, where they start (none, and nothing to do, with Block lighting off)
-  const BL=BL_ON,seeds=BL?blkSeeds(cx,cz,yLo,yTop):null;
+  // (by day, none: blkDay)
+  const BL=BL_ON,day=BL&&blkDay,seeds=BL?(day?new Int16Array(0):blkSeeds(cx,cz,yLo,yTop)):null;
   // (the biome's tint on grass and leaves, world/climate.js: g 0 grass, 1 leaves, for each column with any; (column*2+g)*3)
   const tint=new Float32Array(A2*6),tf=new Uint8Array(A2*2);
   for(let y=yLo;y<=yTop;y++){const o=y*A2;for(let i=0;i<A2;i++){const b=a[o+i];if(b===GRASS)tf[i*2]=1;else if(b===LEAVES||b===PINE)tf[i*2+1]=1;}}
@@ -392,7 +393,7 @@ function meshPrep(cx,cz,copy){
   const snow=new Float64Array(A2);for(let i=0;i<A2;i++)if(tops[i]>=0)snow[i]=1+(snowBorn.get(colKey(x0+i%CS,z0+Math.floor(i/CS)))||0);
   // (the paint and rails laid on the roads, worked out here; only the light on them is left to meshKernel)
   const rm=pk?null:routeMarks(cx,cz);
-  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM,nineL,rdY,rdOut,sr,BL,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
+  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM,nineL,rdY,rdOut,sr,BL,day,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
 }
 // the arrays a job hands over to a thread with it, each once (the job's own copies: nothing the game goes on using)
 function meshXfer(J){
@@ -502,7 +503,7 @@ function meshApply(J,R){
     const mesh=new THREE.Mesh(g,i?matWater:matOpaque);if(i)mesh.renderOrder=1;par.add(mesh);m.push(mesh);
   });
   if(J.rm){const mk=routeMesh(J.rm,R.rmB);if(mk)m.push(mk);}
-  const E={cx,cz,m,lc:null};meshes.set(k,E);if(!pk)markMeshed(cx,cz,true);
+  const E={cx,cz,m,lc:null,dayL:!!J.day};meshes.set(k,E);if(!pk)markMeshed(cx,cz,true);
   const Lt=R.light;if(Lt&&Lt.lc){E.lc=Lt.lc;E.ly0=Lt.ly0;E.lh=Lt.lh;}
   return E;
 }

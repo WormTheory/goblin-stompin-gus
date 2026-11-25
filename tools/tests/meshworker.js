@@ -9,6 +9,7 @@ const vm=require('vm');
 const {T,E,run,step,els,pads,errs}=require('./harness.js')();
 const ok=[];const chk=(n,v)=>{ok.push(!!v);console.log(n,v?'ok':'BAD');};
 global.THREE.BufferGeometry.prototype.setIndex=function(i){this.index=i;};
+T.blkDaySkip=false;   // (block light baked by day too, as it's the light being checked)
 for(const f of els.play.L.click)f();pads.length=0;run(1);T.DT.invuln=true;
 const src=T.mwBody();
 const sandbox=()=>{const out=[];const ctx={postMessage:d=>out.push(d),onmessage:null,console};vm.createContext(ctx);vm.runInContext(src,ctx);return {ctx,out};};

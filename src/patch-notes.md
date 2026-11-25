@@ -191,6 +191,7 @@
 - A building coming down is spread over a few frames instead of landing on one, and several coming down at once take turns, so bringing down a whole block of towers no longer freezes the game for a moment.
 - Smashing through town keeps a steadier frame rate: the ground and buildings you've broken catch up over a few frames, nearest you first, and street lamps and benches on their way down no longer make the game redraw every fixture around you.
 - The world's blocks are now drawn up on your computer's spare processor cores, alongside the game rather than in the middle of its frames, so smashing buildings and the ground, and new parts of the world coming into view, cost the game far less time.
+- By day, when the street lights and neon can't be seen anyway, the world is drawn without working out their light, which makes it quicker still. It's all lit again before dusk, or before a storm darkens the sky.
 - Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.
 
 ### Nukes

@@ -75,6 +75,7 @@ function blkLampDown(f,lit){
 // fixtures), at level 9 in its colour (the heads hang high, so less would hardly reach the road), so the junction's lit red, then green, then amber; each change remeshes round it.
 const BL_FIRE=new Map(),BL_FIRE_N=24,BL_FIRE_C=0xff8a30,BL_SIG_N=12,_bsV=new THREE.Vector3();let blFireT=0;
 function blkFireTick(dt){
+  blkDayTick();
   if((blFireT-=dt)>0)return;blFireT=0.5;
   const want=new Map();
   if(BL_ON&&Math.max(WORLD_LIGHT.value.r,WORLD_LIGHT.value.g,WORLD_LIGHT.value.b)<0.8){
@@ -400,6 +401,37 @@ function blkKeep(yLo,yTop){
     if(BL_y1>=BL_y0){BL_R.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);BL_G.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);BL_B.fill(0,(BL_y0+1)*BLA,(BL_y1+2)*BLA);}
   }
   BL_any=false;BL_y0=0;BL_y1=-1;return K;
+}
+// ---- by day, chunks are meshed without block light. The light only shows as far as the world's own light is down
+// (LIT_FRAG lifts uLight toward it by 1 - uLight), so in clear daylight it can't be seen, and the fill and its seeds
+// are a good part of a chunk's mesh. Such a chunk is marked (e.dayL), and some 20 seconds before the light will start to
+// show (dusk coming, or weather dark enough on its way: the darker of each player's weather now and where it's heading)
+// every one of them, and the chunks round them (whose light a block changed by day may reach), is meshed again, nearest
+// a player first. blkDaySkip off: every chunk lit, day or night, as before (the tests that check the light). ----
+const BL_DAYL=0.97,BL_DAYON=0.975,BL_LEAD=20;   // (the light it's skipped above; above this to start skipping; seconds of warning)
+let blkDay=false,blkDaySkip=true;
+// the world's light at time of day t, as updateSky works it out (daynight.js), its brightest channel, before the weather
+function todLight(t){
+  const ang=t<DAY_FRAC?Math.PI*t/DAY_FRAC:Math.PI+Math.PI*(t-DAY_FRAC)/(1-DAY_FRAC),sy=Math.sin(ang);
+  const dk=smooth(-0.12,0.3,sy),tw=Math.max(0,1-Math.abs(sy)/0.28)*(sy>-0.18?1:0),N=SKYC.lightNight,D=SKYC.dusk,m=Math.max(0.35,dk),k=tw*0.55;
+  let best=0;for(const c of ['r','g','b']){let v=N[c]+(1-N[c])*dk;v+=(D[c]*m-v)*k;if(v>best)best=v;}return best;
+}
+// whether the world's light is, and will be for the next BL_LEAD seconds, at least L
+function blkBright(L){
+  let wd=WX_TYPES[WX.type]?WX_TYPES[WX.type].dark||0:0;
+  for(const p of players){if(!p.active)continue;if(p.wxk)wd=Math.max(wd,p.wxk.dark||0);const T=WX_TYPES[p.wxL];if(T)wd=Math.max(wd,T.dark||0);}
+  const w=1-0.42*wd,sp=DT.todStop?0:BL_LEAD*DAY_SPEEDS[daySpd]/DAY_LEN;
+  for(let i=0;i<=4;i++)if(todLight((tod+sp*i/4)%1)*w<L)return false;
+  return true;
+}
+function blkDayTick(){
+  const was=blkDay;blkDay=BL_ON&&blkDaySkip&&blkBright(blkDay?BL_DAYL:BL_DAYON);
+  if(!was||blkDay)return;
+  // (the dark's coming: everything meshed without light, and its neighbours, meshed again, nearest first)
+  const S=new Set();for(const e of meshes.values())if(e.dayL)for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const k=ckey(e.cx+i,e.cz+j);if(meshes.has(k))S.add(k);}
+  if(!S.size)return;
+  const P=players.find(q=>q.active),px=P?pwx(P)/CS:0,pz=P?pwz(P)/CS:0,d=k=>{const e=meshes.get(k);return Math.abs(e.cx-px)+Math.abs(e.cz-pz);};
+  for(const k of [...S].sort((a,b)=>d(a)-d(b)))rebuildQ.add(k);
 }
 // the shader's side: with Block lighting on, the materials are compiled with BLOCK_LIGHT (see nightPatch)
 function blkDefines(mat){if(BL_ON)mat.defines=Object.assign(mat.defines||{},{BLOCK_LIGHT:''});else if(mat.defines)delete mat.defines.BLOCK_LIGHT;}

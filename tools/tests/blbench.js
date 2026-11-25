@@ -3,7 +3,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,frame,meshes,buildChunk,crush,G,CS,CELL,DT,ckey,get BL(){return BL_ON},set BL(v){BL_ON=v},blkSeeds,blkFlood,blkKeep,chunkArr,blkEmitters,rebuildQ,setRaw,get:get,B_LIT};})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={players,frame,meshes,buildChunk,crush,G,CS,CELL,DT,ckey,get BL(){return BL_ON},set BL(v){BL_ON=v},blkSeeds,blkFlood,blkKeep,chunkArr,blkEmitters,rebuildQ,setRaw,get:get,B_LIT,set daySkip(v){blkDaySkip=v}};})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 const {Q,V3,Rot,Col,Mat,O3,M4,THREE}=require('./stub-three.js');   // (the stand-in three.js every suite shares)
 const listeners={};
@@ -22,7 +22,7 @@ const pads=[mk(0),mk(1)];
 Object.defineProperty(global,'navigator',{value:{getGamepads:()=>pads},configurable:true});
 
 THREE.BufferGeometry.prototype.setIndex=function(i){this.index=i;};
-eval(src);const T=window.__t;let now=1000;
+eval(src);const T=window.__t;let now=1000;T.daySkip=false;   // (block light baked by day too, as it's the light being checked)
 for(const f of els.play.L.click)f();pads.length=0;
 for(let i=0;i<30;i++){now+=16.7;T.frame(now);}
 
