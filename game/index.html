@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:406cb618371f5bd45fc467e03d273e1cc64d85cc7113fe6eee7eb21ed04ebd73 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:9517d6dca9857250cb05d908fb428462990da76193233d8abcffcf46d8104ee4 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1662,7 +1662,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Landforms</h3>
 <ul><li>Deserts are rolling seas of dunes, long sandy ridges with a steep face on the side away from the wind.</li><li>The badlands rise into flat-topped mesas and plateaus with stepped sides of banded clay, and canyons cut down through them. Scrubland has lower plateaus.</li><li>In middling hilly country the land steps up sheer rock cliffs that run on for kilometres.</li><li>The driest, hottest deserts have dead-flat white salt flats.</li><li>Small lakes called tarns lie in bowls high in the mountains, frozen over where it's cold.</li><li>Oases dot the deserts: a pool of water ringed with grass and palm trees, the dunes dying away round it.</li><li>Sinkholes drop straight down toward the caves, with water at the bottom in warm country.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Weather by region</h3>
-<ul><li>Roads no longer snow over like a field. Traffic keeps its wheel ruts clear in every lane, on town streets, crossroads, motorways and country highways, with the snow left along the kerbs, down the middle and on the hard shoulder. In the heaviest snow the ruts pack down grey instead of staying bare.</li><li>The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.</li><li>Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.</li><li>The savanna and scrubland have dusty days, with dust devils whirling across the plain.</li><li>The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.</li><li>Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.</li><li>Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.</li><li>In split screen, each player sees the weather where they are.</li><li>Rain, snow and blowing sand drift with the wind now, the same way smoke blows, and turn with it as it slowly shifts.</li></ul>
+<ul><li>Roads no longer snow over like a field. Traffic keeps its wheel ruts clear in every lane, on town streets, crossroads, motorways and country highways, with the snow left along the kerbs, down the middle and on the hard shoulder. In the heaviest snow the ruts pack down grey instead of staying bare.</li><li>The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.</li><li>Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.</li><li>The savanna and scrubland have dusty days, with dust devils whirling across the plain.</li><li>The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.</li><li>Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.</li><li>Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.</li><li>In split screen, each player sees the weather where they are.</li><li>Rain, snow, blowing sand and the clouds overhead all drift with the wind now, the same way smoke blows, and turn with it as it slowly shifts.</li></ul>
 <h3>Coasts</h3>
 <ul><li>Coasts now match the land behind them. Where the country is rugged, the shore stands up out of the sea as tall rocky headlands.</li><li>Cold shores are shingle: gravel, cobbles and the odd bit of driftwood.</li><li>Frozen shores have an ice shelf you can walk out on, with floes drifting beyond its edge.</li><li>Warm, wet shores grow mangroves, trees standing on arched roots in shallow, muddy water.</li><li>Beaches in the badlands are red sand.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Living in each biome</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='955bc66eb195';
+const GAME_VER='0.5.1',GAME_BUILD='1f0fc1db4c4f';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -11869,7 +11869,8 @@ const CLOUD_FS=['uniform sampler2D map;uniform sampler2D mask;uniform vec2 uMOff
   // overcast: the gaps between the cloud blocks fill in with a flat grey layer
   ' float fill=smoothstep(0.45,1.0,uCover)*0.85;float a=max(c.a,fill);vec3 rgb=mix(vec3(0.72,0.75,0.77),c.rgb,c.a);',
   ' gl_FragColor=vec4(rgb*uTint*uShade,a*uOpacity*fade*m*(1.0-uFog));}'].join('\n');   // (gone in thick weather fog, as the sky is: skyU.uFog)
-// h: height above the top of the world; period: blocks per texture tile (64 texels); wind: blocks/second (x,z);
+// h: height above the top of the world; period: blocks per texture tile (64 texels); wind: blocks/second (x,z; only its
+// length counts now: every deck drifts the way the world's wind blows, windNow, in frame);
 // size: deck width (x the view); n: how many cloud blocks in a tile
 const CLOUD_DECKS=[
   {h:56,period:440,mperiod:1270,wind:[0.7,0.1],op:0.26,size:2.0,n:18,seed:77,slices:[[0,1]]},
@@ -31833,8 +31834,10 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
   if(DT.freecam){P1.camera.position.copy(FC.pos);P1.camera.rotation.set(FC.pitch,FC.yaw,0,'YXZ');}
   const act=players.filter(p=>p.active);
   const nAct=act.length||1,mx=act.reduce((s,p)=>s+pwx(p),0)/nAct,mz=act.reduce((s,p)=>s+pwz(p),0)/nAct;   // (nobody active: the middle, not NaN)
-  // each deck follows the players (so it always covers the sky) but its pattern stays put in the world and drifts on its own wind
-  for(const D of CLOUD_DECKS){if(!reduce&&gdt>0){const wk=0.5+WXK.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
+  // each deck follows the players (so it always covers the sky) but its pattern stays put in the world and drifts on the
+  // world's wind (windNow: the way smoke, rain and snow blow), each deck at its own speed (D.wind) and harder in windy weather
+  if(!reduce&&gdt>0){const wa=windNow().a,sx=Math.sin(wa),sz=Math.cos(wa),wk=0.5+WXK.wind;
+    for(const D of CLOUD_DECKS){const sp=Math.hypot(D.wind[0],D.wind[1])*dt*wk;D.drift[0]+=sx*sp;D.drift[1]+=sz*sp;}}
   for(const L of cloudLayers){const D=L.D,size=600*L.m.scale.x,u=L.m.material.uniforms;
     L.m.position.set(mx,H+D.h+L.dy,mz);u.uRep.value=size/D.period;
     // uv (0..1 across the deck) times the repeat, shifted so the deck's centre shows the pattern at the players' spot

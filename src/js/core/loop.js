@@ -153,8 +153,10 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
   if(DT.freecam){P1.camera.position.copy(FC.pos);P1.camera.rotation.set(FC.pitch,FC.yaw,0,'YXZ');}
   const act=players.filter(p=>p.active);
   const nAct=act.length||1,mx=act.reduce((s,p)=>s+pwx(p),0)/nAct,mz=act.reduce((s,p)=>s+pwz(p),0)/nAct;   // (nobody active: the middle, not NaN)
-  // each deck follows the players (so it always covers the sky) but its pattern stays put in the world and drifts on its own wind
-  for(const D of CLOUD_DECKS){if(!reduce&&gdt>0){const wk=0.5+WXK.wind;D.drift[0]+=D.wind[0]*dt*wk;D.drift[1]+=D.wind[1]*dt*wk;}}
+  // each deck follows the players (so it always covers the sky) but its pattern stays put in the world and drifts on the
+  // world's wind (windNow: the way smoke, rain and snow blow), each deck at its own speed (D.wind) and harder in windy weather
+  if(!reduce&&gdt>0){const wa=windNow().a,sx=Math.sin(wa),sz=Math.cos(wa),wk=0.5+WXK.wind;
+    for(const D of CLOUD_DECKS){const sp=Math.hypot(D.wind[0],D.wind[1])*dt*wk;D.drift[0]+=sx*sp;D.drift[1]+=sz*sp;}}
   for(const L of cloudLayers){const D=L.D,size=600*L.m.scale.x,u=L.m.material.uniforms;
     L.m.position.set(mx,H+D.h+L.dy,mz);u.uRep.value=size/D.period;
     // uv (0..1 across the deck) times the repeat, shifted so the deck's centre shows the pattern at the players' spot

@@ -65,7 +65,8 @@ const CLOUD_FS=['uniform sampler2D map;uniform sampler2D mask;uniform vec2 uMOff
   // overcast: the gaps between the cloud blocks fill in with a flat grey layer
   ' float fill=smoothstep(0.45,1.0,uCover)*0.85;float a=max(c.a,fill);vec3 rgb=mix(vec3(0.72,0.75,0.77),c.rgb,c.a);',
   ' gl_FragColor=vec4(rgb*uTint*uShade,a*uOpacity*fade*m*(1.0-uFog));}'].join('\n');   // (gone in thick weather fog, as the sky is: skyU.uFog)
-// h: height above the top of the world; period: blocks per texture tile (64 texels); wind: blocks/second (x,z);
+// h: height above the top of the world; period: blocks per texture tile (64 texels); wind: blocks/second (x,z; only its
+// length counts now: every deck drifts the way the world's wind blows, windNow, in frame);
 // size: deck width (x the view); n: how many cloud blocks in a tile
 const CLOUD_DECKS=[
   {h:56,period:440,mperiod:1270,wind:[0.7,0.1],op:0.26,size:2.0,n:18,seed:77,slices:[[0,1]]},
