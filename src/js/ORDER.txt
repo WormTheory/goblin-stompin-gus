@@ -35,6 +35,7 @@ render/mesh-worker.js
 core/world-save.js
 render/sky.js
 render/weather.js
+render/snow-tracks.js
 core/audio.js
 ui/sprites.js
 destruction/smashing.js

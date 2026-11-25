@@ -101,6 +101,7 @@
 ### Weather by region
 
 - Roads no longer snow over like a field. Traffic keeps its wheel ruts clear in every lane, on town streets, crossroads, motorways and country highways, with the snow left along the kerbs, down the middle and on the hard shoulder. In the heaviest snow the ruts pack down grey instead of staying bare.
+- Vehicles leave real tracks in the snow near you: tyre lines where the traffic actually drove, including skids across the pavement, tank treads, the Mobile Gear's footprints, and the hippos' own. Falling snow slowly fills them back in. Tracks in snow can be switched off in the picture options.
 - The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.
 - Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.
 - The savanna and scrubland have dusty days, with dust devils whirling across the plain.

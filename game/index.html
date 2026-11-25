@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:6226dd5c6819cfdb5fb98e81bce990ab710991f34c124722548f8a884f1fdebf -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:96fbb670e9cd270a96095b6a781dbc10ff5b1cd14e125ef1f7e90b4a31a6f209 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1576,7 +1576,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="crow"><label class="clab" for="sndVol">SOUND VOLUME</label><input type="range" id="sndVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="vval" id="sndVolVal">100%</span></div>
       <p class="vnote">Voice chat volume is under Online.</p>
       <div class="crow"><label class="clab" for="brightness">BRIGHTNESS</label><input type="range" id="brightness" class="vrange" min="20" max="250" step="5" value="100" aria-label="Brightness"><span class="vval" id="brightVal">100%</span></div>
-      <div class="abil"><button type="button" class="tog" role="checkbox" id="blkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Block lighting</span></button></div>
+      <div class="abil"><button type="button" class="tog" role="checkbox" id="blkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Block lighting</span></button><button type="button" class="tog" role="checkbox" id="trkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Tracks in snow</span></button></div>
     </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
@@ -1662,7 +1662,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Landforms</h3>
 <ul><li>Deserts are rolling seas of dunes, long sandy ridges with a steep face on the side away from the wind.</li><li>The badlands rise into flat-topped mesas and plateaus with stepped sides of banded clay, and canyons cut down through them. Scrubland has lower plateaus.</li><li>In middling hilly country the land steps up sheer rock cliffs that run on for kilometres.</li><li>The driest, hottest deserts have dead-flat white salt flats.</li><li>Small lakes called tarns lie in bowls high in the mountains, frozen over where it's cold.</li><li>Oases dot the deserts: a pool of water ringed with grass and palm trees, the dunes dying away round it.</li><li>Sinkholes drop straight down toward the caves, with water at the bottom in warm country.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Weather by region</h3>
-<ul><li>Roads no longer snow over like a field. Traffic keeps its wheel ruts clear in every lane, on town streets, crossroads, motorways and country highways, with the snow left along the kerbs, down the middle and on the hard shoulder. In the heaviest snow the ruts pack down grey instead of staying bare.</li><li>The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.</li><li>Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.</li><li>The savanna and scrubland have dusty days, with dust devils whirling across the plain.</li><li>The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.</li><li>Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.</li><li>Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.</li><li>In split screen, each player sees the weather where they are.</li><li>Rain, snow, blowing sand and the clouds overhead all drift with the wind now, the same way smoke blows, and turn with it as it slowly shifts.</li></ul>
+<ul><li>Roads no longer snow over like a field. Traffic keeps its wheel ruts clear in every lane, on town streets, crossroads, motorways and country highways, with the snow left along the kerbs, down the middle and on the hard shoulder. In the heaviest snow the ruts pack down grey instead of staying bare.</li><li>Vehicles leave real tracks in the snow near you: tyre lines where the traffic actually drove, including skids across the pavement, tank treads, the Mobile Gear's footprints, and the hippos' own. Falling snow slowly fills them back in. Tracks in snow can be switched off in the picture options.</li><li>The weather now depends on where you are. Rain falls as snow in the cold north and high in the mountains, the ice fields get blizzards, and the desert stays dry.</li><li>Deserts and badlands get sandstorms: the air turns ochre, dust blows past and you can hardly see.</li><li>The savanna and scrubland have dusty days, with dust devils whirling across the plain.</li><li>The rainforest gets heavier rain, and a humid haze on its drier days. Moors and swamps fog over more often.</li><li>Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.</li><li>Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.</li><li>In split screen, each player sees the weather where they are.</li><li>Rain, snow, blowing sand and the clouds overhead all drift with the wind now, the same way smoke blows, and turn with it as it slowly shifts.</li></ul>
 <h3>Coasts</h3>
 <ul><li>Coasts now match the land behind them. Where the country is rugged, the shore stands up out of the sea as tall rocky headlands.</li><li>Cold shores are shingle: gravel, cobbles and the odd bit of driftwood.</li><li>Frozen shores have an ice shelf you can walk out on, with floes drifting beyond its edge.</li><li>Warm, wet shores grow mangroves, trees standing on arched roots in shallow, muddy water.</li><li>Beaches in the badlands are red sand.</li><li>This makes a new world again, so a saved city starts afresh.</li></ul>
 <h3>Living in each biome</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='53226efd9b22';
+const GAME_VER='0.5.1',GAME_BUILD='93493612bca8';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -11238,15 +11238,26 @@ const FOLIAGE_FRAG=`
 // by smashing starts bare and builds up its own snow at the normal rate. aSky = 0 (covered) or 1 + that time.
 const snowBorn=new Map();
 const RD_OPEN=14;let snowRoads=true;   // (off: roads snow over like any other ground, as they used to; for the tests and for comparing)
+// tracks in the snow: what wheels, treads and feet have pressed down near each player, a map TRK_N texels a side, TRK_Q to
+// a block, wrapped (so the map never moves, only what's in it: render/snow-tracks.js). Luminance how hard it's packed,
+// alpha the height it was pressed at, so a road's tracks don't show on the deck above it. uTrkC: the middle of the map
+// in use (each view draws with its own player's), and 1 to show it or 0
+const TRK_N=512,TRK_Q=4,TRK_RUT=0.5,TRK_U={value:null},TRKC_U={value:new THREE.Vector3(0,0,0)};
 function weatherPatch(sh){
-  sh.uniforms.uSnow=SNOW_U;sh.uniforms.uWet=WET_U;sh.uniforms.uSnowClk=SNOWCLK_U;sh.uniforms.uSnowB=SNOWB_U;sh.uniforms.uColdT=COLDT_U;
+  sh.uniforms.uSnow=SNOW_U;sh.uniforms.uWet=WET_U;sh.uniforms.uSnowClk=SNOWCLK_U;sh.uniforms.uSnowB=SNOWB_U;sh.uniforms.uColdT=COLDT_U;sh.uniforms.uTrk=TRK_U;sh.uniforms.uTrkC=TRKC_U;
   sh.vertexShader='attribute float aSky;varying float vSky;varying float vBorn;varying float vRd;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vSky=step(0.5,abs(aSky));vBorn=max(aSky-1.0,0.0);vRd=max(-aSky,0.0);vWp=(modelMatrix*vec4(position,1.0)).xyz;');
-  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying float vRd;varying vec3 vWp;\n'+SNOW_GLSL+sh.fragmentShader;
+  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;uniform sampler2D uTrk;uniform vec3 uTrkC;varying float vSky;varying float vBorn;varying float vRd;varying vec3 vWp;\n'+SNOW_GLSL+sh.fragmentShader;
 }
+// (the tracks: tf how much the map counts here, fading out toward its edge, where the ruts carry on alone; within it the
+// ruts are fainter, so it's the traffic that's really been by that shows. tL how hard the snow's packed here: pressed to
+// bare ground where fresh, packed grey in the heaviest snow)
+const TRK_GET='  float tf=0.0,tL=0.0;if(uTrkC.z>0.5){vec2 tq=vWp.xz-uTrkC.xy;tf=1.0-smoothstep('+(TRK_N/TRK_Q*0.36).toFixed(1)+','+(TRK_N/TRK_Q*0.48).toFixed(1)+',max(abs(tq.x),abs(tq.y)));\n'+
+ '   if(tf>0.0){vec4 tk=texture2D(uTrk,vWp.xz*'+(TRK_Q/TRK_N)+');tL=tk.r*tf*(1.0-step(1.2,abs(vWp.y-tk.a*255.0)));}}\n';
+const TRK_FRAG='    if(tL>0.01){float hv=smoothstep(0.7,1.0,snS);snowL*=1.0-tL*mix(0.9,0.5,hv);snowK=mix(snowK,vec3(0.63,0.61,0.58)*(0.9+0.2*snowG),tL*mix(0.5,0.8,hv));diffuseColor.rgb*=1.0-0.12*tL*smoothstep(0.03,0.25,snowL);}\n';
 // (a road, vRd = 1 + how far across its lane, see roadLanes: the traffic's wheels keep two ruts all but bare, the strip
 // between them thin and grey, and the snow lies as deep as anywhere only along the kerbs and down the middle. In the
 // heaviest snow the ruts pack down grey instead. Tarmac with no lanes, from RD_OPEN: a little less snow all over)
-const SNOW_FRAG='\n  if(vSky>0.5){float wkS;float snS=snowHere(vWp,wkS);diffuseColor.rgb*=1.0-0.3*uWet*wkS*(1.0-snS);\n  if(snS>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(snS,uSnowClk-vBorn);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  vec3 snowK=vec3(snowV,snowV+0.012,snowV+0.03);\n  if(vRd>0.5){float rdT=vRd-1.0,rdL=step(rdT,'+(RD_OPEN-3).toFixed(1)+'),rdP=abs(mod(rdT+(snowN-0.5)*0.3,4.0)-2.0);\n   float rdLane=mix(0.6,1.0-smoothstep(1.3,1.65,rdP),rdL),rdRut=rdL*(1.0-smoothstep(0.3,0.6,abs(rdP-0.8)));\n   diffuseColor.rgb*=1.0-0.12*rdLane*smoothstep(0.03,0.25,snowL);\n   snowL*=1.0-rdLane*(0.42+rdRut*mix(0.48,0.1,smoothstep(0.7,1.0,snS)));\n   snowK=mix(snowK,vec3(0.66,0.64,0.61)*(0.9+0.2*snowG),rdLane*(0.3+0.5*rdRut));}\n  float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  diffuseColor.rgb=mix(diffuseColor.rgb,snowK*litC,snowC);}}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
+const SNOW_FRAG='\n  if(vSky>0.5){float wkS;float snS=snowHere(vWp,wkS);diffuseColor.rgb*=1.0-0.3*uWet*wkS*(1.0-snS);\n  if(snS>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(snS,uSnowClk-vBorn);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  vec3 snowK=vec3(snowV,snowV+0.012,snowV+0.03);\n'+TRK_GET+'  if(vRd>0.5){float rdT=vRd-1.0,rdL=step(rdT,'+(RD_OPEN-3).toFixed(1)+'),rdP=abs(mod(rdT+(snowN-0.5)*0.3,4.0)-2.0);\n   float rdLane=mix(0.6,1.0-smoothstep(1.3,1.65,rdP),rdL)*(1.0-'+TRK_RUT.toFixed(2)+'*tf),rdRut=rdL*(1.0-smoothstep(0.3,0.6,abs(rdP-0.8)));\n   diffuseColor.rgb*=1.0-0.12*rdLane*smoothstep(0.03,0.25,snowL);\n   snowL*=1.0-rdLane*(0.42+rdRut*mix(0.48,0.1,smoothstep(0.7,1.0,snS)));\n   snowK=mix(snowK,vec3(0.66,0.64,0.61)*(0.9+0.2*snowG),rdLane*(0.3+0.5*rdRut));}\n'+TRK_FRAG+'  float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  diffuseColor.rgb=mix(diffuseColor.rgb,snowK*litC,snowC);}}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
 const matOpaque=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5}));
 // (the paint and the rails laid on the ground: pulled toward the camera a touch so they never flicker with it)
 const matDecal=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));
@@ -12354,6 +12365,84 @@ function updateWeather(dt){
 }
 
 
+// ---------- Tracks in the snow ----------
+// Wheels, a tank's treads, the Mobile Gear's feet and the hippos' (and goblins') own feet press the snow down where
+// they go, near each player who's here: a map round each (TRK_N texels a side, TRK_Q to a block, so 128 blocks across)
+// that the ground's snow shader reads (TRK_FRAG, meshing.js). Further out the roads' ruts (roadLanes) are all there is.
+// The map is wrapped: a point's texel is where it falls on the world cut into squares the map's size, so the map never
+// shifts as its player moves, only the squares of 8 blocks (TRK_T texels) leaving its far side are emptied to be the
+// ones coming in on the near side. Falling snow fills the tracks in again; once the snow's gone, they go with it.
+// Online each player keeps their own, from the vehicles they can see, so friends' tracks can differ a little.
+let SNOW_TRACKS=true;try{SNOW_TRACKS=localStorage.getItem('goblin-stompin-gus-notracks')!=='1';}catch(e){}
+const TRK_T=32,TRK_S=TRK_N/TRK_T,TRK_B=TRK_T/TRK_Q;   // (texels a square, squares a side, blocks a square)
+const trkMaps=[];   // (one for each player whose view is drawn here, by p.idx: made the first time it's drawn in the snow)
+function trkMap(i){let M=trkMaps[i];if(M)return M;
+  const d=new Uint8Array(TRK_N*TRK_N*2),tex=new THREE.DataTexture(d,TRK_N,TRK_N,THREE.LuminanceAlphaFormat);
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.magFilter=tex.minFilter=THREE.LinearFilter;tex.generateMipmaps=false;tex.needsUpdate=true;
+  // own: which square of the world each square of the map holds now (x, z); cx, cz the square in the middle
+  M={d,tex,own:new Int32Array(TRK_S*TRK_S*2).fill(-2147483648),cx:null,cz:0,dirty:false,upT:0,any:false,fillR:0,fill:0,x:0,z:0};
+  trkMaps[i]=M;return M;}
+const trkMod=(v,n)=>((v%n)+n)%n;
+// centre the map on (x,z): any square of the map not holding the one of the world it should now is emptied for it
+function trkCentre(M,x,z){const cx=Math.floor(x/TRK_B),cz=Math.floor(z/TRK_B);if(cx===M.cx&&cz===M.cz)return;M.cx=cx;M.cz=cz;
+  const h=TRK_S/2;
+  for(let tz=cz-h;tz<cz+h;tz++)for(let tx=cx-h;tx<cx+h;tx++){const s=trkMod(tz,TRK_S)*TRK_S+trkMod(tx,TRK_S);
+    if(M.own[s*2]===tx&&M.own[s*2+1]===tz)continue;M.own[s*2]=tx;M.own[s*2+1]=tz;if(!M.any)continue;
+    const u0=trkMod(tx,TRK_S)*TRK_T,v0=trkMod(tz,TRK_S)*TRK_T;
+    for(let v=v0;v<v0+TRK_T;v++)M.d.fill(0,(v*TRK_N+u0)*2,(v*TRK_N+u0+TRK_T)*2);M.dirty=true;}}
+const trkIn=(M,x,z)=>{const h=TRK_S/2,tx=Math.floor(x/TRK_B)-M.cx,tz=Math.floor(z/TRK_B)-M.cz;return tx>=-h&&tx<h&&tz>=-h&&tz<h;};
+// press a stroke from (x0,z0) to (x1,z1), r wide either side, k hard (0 to 1), at height y, into every map it's on
+function trkLine(x0,z0,x1,z1,y,r,k){
+  const A=Math.max(0,Math.min(255,Math.round(y))),K=Math.round(k*255);
+  for(const M of trkMaps){if(!M||M.cx===null||!trkIn(M,x1,z1)||!trkIn(M,x0,z0))continue;
+    const dx=x1-x0,dz=z1-z0,L2=dx*dx+dz*dz||1e-9,R=r+0.35;   // (R: the height goes a little past the edge, so the blur between texels doesn't lose it)
+    const u0=Math.floor((Math.min(x0,x1)-R)*TRK_Q),u1=Math.floor((Math.max(x0,x1)+R)*TRK_Q),v0=Math.floor((Math.min(z0,z1)-R)*TRK_Q),v1=Math.floor((Math.max(z0,z1)+R)*TRK_Q);
+    for(let v=v0;v<=v1;v++){const wz=(v+0.5)/TRK_Q,row=trkMod(v,TRK_N)*TRK_N;
+      for(let u=u0;u<=u1;u++){const wx=(u+0.5)/TRK_Q;let t=((wx-x0)*dx+(wz-z0)*dz)/L2;t=t<0?0:t>1?1:t;
+        const ex=wx-x0-dx*t,ez=wz-z0-dz*t,e=Math.sqrt(ex*ex+ez*ez);if(e>R)continue;
+        const i=(row+trkMod(u,TRK_N))*2,d=M.d;
+        if(e<=r){const n=Math.round(K*Math.min(1,(r-e)*TRK_Q*0.8+0.35));if(n>d[i]||Math.abs(d[i+1]-A)>1){d[i]=Math.max(n,Math.abs(d[i+1]-A)>1?0:d[i]);d[i+1]=A;}}
+        else if(d[i]===0)d[i+1]=A;}}
+    M.dirty=true;M.any=true;}}
+// a wheel (or tread) from where it was last frame (o.trk, by its number w) to (x,z): nothing after a jump of more than
+// a few blocks (put back somewhere else, or a ship's pocket)
+function trkWheel(o,w,x,y,z,r,k){const T=o.trk||(o.trk=[]),q=T[w];
+  if(q&&Math.abs(x-q.x)+Math.abs(z-q.z)<4&&Math.abs(y-q.y)<1.5){if(Math.abs(x-q.x)+Math.abs(z-q.z)>0.05){trkLine(q.x,q.z,x,z,y,r,k);q.x=x;q.z=z;q.y=y;}}
+  else T[w]={x,y,z};}
+// feet: a print every so far along the way it's going, left and right in turn (gap apart, s the stride, r each print's size)
+function trkFeet(o,x,y,z,gap,s,r,k){const q=o.trkF;if(!q||Math.abs(x-q.x)+Math.abs(z-q.z)>4){o.trkF={x,z,go:0,n:0};return;}
+  const dx=x-q.x,dz=z-q.z,L=Math.hypot(dx,dz);if(L<0.02)return;q.go+=L;q.x=x;q.z=z;
+  if(q.go<s)return;q.go=0;q.n^=1;const fx=dx/L,fz=dz/L,sd=(q.n?1:-1)*gap;
+  const px=x+fz*sd,pz=z-fx*sd;trkLine(px-fx*r*0.6,pz-fz*r*0.6,px+fx*r*0.6,pz+fz*r*0.6,y,r,k);}
+function trkCar(c){const V=VEH[c.veh||'car']||VEH.car,s=Math.sin(c.heading),k=Math.cos(c.heading),y=c.pos.y;
+  // (two-wheelers leave one line; anything else a pair, from its front and back axles, a lorry's tyres wider)
+  const two=V.hx<0.5,hz=Math.max(0.3,V.hz-0.55),hx=two?0:V.hx-0.28,r=two?0.13:V.hx>1.1?0.3:0.24;
+  for(let w=0;w<(two?2:4);w++){const a=two?0:(w&1?hx:-hx),b=w<2?hz:-hz;trkWheel(c,w,c.pos.x+a*k+b*s,y,c.pos.z-a*s+b*k,r,1);}}
+let trkGone=true;
+function trkTick(dt){
+  const on=SNOW_TRACKS&&snowMax()>0.01;
+  // (the snow's gone: so are the tracks, ready for the next fall)
+  if(!on){TRKC_U.value.z=0;if(!trkGone&&!(snowMax()>0.01)){trkGone=true;for(const M of trkMaps)if(M&&M.any){M.d.fill(0);M.any=false;M.dirty=true;M.tex.needsUpdate=true;}}return;}
+  trkGone=false;
+  if(dt>0){
+    for(const c of cars)if(c.alive&&c.grounded!==false&&c.g.visible&&c.veh!=='hover')trkCar(c);
+    for(const V of venues.values()){
+      if(V.mil)for(const M of V.mil)if(M.kind==='tank'&&!M.dead){const s=Math.sin(M.h),k=Math.cos(M.h);for(let w=0;w<2;w++){const a=w?1.2:-1.2;trkWheel(M,w,M.x+a*k,M.y,M.z-a*s,0.45,1);}}
+      if(V.mechs)for(const M of V.mechs)if(!M.dead)trkFeet(M,M.x,M.y,M.z,1.6,3.4,0.75,1);}
+    for(const p of players)if(p.active&&p.grounded&&!p.drv&&p.state!=='dead'&&p.state!=='climb')trkFeet(p,p.pos.x,p.pos.y,p.pos.z,p.gob?0.14:0.42,p.gob?0.55:0.95,p.gob?0.1:0.24,0.8);
+    // (falling snow fills them back in, as fast as it's falling where that player is: the deepest in 40 seconds of a
+    // blizzard. A sixteenth of the map a frame, by what's fallen since that part was last done)
+    for(const M of trkMaps)if(M&&M.any)M.fill+=dt*wxSnowFall(M.x,M.z,G+1)*16*255/40;}
+  const rows=TRK_N/16;
+  for(const M of trkMaps){if(!M||!M.any)continue;
+    if(M.fill>=1){const sub=Math.floor(M.fill),r0=M.fillR*rows;let ch=false;M.fill-=sub;
+      for(let i=r0*TRK_N*2;i<(r0+rows)*TRK_N*2;i+=2){const n=M.d[i];if(n){M.d[i]=n>sub?n-sub:0;ch=true;}}
+      M.fillR=(M.fillR+1)%16;if(ch)M.dirty=true;}
+    M.upT-=dt||1/60;if(M.dirty&&M.upT<=0){M.dirty=false;M.upT=0.08;M.tex.needsUpdate=true;}}   // (sent up to the graphics card a dozen times a second at most)
+}
+// each view draws with its own player's map
+function trkView(p){if(!SNOW_TRACKS||!(snowMax()>0.01)){TRKC_U.value.z=0;return;}
+  const M=trkMap(p.idx);M.x=p.pos.x;M.z=p.pos.z;trkCentre(M,p.pos.x,p.pos.z);TRK_U.value=M.tex;TRKC_U.value.set(M.cx*TRK_B,M.cz*TRK_B,1);}
 // ---------- Audio ----------
 let audio=null,audioWanted=false;
 // ---- the Sound volume in Options: every game sound goes out through one gain node, so one setting turns them all up or
@@ -31956,7 +32045,7 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   }
   safe('far',()=>shipView(()=>updateFar(dt)));safe('debug',()=>updateDebug(gdt));safe('explore',()=>shipView(()=>updateExplore(dt)));   // (aboard a ship, the world round about is round where the ship is)
-  safe('blast',()=>{bbTick(gdt);bldgDarkTick(gdt);});safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);planAhead();regionTick();});
+  safe('blast',()=>{bbTick(gdt);bldgDarkTick(gdt);});safe('tracks',()=>trkTick(gdt));safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);planAhead();regionTick();});
   camClock+=dt;
   // (a guest online is shown players it doesn't run itself: anything amiss with one mustn't stop the whole game)
   for(const p of players){try{poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);shipCam(p);drvHud(p);updateSpeedo(p,dt);shipView(()=>updateMinimap(p,dt));p.shake*=Math.exp(-gdt*7);}catch(e){if(!netGuest())throw e;safe('view',()=>{throw e;});}}
@@ -32184,6 +32273,7 @@ function renderView0(p,x,y,w,h,R){
   // none with Halos on switched off, as the Fog light on switch does the fog light)
   {const L=WORLD_LIGHT.value,w=!under&&scene.fog.far<far?Math.min(1,Math.max(0,(0.95-Math.max(0.2,WXK.fog))/0.5)):0;
    HALO_U.uStr.value=w*(DT.haloOn===false?0:DT.halo??0.25)*Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5));HALO_U.uNear.value=scene.fog.near;HALO_U.uFar.value=scene.fog.far;}
+  trkView(p);   // (its player's tracks in the snow: snow-tracks.js)
   carLightsView(p);   // (the cars' lamps: their halos, and their headlights on the road)
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=p.tkFov||(p.gob&&!p.drv&&p.scFov)||72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);   // (tkFov: a tank's gunsight, tank-handling.js)
@@ -34794,7 +34884,7 @@ chatEl('vcVol').addEventListener('change',vcSave);
 chatEl('vcMicVol').addEventListener('input',e=>{VC.micVol=Math.max(0,Math.min(2,(+e.target.value||0)/100));if(VC.gain)try{VC.gain.gain.value=VC.micVol;}catch(x){}chatEl('vcMicVolVal').textContent=Math.round(VC.micVol*100)+'%';});
 chatEl('vcMicVol').addEventListener('change',vcSave);
 vcOptsDraw();
-// ---------- Options: Sound volume, Brightness, Block lighting, Hide blood and Hide controls ----------
+// ---------- Options: Sound volume, Brightness, Block lighting, Tracks in snow, Hide blood and Hide controls ----------
 // All three are kept in this browser and go for everyone at once: split screen shares one sound system and one picture.
 // (The volume itself is in core/audio.js, sndDest; Hide blood in destruction/smashing.js, BLOOD_OFF.)
 const BRIGHT_KEY='goblin-stompin-gus-brightness';
@@ -34826,6 +34916,10 @@ function brightApply(){const c=document.getElementById('world');if(c&&c.style)c.
   const lt=document.getElementById('blkTog');
   const showLt=()=>lt.setAttribute('aria-checked',String(BL_ON));showLt();
   lt.addEventListener('click',()=>{setBlockLight(!BL_ON);showLt();});
+  // (Tracks in snow: render/snow-tracks.js. Off, the roads keep only their ruts)
+  const tt=document.getElementById('trkTog');
+  const showTt=()=>tt.setAttribute('aria-checked',String(SNOW_TRACKS));showTt();
+  tt.addEventListener('click',()=>{SNOW_TRACKS=!SNOW_TRACKS;showTt();try{localStorage.setItem('goblin-stompin-gus-notracks',SNOW_TRACKS?'0':'1');}catch(e){}});
 }
 // ---------- The title menu's pop-out cards ----------
 // The title screen's menu card never scrolls: what a button opens (Play online, New city's "are you sure?", Local saves)

@@ -113,15 +113,26 @@ const FOLIAGE_FRAG=`
 // by smashing starts bare and builds up its own snow at the normal rate. aSky = 0 (covered) or 1 + that time.
 const snowBorn=new Map();
 const RD_OPEN=14;let snowRoads=true;   // (off: roads snow over like any other ground, as they used to; for the tests and for comparing)
+// tracks in the snow: what wheels, treads and feet have pressed down near each player, a map TRK_N texels a side, TRK_Q to
+// a block, wrapped (so the map never moves, only what's in it: render/snow-tracks.js). Luminance how hard it's packed,
+// alpha the height it was pressed at, so a road's tracks don't show on the deck above it. uTrkC: the middle of the map
+// in use (each view draws with its own player's), and 1 to show it or 0
+const TRK_N=512,TRK_Q=4,TRK_RUT=0.5,TRK_U={value:null},TRKC_U={value:new THREE.Vector3(0,0,0)};
 function weatherPatch(sh){
-  sh.uniforms.uSnow=SNOW_U;sh.uniforms.uWet=WET_U;sh.uniforms.uSnowClk=SNOWCLK_U;sh.uniforms.uSnowB=SNOWB_U;sh.uniforms.uColdT=COLDT_U;
+  sh.uniforms.uSnow=SNOW_U;sh.uniforms.uWet=WET_U;sh.uniforms.uSnowClk=SNOWCLK_U;sh.uniforms.uSnowB=SNOWB_U;sh.uniforms.uColdT=COLDT_U;sh.uniforms.uTrk=TRK_U;sh.uniforms.uTrkC=TRKC_U;
   sh.vertexShader='attribute float aSky;varying float vSky;varying float vBorn;varying float vRd;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vSky=step(0.5,abs(aSky));vBorn=max(aSky-1.0,0.0);vRd=max(-aSky,0.0);vWp=(modelMatrix*vec4(position,1.0)).xyz;');
-  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying float vRd;varying vec3 vWp;\n'+SNOW_GLSL+sh.fragmentShader;
+  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;uniform sampler2D uTrk;uniform vec3 uTrkC;varying float vSky;varying float vBorn;varying float vRd;varying vec3 vWp;\n'+SNOW_GLSL+sh.fragmentShader;
 }
+// (the tracks: tf how much the map counts here, fading out toward its edge, where the ruts carry on alone; within it the
+// ruts are fainter, so it's the traffic that's really been by that shows. tL how hard the snow's packed here: pressed to
+// bare ground where fresh, packed grey in the heaviest snow)
+const TRK_GET='  float tf=0.0,tL=0.0;if(uTrkC.z>0.5){vec2 tq=vWp.xz-uTrkC.xy;tf=1.0-smoothstep('+(TRK_N/TRK_Q*0.36).toFixed(1)+','+(TRK_N/TRK_Q*0.48).toFixed(1)+',max(abs(tq.x),abs(tq.y)));\n'+
+ '   if(tf>0.0){vec4 tk=texture2D(uTrk,vWp.xz*'+(TRK_Q/TRK_N)+');tL=tk.r*tf*(1.0-step(1.2,abs(vWp.y-tk.a*255.0)));}}\n';
+const TRK_FRAG='    if(tL>0.01){float hv=smoothstep(0.7,1.0,snS);snowL*=1.0-tL*mix(0.9,0.5,hv);snowK=mix(snowK,vec3(0.63,0.61,0.58)*(0.9+0.2*snowG),tL*mix(0.5,0.8,hv));diffuseColor.rgb*=1.0-0.12*tL*smoothstep(0.03,0.25,snowL);}\n';
 // (a road, vRd = 1 + how far across its lane, see roadLanes: the traffic's wheels keep two ruts all but bare, the strip
 // between them thin and grey, and the snow lies as deep as anywhere only along the kerbs and down the middle. In the
 // heaviest snow the ruts pack down grey instead. Tarmac with no lanes, from RD_OPEN: a little less snow all over)
-const SNOW_FRAG='\n  if(vSky>0.5){float wkS;float snS=snowHere(vWp,wkS);diffuseColor.rgb*=1.0-0.3*uWet*wkS*(1.0-snS);\n  if(snS>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(snS,uSnowClk-vBorn);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  vec3 snowK=vec3(snowV,snowV+0.012,snowV+0.03);\n  if(vRd>0.5){float rdT=vRd-1.0,rdL=step(rdT,'+(RD_OPEN-3).toFixed(1)+'),rdP=abs(mod(rdT+(snowN-0.5)*0.3,4.0)-2.0);\n   float rdLane=mix(0.6,1.0-smoothstep(1.3,1.65,rdP),rdL),rdRut=rdL*(1.0-smoothstep(0.3,0.6,abs(rdP-0.8)));\n   diffuseColor.rgb*=1.0-0.12*rdLane*smoothstep(0.03,0.25,snowL);\n   snowL*=1.0-rdLane*(0.42+rdRut*mix(0.48,0.1,smoothstep(0.7,1.0,snS)));\n   snowK=mix(snowK,vec3(0.66,0.64,0.61)*(0.9+0.2*snowG),rdLane*(0.3+0.5*rdRut));}\n  float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  diffuseColor.rgb=mix(diffuseColor.rgb,snowK*litC,snowC);}}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
+const SNOW_FRAG='\n  if(vSky>0.5){float wkS;float snS=snowHere(vWp,wkS);diffuseColor.rgb*=1.0-0.3*uWet*wkS*(1.0-snS);\n  if(snS>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(snS,uSnowClk-vBorn);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  vec3 snowK=vec3(snowV,snowV+0.012,snowV+0.03);\n'+TRK_GET+'  if(vRd>0.5){float rdT=vRd-1.0,rdL=step(rdT,'+(RD_OPEN-3).toFixed(1)+'),rdP=abs(mod(rdT+(snowN-0.5)*0.3,4.0)-2.0);\n   float rdLane=mix(0.6,1.0-smoothstep(1.3,1.65,rdP),rdL)*(1.0-'+TRK_RUT.toFixed(2)+'*tf),rdRut=rdL*(1.0-smoothstep(0.3,0.6,abs(rdP-0.8)));\n   diffuseColor.rgb*=1.0-0.12*rdLane*smoothstep(0.03,0.25,snowL);\n   snowL*=1.0-rdLane*(0.42+rdRut*mix(0.48,0.1,smoothstep(0.7,1.0,snS)));\n   snowK=mix(snowK,vec3(0.66,0.64,0.61)*(0.9+0.2*snowG),rdLane*(0.3+0.5*rdRut));}\n'+TRK_FRAG+'  float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  diffuseColor.rgb=mix(diffuseColor.rgb,snowK*litC,snowC);}}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
 const matOpaque=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5}));
 // (the paint and the rails laid on the ground: pulled toward the camera a touch so they never flicker with it)
 const matDecal=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));

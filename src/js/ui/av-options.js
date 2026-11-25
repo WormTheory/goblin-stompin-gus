@@ -1,4 +1,4 @@
-// ---------- Options: Sound volume, Brightness, Block lighting, Hide blood and Hide controls ----------
+// ---------- Options: Sound volume, Brightness, Block lighting, Tracks in snow, Hide blood and Hide controls ----------
 // All three are kept in this browser and go for everyone at once: split screen shares one sound system and one picture.
 // (The volume itself is in core/audio.js, sndDest; Hide blood in destruction/smashing.js, BLOOD_OFF.)
 const BRIGHT_KEY='goblin-stompin-gus-brightness';
@@ -30,4 +30,8 @@ function brightApply(){const c=document.getElementById('world');if(c&&c.style)c.
   const lt=document.getElementById('blkTog');
   const showLt=()=>lt.setAttribute('aria-checked',String(BL_ON));showLt();
   lt.addEventListener('click',()=>{setBlockLight(!BL_ON);showLt();});
+  // (Tracks in snow: render/snow-tracks.js. Off, the roads keep only their ruts)
+  const tt=document.getElementById('trkTog');
+  const showTt=()=>tt.setAttribute('aria-checked',String(SNOW_TRACKS));showTt();
+  tt.addEventListener('click',()=>{SNOW_TRACKS=!SNOW_TRACKS;showTt();try{localStorage.setItem('goblin-stompin-gus-notracks',SNOW_TRACKS?'0':'1');}catch(e){}});
 }
