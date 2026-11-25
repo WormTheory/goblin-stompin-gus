@@ -112,12 +112,16 @@ const FOLIAGE_FRAG=`
 // when each column's top last changed (on the snow clock, which only runs while snow is building up): a top face uncovered
 // by smashing starts bare and builds up its own snow at the normal rate. aSky = 0 (covered) or 1 + that time.
 const snowBorn=new Map();
+const RD_OPEN=14;let snowRoads=true;   // (off: roads snow over like any other ground, as they used to; for the tests and for comparing)
 function weatherPatch(sh){
   sh.uniforms.uSnow=SNOW_U;sh.uniforms.uWet=WET_U;sh.uniforms.uSnowClk=SNOWCLK_U;sh.uniforms.uSnowB=SNOWB_U;sh.uniforms.uColdT=COLDT_U;
-  sh.vertexShader='attribute float aSky;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vSky=step(0.5,aSky);vBorn=max(aSky-1.0,0.0);vWp=(modelMatrix*vec4(position,1.0)).xyz;');
-  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying vec3 vWp;\n'+SNOW_GLSL+sh.fragmentShader;
+  sh.vertexShader='attribute float aSky;varying float vSky;varying float vBorn;varying float vRd;varying vec3 vWp;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n vSky=step(0.5,abs(aSky));vBorn=max(aSky-1.0,0.0);vRd=max(-aSky,0.0);vWp=(modelMatrix*vec4(position,1.0)).xyz;');
+  sh.fragmentShader='uniform float uSnow,uWet,uSnowClk;varying float vSky;varying float vBorn;varying float vRd;varying vec3 vWp;\n'+SNOW_GLSL+sh.fragmentShader;
 }
-const SNOW_FRAG='\n  if(vSky>0.5){float wkS;float snS=snowHere(vWp,wkS);diffuseColor.rgb*=1.0-0.3*uWet*wkS*(1.0-snS);\n  if(snS>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(snS,uSnowClk-vBorn);float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  diffuseColor.rgb=mix(diffuseColor.rgb,vec3(snowV,snowV+0.012,snowV+0.03)*litC,snowC);}}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
+// (a road, vRd = 1 + how far across its lane, see roadLanes: the traffic's wheels keep two ruts all but bare, the strip
+// between them thin and grey, and the snow lies as deep as anywhere only along the kerbs and down the middle. In the
+// heaviest snow the ruts pack down grey instead. Tarmac with no lanes, from RD_OPEN: a little less snow all over)
+const SNOW_FRAG='\n  if(vSky>0.5){float wkS;float snS=snowHere(vWp,wkS);diffuseColor.rgb*=1.0-0.3*uWet*wkS*(1.0-snS);\n  if(snS>0.0){\n  float snowN=fract(sin(dot(mod(floor(vWp.xz*4.0+0.001),509.0),vec2(12.9898,78.233)))*43758.5453);float snowL=min(snS,uSnowClk-vBorn);\n  float snowG=fract(sin(dot(mod(floor(vWp.xz*16.0+0.001),997.0),vec2(39.346,11.135)))*43758.5453);float snowV=0.84+0.11*snowG+0.03*step(0.93,snowG);\n  vec3 snowK=vec3(snowV,snowV+0.012,snowV+0.03);\n  if(vRd>0.5){float rdT=vRd-1.0,rdL=step(rdT,'+(RD_OPEN-3).toFixed(1)+'),rdP=abs(mod(rdT+(snowN-0.5)*0.3,4.0)-2.0);\n   float rdLane=mix(0.6,1.0-smoothstep(1.3,1.65,rdP),rdL),rdRut=rdL*(1.0-smoothstep(0.3,0.6,abs(rdP-0.8)));\n   diffuseColor.rgb*=1.0-0.12*rdLane*smoothstep(0.03,0.25,snowL);\n   snowL*=1.0-rdLane*(0.42+rdRut*mix(0.48,0.1,smoothstep(0.7,1.0,snS)));\n   snowK=mix(snowK,vec3(0.66,0.64,0.61)*(0.9+0.2*snowG),rdLane*(0.3+0.5*rdRut));}\n  float snowC=step(snowN,snowL*1.12)*step(0.002,snowL);\n  diffuseColor.rgb=mix(diffuseColor.rgb,snowK*litC,snowC);}}';   // (only top faces open to the sky, only when there's snow: no sums for every other pixel on screen)
 const matOpaque=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5}));
 // (the paint and the rails laid on the ground: pulled toward the camera a touch so they never flicker with it)
 const matDecal=nightPatch(new THREE.MeshBasicMaterial({map:tex,vertexColors:true,alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}));
@@ -171,7 +175,7 @@ function emitRamp(out,X,Y,Z,info){
     let cr=X3(e1,e2);if(Math.abs(cr[0])+Math.abs(cr[1])+Math.abs(cr[2])<1e-6)cr=X3(e1,[D[0]-A[0],D[1]-A[1],D[2]-A[2]]);   // a corner of zero height
     if(cr[0]*n[0]+cr[1]*n[1]+cr[2]*n[2]<0){const t=B;B=C;C=t;}
     const tx=tile%AC,ty=Math.floor(tile/AC),i0=out.p.length/3,s=shade*DIM;
-    for(const v of [A,B,C,D]){out.p.push(X+v[0],Y+v[1],Z+v[2]);const [u,w]=uvOf(v);out.u.push((tx+0.002+u*0.996)/AC,1-(ty+1)/AR+(0.002+w*0.996)/AR);out.c.push(s,s,s);if(out.k)out.k.push(n[1]>0.5?1:0);if(out.b&&BL_ON)out.b.push(BL_r,BL_g,BL_b);}
+    for(const v of [A,B,C,D]){out.p.push(X+v[0],Y+v[1],Z+v[2]);const [u,w]=uvOf(v);out.u.push((tx+0.002+u*0.996)/AC,1-(ty+1)/AR+(0.002+w*0.996)/AR);out.c.push(s,s,s);if(out.k)out.k.push(n[1]>0.5?(info.stair||!snowRoads?1:-1-RD_OPEN):0);if(out.b&&BL_ON)out.b.push(BL_r,BL_g,BL_b);}
     out.i.push(i0,i0+1,i0+2,i0+2,i0+1,i0+3);
   };
   const top=info.tiles[0],side=info.tiles[2];
@@ -243,6 +247,48 @@ const FACE_T=FACES.map(f=>{const [dx,dy,dz]=f.dir,axis=dx?0:dy?1:2,ua=(axis+1)%3
   return {dx,dy,dz,dy1:dy===1,sel:dy===1?0:dy===-1?1:2,shade:f.shade*DIM,lin:lin(dx,dy,dz),wf:wl(dx,dy,dz),cn:f.c.map(c=>{const du=[0,0,0],dv=[0,0,0];du[ua]=c[ua]?1:-1;dv[va]=c[va]?1:-1;
     const s1=[dx+du[0],dy+du[1],dz+du[2]],s2=[dx+dv[0],dy+dv[1],dz+dv[2]],cc=[dx+du[0]+dv[0],dy+du[1]+dv[1],dz+du[2]+dv[2]];
     return {x:c[0],y:c[1],z:c[2],u:c[3],v:c[4],s1,s2,cc,o1:lin(...s1),o2:lin(...s2),oc:lin(...cc),w1:wl(...s1),w2:wl(...s2),wc:wl(...cc)};})};});
+// Roads in the snow. Traffic keeps a road from snowing over, so a road's top faces say where across the road each corner
+// is (aSky below zero: -(1 + t), t counted in lanes of 4 with the wheels' ruts at 1.2 and 2.8, or RD_OPEN on tarmac with no
+// lanes to it: a car park, a runway, a ramp), and SNOW_FRAG keeps the ruts clear. Nothing in the blocks says which way a
+// road runs or how wide it is, so roadLanes works both out from the blocks round about, whatever way the road goes: D is
+// each road column's distance to the nearest column that isn't road (over the chunk and RD_M columns round it, at the
+// same level or a step up or down, so a ramp carries on), and H the most D gets to on the way up from a column to the
+// road's middle, which is half the road's width. Half of 3 to 4 is a lane each way of that width, about 6 two lanes each
+// way of 3 counted out from the middle (a motorway's deck), under 3 one lane down the middle, and over 6.6 open tarmac;
+// between 4.3 and 5.8 is where streets meet, churned right across. Each corner takes the nearest-to-the-edge of the four
+// columns round it. Only chunks with road in them pay for it, for the three levels they come to first.
+const RD_M=12,RD_W=CS+2*RD_M,RD_TOP=new Uint8Array(BLOCK.length);
+for(const b of [ASPHALT,LINE,LINEX,LINE_R,LINEX_R,LANE,LANEX,CROSS,CROSSX])RD_TOP[b]=1;
+BLOCK.forEach((v,b)=>{if(v.ramp&&!v.stair)RD_TOP[b]=2;});
+const RD_D=new Float32Array(RD_W*RD_W),RD_H=new Float32Array(RD_W*RD_W),RD_B=Array.from({length:33},()=>[]),RD_OUT=[0,1,2].map(()=>new Float32Array((CS+1)*(CS+1))),RD_Y=[];
+function roadLanes(a,tops,at,x0,z0){
+  const ys=RD_Y;ys.length=0;
+  for(let i=0;i<CS*CS;i++){const y=tops[i];if(y<0||RD_TOP[a[i+y*CS*CS]]!==1||ys.indexOf(y)>=0)continue;if(ys.length<3)ys.push(y);}
+  const W=RD_W,M=RD_M,D=RD_D,Hh=RD_H,C1=CS+1;
+  for(let n=0;n<ys.length;n++){const y=ys[n],O=RD_OUT[n];
+    for(let j=0;j<W;j++)for(let i=0;i<W;i++){const lx=i-M,lz=j-M,b0=at(lx,y,lz),b1=at(lx,y+1,lz);
+      D[j*W+i]=RD_TOP[b1]||(RD_TOP[b0]?!B_OPQ[b1]:b0===AIR&&RD_TOP[at(lx,y-1,lz)])?99:0;}
+    // (one odd block with road either side of it is a manhole's lid, not the road's edge)
+    for(let j=1;j<W-1;j++)for(let i=1;i<W-1;i++){const k=j*W+i;if(!D[k]&&D[k-1]===99&&D[k+1]===99&&D[k-W]&&D[k+W])D[k]=99;}
+    for(let j=0;j<W;j++)for(let i=0;i<W;i++){const k=j*W+i;let d=D[k];if(!d)continue;
+      if(i&&D[k-1]+1<d)d=D[k-1]+1;if(j){if(D[k-W]+1<d)d=D[k-W]+1;if(i&&D[k-W-1]+1.414<d)d=D[k-W-1]+1.414;if(i<W-1&&D[k-W+1]+1.414<d)d=D[k-W+1]+1.414;}D[k]=d;}
+    for(const B of RD_B)B.length=0;
+    for(let j=W-1;j>=0;j--)for(let i=W-1;i>=0;i--){const k=j*W+i;let d=D[k];if(!d){Hh[k]=0;continue;}
+      if(i<W-1&&D[k+1]+1<d)d=D[k+1]+1;if(j<W-1){if(D[k+W]+1<d)d=D[k+W]+1;if(i<W-1&&D[k+W+1]+1.414<d)d=D[k+W+1]+1.414;if(i&&D[k+W-1]+1.414<d)d=D[k+W-1]+1.414;}
+      if(d>8)d=8;D[k]=Hh[k]=d;RD_B[Math.round(d*4)].push(k);}
+    for(let q=32;q>0;q--)for(const k of RD_B[q]){const i=k%W,j=(k-i)/W,d=D[k]+0.01;let h=Hh[k];
+      for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){const ii=i+di,jj=j+dj;if(ii<0||jj<0||ii>=W||jj>=W)continue;const o=jj*W+ii;if(D[o]>d&&Hh[o]>h)h=Hh[o];}
+      Hh[k]=h;}
+    for(let cz=0;cz<=CS;cz++)for(let cx=0;cx<=CS;cx++){let d=99,h=0;
+      for(let dj=-1;dj<=0;dj++)for(let di=-1;di<=0;di++){const o=(cz+dj+M)*W+cx+di+M;if(D[o]<d)d=D[o];if(Hh[o]>h)h=Hh[o];}
+      O[cz*C1+cx]=h>6.6?RD_OPEN:h>=5.8?Math.min(8,(h-d)*4/3):h>4.3?Math.min(d,2.4):h>=3?d*4/Math.min(h,4):Math.max(0,d+2-h);}
+    // (a highway across the plains runs at any angle, where distances counted in blocks come out ragged, and has a hard
+    // shoulder besides: there the plan itself says how far each corner is from the road's middle. Not on a motorway's ramp)
+    if(y===G){const L=routesNearBox(x0,z0,x0+CS-1,z0+CS-1);
+      if(L.length)for(let cz=0;cz<=CS;cz++)for(let cx=0;cx<=CS;cx++){const n=nearestOn(L,x0+cx,z0+cz,9.6);
+        if(n&&!(n.i===0&&n.t<=0||n.i===n.R.pts.length-2&&n.t>=1)&&!(n.R.kind==='moto'&&rtRamp(n.R,n.s)))O[cz*C1+cx]=Math.min(8,n.d*4/3);}}
+  }
+}
 // the kinds of ground that blend into each other at their edges (buildChunk's gMix)
 const G_MIX=new Uint8Array(256),GMC=[1,1,1],GM_M=26;const GM_Q=new Array(49).fill(null);   // (the chunks round about, while one's blended)
 let GM_S=new Float32Array(0),GM_T=new Float32Array(0);const GM_OWN=new Float32Array(CS*CS*4);for(const b of [GRASS,DIRT,SAND,RED_SAND,SNOW,MUD,GRAVEL,TERRA,TERRA2,SALT,STONE,SANDSTONE])G_MIX[b]=1;
@@ -283,6 +329,8 @@ function buildChunk(cx,cz){
   // the top of each column (the highest thing in it, even glass or leaves): only that block's top face is open to the sky
   const tops=new Int16Array(A2).fill(-1);for(let lz=0;lz<CS;lz++)for(let lx=0;lx<CS;lx++)for(let y=H-1;y>=0;y--){const b=a[lx+lz*CS+y*A2];if(b){tops[lz*CS+lx]=BLOCK[b].liquid?-1:y;break;}}
   let yTop=H-1;scan:for(;yTop>0;yTop--){const o=yTop*A2;for(let i=0;i<A2;i++)if(a[o+i])break scan;}
+  // (roads' tops say where across the road they are, so the snow leaves the traffic's ruts: roadLanes)
+  if(snowRoads)roadLanes(a,tops,at,x0,z0);
   // the lowest layer with anything open in it (here or along the neighbours' edges): everything below is buried solid
   let yLo=0;low:for(;yLo<yTop;yLo++){
     const o=yLo*A2;for(let i=0;i<A2;i++)if(!B_OPQ[a[o+i]])break low;
@@ -353,6 +401,8 @@ function buildChunk(cx,cz){
       const wb=lit?(lx+15)+(lz+15)*BLW+(y+1)*BLA:0,wi=wb+F.wf;   // (the block, and the open one in front of the face, in block light's window)
       const gm=gmOn&&F.dy1&&skyTop&&G_MIX[b]===1;
       const X=x0+lx,Z=z0+lz,sky=F.dy1&&skyTop?1+(snowBorn.get(colKey(X,Z))||0):0,V0=1-(ty+1)/AR;
+      // (a road's top that hasn't been smashed open since the snow came; a road at a fourth level in one chunk is open tarmac)
+      const rdI=sky===1&&snowRoads&&(RD_TOP[b]===1||b===METAL&&RD_TOP[at(lx-1,y,lz)]===1&&RD_TOP[at(lx+1,y,lz)]===1)?RD_Y.indexOf(y):-2,rdO=rdI>=0?RD_OUT[rdI]:null;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
         P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=mz0+lz+c.z;
@@ -378,7 +428,7 @@ function buildChunk(cx,cz){
         else if(ti<0||F.sel===1&&!tg){C[co++]=s;C[co++]=s;C[co++]=s;}
         else if(tg||F.dy1){C[co++]=s*tnC[ti];C[co++]=s*tnC[ti+1];C[co++]=s*tnC[ti+2];}
         else{C[co++]=s*(1+tnC[ti])/2;C[co++]=s*(1+tnC[ti+1])/2;C[co++]=s*(1+tnC[ti+2])/2;}   // (a grass block's side: its green edge, half)
-        K[ko++]=sky;
+        K[ko++]=rdO?-1-rdO[(lz+c.z)*(CS+1)+lx+c.x]:rdI===-1?-1-RD_OPEN:sky;
       }
       out.p.length=po;out.u.length=uo;out.c.length=co;out.k.length=ko;if(BL)out.b.length=bo;
       const I=out.i.room(6);let io=out.i.length;I[io++]=n;I[io++]=n+1;I[io++]=n+2;I[io++]=n+2;I[io++]=n+1;I[io++]=n+3;out.i.length=io;

@@ -23,7 +23,7 @@ const FAR_FRAG=[
   ' vec3 wall=c0*sh*uLight;',
   // (and weather on the tops, but not the sea's: rain darkens them, snow settles on them, on average as it does on the
   // blocks' tops, where each spot is covered once its own share of the snow comes)
-  ' if(up>0.5&&abs(vWin.a+2.0)>0.5){float wkF;float snF=snowHere(vWP,wkF);wall*=1.0-0.3*uWet*wkF*(1.0-snF);float snowL=min(snF,uSnowClk);wall=mix(wall,vec3(0.897,0.909,0.927)*uLight,clamp(snowL*1.12,0.0,1.0)*step(0.002,snowL));}',
+  ' if(up>0.5&&abs(vWin.a+2.0)>0.5){float wkF;float snF=snowHere(vWP,wkF);wall*=1.0-0.3*uWet*wkF*(1.0-snF);float snowL=min(snF,uSnowClk),rdF=step(vWin.a,-4.5);wall=mix(wall,mix(vec3(0.897,0.909,0.927),vec3(0.74,0.73,0.72),rdF*0.5)*uLight,clamp(snowL*1.12*(1.0-rdF*mix(0.55,0.4,smoothstep(0.7,1.0,snF))),0.0,1.0)*step(0.002,snowL));}',   // (a road, -5: about what the traffic leaves of it up close, SNOW_FRAG)
   ' const float WP=0.3575;',
   ' float uw=uWin*step(-2.5,vWin.a);',   // (no windows on a box that isn't a building, -3)
   ' float win=side*step(0.45,fract((vWP.x+vWP.z)*0.5))*step(0.35,fract((vWP.y-5.0)/5.0))*uw;',
@@ -128,7 +128,7 @@ function farBox(F,x0,y0,z0,x1,y1,z1,c,L){
   if((F.n+1)*16>F.mat.length){const N=F.mat.length*2;F.mat=farGrowArr(F.mat,N);F.col=farGrowArr(F.col,N*3/16);F.top=farGrowArr(F.top,N*3/16);F.wn=farGrowArr(F.wn,N/4);}
   const o=F.n*16,m=F.mat;m.fill(0,o,o+16);m[o]=x1-x0;m[o+5]=y1-y0;m[o+10]=z1-z0;m[o+12]=(x0+x1)/2;m[o+13]=(y0+y1)/2;m[o+14]=(z0+z1)/2;m[o+15]=1;
   const i=F.n*3,t=L?L.top:c;F.col[i]=c.r;F.col[i+1]=c.g;F.col[i+2]=c.b;F.top[i]=t.r;F.top[i+1]=t.g;F.top[i+2]=t.b;
-  const j=F.n*4;if(L){F.wn[j]=L.glow.r;F.wn[j+1]=L.glow.g;F.wn[j+2]=L.glow.b;F.wn[j+3]=L.f;}else{F.wn.fill(0,j,j+3);F.wn[j+3]=c===FARC.park||c.grass?-1:c===FARC.sea||c===FARC.deep||c===_fw?-2:-3;}
+  const j=F.n*4;if(L){F.wn[j]=L.glow.r;F.wn[j+1]=L.glow.g;F.wn[j+2]=L.glow.b;F.wn[j+3]=L.f;}else{F.wn.fill(0,j,j+3);F.wn[j+3]=c===FARC.park||c.grass?-1:c===FARC.sea||c===FARC.deep||c===_fw?-2:c===FARC.road?-5:-3;}
   F.n++;
 }
 // the far view of a block of the sea and its shore: n x n patches of water, beach, grass, or a port's concrete
