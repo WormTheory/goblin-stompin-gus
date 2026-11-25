@@ -691,6 +691,14 @@
 - Drifting slowly into a building no longer lets the side of your car, or a corner swinging round, slide into the wall.
 - Dust, smoke puffs, shockwave rings, blast flashes and fireball glows no longer disappear behind water or cut box-shaped holes in it, and flames no longer flicker against water.
 - Overlapping smoke, dust, blast flashes, fireball glows and shockwave rings now show through each other in the right order, rather than one always painting over the other.
+- Blood and scorch marks on the carrier's decks now go where the carrier goes, instead of staying behind in the sea.
+- Hitting the carrier from outside no longer puts a little damage puff in the middle of the island, wherever you hit it.
+- A piece of the carrier's island that's knocked off and toppling is now drawn on the ship, falling where it should.
+- The Mobile Gear's lock box now sits right on what it's locked on to, even while you or it are moving fast. Before, it trailed a frame behind.
+- The Mobile Gear's rifles point at exactly where their rounds go, not just the way you're looking, and the Breaker Cannon swings round on to what it fires at.
+- Some cars stayed tipped forwards or backwards for good. A car that had been a Gobway before it came back kept the Gobway's lean; now every car comes back level.
+- Drifting or sliding sideways into a wall fast enough now smashes through it, just as driving into it does. Before, only a car's front could break a wall, so a drift just stopped dead against it.
+- A goblin that reaches Gus or Gertie while they're in a vehicle now clubs the vehicle instead of doing nothing, the same way its shots already did.
 
 ### World Generator
 
@@ -737,14 +745,7 @@
 - Office towers, big police stations, the stadium and other big buildings sometimes never counted as destroyed, however much of them was knocked down, because the game overestimated how many blocks they had. It now counts every block.
 - Most of the false fronts on a film studio's backlot had no walls, only windows. They have their walls back.
 - Loading into a city or the Testing Environment could start with a loud burst of hiss, like breaking glass (in Firefox): the rain and wind sounds started at full volume. They're only started once there's weather to hear now, and fade in properly. Doors you arrive beside no longer all creak open at once either, and a limiter stops any pile-up of sounds coming out as one deafening crack.
-- Blood and scorch marks on the carrier's decks now go where the carrier goes, instead of staying behind in the sea.
-- Hitting the carrier from outside no longer puts a little damage puff in the middle of the island, wherever you hit it.
-- A piece of the carrier's island that's knocked off and toppling is now drawn on the ship, falling where it should.
-- The Mobile Gear's lock box now sits right on what it's locked on to, even while you or it are moving fast. Before, it trailed a frame behind.
-- The Mobile Gear's rifles point at exactly where their rounds go, not just the way you're looking, and the Breaker Cannon swings round on to what it fires at.
 - Rubble that had landed on a building's roof came back hanging in mid-air, where the roof used to be, once that building had come down and you'd left the area and returned (or loaded the game). It's now saved as gone with the building. (Rubble already left hanging in a saved city still falls if you knock it.)
-- Some cars stayed tipped forwards or backwards for good. A car that had been a Gobway before it came back kept the Gobway's lean; now every car comes back level.
-- Drifting or sliding sideways into a wall fast enough now smashes through it, just as driving into it does. Before, only a car's front could break a wall, so a drift just stopped dead against it.
 
 ## Version 0.4
 
@@ -978,7 +979,6 @@ Everything since the first release on GitHub.
 - Holding jump keeps you swimming up.
 - **Fighting from a wall:** while spider-climbing a wall or the side of a vehicle, R1 (left click) snaps at goblins the way the hippo's head points: up, along or down. It bites vehicles in reach too, including the one you're clinging to. Gnash swings or shoots whatever he's holding.
 - **Kick through a wall:** stomp while spider-climbing smashes a hole in the wall you're on and puts you inside, on the floor behind it. Into solid rock, it kicks out a hollow and you keep climbing, so you can tunnel in.
-- **Goblins hit your vehicle:** a goblin that reaches Gus or Gertie while they're in a vehicle now clubs the vehicle instead of doing nothing, the same way its shots already did.
 
 ### World
 
