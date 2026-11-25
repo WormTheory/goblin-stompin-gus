@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:4d6a21b320899c117848da5d3431cd5792e8be0daea71d978430d611e89d6b1f -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:57aeeffc42dc4c928b0cf2c9c2113e2d92ca72f8ce54d45fca235145a0a92c40 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1478,7 +1478,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <p class="rp-note" id="rpNote" role="status"></p>
       </section>
       <div class="gamefoot">
-        <button type="button" class="pnlatest sticker px" id="pnLatest">What's new: Version 0.5 <span aria-hidden="true">›</span></button>
+        <button type="button" class="pnlatest sticker px" id="pnLatest">What's new: Version 0.5.1 <span aria-hidden="true">›</span></button>
         <div class="note" id="padNote">No controller found</div>
         <div class="note" id="seedNote"></div>
         <div class="vertag px" id="verTag" aria-hidden="true"></div>
@@ -1644,7 +1644,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     <div class="tabpane" id="tabNotes" role="tabpanel" hidden>
       <div class="pn">
         <p class="pn-web">Also on <a href="patch-notes/index.html" target="_blank" rel="noopener">their own page</a>.</p>
-<details class="pn-up pn-fold pn-new" id="version-0-5" open><summary tabindex="0"><h2>Version 0.5</h2><span class="pn-tog" aria-hidden="true"></span></summary>
+<details class="pn-up pn-fold pn-new" id="version-0-5-1" open><summary tabindex="0"><h2>Version 0.5.1</h2><span class="pn-tog" aria-hidden="true"></span></summary>
 <h3>Shape your own world</h3>
 <ul><li>New world now lets you shape the world before it's made, with the World Generator's sliders: Land &amp; sea, Land shape, Rivers and Climate. Left alone, they make the world just as before.</li><li>The settings are saved with the world, so it's made the same way every time you load it, and online friends get the host's world.</li><li>New world and the World Generator have a Settlements group too: Towns (how many places there are), City size (how big cities and large towns grow), Clustering (from evenly spaced to gathered in clumps with open country between) and Country sites (how many farms, bases, airfields, mines, campsites and the like). The seed line says "custom" when a world has settings of its own.</li><li>New world has a Seed box. Leave it empty for a random world, or type a number or any word or phrase: the same seed always makes the same world. The World Generator's seed box takes words too, so a seed tried there makes the same world in the game.</li><li>The World Generator has a Noise view: just the raw maps a world is made from (land and sea, temperature, moisture, biomes, ruggedness, height, where rivers tend to rise, and where towns are likely), drawn in about a second and sharpening as you watch. The sliders change it as you drag them. Switch back to Map for everything that's built.</li><li>The Noise view's Rivers map marks where rivers and streams really rise once you zoom in, its Towns map also shows where places come out smaller (in rugged country, and in biomes with smaller towns), and pointing at the Land map tells you how far above or below the sea it is. Height draws about three times faster zoomed far out.</li><li>The World Generator loads a new seed or new settings without loading the game again, so changes show up sooner, and it fits better on a phone.</li></ul>
 <h3>Territories</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='85f5a25f1710';
+const GAME_VER='0.5.1',GAME_BUILD='21bf7c6ea9d5';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;

@@ -1,6 +1,6 @@
 # Patch notes
 
-## Version 0.5
+## Version 0.5.1
 
 ### Shape your own world
 
