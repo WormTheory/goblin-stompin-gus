@@ -108,6 +108,7 @@
 - Snow lies by temperature. The tundra and ice fields stay white all year, even on a clear summer day. Cold country keeps its snow far into spring, and it melts fast in warm places.
 - Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.
 - In split screen, each player sees the weather where they are.
+- Rain, snow and blowing sand drift with the wind now, the same way smoke blows, and turn with it as it slowly shifts.
 
 ### Coasts
 

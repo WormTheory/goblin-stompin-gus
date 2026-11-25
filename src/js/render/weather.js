@@ -203,6 +203,10 @@ function coverMap(cam,who){
   for(let j=0;j<C.N;j++)for(let i=0;i<C.N;i++){let top=-1;for(let y=yHi;y>=yLo;y--){const b=get(C.x0+i,y,C.z0+j);if(b&&b!==WATER){top=y+1;break;}}C.top[j*C.N+i]=top;}
   C.under=C.top[(cz-C.z0)*C.N+(cx-C.x0)]>cam.y+1.2;
 }
+// how far the wind has carried each view's rain, snow and dust so far (added up as wxClock runs)
+const PRECIP_DRIFT=[];
+function precipDrift(who,wx,wz){const D=PRECIP_DRIFT[who||0]||(PRECIP_DRIFT[who||0]={t:wxClock,x:0,z:0}),dt=wxClock-D.t;
+  if(dt>0&&dt<1){D.x+=wx*dt;D.z+=wz*dt;}D.t=wxClock;return D;}
 function placePrecip(cam,who){
   const rain=WXK.rain,snow=WXK.snow,nd=Math.round(PRECIP_N*0.7*Math.min(1,WXK.dust||0));let nr=Math.round(PRECIP_N*Math.min(1,rain)),ns=Math.round(PRECIP_N*Math.min(1,snow));
   // a drop under a roof, a deck or a bridge is hidden; the rain and snow out in the open still show from under cover
@@ -210,19 +214,22 @@ function placePrecip(cam,who){
   rainM.count=nr;snowM.count=ns;dustM.count=nd;
   {const L=WORLD_LIGHT.value,f=c=>Math.max(0.1,c);rainM.material.color.setRGB(RAIN_C.r*f(L.r),RAIN_C.g*f(L.g),RAIN_C.b*f(L.b));snowM.material.color.setRGB(SNOW_C.r*f(L.r),SNOW_C.g*f(L.g),SNOW_C.b*f(L.b));}
   const CM=COVER,under=(x,y,z)=>{const i=Math.floor(x)-CM.x0,j=Math.floor(z)-CM.z0;if(i<0||j<0||i>=CM.N||j>=CM.N)return false;return y<CM.top[j*CM.N+i];};
-  const t=wxClock,w=WXK.wind,wx=w*1.6,wz=w*0.7;
+  // (the world's wind, windNow, sets which way it all blows, the same way as smoke and the sailboat's; this view's own
+  // weather sets how hard, its old 1.75 a unit of wind. The drift is added up frame by frame, so a turn of the wind or a
+  // change of weather bends the fall rather than jumping every drop to a new place)
+  const t=wxClock,w=WXK.wind,wa=windNow().a,wx=Math.sin(wa)*w*1.75,wz=Math.cos(wa)*w*1.75,DR=precipDrift(who,wx,wz);
   if(nr){const V=precipCamVel(cam,who);
     // each streak lies along its drop's motion less the camera's (the wind, its own speed of fall), so it always points
     // the way it's moving on screen; stretched a little when that's fast (motion blur)
-    for(let i=0;i<nr;i++){const d=drops[i],fall=26+d.s*6;_pv.set(wrapC(d.x+wx*t,cam.x,PBX),wrapC(d.y-fall*t,cam.y+4,PBY/2),wrapC(d.z+wz*t,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;
+    for(let i=0;i<nr;i++){const d=drops[i],fall=26+d.s*6;_pv.set(wrapC(d.x+DR.x,cam.x,PBX),wrapC(d.y-fall*t,cam.y+4,PBY/2),wrapC(d.z+DR.z,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;
       _pa.set(V.vx-wx,fall+V.vy,V.vz-wz);const sp=_pa.length();if(sp>1e-3){_pa.multiplyScalar(1/sp);_pq.setFromUnitVectors(_pUp,_pa);}else _pq.set(0,0,0,1);
       _ps.y=Math.min(3,Math.max(1,sp/29));_pm.compose(_pv,_pq,_ps);rainM.setMatrixAt(i,_pm);}
     _ps.y=1;rainM.instanceMatrix.needsUpdate=true;}
   if(ns){_pq.set(0,0,0,1);
-    for(let i=0;i<ns;i++){const d=drops[PRECIP_N-1-i],sw=Math.sin(t*1.3+d.s*9)*0.5;_pv.set(wrapC(d.x+wx*t*1.8+sw,cam.x,PBX),wrapC(d.y-(1.8+d.s*1.4+w*0.6)*t,cam.y+4,PBY/2),wrapC(d.z+wz*t*1.8+Math.cos(t+d.s*7)*0.4,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);snowM.setMatrixAt(i,_pm);}
+    for(let i=0;i<ns;i++){const d=drops[PRECIP_N-1-i],sw=Math.sin(t*1.3+d.s*9)*0.5;_pv.set(wrapC(d.x+DR.x*1.8+sw,cam.x,PBX),wrapC(d.y-(1.8+d.s*1.4+w*0.6)*t,cam.y+4,PBY/2),wrapC(d.z+DR.z*1.8+Math.cos(t+d.s*7)*0.4,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);snowM.setMatrixAt(i,_pm);}
     snowM.instanceMatrix.needsUpdate=true;}
   if(nd){_pq.set(0,0,0,1);const L=WORLD_LIGHT.value;dustM.material.color.setRGB(0.78*Math.max(0.1,L.r),0.62*Math.max(0.1,L.g),0.42*Math.max(0.1,L.b));
-    for(let i=0;i<nd;i++){const d=drops[(i*7)%PRECIP_N],sw=Math.sin(t*3+d.s*11)*0.6;_pv.set(wrapC(d.x+wx*t*6,cam.x,PBX),wrapC(d.y*0.5+sw-t*0.4,cam.y+2,PBY/4),wrapC(d.z+wz*t*6+Math.cos(t*2+d.s*5),cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);dustM.setMatrixAt(i,_pm);}
+    for(let i=0;i<nd;i++){const d=drops[(i*7)%PRECIP_N],sw=Math.sin(t*3+d.s*11)*0.6;_pv.set(wrapC(d.x+DR.x*6,cam.x,PBX),wrapC(d.y*0.5+sw-t*0.4,cam.y+2,PBY/4),wrapC(d.z+DR.z*6+Math.cos(t*2+d.s*5),cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);dustM.setMatrixAt(i,_pm);}
     dustM.instanceMatrix.needsUpdate=true;}
 }
 // a lightning bolt: a jagged chain of bright segments from the clouds to the ground, shown for a moment
