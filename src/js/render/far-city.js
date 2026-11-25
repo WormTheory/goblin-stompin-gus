@@ -641,14 +641,15 @@ let farDirty=true,farT=0,farClk=0;
 const FAR_BUDGET=4,FAR_BUDGET_FAST=6,FAR_FAST=120;   // milliseconds a frame for building the far rings; and for a player going faster than FAR_FAST blocks a second (a jet flat out), who is over new country faster than 4 ms a frame can draw it
 const FAR_BACK_MS=12; // (and for the backdrop while it doesn't reach the horizon: bare sky there is worse than a slow frame or two)
 // (each player's speed over the ground, smoothed, from where they were last frame: a jump of a frame, being put somewhere, isn't speed)
-const farVel=[{x:0,z:0,px:null,pz:0},{x:0,z:0,px:null,pz:0}];
+const farVel=[];
 function updateFar(dt){
   if(meshedDirty){MESHED_TEX.needsUpdate=true;meshedDirty=false;}
   LEAFFALL_U.value=leafFall;
   const act=players.filter(q=>q.active);if(!act.length)return;
   {const a=act[0].pos,b=(act[1]||act[0]).pos;FAR_CAMP.value.set(a.x,a.z,b.x,b.z);}
   farClk+=dt;let spd=0;
-  act.forEach((q,n)=>{const V=farVel[n];if(V.px!==null&&dt>0){const vx=(q.pos.x-V.px)/dt,vz=(q.pos.z-V.pz)/dt;
+  act.forEach((q,n)=>{const V=farVel[n]||(farVel[n]={x:0,z:0,px:null,pz:0});if(   // (online there can be more than two)
+      V.px!==null&&dt>0){const vx=(q.pos.x-V.px)/dt,vz=(q.pos.z-V.pz)/dt;
       if(Math.hypot(vx,vz)>1500){V.x=V.z=0;}else{const k=Math.min(1,dt*4);V.x+=(vx-V.x)*k;V.z+=(vz-V.z)*k;}}
     V.px=q.pos.x;V.pz=q.pos.z;spd=Math.max(spd,Math.hypot(V.x,V.z));});
   // where each ring starts and ends (it's nothing at all if you can't see past the full-detail city)
