@@ -36,6 +36,12 @@
 - Towns are built a little more their biome's way: in the desert and the badlands, small shops and eateries are adobe with parapets and log beam ends, squares are more often paved plazas, and there are more rows of shops; in forests, swamps and the cold they're log and plank with false fronts or steep roofs, and the squares are left green; on the moor they're stone.
 - This changes how the world is made, so a saved city starts afresh.
 
+### The far view at speed
+
+- Flying fast no longer outruns the distant view. The far rings of the world used to start over every time you'd moved a little, so at a plane's speed they never finished and the land ahead was bare; now each one finishes, is drawn ahead of where you're going, and only works out the land that's new.
+- There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.
+- Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.
+
 ### The world
 
 - The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.

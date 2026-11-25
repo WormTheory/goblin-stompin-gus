@@ -151,6 +151,14 @@ const segCells=(ix,iz,d)=>d===0?[[ix-1,iz],[ix,iz]]:[[ix,iz-1],[ix,iz]];
 // The first time anything needs a place's streets, working them all out takes tens of milliseconds at a stroke. So the places
 // ahead of the players are gone over a millisecond or two a frame beforehand, asking the same questions, whose answers are kept:
 // by the time setConns comes to it, it's mostly looking them up.
+// (the questions setConns will ask about the crossing i,j: whether each stretch leaving it is a street, where the place
+// or a highway is beside it, as its own open() does. Asked of every crossing, most of the time went on open country
+// setConns never asks about)
+function planAsk(S,i,j){
+  const a=settlementAt(i,j)===S;
+  if(a||settlementAt(i-1,j)===S||gCol(i,j*CELL+RC))segBase(i,j,0);
+  if(a||settlementAt(i,j-1)===S||gRow(j,i*CELL+RC))segBase(i,j,1);
+}
 const planJob={S:null,i:0,j:0,x1:0,z0:0,z1:0};
 function planAhead(){
   if(TENV)return;const t0=performance.now();
@@ -161,7 +169,7 @@ function planAhead(){
       if(planJob.S)break;}
     if(!planJob.S)return;}
   const J=planJob;
-  for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++){settlementAt(J.i,J.j);segBase(J.i,J.j,0);segBase(J.i,J.j,1);}
+  for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++)planAsk(J.S,J.i,J.j);
     if(performance.now()-t0>1.5){J.i++;J.j=J.z0;return;}}
   J.S.planned=true;J.S=null;
 }

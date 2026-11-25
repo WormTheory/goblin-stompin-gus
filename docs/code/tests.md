@@ -132,6 +132,7 @@ It renders in software, so the picture is right but the frame rate says nothing 
   - negdt: a stale first frame timestamp mustn't trigger a stomp
   - loadt2: load-in doesn't break blocks
   - wv / lodt: wind farm LOD
+  - farspeed: the far view at speed: `updateFar` alone with player one flown at 20, 90, 213 and 600 blocks a second (`VIEW`, `SECS`, `SPEEDS`), per ring how much of the time its shown build no longer covered its band, and the backdrop; fails if a ring is uncovered over 2% of the time at up to 213, or the backdrop ever (last line `farspeed ok`). `tools/ui/farfastshot.js outDir` (after `build_3d.py`) photographs the same in the real renderer, and after being put down 6,000 blocks away
   - stt: structures list
   - stdress: the structures previewer dresses what it shows (counts of lamps, props, doors, signs, venues per kind)
   - propaudit: props per kind of structure (count and per thousand square blocks), to find bare ones

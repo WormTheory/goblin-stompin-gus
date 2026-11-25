@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:0a252c1aa8ed43e643e0b80cd6db088fe4ae67e3640d6c5725433dcbbbda256a -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:c84a5b9bf00cbc4857c114403dd40ce92dec03fdd1c50f89c4ce176e3e5f2795 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1651,6 +1651,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>The world is divided into territories now, each made up of many settlements: kingdoms, principalities, duchies, republics, free states, nations, empires, khanates, tribal lands and more, each with a name of its own and a capital.</li><li>Their borders follow the land: coastlines, rivers, lakes and mountain ranges.</li><li>The pause map draws their borders and names over what you've explored, the minimap shows a border you're near, and a banner names the territory you've come into.</li><li>New world and the World Generator have a Territories group: Size (how big territories are on average) and Variety (how much they differ). The World Generator shows them as a layer on the Map, and in the Noise view.</li><li>Fixed the World Generator sometimes showing only sea after an update, when the browser kept an older copy of its map maker.</li></ul>
 <h3>Biomes, polished</h3>
 <ul><li>Waterfalls drop into a proper plunge pool now, about six blocks deep under the fall and shallower toward the rim, deep enough to dive into.</li><li>Where a river meets a lake it runs down to the lake's level in a steady slope, with no more steps like little weirs.</li><li>The land behind a rocky headland rises into the hills inland, instead of lying flat behind it.</li><li>The pause map marks stone arches, waterfalls and landmarks you've explored, and colours natural shores by kind: sandy shores, shingle, ice shelves, mangroves, red sand, cliffs and headlands, and fjords. Each has an entry in the key. The World Generator's Map has the same, as its Wonders and Coasts layers.</li><li>Out in the far view, the oil fields, peat diggings, research stations, safari lodges, stilt villages and ski slopes look like themselves (the rigs and tanks, the trenches, the radar dome and mast, the tents and waterhole, the huts over the water, the piste and its lift) rather than plain patches of ground.</li><li>Biomes blend into each other now: where two meet, patches of each mix across a wide band instead of meeting at a sharp line or in a speckle of single blocks, and the grass and leaves change colour gradually across it, in the far view too.</li><li>Farms, compounds, bases and other sites out in the country no longer sit in a pit below the hills with cliffs all round them: they're only built where the land round them is low enough to meet them gently.</li><li>Where one kind of ground meets another (grass and sand, sand and red sand, dirt and snow), their colours fade into each other over some fifty blocks instead of stopping at a block's edge.</li><li>Towns, farms and roads cut into hills more gently: the terraces beside a town's edge are lower and climb all the way up instead of ending in a cliff, and roads and railways run through wider cuttings with gentler sides.</li><li>Coasts change gradually as well: a sandy beach gives way to a rocky headland as the land gets rougher, and one kind of shore turns into the next in stretches rather than block by block.</li><li>Dust devils are easy to see now: tall, swirling funnels of dust that lean with the wind.</li><li>Towns are built a little more their biome's way: in the desert and the badlands, small shops and eateries are adobe with parapets and log beam ends, squares are more often paved plazas, and there are more rows of shops; in forests, swamps and the cold they're log and plank with false fronts or steep roofs, and the squares are left green; on the moor they're stone.</li><li>This changes how the world is made, so a saved city starts afresh.</li></ul>
+<h3>The far view at speed</h3>
+<ul><li>Flying fast no longer outruns the distant view. The far rings of the world used to start over every time you'd moved a little, so at a plane's speed they never finished and the land ahead was bare; now each one finishes, is drawn ahead of where you're going, and only works out the land that's new.</li><li>There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.</li><li>Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.</li></ul>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Biomes</h3>
@@ -2404,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5',GAME_BUILD='eb5348c4c50c';
+const GAME_VER='0.5',GAME_BUILD='f7e48115a0c3';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -7105,6 +7107,14 @@ const segCells=(ix,iz,d)=>d===0?[[ix-1,iz],[ix,iz]]:[[ix,iz-1],[ix,iz]];
 // The first time anything needs a place's streets, working them all out takes tens of milliseconds at a stroke. So the places
 // ahead of the players are gone over a millisecond or two a frame beforehand, asking the same questions, whose answers are kept:
 // by the time setConns comes to it, it's mostly looking them up.
+// (the questions setConns will ask about the crossing i,j: whether each stretch leaving it is a street, where the place
+// or a highway is beside it, as its own open() does. Asked of every crossing, most of the time went on open country
+// setConns never asks about)
+function planAsk(S,i,j){
+  const a=settlementAt(i,j)===S;
+  if(a||settlementAt(i-1,j)===S||gCol(i,j*CELL+RC))segBase(i,j,0);
+  if(a||settlementAt(i,j-1)===S||gRow(j,i*CELL+RC))segBase(i,j,1);
+}
 const planJob={S:null,i:0,j:0,x1:0,z0:0,z1:0};
 function planAhead(){
   if(TENV)return;const t0=performance.now();
@@ -7115,7 +7125,7 @@ function planAhead(){
       if(planJob.S)break;}
     if(!planJob.S)return;}
   const J=planJob;
-  for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++){settlementAt(J.i,J.j);segBase(J.i,J.j,0);segBase(J.i,J.j,1);}
+  for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++)planAsk(J.S,J.i,J.j);
     if(performance.now()-t0>1.5){J.i++;J.j=J.z0;return;}}
   J.S.planned=true;J.S=null;
 }
@@ -32217,8 +32227,17 @@ const MESHED_TEX=new THREE.DataTexture(MESHED,256,256,THREE.RGBAFormat);MESHED_T
 // blocks it stands for. A building's top is its roof's colour; its sides are its walls, with the share of glowing windows it
 // really has drawn as rows of windows at full brightness, as the real ones are, day and night. The rows cover WP of each side,
 // and the walls between are made up so the side's average comes out right whatever the share.)
+// (FAR_COV: a ring draws only as far round where it was built as that build reaches, uCov the middle (one per player) and
+// uCovR from how near to how far, so a ring left behind by a fast player stops cleanly; FAR_BACK, the backdrop, draws just
+// where the ring whose band a spot is in, uB0 to uB2, doesn't reach it, so the two never overlap)
+const FAR_COVERED=(c,r)=>'((length(vWP.xz-'+c+'.xy)>='+r+'.x&&length(vWP.xz-'+c+'.xy)<='+r+'.y)||(length(vWP.xz-'+c+'.zw)>='+r+'.x&&length(vWP.xz-'+c+'.zw)<='+r+'.y))';
 const FAR_FRAG=[
   ' float dR=min(length(vWP.xz-uCamP.xy),length(vWP.xz-uCamP.zw));if(dR<uRing.x||dR>=uRing.y)discard;',
+  '#ifdef FAR_BACK',
+  ...[0,1,2].map(i=>' if(dR>=uB'+i+'.x&&dR<uB'+i+'.y&&'+FAR_COVERED('uC'+i,'uR'+i)+')discard;'),
+  '#else',
+  ' if(!'+FAR_COVERED('uCov','uCovR')+')discard;',
+  '#endif',
   ' vec2 chk=floor(vWP.xz/16.0);',
   ' if(texture2D(uMeshed,(mod(chk,256.0)+0.5)/256.0).r>0.5)discard;',
   ' float up=step(0.5,vN.y),dn=step(0.5,-vN.y),side=1.0-up-dn;',
@@ -32254,20 +32273,21 @@ const FAR_HORIZ=[
   '   float f=max(Y/dn-uWorldCurve*dn,Y/df-uWorldCurve*df);',
   '   if(Y<0.0){float sm=sqrt(-Y/uWorldCurve);if(sm>dn&&sm<df)f=max(f,-2.0*sqrt(-Y*uWorldCurve));}',
   '   if(f<-2.0*sqrt(hc*uWorldCurve)-1e-4)gl_Position=vec4(2.0,2.0,2.0,1.0);}}'].join('\n');
-function farPatch(mat,win,ring){
+function farPatch(mat,win,ring,cov,back){
   const U={uLight:WORLD_LIGHT,uNightK:skyU.uNight,uMeshed:{value:MESHED_TEX},uWin:{value:win},uRing:ring,uCamP:FAR_CAMP,uHoriz:HORIZ_U,uSeasonW:SEASON_W,uSnow:SNOW_U,uWet:WET_U,uSnowClk:SNOWCLK_U,uSnowB:SNOWB_U,uColdT:COLDT_U,uLeafFall:LEAFFALL_U};
+  if(back){mat.defines={FAR_BACK:1};back.forEach((L,i)=>{U['uB'+i]=L.ring;U['uC'+i]=L.cov.c;U['uR'+i]=L.cov.r;});}else{U.uCov=cov.c;U.uCovR=cov.r;}
   mat.onBeforeCompile=sh=>{
     Object.assign(sh.uniforms,U);
     sh.vertexShader='attribute vec3 aCol;attribute vec3 aTop;attribute vec4 aWin;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;uniform vec4 uHoriz;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\n vCol=aCol;vTop=aTop;vWin=aWin;vN=normal;\n#ifdef USE_INSTANCING\n vWP=(modelMatrix*instanceMatrix*vec4(transformed,1.0)).xyz;\n'+FAR_HORIZ+'\n#else\n vWP=(modelMatrix*vec4(transformed,1.0)).xyz;\n#endif');
-    sh.fragmentShader=SNOW_GLSL+'uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uNightK,uWin,uSnow,uWet,uSnowClk,uLeafFall;uniform sampler2D uMeshed;uniform vec2 uRing;uniform vec4 uCamP;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;\n'+sh.fragmentShader.replace('#include <color_fragment>',FAR_FRAG);
+    sh.fragmentShader=SNOW_GLSL+'uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uNightK,uWin,uSnow,uWet,uSnowClk,uLeafFall;uniform sampler2D uMeshed;uniform vec2 uRing;uniform vec4 uCamP;uniform vec4 uCov,uC0,uC1,uC2;uniform vec2 uCovR,uR0,uR1,uR2,uB0,uB1,uB2;varying vec3 vCol;varying vec3 vTop;varying vec4 vWin;varying vec3 vWP;varying vec3 vN;\n'+sh.fragmentShader.replace('#include <color_fragment>',FAR_FRAG);
   };
   return mat;
 }
-function farInst(cap,win,ring){
+function farInst(cap,win,ring,cov,back){
   const g=new THREE.BoxGeometry(1,1,1),col=new THREE.InstancedBufferAttribute(new Float32Array(cap*3),3),top=new THREE.InstancedBufferAttribute(new Float32Array(cap*3),3),wn=new THREE.InstancedBufferAttribute(new Float32Array(cap*4),4);
   g.setAttribute('aCol',col);g.setAttribute('aTop',top);g.setAttribute('aWin',wn);
-  const m=new THREE.InstancedMesh(g,farPatch(new THREE.MeshBasicMaterial({color:0xffffff}),win,ring),cap);m.count=0;m.frustumCulled=false;scene.add(m);
-  return{m,col,top,wn,cap,n:0,win,ring};
+  const m=new THREE.InstancedMesh(g,farPatch(new THREE.MeshBasicMaterial({color:0xffffff}),win,ring,cov,back),cap);m.count=0;m.frustumCulled=false;scene.add(m);
+  return{m,col,top,wn,cap,n:0,win,ring,cov,back};
 }
 // ---- far city, in three rings (levels of detail). Each ring is a pair of instanced box meshes (buildings with
 // windows, and flat ground), built around the players by a job that runs a few milliseconds a frame and swaps in when
@@ -32277,7 +32297,9 @@ function farInst(cap,win,ring){
 //    rebuilt every 24 blocks you move (and when something falls down)
 //  middle ring (the next ~1600): one plain box per building, highways; rebuilt every 192 blocks
 //  far ring (out to the horizon): one box per town block, its height guessed from what the block is (no buildings
-//    worked out at all); rebuilt every 768 blocks ----
+//    worked out at all); rebuilt every 384 blocks
+// (a rebuild only works out the plots new to it, farCached, so the further rings needn't be built far past their bands to
+// save rebuilding them) ----
 const _fc=new THREE.Color();
 const topColor=b=>{const t=BLOCK[b].tiles[0];return tileColor[t]!==undefined?tileColor[t]:0x888888;};
 const FARC={sea:new THREE.Color(topColor(WATER)),deep:new THREE.Color(topColor(WATER)).multiplyScalar(0.62),sand:new THREE.Color(topColor(SAND)),con:new THREE.Color(topColor(CONCRETE)),side:new THREE.Color(topColor(SIDEWALK)),park:new THREE.Color(topColor(GRASS)),plaza:new THREE.Color(topColor(CONCRETE)),road:new THREE.Color(topColor(ASPHALT))};
@@ -32370,8 +32392,53 @@ function farLinesPlot(SB,SG,px,pz){
     const rp=R.kind==='moto'&&rtRamp(R,R.cum[L[q+1]]+1.5),yt=rp?rtSurfY(R,R.cum[L[q+1]]+1.5):G+1.66;
     seg(rp?SB:SG,R,L[q+1],6,rp?yt-1.2:G+0.45,yt,FARC.road);}}
 }
-function farGrow(F,cap){if(cap<=F.cap)return;scene.remove(F.m);F.m.geometry.dispose();F.m.material.dispose();const N=farInst(cap,F.win,F.ring);scene.remove(N.m);F.m=N.m;F.col=N.col;F.top=N.top;F.wn=N.wn;F.cap=cap;scene.add(F.m);}
-function mkLod(step,mk){const ring={value:new THREE.Vector2(0,0)};return{B:farInst(2048,1,ring),G:farInst(1024,0,ring),ring,sb:farStage(),sg:farStage(),step,mk,job:null,cx:1e9,cz:1e9,key:-1,coll:-1,cr:-1,dv:-1,collT:0};}
+function farGrow(F,cap){if(cap<=F.cap)return;scene.remove(F.m);F.m.geometry.dispose();F.m.material.dispose();const N=farInst(cap,F.win,F.ring,F.cov,F.back);scene.remove(N.m);F.m=N.m;F.col=N.col;F.top=N.top;F.wn=N.wn;F.cap=cap;scene.add(F.m);}
+// (a ring: its two meshes, the staging buffers its build writes, and how the build is going. cov: where the build now shown
+// was made and how far it reaches, for the shaders; cache: what each plot came to last time, farCached; back: the rings the
+// backdrop fills in for)
+function mkLod(step,mk,sig,back){const ring={value:new THREE.Vector2(0,0)},cov={c:{value:new THREE.Vector4(0,0,0,0)},r:{value:new THREE.Vector2(0,-1)}};
+  return{B:farInst(2048,1,ring,cov,back),G:farInst(1024,0,ring,cov,back),ring,cov,sb:farStage(),sg:farStage(),tb:farStage(),tg:farStage(),step,mk,sig,job:null,cx:1e9,cz:1e9,key:-1,coll:-1,cr:-1,dv:-1,collT:0,
+    cache:new Map(),ep:0,bn:0,cell:1,plan:!back,seed:null,tenv:null,jc:null,bx:0,bz:0,bm:-1,t0:0,dur:0.5};}
+// ---- what a build made of each plot is kept, so the next build only works out the plots that are new to it (moving, that's
+// a strip along the leading edge) and copies the rest. A plot's boxes are worked out again when the ring's epoch moves on
+// (L.ep: settings, a building down, a big blast, a new world) or, in the two nearer rings, when any block in it has been
+// smashed since (farEd, the same count farTreesOf goes by; over the whole of a superblock or country site, whose buildings
+// are drawn by one plot but stand on several). Entries a build didn't use, nor the one before, are dropped. ----
+function farEd(px,pz){const cx=px*CELL/CS,cz=pz*CELL/CS;let ed=0;
+  for(let a=0;a<CELL/CS;a++)for(let b=0;b<CELL/CS;b++){const ce=chunkEdits.get(ckey(cx+a,cz+b));if(ce)ed+=ce.v+ce.size;}return ed;}
+function farEdS(S,px,pz){if(!S)return farEd(px,pz);let ed=0;for(let i=0;i<S.w;i++)for(let j=0;j<S.h;j++)ed+=farEd(S.ax+i,S.az+j);return ed;}
+// (a stage's boxes as one array, 26 numbers a box: the matrices, then the colours, the tops, the windows)
+const farPack=S=>{if(!S.n)return null;const n=S.n,a=new Float32Array(n*26);a.set(S.mat.subarray(0,n*16));a.set(S.col.subarray(0,n*3),n*16);a.set(S.top.subarray(0,n*3),n*19);a.set(S.wn.subarray(0,n*4),n*22);return a;};
+function farUnpack(S,a){if(!a)return;const n=a.length/26;
+  while((S.n+n)*16>S.mat.length){const N=S.mat.length*2;S.mat=farGrowArr(S.mat,N);S.col=farGrowArr(S.col,N*3/16);S.top=farGrowArr(S.top,N*3/16);S.wn=farGrowArr(S.wn,N/4);}
+  S.mat.set(a.subarray(0,n*16),S.n*16);S.col.set(a.subarray(n*16,n*19),S.n*3);S.top.set(a.subarray(n*19,n*22),S.n*3);S.wn.set(a.subarray(n*22),S.n*4);S.n+=n;}
+// (the first question about a place's streets has them all worked out at a stroke, setConns: a tenth of a second and more,
+// and the builds reach places long before planAhead, which looks only round the players, has been over them. So before a
+// plot's drawn the places it could belong to are gone over as planAhead does, a millisecond at a time)
+const farPlanOK=new Set();let farPlanSeed=null;
+function* farPlan(px,pz){
+  const r0=Math.round(px/SET_SP),q0=Math.round(pz/SET_SP),k=r0*100003+q0;
+  if(farPlanSeed!==seed||farPlanOK.size>50000){farPlanOK.clear();farPlanSeed=seed;}
+  if(farPlanOK.has(k)||TENV)return;
+  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const S=settlementLat(r0+a,q0+b);if(S.conns||S.planned)continue;
+    const r=Math.ceil(S.R*1.5)+3;let t=performance.now();
+    for(let i=S.cx-r;i<=S.cx+r+1;i++){for(let j=S.cz-r;j<=S.cz+r+1;j++)planAsk(S,i,j);
+      if(performance.now()-t>1){yield;t=performance.now();}}
+    S.planned=true;yield;setConns(S);yield;}
+  farPlanOK.add(k);
+}
+// (fn(SB,SG,a,b,x) is the generator that draws plot a,b; with no ring given, as the tests call the jobs, nothing's kept)
+function* farCached(L,k,SB,SG,a,b,fn,x){
+  if(!L){yield* fn(SB,SG,a,b,x);return;}
+  let E=L.cache.get(k);const sg=L.sig?farEdS(E?E.S:null,a,b):0;
+  if(!E||E.ep!==L.ep||E.sg!==sg){
+    if(L.plan){const q=L.cell;yield* farPlan(Math.floor(a*q+q/2),Math.floor(b*q+q/2));}
+    L.tb.n=0;L.tg.n=0;yield* fn(L.tb,L.tg,a,b,x);
+    const S=L.sig?superOf(a,b)||bigPlainsAt(a,b)||null:null;
+    E={ep:L.ep,S,sg:S?farEdS(S,a,b):sg,use:0,b:farPack(L.tb),g:farPack(L.tg)};L.cache.set(k,E);
+    yield;}   // (a breath after each plot worked out: moving, the new ones come a whole row at a time)
+  E.use=L.bn;farUnpack(SB,E.b);farUnpack(SG,E.g);
+}
 // ---- trees and still water in the far rings. The near ring has every tree, as the chunks grow it (its trunk and two boxes
 // of leaves, which is near enough what a blocky tree is), so that where the full-detail city takes over a tree only gains
 // its detail; further off, woods are clumps of treetops. Ponds and lakes are water a hair above the ground, as rivers are. ----
@@ -32524,7 +32591,7 @@ function farDamaged(){
   return S;
 }
 // the near ring: everything (as the single far city used to be)
-function* farJobNear(SB,SG,act,ra,rb){
+function* farJobNear(SB,SG,act,ra,rb,L){
   if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.park);return;}   // (the Testing Environment: grass to the horizon)
   {const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.road);}  // road-coloured floor
     const seen=new Set();
@@ -32532,7 +32599,10 @@ function* farJobNear(SB,SG,act,ra,rb){
       const k=px*100003+pz;if(seen.has(k))continue;
       const d=Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z);
       if(d>rb+CELL||d<ra-CELL*1.5)continue;   // outside this ring
-      seen.add(k);
+      seen.add(k);yield* farCached(L,k,SB,SG,px,pz,farPlotNear);
+    }}
+}
+function* farPlotNear(SB,SG,px,pz){
       const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz))farSea(SG,px,pz,4);
       else if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);if(!sc)farTerrain(SG,px,pz,8,true);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
@@ -32578,30 +32648,32 @@ function* farJobNear(SB,SG,act,ra,rb){
       }
       for(const ax of[0,1]){const br=bridgeOf(px,pz,ax);if(!br)continue;_fc.setHex(blockColor(br.wall));
         if(ax)farBox(SB,br.c0,br.y0,br.s0,br.c1,br.y1+1,br.s1,_fc);else farBox(SB,br.s0,br.y0,br.c0,br.s1,br.y1+1,br.c1,_fc);}
-    }}
 }
 // the middle ring: a plain box per building
-function* farJobMid(SB,SG,act,ra,rb){
+function* farJobMid(SB,SG,act,ra,rb,L){
   if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.park);return;}
   {const p0=act[0];farBox(SG,p0.pos.x-rb-64,G+0.3,p0.pos.z-rb-64,p0.pos.x+rb+64,G+0.4,p0.pos.z+rb+64,FARC.road);}
   const seen=new Set();
   for(const p of act)for(let px=Math.floor((p.pos.x-rb)/CELL);px<=Math.floor((p.pos.x+rb)/CELL);px++){yield;for(let pz=Math.floor((p.pos.z-rb)/CELL);pz<=Math.floor((p.pos.z+rb)/CELL);pz++){
     const k=px*100003+pz;if(seen.has(k))continue;
     const d=Math.hypot(px*CELL+CELL/2-p.pos.x,pz*CELL+CELL/2-p.pos.z);if(d>rb+CELL||d<ra-CELL)continue;seen.add(k);
+    yield* farCached(L,k,SB,SG,px,pz,farPlotMid);
+  }}
+}
+function* farPlotMid(SB,SG,px,pz){
     const X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
-    if(seaPlot(px,pz)){farSea(SG,px,pz,2);continue;}
+    if(seaPlot(px,pz)){farSea(SG,px,pz,2);return;}
     if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);if(!sc)farTerrain(SG,px,pz,16,false);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
       farPonds(SG,px,pz,8,false);farWoods(SG,px,pz,16,true);
       if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
       if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
-      continue;}
+      return;}
     const P=plotInfo(px,pz);
     farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
     farTownWater(SG,px,pz,P,6);
     if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
     if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
     yield* farPlotBuildings(SB,P,px,pz);
-  }}
 }
 // the middle ring's buildings on one plot, one plain box each (and the far ring's, on a plot where something's been destroyed)
 function* farPlotBuildings(SB,P,px,pz){
@@ -32687,13 +32759,18 @@ function farBioSite(SB,SG,px,pz,lvl){
 // (no buildings are worked out out here, so each block gets a typical look: one of the common wall materials, with the share
 // of glowing windows and the roof colour the buildings nearer in have on average)
 const FAR3_LOOKS=[BRICK,CONCRETE,SIDING,STUCCO,GLASS,PAINT_WHITE].map(b=>({wall:new THREE.Color(blockColor(b)),glow:new THREE.Color(blockColor(WIN_WARM)),f:0.25,top:new THREE.Color(0.44,0.33,0.28)}));
-function* farJobFar(SB,SG,act,ra,rb){
+function* farJobFar(SB,SG,act,ra,rb,L){
   if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-128,G+0.3,p0.pos.z-rb-128,p0.pos.x+rb+128,G+0.4,p0.pos.z+rb+128,FARC.park);return;}
   {const p0=act[0];farBox(SG,p0.pos.x-rb-128,G+0.3,p0.pos.z-rb-128,p0.pos.x+rb+128,G+0.4,p0.pos.z+rb+128,FARC.park);}   // (out here it's mostly fields)
   const seen=new Set(),C4=4*CELL,dmg=farDamaged();
   for(const p of act)for(let qx=Math.floor((p.pos.x-rb)/C4);qx<=Math.floor((p.pos.x+rb)/C4);qx++){yield;for(let qz=Math.floor((p.pos.z-rb)/C4);qz<=Math.floor((p.pos.z+rb)/C4);qz++){
     const k=qx*100003+qz;if(seen.has(k))continue;
     const d=Math.hypot(qx*C4+C4/2-p.pos.x,qz*C4+C4/2-p.pos.z);if(d>rb+C4||d<ra-C4)continue;seen.add(k);
+    yield* farCached(L,k,SB,SG,qx,qz,farQuadFar,dmg);
+  }}
+}
+function* farQuadFar(SB,SG,qx,qz,dmg){
+    const C4=4*CELL;
     {const bi=biomeOfPlot(qx*4+2,qz*4+2);if(bi!==BIO_GRASS)farBox(SG,qx*C4,G+0.31,qz*C4,qx*C4+C4,G+0.42,qz*C4+C4,farBio(qx*4+2,qz*4+2).g);}   // (a biome's ground under the fields)
     for(let i=0;i<4;i++)for(let j=0;j<4;j++){const px=qx*4+i,pz=qz*4+j,X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz)){farSea(SG,px,pz,1);continue;}
@@ -32708,7 +32785,6 @@ function* farJobFar(SB,SG,act,ra,rb){
       if(t==='tower')top=30+h*60;else if(t==='mid')top=12+h*16;else if(t==='homes'){top=6+h*3;inset=3;}
       else if(t==='park'||t==='plaza')continue;else top=6+h*6;
       {const L=FAR3_LOOKS[Math.floor(hash2(px*13+1,pz*19+5)*FAR3_LOOKS.length)];farBox(SB,X0+PL0+inset,G+1,Z0+PL0+inset,X0+PL1-inset,G+1+top,Z0+PL1-inset,L.wall,L);}}
-  }}
 }
 // a wind turbine in the distance: its tower, the nacelle, and the three blades held still (each a short run of boxes
 // along the blade, since a box can't lean); k thickens it all the further off it is, so it still reads as a line
@@ -32721,46 +32797,126 @@ function farTurbine(SB,px,pz,k=1){
     for(let s=0;s<N;s++){const t0=1+s*L/N,t1=t0+L/N,mx=cx+dx*(t0+t1)/2,my=cy+dy*(t0+t1)/2,hw=Math.abs(dx)*(t1-t0)/2+t,hh=Math.abs(dy)*(t1-t0)/2+t;
       farBox(SB,mx-hw,my-hh,cz-0.3*k,mx+hw,my+hh,cz+0.3*k,_fc);}}
 }
-const LODS=[mkLod(24,farJobNear),mkLod(192,farJobMid),mkLod(768,farJobFar)];
-// the job's boxes go into the ring's meshes (grown if they need to be)
+// ---- the backdrop: the whole view, out to the horizon and well past it, as one box of ground per square of 64 blocks (128
+// with a very long view): sea, a town's pavement with one box for its buildings, or the land in its biome's colour at the
+// height it stands, greener where the woods are thick. It asks only the cheapest questions of the plan, so a build of
+// it is quick, and it's built with a wide margin and well ahead of a fast player; its shader draws it only where the ring
+// that should be there hasn't been built that far yet (FAR_BACK). So however fast you go, and when you've just arrived
+// somewhere, there's land to the horizon at once, and the rings fill in over it as they catch up. ----
+let farBackS=64;
+function* farJobBack(SB,SG,act,ra,rb,L){
+  if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-128,G+0.3,p0.pos.z-rb-128,p0.pos.x+rb+128,G+0.4,p0.pos.z+rb+128,FARC.park);return;}
+  const seen=new Set(),S=farBackS;
+  for(const p of act)for(let qx=Math.floor((p.pos.x-rb)/S);qx<=Math.floor((p.pos.x+rb)/S);qx++){yield;for(let qz=Math.floor((p.pos.z-rb)/S);qz<=Math.floor((p.pos.z+rb)/S);qz++){
+    const k=qx*100003+qz;if(seen.has(k))continue;
+    if(Math.hypot(qx*S+S/2-p.pos.x,qz*S+S/2-p.pos.z)>rb+S)continue;seen.add(k);
+    yield* farCached(L,k,SB,SG,qx,qz,farCellBack,S);
+  }}
+}
+// (the ground and leaves there by the climate alone, as farBio's but without asking the plan whether the plot's open
+// country: bare rock and snow go by the height instead)
+function farBioClim(x,z){const i=biomeAt(x,z),F=FAR_BIO[i],B=BIOMES[i];if(i===BIO_I.alpine)return F;
+  const L=bioTint(x,z,1),l=FAR_LEAF.clone();l.r*=L[0];l.g*=L[1];l.b*=L[2];
+  if((B.top||GRASS)!==GRASS)return {g:F.g,l};
+  const T=bioTint(x,z,0),g=FARC.park.clone();g.r*=T[0];g.g*=T[1];g.b*=T[2];g.grass=true;return {g,l};}
+const farBackWood=new Map();   // (a ground colour with woods over it: one colour each, as farBox tells grass by the colour it's given)
+function* farCellBack(SB,SG,qx,qz,S){
+  const x0=qx*S,z0=qz*S,x=x0+S/2,z=z0+S/2,px=Math.floor(x/CELL),pz=Math.floor(z/CELL);
+  if(farScorched(x,z)){farBox(SG,x0,G+0.4,z0,x0+S,G+1.6,z0+S,FAR_SCORCH);return;}
+  const sp=seaPlot(px,pz);
+  if(sp){farBox(SG,x0,G+0.4,z0,x0+S,G+0.95,z0+S,sp===2?FARC.deep:FARC.sea);return;}
+  const ty=setType(px,pz);
+  if(ty){
+    // (by the kind of place alone: what each block is takes the place's streets, which the rings work out as they come)
+    farBox(SG,x0,G+0.4,z0,x0+S,G+0.97,z0+S,FARC.side);
+    const h=hash2(px*41+7,pz*37+3),top=ty==='city'?12+h*h*46:ty==='large'?9+h*14:ty==='small'?6+h*6:4+h*4;
+    {const K=FAR3_LOOKS[Math.floor(hash2(px*13+1,pz*19+5)*FAR3_LOOKS.length)];farBox(SB,x0+8,G+1,z0+8,x0+S-8,G+1+top,z0+S-8,K.wall,K);}
+    return;}
+  const F=farBioClim(x,z),hN=reliefNat(x,z);
+  if(hN<-0.9){farBox(SG,x0,G+0.4,z0,x0+S,G+1.6,z0+S,FARC.sea);return;}
+  const wood=plainsCopse(x,z)>=0.45;climAt(x,z);
+  const h=clBlend('r')<0.28&&WORLD_CFG.hill<=1.5?0:Math.round(hN),t=CLIM.t;let c=h>rlfSnow(t)?FAR_SNOW:h>rlfRock(t)?FAR_ROCK:F.g;
+  if(wood&&c===F.g){const k=Math.round(c.r*63)*262144+Math.round(c.g*63)*4096+Math.round(c.b*63)*64+Math.round(F.l.g*63);let w=farBackWood.get(k);
+    if(!w){if(farBackWood.size>4000)farBackWood.clear();w=c.clone().lerp(F.l,0.6);w.grass=c===FARC.park||!!c.grass;farBackWood.set(k,w);}c=w;}
+  farBox(SG,x0,G+0.4,z0,x0+S,h<2?G+1.6:G+h+1,z0+S,c);
+}
+const LODS=[mkLod(24,farJobNear,true),mkLod(192,farJobMid,true),mkLod(384,farJobFar,false)];
+LODS.push(mkLod(512,farJobBack,false,LODS.slice()));LODS[2].cell=4;
+// (how far past its ring each is built at a walk, and how much further at most for a fast player)
+const FAR_M=[64,64,128,1536],FAR_MX=[320,768,1536,2560],FAR_DUR=[1.5,3,6,6];   // (FAR_DUR: the longest build that's planned for; a ring slower than that can't keep up anyway, and reaching further only slows it more)
+// the job's boxes go into the ring's meshes (grown if they need to be; only the boxes there are go to the graphics card),
+// and the shaders are told where it was built and how far it reaches
 function farCommit(L){
   for(const [F,S] of [[L.B,L.sb],[L.G,L.sg]]){
     if(S.n>F.cap)farGrow(F,Math.ceil(S.n*1.25/1024)*1024);
     F.m.instanceMatrix.array.set(S.mat.subarray(0,S.n*16));F.col.array.set(S.col.subarray(0,S.n*3));F.top.array.set(S.top.subarray(0,S.n*3));F.wn.array.set(S.wn.subarray(0,S.n*4));
-    F.m.count=S.n;F.m.instanceMatrix.needsUpdate=true;F.col.needsUpdate=F.top.needsUpdate=F.wn.needsUpdate=true;}
+    F.m.count=S.n;F.m.instanceMatrix.needsUpdate=true;F.col.needsUpdate=F.top.needsUpdate=F.wn.needsUpdate=true;
+    for(const [a,w] of [[F.m.instanceMatrix,16],[F.col,3],[F.top,3],[F.wn,4]])if(a.updateRange){a.updateRange.offset=0;a.updateRange.count=S.n*w;}}
+  const J=L.jc;
+  if(J){L.cov.c.value.set(J.x0,J.z0,J.x1,J.z1);L.cov.r.value.set(J.ra,J.rb);L.bx=J.x0;L.bz=J.z0;L.bm=J.m;}else{L.cov.r.value.set(0,-1);L.bm=-1;}
+  for(const [k,E] of L.cache)if(E.use<L.bn-1)L.cache.delete(k);
 }
-let farDirty=true,farT=0;
-const FAR_BUDGET=4;   // milliseconds a frame for building the far rings
+// (how far player one is from where a ring's shown build was made, as a share of what that build allows: over 1, the ring
+// no longer covers its band and the backdrop shows through)
+const farLag=(L,p)=>L.bm<0?9:Math.hypot(p.x-L.bx,p.z-L.bz)/Math.max(1,L.bm);
+const farBackOK=()=>{const B=LODS[3],a=players.find(q=>q.active);return !a||B.ring.value.y<=0||farLag(B,a.pos)<=1;};
+let farDirty=true,farT=0,farClk=0;
+const FAR_BUDGET=4,FAR_BUDGET_FAST=6,FAR_FAST=120;   // milliseconds a frame for building the far rings; and for a player going faster than FAR_FAST blocks a second (a jet flat out), who is over new country faster than 4 ms a frame can draw it
+const FAR_BACK_MS=12; // (and for the backdrop while it doesn't reach the horizon: bare sky there is worse than a slow frame or two)
+// (each player's speed over the ground, smoothed, from where they were last frame: a jump of a frame, being put somewhere, isn't speed)
+const farVel=[{x:0,z:0,px:null,pz:0},{x:0,z:0,px:null,pz:0}];
 function updateFar(dt){
   if(meshedDirty){MESHED_TEX.needsUpdate=true;meshedDirty=false;}
   LEAFFALL_U.value=leafFall;
   const act=players.filter(q=>q.active);if(!act.length)return;
   {const a=act[0].pos,b=(act[1]||act[0]).pos;FAR_CAMP.value.set(a.x,a.z,b.x,b.z);}
+  farClk+=dt;let spd=0;
+  act.forEach((q,n)=>{const V=farVel[n];if(V.px!==null&&dt>0){const vx=(q.pos.x-V.px)/dt,vz=(q.pos.z-V.pz)/dt;
+      if(Math.hypot(vx,vz)>1500){V.x=V.z=0;}else{const k=Math.min(1,dt*4);V.x+=(vx-V.x)*k;V.z+=(vz-V.z)*k;}}
+    V.px=q.pos.x;V.pz=q.pos.z;spd=Math.max(spd,Math.hypot(V.x,V.z));});
   // where each ring starts and ends (it's nothing at all if you can't see past the full-detail city)
   const near=viewR*CS,R=lodFar(),on=R>near+8,b1=Math.min(R,near+480),b2=Math.min(R,b1+1600);
-  const edges=on?[[0,b1],[b1,b2],[b2,R+64]]:[[0,0],[0,0],[0,0]];
+  const edges=on?[[0,b1],[b1,b2],[b2,R+64],[0,R+64]]:[[0,0],[0,0],[0,0],[0,0]];
   LODS.forEach((L,i)=>L.ring.value.set(edges[i][0],edges[i][1]));
-  // start (or restart) a ring's build when you've moved far enough from where it was last built, the settings change,
-  // or (nearer rings) something has fallen down
+  // start a ring's build when you've moved far enough from where its last was started, the settings change, or (nearer
+  // rings) something has fallen down. A build under way is left to finish (stopped only when the settings change): started
+  // again each time a fast player had moved on, none ever finished, and the ring was left behind for good. A fast player's
+  // build is made ahead of them instead, round where they'll be halfway through the time it's shown (it's shown from when
+  // it's done until the next is, each taking about as long as the last, L.dur), and reaches further out by as far as
+  // they'll go meanwhile.
   farT-=dt;
-  if(farT<=0||farDirty){farT=0.25;
+  if(farT<=0||farDirty){farT=spd>40?0.1:0.25;
     const key=Math.round(R)*100+viewR,nColl=Object.keys(collapses).length,p=act[0].pos,dirty=farDirty;farDirty=false;
+    farBackS=R>3200?128:64;LODS[3].cell=farBackS/CELL;
     LODS.forEach((L,i)=>{
       const [r0,r1]=edges[i];L.collT-=0.25;
-      // (a building down or a crater: soon, the further rings less often; blocks knocked out: every few seconds at most)
-      const cc=nColl!==L.coll||craters.length!==L.cr,dc=destroyVer!==L.dv,collCh=(cc||dc)&&L.collT<=0;
-      const moved=Math.hypot(p.x-L.cx,p.z-L.cz)>L.step;
-      if(!(dirty||moved||key!==L.key||collCh))return;
-      if(!on||r1<=r0){L.job=null;L.sb.n=0;L.sg.n=0;farCommit(L);L.key=key;L.cx=p.x;L.cz=p.z;return;}
+      // (a building down or a crater: soon, the further rings less often; blocks knocked out: every few seconds at most.
+      // The backdrop only shows a big blast's scorched ground)
+      const cc=nColl!==L.coll||craters.length!==L.cr,dc=i<3&&destroyVer!==L.dv,collCh=(i<3?cc||dc:craters.length!==L.cr)&&L.collT<=0;
+      const moved=Math.hypot(p.x-L.cx,p.z-L.cz)>L.step,reset=dirty||key!==L.key;
+      if(!(reset||moved||collCh))return;
+      if(!on||r1<=r0){L.job=null;L.jc=null;L.sb.n=0;L.sg.n=0;farCommit(L);L.key=key;L.cx=p.x;L.cz=p.z;return;}
+      if(L.job&&!reset)return;
+      // (the plots kept are no good after a change that isn't in the blocks smashed: a collapse, a crater, a blast still
+      // going out, the settings, another world. The far ring, which keeps no count of the blocks, also after any damage)
+      if(reset||cc||dc&&!L.sig||BB.jobs.length||seed!==L.seed||TENV!==L.tenv){L.ep++;L.seed=seed;L.tenv=TENV;}
       // built with a margin round its ring, so it still covers the ring as you move until the next build
-      const m=L.step+(i===2?256:64);
-      L.sb.n=0;L.sg.n=0;L.job=L.mk(L.sb,L.sg,act.map(q=>({pos:q.pos.clone()})),Math.max(0,r0-m),r1+m);
-      L.cx=p.x;L.cz=p.z;L.key=key;L.coll=nColl;L.cr=craters.length;L.dv=destroyVer;if(collCh)L.collT=cc?[0,4,8][i]:[3,6,12][i];
+      const du=Math.min(L.dur,FAR_DUR[i]),go=spd>30?spd*du:0,m=L.step+FAR_M[i]+Math.min(FAR_MX[i],go*0.75),lead=spd>30?du*1.5:0;
+      const ctr=act.map((q,n)=>({pos:new THREE.Vector3(q.pos.x+farVel[n].x*lead,q.pos.y,q.pos.z+farVel[n].z*lead)})),c1=ctr[1]||ctr[0];
+      L.sb.n=0;L.sg.n=0;L.bn++;L.t0=farClk;L.jc={x0:ctr[0].pos.x,z0:ctr[0].pos.z,x1:c1.pos.x,z1:c1.pos.z,ra:Math.max(0,r0-m),rb:r1+m,m};
+      L.job=L.mk(L.sb,L.sg,ctr,L.jc.ra,L.jc.rb,L);
+      L.cx=p.x;L.cz=p.z;L.key=key;L.coll=nColl;L.cr=craters.length;L.dv=destroyVer;if(collCh)L.collT=cc?[0,4,8,2][i]:[3,6,12,0][i];
     });
   }
-  // run the builds, nearest ring first, for a few milliseconds
-  const t0=performance.now();
-  for(const L of LODS){while(L.job&&performance.now()-t0<FAR_BUDGET){const r=L.job.next();if(r.done){L.job=null;farCommit(L);}}}
+  // run the builds for a few milliseconds: the backdrop's first (it's quick, and the others are drawn over it), then the
+  // rings nearest first, each with a share of the time so that none waits on another (the near ring, building one after
+  // another for a fast player, would take it all), and what's left over to whichever still has work
+  const t0=performance.now(),p0=act[0].pos,BUD=spd>FAR_FAST?FAR_BUDGET_FAST:FAR_BUDGET,run=(L,ms)=>{while(L.job&&performance.now()-t0<ms){const r=L.job.next();if(r.done){L.job=null;L.dur=L.dur*0.5+(farClk-L.t0)*0.5;farCommit(L);}}};
+  run(LODS[3],farLag(LODS[3],p0)>0.8?FAR_BACK_MS:BUD);
+  {const tb=Math.min(BUD,performance.now()-t0),sw=farLag(LODS[1],p0)>1&&farLag(LODS[1],p0)>farLag(LODS[0],p0),A=LODS[sw?1:0],B=LODS[sw?0:1],hot=farLag(A,p0)>1;
+   // (of the two nearer, the one further behind first; and while it no longer covers its band, the far ring, which the
+   // backdrop stands in for best, gets less)
+   run(A,tb+(BUD-tb)*(hot?0.55:0.45));run(B,tb+(BUD-tb)*(hot?0.82:0.75));run(LODS[2],BUD);run(A,BUD);run(B,BUD);}
   // stretch the cloud deck to cover the whole view
   // (bent down, the decks must reach on round past the horizon, down to where the world's edge drops out of sight)
   {const s=Math.max(1,(lodFar()+120)/300),k=CURVE_U.value,act=players.filter(p=>p.active),cy=act.length?Math.max(...act.map(p=>p.camera.position.y)):G+8;
