@@ -125,10 +125,10 @@ function updateShots(dt){
     // ground under it, short of where it was going)
     let boom=!S.bb&&S.fuse<=0;if(S.tgt||S.chase||S.at)boom=shotSteer(S,dt)||boom;const ns=Math.max(1,Math.ceil(Math.hypot(S.v.x,S.v.y,S.v.z)*dt/0.4));
     for(let k=0;k<ns&&!boom;k++){const h=dt/ns;S.v.y-=S.grav*h;const nx=S.pos.x+S.v.x*h,ny=S.pos.y+S.v.y*h,nz=S.pos.z+S.v.z*h;
-      if(solidAt(nx,Math.floor(ny),nz)||ny<1){
+      if(hardAt(nx,ny,nz)||ny<1){
         if(!S.bounce){boom=true;S.hitB=true;break;}
         // (a bomb: off the ground it bounces low and rolls; off a wall it comes back)
-        if(!solidAt(nx,Math.floor(S.pos.y),nz)){S.v.y=-S.v.y*0.3;S.v.x*=0.55;S.v.z*=0.55;if(Math.abs(S.v.y)<1.2)S.v.y=0;S.pos.x=nx;S.pos.z=nz;}
+        if(!hardAt(nx,S.pos.y,nz)){S.v.y=-S.v.y*0.3;S.v.x*=0.55;S.v.z*=0.55;if(Math.abs(S.v.y)<1.2)S.v.y=0;S.pos.x=nx;S.pos.z=nz;}
         else{S.v.x*=-0.4;S.v.z*=-0.4;}continue;}
       S.pos.set(nx,ny,nz);
       if(S.bb&&nx<SHIP_X0&&get(nx,Math.floor(ny),nz)===WATER){boom=true;break;}   // (a nuke goes off as it hits the water: sunk to the sea bed first, its crater cut the coast round it down below the sea)

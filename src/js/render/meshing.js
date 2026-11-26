@@ -79,7 +79,9 @@ function updateSeasonW(){const s=seasonOf(),f=(((dayN-1)%SEASON_LEN)+tod)/SEASON
   // the leaves come down over autumn's last days (a few, then most), and are back by the end of winter's turn into spring
   const fall=Math.round((w[3]*0.93+w[2]*Math.min(1,w[3]*4)*0.3)*10)/10;
   if(fall!==leafFall){leafFall=fall;leafQ.length=0;for(const k of meshes.keys())leafQ.push(k);}
-  for(let n=0;n<4&&leafQ.length;n++){const e=meshes.get(leafQ.pop());if(e)buildChunk(e.cx,e.cz);}
+  // (into the frame's budgeted rebuilds, a few at a time as it empties: four whole chunks every frame, on top of everything
+  // else, was the stall when winter came)
+  if(leafQ.length&&rebuildQ.size<4){const S=new Set();while(S.size<4&&leafQ.length)S.add(leafQ.pop());rebuildSet(S);}
   purgeLeaves();
 }
 const FOLIAGE_FRAG=`
@@ -343,8 +345,8 @@ function meshPrep(cx,cz,copy){
   // (leaves that have fallen)
   // (a plain loop over a copy: a map with a call for every block of nine chunks made each rebuild in autumn and winter
   // several times as slow)
-  const leafed=(N,qx,qz)=>{const O=N.slice(),n=O.length;for(let i=0;i<n;i++){if(O[i]!==LEAVES)continue;const y=(i/A2)|0,r=i-y*A2;if(leafDown(qx*CS+(r%CS),y,qz*CS+((r/CS)|0)))O[i]=AIR;}return O;};
-  const a=lf?leafed(a0,cx,cz):copy&&!gfx?a0.slice():a0;
+  const leafed=(N,qx,qz)=>{let O=N;for(let i=N.indexOf(LEAVES);i>=0;i=N.indexOf(LEAVES,i+1)){const y=(i/A2)|0,r=i-y*A2;if(leafDown(qx*CS+(r%CS),y,qz*CS+((r/CS)|0))){if(O===N)O=N.slice();O[i]=AIR;}}return O;};   // (indexOf jumps from leaf to leaf; copied only if one's fallen)
+  const a=lf&&!gfx?leafed(copy?a0.slice():a0,cx,cz):lf?leafed(a0,cx,cz):copy&&!gfx?a0.slice():a0;   // (a copy for a thread is made first: leafed hands back what it's given when no leaf's fallen)
   // (a ship's chunk is laid out from the ship's own middle, not where its pocket is: numbers that big lose their fractions on
   // the graphics card, and the deck shakes as it moves. See ships.js)
   const pk=cx>=SHIP_CX0,pkS=pk?shipPg(cz):null,mx0=pkS?x0-pkS.ox:x0,mz0=pkS?z0-pkS.oz:z0;
@@ -353,7 +355,7 @@ function meshPrep(cx,cz,copy){
   const nineM=[],nineL=[];
   for(let j=0;j<3;j++)for(let i=0;i<3;i++){const qx=cx+i-1,qz=cz+j-1,raw=chunkArr(qx,qz);
     if(i===1&&j===1){nineM.push(a);nineL.push(gfx||lf?(copy?raw.slice():raw):a);continue;}
-    const L=copy?raw.slice():raw;nineL.push(L);nineM.push(gfx?gfxArr(qx,qz):lf?leafed(raw,qx,qz):L);}
+    const L=copy?raw.slice():raw;nineL.push(L);nineM.push(gfx?gfxArr(qx,qz):lf?leafed(L,qx,qz):L);}
   const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
     const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2;return nineM[nj*3+ni][lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];};
   const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;

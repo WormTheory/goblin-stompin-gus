@@ -212,8 +212,10 @@
 - Wading through water slows you and goblins down, more the deeper it is.
 - Cars slow down in shallow water and get stuck in deep water. Drive into a lake or the sea and the car floats for a few seconds, then sinks nose first to the bottom.
 - Spilled water freezes over in winter, even a thin puddle, and thaws again in spring. You can walk on the ice, thin sheets too.
-- When winter comes, the ice creeps over the water nearby over half a minute or so instead of appearing all at once, and the game no longer stalls while it does. Spring melts it the same way.
-- Water that's still pouring down doesn't freeze where it hangs in the air: it lands first.
+- When winter comes, the ice creeps over the water nearby over the best part of a minute instead of appearing all at once, and the game no longer stalls while it does. Spring melts it the same way.
+- Water that's still pouring down doesn't freeze where it hangs in the air: it lands first. Spilled water only freezes once it's settled, a little at a time over half a minute or so, and ice whose water drains away from under it melts and runs off rather than being left hanging.
+- Bullets break ice, thin sheets too, and grenades bounce off it rather than dropping through.
+- No more long stall when winter arrives: the trees losing their leaves, and the ice, are redrawn a little at a time, and each redraw in autumn and winter is about twice as quick again.
 - A nuke's ring of rubble buries a thin sheet of water or ice on the ground instead of floating above it, and water beside its crater pours in.
 - Water puts out a fire: flood one and it hisses out in a puff of steam.
 - Water pouring out from high up shows as a stream all the way down, rather than vanishing and appearing at the bottom.

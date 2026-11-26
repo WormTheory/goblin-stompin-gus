@@ -325,21 +325,23 @@ function wxAudio(){
 const ICE_Y0=G-8,ICE_Y1=G+12,freezeQ=[];
 // (shallow water with air or more shallow water under it is still falling, so it doesn't freeze where it hangs)
 const wetFalling=u=>u===AIR||u!==WATER&&!!WET[u];
+// (water still on the move, or with water moving under it, waits: the flow freezes it once it's still, water-flow.js)
+const wfMoving=(cx,cz,i,y)=>wfAct.size>0&&(wfAct.has(bkey(cx*CS+i%CS,y,cz*CS+((i/CS)|0)))||wfAct.has(bkey(cx*CS+i%CS,y-1,cz*CS+((i/CS)|0))));
 // (frac under 1: only the blocks whose hash is under it, so winter can come on in steps, freezeTick; cx,cz place them)
 function freezeArr(a,on,cx=0,cz=0,frac=1){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)for(let i=0;i<L;i++){const j=y*L+i,b=a[j];
   if(frac<1&&(b===AIR||b===WATER&&a[j+L]===WATER||hash2(cx*CS+i%CS+y*131,cz*CS+((i/CS)|0)+y*17)>=frac))continue;
-  if(on){if(a[j+L]===AIR){if(b===WATER){a[j]=ICE;n++;}else if(WET[b]&&!wetFalling(a[j-L])){a[j]=ICE_L[BLOCK[b].lvl];n++;}}}   // (shallow water too, as thin ice)
+  if(on){if(a[j+L]===AIR){if(b===WATER){if(!wfMoving(cx,cz,i,y)){a[j]=ICE;n++;}}else if(WET[b]&&!wetFalling(a[j-L])&&!wfMoving(cx,cz,i,y)){a[j]=ICE_L[BLOCK[b].lvl];n++;}}}   // (shallow water too, as thin ice)
   else if(b===ICE){a[j]=WATER;n++;}else if(ICE_LV[b]){a[j]=WATER_L[ICE_LV[b]];n++;}}return n;}
 // (now: every chunk at once, as when a game's loaded in winter; otherwise the ice creeps over the water in FZ_STEPS steps
 // over about FZ_TIME seconds, or melts the same way, freezeTick, and the chunks it changes join the frame's budgeted rebuilds)
-const FZ_STEPS=4,FZ_TIME=24,FZ_NEAR=56,FZ={on:false,step:0,keys:[],i:0,t:0};
+const FZ_STEPS=5,FZ_TIME=40,FZ_WAIT=6,FZ_NEAR=56,FZ={on:false,step:0,keys:[],i:0,t:0};   // (FZ_WAIT: a few seconds of cold before the first ice)
 function freezeWorld(on,now){
   if(now){FZ.keys.length=0;for(const [k,a] of chunks){const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;if(freezeArr(a,on&&chunkFreeze(cx,cz),cx,cz)&&meshes.has(k))freezeQ.push(k);}lastK=-1;return;}
-  FZ.on=on;FZ.step=1;FZ.keys=[...chunks.keys()];FZ.i=0;FZ.t=0;}
+  FZ.on=on;FZ.step=1;FZ.keys=[...chunks.keys()];FZ.i=0;FZ.t=on?-FZ_WAIT:0;}
 function freezeTick(dt){
   if(!FZ.keys.length)return;FZ.t+=dt;
   // (this step's share of the chunks by now, a step every FZ_TIME/FZ_STEPS seconds)
-  const per=FZ_TIME/FZ_STEPS,want=Math.min(FZ.keys.length,Math.ceil(FZ.keys.length*Math.min(1,FZ.t/per))),frac=FZ.step/FZ_STEPS,set=new Set();
+  const per=FZ_TIME/FZ_STEPS,want=Math.min(FZ.keys.length,Math.ceil(FZ.keys.length*Math.min(1,Math.max(0,FZ.t)/per))),frac=FZ.step/FZ_STEPS,set=new Set();
   // (only near a player is it seen creeping: further off a chunk's done whole on the first step, so it's rebuilt once)
   for(;FZ.i<want;FZ.i++){const k=FZ.keys[FZ.i],a=chunks.get(k);if(!a)continue;const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;
     const near=players.some(p=>p.active&&Math.abs(p.pos.x-cx*CS-8)<FZ_NEAR&&Math.abs(p.pos.z-cz*CS-8)<FZ_NEAR);if(!near&&FZ.step>1)continue;

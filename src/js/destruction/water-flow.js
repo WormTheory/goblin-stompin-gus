@@ -18,6 +18,10 @@ const wfPark=new Map();   // (the same, waiting for a chunk beside it to be made
 const wfAmt=new Map();   // (bkey -> 64ths, for water the flow has left between eighths)
 const wfSrc=new Map();   // (bkey -> 1 endless, 0 not: worked out once per body of natural water)
 const wfDirty=new Set();   // (chunks with water changed since they were last redrawn: redrawn every WF_DRAW, not every step)
+// (still water waiting to freeze in winter, by block: [x,y,z,when it came to rest]. It's left WF_COLD_WAIT seconds, then
+// each WF_COLD_T a block has a WF_COLD_P chance of icing over, so a flood freezes over bit by bit, not the moment it stops)
+const wfCold=new Map(),WF_COLD_WAIT=8,WF_COLD_T=0.5,WF_COLD_P=0.06;
+let wfColdT=0,wfColdClock=0;
 let wfClock=0,wfDrawT=0,wfParkT=0,wfTurn=0,wfQuiet=false;   // (wfQuiet: the water's own changes, which setRaw needn't note)
 const WF_SIDES=[[1,0,0],[0,0,1],[-1,0,0],[0,0,-1]],WF_N6=[[0,-1,0],[1,0,0],[-1,0,0],[0,0,1],[0,0,-1],[0,1,0]];
 // how many eighths of water a block holds: 0 open, 1 to 8 water, -1 anything else (water doesn't go there)
@@ -65,7 +69,24 @@ function wfPress(x,y,z,amt){
 // how deep the water is over y at (x,z), for wading: 0 if dry. Never makes a chunk
 function wadeDepth(x,y,z){const xi=Math.floor(x),zi=Math.floor(z);let yy=Math.floor(y+0.02);if(!WET[peek(xi,yy,zi)])return 0;
   for(let k=0;k<4&&WET[peek(xi,yy+1,zi)];k++)yy++;const t=peek(xi,yy,zi);return Math.max(0,yy+(t===WATER?0.9:BLOCK[t].lvl/8)-y);}
+// (can this water freeze now? Out in the open, at rest, and resting on something: the ground, ice, or full water that isn't
+// draining away -- never left hanging as a sheet over water still running off underneath)
+function wfCanFreeze(x,y,z){const b=wfGet(x,y,z);if(!(b>0&&WET[b])||wfGet(x,y+1,z)!==AIR||wfAct.has(bkey(x,y,z)))return false;
+  const u=wfGet(x,y-1,z);if(u<0||wetFalling(u)||u===WATER&&wfAct.has(bkey(x,y-1,z)))return false;
+  return y>=ICE_Y0&&y<=ICE_Y1&&chunkFreeze(Math.floor(x/CS),Math.floor(z/CS));}
+// (ice whose water's gone from under it melts back to water and goes on down: ice doesn't hang in the air)
+function wfUnderIce(x,y,z){const b=wfGet(x,y+1,z);if(b!==ICE&&!ICE_LV[b])return;const u=wfGet(x,y,z);if(u!==AIR&&!wetFalling(u))return;
+  const cx=Math.floor(x/CS),cz=Math.floor(z/CS),A=chunkArr(cx,cz),i=li(x-cx*CS,y+1,z-cz*CS);A[i]=b===ICE?WATER:WATER_L[ICE_LV[b]];lastK=-1;
+  wfDirty.add(ckey(cx,cz));wfAct.set(bkey(x,y+1,z),[x,y+1,z]);}
+function wfFreezeTick(dt){
+  wfColdClock+=dt;if(!wfCold.size)return;if(!WX.frozen){wfCold.clear();return;}
+  wfColdT+=dt;if(wfColdT<WF_COLD_T)return;wfColdT=0;let n=0;
+  for(const [k,c] of wfCold){if(++n>3000)break;if(wfAct.has(k)||wfColdClock-c[3]<WF_COLD_WAIT||Math.random()>=WF_COLD_P)continue;
+    const [x,y,z]=c,b0=wfGet(x,y,z);if(!(b0>0&&WET[b0])){wfCold.delete(k);continue;}if(!wfCanFreeze(x,y,z))continue;wfCold.delete(k);   // (gone: forget it; not yet: it waits on)
+    const cx=Math.floor(x/CS),cz=Math.floor(z/CS),A=chunkArr(cx,cz),i=li(x-cx*CS,y,z-cz*CS),b=A[i];
+    A[i]=b===WATER?ICE:ICE_L[BLOCK[b].lvl];lastK=-1;wfDirty.add(ckey(cx,cz));}}
 function updateWater(dt){
+  wfFreezeTick(dt);
   wfDrawT+=dt;   // (a big flood over many chunks redraws less often, up to 4 times as long between, so it doesn't fill every frame's rebuilds)
   if(wfDirty.size&&(wfDrawT>=WF_DRAW*Math.min(4,1+Math.max(0,wfDirty.size-4)/4)||!wfAct.size)){wfDrawT=0;rebuildSet(wfDirty);wfDirty.clear();}
   if(!wfRemoved.length&&!wfAct.size&&!wfPark.size)return;
@@ -117,19 +138,18 @@ function updateWater(dt){
       // (what's above and beside may follow it in)
       wfWakeRound(x,y,z);}
     if(wait)wfPark.set(k,list[n]);
-    // (come to rest in winter, out in the open: it freezes over as the rest did when winter came, render/weather.js)
-    else if(!moved&&WX.frozen&&y>=ICE_Y0&&y<=ICE_Y1&&wfGet(x,y+1,z)===AIR&&!wetFalling(wfGet(x,y-1,z))&&!chg.has(k)&&chunkFreeze(Math.floor(x/CS),Math.floor(z/CS))){
-      const A=chunkArr(Math.floor(x/CS),Math.floor(z/CS)),i=li(x-Math.floor(x/CS)*CS,y,z-Math.floor(z/CS)*CS),b=A[i];
-      if(WET[b]){A[i]=b===WATER?ICE:ICE_L[BLOCK[b].lvl];lastK=-1;wfDirty.add(ckey(Math.floor(x/CS),Math.floor(z/CS)));}}
+    // (come to rest in winter: it waits to freeze over, wfFreezeTick)
+    else if(!moved&&WX.frozen&&y>=ICE_Y0&&y<=ICE_Y1&&!chg.has(k)&&!wfCold.has(k))wfCold.set(k,[x,y,z,wfColdClock]);
   }
   for(;n<list.length;n++){const [x,y,z]=list[n];wfAct.set(bkey(x,y,z),list[n]);}   // (what the budget didn't reach goes next time)
   // what changed, into the world: saved, sent to guests and redrawn
   const ch=wfDirty,n0=ch.size;wfQuiet=true;
   try{for(const [k,[x,y,z,a]] of chg){
     if(a>0)wfAct.set(k,[x,y,z]);
-    const g0=wfGet(x,y,z),l=wfShow(a,g0>0?Math.max(0,WF_LV[g0]):0);if(a>0&&a!==l*8)wfAmt.set(k,a);else wfAmt.delete(k);
+    const g0=wfGet(x,y,z),l0=g0>0?Math.max(0,WF_LV[g0]):0,l=wfShow(a,l0);if(a>0&&a!==l*8)wfAmt.set(k,a);else wfAmt.delete(k);
     const b=l?l===8?WATER:WATER_L[l]:AIR;if(wfGet(x,y,z)===b)continue;
     setRaw(x,y,z,b);addEdit(x,y,z,b);
+    if(l<l0)wfUnderIce(x,y,z);   // (less water here than there was: ice over it may have lost what held it up)
     const cx=Math.floor(x/CS),cz=Math.floor(z/CS),lx=x-cx*CS,lz=z-cz*CS;ch.add(ckey(cx,cz));
     if(lx===0)ch.add(ckey(cx-1,cz));else if(lx===CS-1)ch.add(ckey(cx+1,cz));
     if(lz===0)ch.add(ckey(cx,cz-1));else if(lz===CS-1)ch.add(ckey(cx,cz+1));}}

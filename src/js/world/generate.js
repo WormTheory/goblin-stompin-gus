@@ -354,6 +354,8 @@ function boxClear(x0,x1,z0,z1,y){
 let madeNow=0;
 function mayLook(x,z){if(chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return true;if(madeNow>=1)return false;madeNow++;return true;}
 function solidAt(x,y,z){if(y<0)return true;if(y>=H)return false;const b=get(x,y,z);return !!(b&&BLOCK[b].solid);}
+// (what stops a round or a bouncing grenade: anything solid, and a thin sheet of ice up to its top, y here not rounded)
+function hardAt(x,y,z){const yi=Math.floor(y);if(solidAt(x,yi,z))return true;if(yi<0||yi>=H)return false;const l=ICE_LV[get(Math.floor(x),yi,Math.floor(z))];return !!l&&y-yi<l*0.11;}
 // (a thin sheet of ice, ICE_L, isn't solid, but bears weight at its top: it's walked on, not through)
 function groundAt(x,z,fromY){const xi=Math.floor(x),zi=Math.floor(z);for(let y=Math.min(H-1,Math.floor(fromY+1.2));y>=0;y--){const b=y<0?STONE:get(xi,y,zi);if(ICE_LV[b])return y+ICE_LV[b]*0.11;if(b&&BLOCK[b].solid)return BLOCK[b].ramp?y+rampH(b,x-xi,z-zi):y+1;}return 0;}
 // what something standing at height y rests on: the first solid block at or below its feet, but only if that block has open air above it (otherwise it's a wall, and nothing gets lifted up it)

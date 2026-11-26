@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,editAt,chunks,CS,G,H,WATER,AIR,STONE,SAND,GLASS,NET,players,frame,ckey,wfAct,wfPark,wfRemoved,wfSrc,wfAmt,bkey,updateWater,WF_STEP,wfEndless,wfPress,WF_LV,WATER_L,DOOR_G,cars,CAR_FLOAT_T,carPhysics,WX,freezeWorld,chunkFreeze,ICE_L,ICE,wadeDepth,goblins,supportAt,groundAt,addFire,fires};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,editAt,chunks,CS,G,H,WATER,AIR,STONE,SAND,GLASS,NET,players,frame,ckey,wfAct,wfPark,wfRemoved,wfSrc,wfAmt,bkey,updateWater,WF_STEP,wfEndless,wfPress,WF_LV,WATER_L,DOOR_G,cars,CAR_FLOAT_T,carPhysics,WX,freezeWorld,chunkFreeze,ICE_L,ICE,wadeDepth,goblins,supportAt,groundAt,addFire,fires,wfCold,hardAt,bulletOdds};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 const {Q,V3,Rot,Col,Mat,O3,M4,THREE}=require('./stub-three.js');   // (the stand-in three.js every suite shares)
 const listeners={};
@@ -144,12 +144,13 @@ if(ex===null)console.log('edge: no sea found');else{
   const f1=T.get(ix,iy,iz),f2=T.get(ix+1,iy,iz),f3=T.get(ix+3,iy+3,iz);put(ix+3,iy+3,iz,AIR);T.WX.frozen=false;T.freezeWorld(false,true);const t1=T.get(ix,iy,iz),t2=T.get(ix+1,iy,iz);
   console.log('winter here',canFreeze,'| 5/8 water froze to 5/8 ice',f1===T.ICE_L[5],'full to ice',f2===T.ICE,'| thawed back',t1===T.WATER_L[5],t2===W,'| falling water left to fall',f3===T.WATER_L[2]);ok(!canFreeze||f3===T.WATER_L[2],'falling water doesn\'t freeze in the air');
   if(canFreeze){ok(f1===T.ICE_L[5]&&f2===T.ICE&&t1===T.WATER_L[5]&&t2===W,'freeze and thaw');
-    T.WX.frozen=true;for(let y=iy;y<iy+3;y++)put(ix+6,y,iz,W);dig(ix+6,iy+3,iz);settle();let ice=0,wet=0;
-    for(let x=ix-2;x<=ix+8;x++)for(let z=iz-2;z<=iz+2;z++){const b=T.get(x,iy,z);if(b===T.ICE||T.ICE_L.includes(b)&&b)ice++;else if(T.WF_LV[b]>0)wet++;}
+    T.WX.frozen=true;for(let y=iy;y<iy+3;y++)put(ix+6,y,iz,W);dig(ix+6,iy+3,iz);settle();for(let i=0;i<120/T.WF_STEP;i++)T.updateWater(T.WF_STEP);let ice=0,wet=0;   // (then two minutes for it to ice over, bit by bit)
+    for(let x=ix-2;x<=ix+8;x++)for(let z=iz-2;z<=iz+2;z++){const b=T.get(x,iy,z);if(b===T.ICE||T.ICE_L.includes(b)&&b)ice++;else if(T.WF_LV[b]>0){wet++;if(process.env.DBG)console.log('wet',x-ix,z-iz,b,'above',T.get(x,iy+1,z),'below',T.get(x,iy-1,z),'act',T.wfAct.has(T.bkey(x,iy,z)),'cold',T.wfCold.has(T.bkey(x,iy,z)));}}
     // (and a sheet of it bears the hippo's weight: he stands on its top, 2/8 up)
-    let onIce=null;{const b=T.get(ix-1,iy,iz);if(T.ICE_L.includes(b)&&b)onIce=[T.ICE_L.indexOf(b),T.supportAt(ix-0.5,iz+0.5,iy+0.6)-iy,T.groundAt(ix-0.5,iz+0.5,iy+0.6)-iy];}
+    let onIce=null,hard=null;{put(ix-1,iy,iz,T.ICE_L[2]);const b=T.get(ix-1,iy,iz);if(T.ICE_L.includes(b)&&b){onIce=[T.ICE_L.indexOf(b),T.supportAt(ix-0.5,iz+0.5,iy+0.6)-iy,T.groundAt(ix-0.5,iz+0.5,iy+0.6)-iy];
+      hard=T.hardAt(ix-0.5,iy+0.05,iz+0.5)&&!T.hardAt(ix-0.5,iy+0.5,iz+0.5)&&T.bulletOdds(b)===1;console.log('a sheet of ice stops rounds and grenades at its top, and a round breaks it',hard);}}
     T.WX.frozen=false;T.freezeWorld(false,true);console.log('poured out in winter: frozen over',ice,'blocks, still water',wet,'| standing on',onIce?'a '+onIce[0]+'/8 sheet of ice, held up at '+onIce[1].toFixed(2)+' / '+onIce[2].toFixed(2):'(no sheet to stand on)');
-    ok(ice>0&&wet===0,'freezes over when still');ok(!onIce||Math.abs(onIce[1]-onIce[0]*0.11)<0.01&&Math.abs(onIce[2]-onIce[0]*0.11)<0.01,'thin ice is walked on');}}
+    ok(ice>0&&wet===0,'freezes over when still');ok(hard!==false,'thin ice stops rounds');ok(!onIce||Math.abs(onIce[1]-onIce[0]*0.11)<0.01&&Math.abs(onIce[2]-onIce[0]*0.11)<0.01,'thin ice is walked on');}}
 // 11. wading: how deep the water is at the feet
 {const bx=sx+140,by=G+40,bz=sz;for(let x=bx-3;x<=bx+3;x++)for(let z=bz-3;z<=bz+3;z++){T.setRaw(x,by-1,z,STONE);T.setRaw(x,by,z,T.WATER_L[4]);T.setRaw(x,by+1,z,AIR);T.setRaw(x,by+2,z,AIR);}
   A.pos.set(bx+0.5,by+0.5,bz+0.5);A.vy=0;run(1.5);const k6=A.wadeK;

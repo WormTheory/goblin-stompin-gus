@@ -327,7 +327,7 @@ function fireRound(o){
     if(o.pvp){pr=pvpRay(o.by,mx,my,mz,ux,uy,uz,Math.min(R,gt));if(pr){gt=pr.t;gg=pr.q;}}}
   const st=o.step||0.5,ve=Math.max(1,Math.round(0.4/st)),lim=Math.min(R,gt);   // (vehicles looked for every 0.4 or so: the narrowest box is far wider)
   let t=st,i=0,hit='air',oh=null,hv=null,wx=0,wy=0,wz=0;_sp.own=o.own||null;_sp.noShip=!!SL;
-  for(;t<lim;t+=st,i++){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||solidAt(x,Math.floor(y),z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}
+  for(;t<lim;t+=st,i++){const x=mx+ux*t,y=my+uy*t,z=mz+uz*t;if(y<1||hardAt(x,y,z)){hit='wall';wx=Math.floor(x);wy=Math.floor(y);wz=Math.floor(z);break;}
     if(o.vehs&&i%ve===0){_sp.pos.set(x,y,z);if(hv=shotHitsVeh(_sp)){hit='veh';break;}}
     if(SL&&(oh=shipLineAt(SL,t,who,true))){hit=oh.veh?'veh':oh.b?'wall':'sea';hv=oh.veh||null;break;}}
   _sp.noShip=false;_sp.own=null;
