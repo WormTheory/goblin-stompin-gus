@@ -196,11 +196,14 @@ function precipCamVel(cam,who){
 // the cover map: for each column in a square round the camera, the height of the highest solid block, and which blocks
 // are solid from 12 below the camera to 36 above (sol, a byte each: rain coming in at a slant through a gap in a roof
 // carries on under it), refreshed as you move
-const COVER_NY=49,mkCover=()=>({N:44,x0:0,z0:0,y0:0,y1:-1,top:new Int16Array(44*44),sol:new Uint8Array(44*44*COVER_NY),t:-1,cx:1e9,cz:1e9,under:false}),COVERS=[mkCover(),mkCover()];let COVER=COVERS[0];
+// (64 across: the drops reach PBX either side of the camera, the map's only made again once the camera's moved 4, and a
+// drop near the edge is followed back up its slant a few blocks further out still; at 44 the outermost drops weren't
+// looked at, so rain fell through roofs some 20 blocks off)
+const COVER_N=64,COVER_NY=49,mkCover=()=>({N:COVER_N,x0:0,z0:0,y0:0,y1:-1,top:new Int16Array(COVER_N*COVER_N),sol:new Uint8Array(COVER_N*COVER_N*COVER_NY),t:-1,cx:1e9,cz:1e9,cy:0,under:false}),COVERS=[mkCover(),mkCover()];let COVER=COVERS[0];
 function coverMap(cam,who){
   const C=COVER=COVERS[who||0],cx=Math.floor(cam.x),cz=Math.floor(cam.z);
-  if(Math.abs(cx-C.cx)<4&&Math.abs(cz-C.cz)<4&&wxClock-C.t<1.5)return;
-  C.cx=cx;C.cz=cz;C.t=wxClock;C.x0=cx-(C.N>>1);C.z0=cz-(C.N>>1);
+  if(Math.abs(cx-C.cx)<4&&Math.abs(cz-C.cz)<4&&Math.abs(cam.y-C.cy)<4&&wxClock-C.t<1.5)return;   // (up or down too: a lift, a climb, a helicopter)
+  C.cx=cx;C.cz=cz;C.cy=cam.y;C.t=wxClock;C.x0=cx-(C.N>>1);C.z0=cz-(C.N>>1);
   const yHi=Math.min(H-1,Math.floor(cam.y)+36),yLo=Math.max(1,Math.floor(cam.y)-12);
   C.y0=yLo;C.y1=yHi;const N=C.N,NN=N*N,sol=C.sol;sol.fill(0);
   // (straight from each column's chunk, not a get() a block: some 90,000 of them)
@@ -260,9 +263,13 @@ function placePrecip(cam,who){
   if(nr){const V=precipCamVel(cam,who),under=(x,y,z)=>precipHid(rainS,x,y,z);
     // each streak lies along its drop's motion less the camera's (the wind, its own speed of fall), so it always points
     // the way it's moving on screen; stretched a little when that's fast (motion blur)
-    for(let i=0;i<nr;i++){const d=drops[i],fall=26+d.s*6;_pv.set(wrapC(d.x+DR.x,cam.x,PBX),wrapC(d.y-fall*t,cam.y+4,PBY/2),wrapC(d.z+DR.z,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;
+    for(let i=0;i<nr;i++){const d=drops[i],fall=26+d.s*6;_pv.set(wrapC(d.x+DR.x,cam.x,PBX),wrapC(d.y-fall*t,cam.y+4,PBY/2),wrapC(d.z+DR.z,cam.z,PBX));
       _pa.set(V.vx-wx,fall+V.vy,V.vz-wz);const sp=_pa.length();if(sp>1e-3){_pa.multiplyScalar(1/sp);_pq.setFromUnitVectors(_pUp,_pa);}else _pq.set(0,0,0,1);
-      _ps.y=Math.min(3,Math.max(1,sp/29));_pm.compose(_pv,_pq,_ps);rainM.setMatrixAt(i,_pm);}
+      _ps.y=Math.min(3,Math.max(1,sp/29));
+      // (its lower end too, half a streak down its length: a streak landing on a roof, stretched by moving fast, would
+      // otherwise poke through the ceiling beneath)
+      const e=0.45*_ps.y;if(under(_pv.x,_pv.y,_pv.z)||under(_pv.x-_pa.x*e,_pv.y-_pa.y*e,_pv.z-_pa.z*e))_pv.y=-500;
+      _pm.compose(_pv,_pq,_ps);rainM.setMatrixAt(i,_pm);}
     _ps.y=1;rainM.instanceMatrix.needsUpdate=true;}
   if(ns){_pq.set(0,0,0,1);const under=(x,y,z)=>precipHid(snowS,x,y,z);
     for(let i=0;i<ns;i++){const d=drops[PRECIP_N-1-i],sw=Math.sin(t*1.3+d.s*9)*0.5;_pv.set(wrapC(d.x+DR.x*1.8+sw,cam.x,PBX),wrapC(d.y-(1.8+d.s*1.4+w*0.6)*t,cam.y+4,PBY/2),wrapC(d.z+DR.z*1.8+Math.cos(t+d.s*7)*0.4,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);snowM.setMatrixAt(i,_pm);}

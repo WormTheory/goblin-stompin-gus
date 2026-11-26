@@ -44,6 +44,13 @@ chk('above the roof, open',!hid(10,22)&&!hid(30,25));
 chk('inside a block, hidden',hid(10,20));
 const K0=T.shadeMap(0,'gap0',0,0),hid0=(x,y)=>T.precipHid(K0,x+0.5,y+0.5,20.5);
 chk('no wind: straight down through the gap only',!hid0(19,12)&&hid0(17,12)&&hid0(22,12));
+// every drop's looked at: the cover map reaches past the drops' box however far the camera's moved since it was made,
+// with room for a drop at the edge to be followed back a few blocks
+chk('the cover map covers the drops',C.N/2>=T.PBX+4+4,[C.N,T.PBX]);
+// on a real map: from a drop's place in the box, with the camera moved 3 since the map was made, look up whether it's in
+{const p=T.players[0],cam={x:p.pos.x,y:p.pos.y+1.6,z:p.pos.z};C.cx=1e9;T.coverMap(cam,0);const c2={x:cam.x+3.9,y:cam.y+3.5,z:cam.z-3.9};T.coverMap(c2,0);
+ const x0=C.x0,ok1=c2.x+T.PBX<x0+C.N-4&&c2.x-T.PBX>=x0+4;chk('a camera moved 3.9 keeps its drops on the map',ok1);
+ T.coverMap({x:cam.x,y:cam.y+5,z:cam.z},0);chk('climbing 5 makes the map again',C.cy===cam.y+5);}
 // time on a real cover map in a town, worst case (a blizzard's slant)
 C.cx=1e9;T.wxClock=T.wxClock+10;const p=T.players[0];T.coverMap({x:p.pos.x,y:p.pos.y+1.6,z:p.pos.z},0);
 let t0=process.hrtime.bigint();t0=process.hrtime.bigint();for(let i=0;i<10;i++){C.cx=1e9;T.coverMap({x:p.pos.x,y:p.pos.y+1.6,z:p.pos.z},0);}
