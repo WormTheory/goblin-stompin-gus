@@ -60,12 +60,12 @@ function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
   for(const el of document.querySelectorAll('.gamepane .hostmain'))el.classList.add('p1only');
-  for(const id of ['Perf','Display','Multi'])document.getElementById('tabBtn'+id).hidden=two;document.getElementById('tabBtnNotes').hidden=two;   // (player two's Settings is just their Controls)
+  for(const id of ['Gameplay','Perf','Display','Multi'])document.getElementById('tabBtn'+id).hidden=two;document.getElementById('tabBtnNotes').hidden=two;   // (player two's Settings is just their Controls)
   document.getElementById('tabBtnDev').hidden=two||!DT.quick;
   if(two)document.getElementById('tabBtnTest').hidden=true;
   menuWhoShow();
   {const pc=document.getElementById('playCoop');if(pc)pc.textContent=two?'Resume':'Co-op';}   // (in player two's menu the co-op game is already on: the button just carries on)
-  if(two&&['perf','display','multi','dev','test','notes'].includes(curTab))showTab('game');
+  if(two&&['gameplay','perf','display','multi','dev','test','notes'].includes(curTab))showTab('game');
 }
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
 // (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it; only in
@@ -79,10 +79,10 @@ function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;
 // logo, Gus stomping along in front of the city and the main menu card; and the pause menu. Either can open a screen
 // (Options, Map, Character...) in the same card, with a Back button at its head (subHead); B, Esc or Back returns to
 // where it was opened from (backHome), and LB / RB (Q / E on the keyboard) step through the screens (subStep).
-const SUB_TITLES={map:'Map',obit:'Obituary',custom:"Who's stompin'?",controls:'Settings',perf:'Settings',display:'Settings',multi:'Settings',notes:'Patch notes',dev:'Dev',test:'Testing Environment'};
+const SUB_TITLES={map:'Map',obit:'Obituary',custom:"Who's stompin'?",controls:'Settings',gameplay:'Settings',perf:'Settings',display:'Settings',multi:'Settings',notes:'Patch notes',dev:'Dev',test:'Testing Environment'};
 // Settings: one screen with its own tabs (setTabs, under its heading). LB / RB step through those while it's open, and
 // Settings opens again on whichever tab was last looked at
-const SET_TABS=['controls','perf','display','multi'];let setLast='controls';
+const SET_TABS=['controls','gameplay','perf','display','multi'];let setLast='controls';
 const isSetTab=t=>SET_TABS.includes(t);
 const setFirst=()=>menuP2()?'controls':setLast;   // (player two only has Controls)
 // (Play solo / Co-op and Play online: on the title screen they're in its main menu, paused they're in Settings'

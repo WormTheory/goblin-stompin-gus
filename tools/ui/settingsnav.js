@@ -22,7 +22,7 @@ const out=process.argv[2]||'settingsshots';require('fs').mkdirSync(out,{recursiv
   console.log('pause: workshop shown',await vis('testWorld'),'| Play online on pause screen',await vis('onlineBtn'),'| Settings btn',await vis('setBtn'));
   await p.screenshot({path:out+'/pause.png'});
   await p.click('#setBtn');await p.waitForTimeout(400);
-  for(const t of ['Controls','Perf','Display','Multi']){await p.click('#tabBtn'+t);await p.waitForTimeout(350);await p.screenshot({path:out+'/set-'+t+'.png'});}
+  for(const t of ['Controls','Gameplay','Perf','Display','Multi']){await p.click('#tabBtn'+t);await p.waitForTimeout(350);await p.screenshot({path:out+'/set-'+t+'.png'});}
   console.log('multi tab: play online here',await vis('onlineBtn'),'| parent',await ev(()=>document.getElementById('onlineBtn').parentNode.id),'| co-op btn',await vis('playCoop'),'| play solo',await vis('play'));
   // controller: back, then Settings by pad, LB/RB along its tabs, up to its tab and right
   await p.click('#subBack');await p.waitForTimeout(300);

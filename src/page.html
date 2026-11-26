@@ -78,7 +78,7 @@
       <button type="button" role="tab" class="cornertag" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
     </div>
     <div class="subhead" id="subHead" hidden><button type="button" class="ck set subback" id="subBack"><span aria-hidden="true">‹</span> Back</button><h2 class="px out2" id="subTitle"></h2><span class="subwho" id="subWho"></span></div>
-    <div class="settabs" id="setTabs" role="tablist" aria-label="Settings" hidden><button type="button" role="tab" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button><button type="button" role="tab" id="tabBtnPerf" aria-selected="false" aria-controls="tabPerf">Performance</button><button type="button" role="tab" id="tabBtnDisplay" aria-selected="false" aria-controls="tabDisplay">Display</button><button type="button" role="tab" id="tabBtnMulti" aria-selected="false" aria-controls="tabMulti">Multiplayer</button></div>
+    <div class="settabs" id="setTabs" role="tablist" aria-label="Settings" hidden><button type="button" role="tab" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button><button type="button" role="tab" id="tabBtnGameplay" aria-selected="false" aria-controls="tabGameplay">Gameplay</button><button type="button" role="tab" id="tabBtnPerf" aria-selected="false" aria-controls="tabPerf">Performance</button><button type="button" role="tab" id="tabBtnDisplay" aria-selected="false" aria-controls="tabDisplay">Display</button><button type="button" role="tab" id="tabBtnMulti" aria-selected="false" aria-controls="tabMulti">Multiplayer</button></div>
     <div class="tabpane gamepane" id="tabGame" role="tabpanel">
      <div class="gamemain">
       <h1 class="tlogo"><span class="tl1 px out">Goblin-Stompin'</span> <em class="tl2 px out">Gus</em></h1>
@@ -216,6 +216,16 @@
     </div>
     </div>
     </div>
+    <div class="tabpane" id="tabGameplay" role="tabpanel" hidden>
+    <div class="opts">
+    <div class="custom hostmain">
+      <div class="crow"><label class="clab" for="hostMain">ENEMY HOSTILITY</label><input type="range" id="hostMain" class="vrange" min="0" max="3" step="1" value="3" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
+      <p class="vnote" id="hostMainTxt"></p>
+      <div class="crow"><label class="clab" for="daySpeed">DAY / NIGHT SPEED</label><input type="range" id="daySpeed" class="vrange" min="0" max="7" step="1" value="3" aria-label="Day and night speed"><span class="vval" id="daySpeedVal">Normal</span></div>
+      <p class="vnote" id="daySpeedNote">One full day and night takes 10 minutes.</p>
+    </div>
+    </div>
+    </div>
     <div class="tabpane" id="tabPerf" role="tabpanel" hidden>
     <div class="opts">
     <div class="custom">
@@ -271,12 +281,6 @@
         <button type="button" class="tog" role="checkbox" id="keysTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide controls</span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Follows your system setting</small></span></button>
       </div>
-    </div>
-    <div class="custom hostmain">
-      <div class="crow"><label class="clab" for="hostMain">ENEMY HOSTILITY</label><input type="range" id="hostMain" class="vrange" min="0" max="3" step="1" value="3" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
-      <p class="vnote" id="hostMainTxt"></p>
-      <div class="crow"><label class="clab" for="daySpeed">DAY / NIGHT SPEED</label><input type="range" id="daySpeed" class="vrange" min="0" max="7" step="1" value="3" aria-label="Day and night speed"><span class="vval" id="daySpeedVal">Normal</span></div>
-      <p class="vnote" id="daySpeedNote">One full day and night takes 10 minutes.</p>
     </div>
     </div>
     </div>
