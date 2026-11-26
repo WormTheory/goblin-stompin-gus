@@ -324,21 +324,28 @@ function bbWorldPt(x,y,z){if(x>=SHIP_X0){const S=shipOfPos(x,z);if(S){const t=sh
 const BBF_N=13500,BBF_W=2400,BBF_SPD=343,BBF_LIFE=110,BBF_WIND=SMOKE_WIND,BB_GLOWC=new THREE.Color(1,0.46,0.16),_bbc=new THREE.Color(),_bbc2=new THREE.Color(),_bbFog=new THREE.Color();
 const BBF_HEAT=[[0,0x3a1408],[0.2,0x8a1e08],[0.4,0xe0460c],[0.6,0xff9a1a],[0.8,0xffe27a],[1,0xfffbea]].map(([k,c])=>[k,new THREE.Color(c)]);
 const BBF=(()=>{const geo=new THREE.BoxGeometry(1,1,1),mb=o=>new THREE.MeshBasicMaterial(Object.assign({color:0xffffff,fog:false},o));
-  return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true}),BBF_N,true),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
-BBF.cloud.renderOrder=1.5;BBF.wil.renderOrder=1.7;BB.glowK=0;BB.glowP=null;   // (after the water, renderOrder 1, which would otherwise paint over it, and before the fires' smoke, 2, which mostly stands in front of it; it writes depth, being drawn far to near anyway, so smoke behind it stays behind it)
+  return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true}),BBF_N,true),under:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true}),BBF_N,true),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
+BBF.cloud.renderOrder=1.5;BBF.under.renderOrder=0.9;BBF.wil.renderOrder=1.7;BB.glowK=0;BB.glowP=null;   // (after the water, renderOrder 1, which would otherwise paint over it, and before the fires' smoke, 2, which mostly stands in front of it; it writes depth, being drawn far to near anyway, so smoke behind it stays behind it)
+// (but the cubes on the far side of a water surface from the camera, in the water seen from above it or out of it seen from under
+// it, go in BBF.under, drawn before the water: the water writes no depth, so drawn after it they'd paint over it as if in front.
+// Only cubes below wy, a little over the blasts, are looked up: water higher than that is taken as air, which saves a lookup
+// for each of the cap's thousands of cubes)
 // (the cloud is see-through, like the fires' smoke, so its cubes are gathered here first and drawn far to near: sorted into
 // BBF_BINS by distance from the camera, which is all the order see-through boxes this size need)
 const BBF_X=new Float32Array(SM_N*9);let BBF_XN=0;   // (the fires' smoke puffs, put here by updateFires while a cloud's up: place, size, colour, alpha, turn)
-const BBF_ST=new Float32Array(BBF_N*9),BBF_BINS=64,BBF_BC=new Uint32Array(BBF_BINS+1),BBF_KEY=new Uint8Array(BBF_N),BBF_D=new Float32Array(BBF_N);
-function bbCloudSend(n){for(let i=0;i<BBF_XN&&n<BBF_N;i++,n++)BBF_ST.set(BBF_X.subarray(i*9,i*9+9),n*9);BBF_XN=0;
+const BBF_ST=new Float32Array(BBF_N*9),BBF_BINS=64,BBF_BC=new Uint32Array(BBF_BINS+1),BBF_KEY=new Uint8Array(BBF_N),BBF_D=new Float32Array(BBF_N),BBF_ORD=new Uint16Array(BBF_N);
+function bbCloudSend(n,wy=H){for(let i=0;i<BBF_XN&&n<BBF_N;i++,n++)BBF_ST.set(BBF_X.subarray(i*9,i*9+9),n*9);BBF_XN=0;
  const M=BBF.cloud,S=BBF_ST,P=players.find(q=>q.active)||players[0],cp=P&&P.camera.position;
   let lo=Infinity,hi=0;const D=BBF_D;
   for(let i=0;i<n;i++){const o=i*9,d=cp?(S[o]-cp.x)**2+(S[o+1]-cp.y)**2+(S[o+2]-cp.z)**2:0;D[i]=d;if(d<lo)lo=d;if(d>hi)hi=d;}
   const sc=hi>lo?BBF_BINS/(Math.sqrt(hi)-Math.sqrt(lo)+1e-6):0,sl=Math.sqrt(lo);BBF_BC.fill(0);
   for(let i=0;i<n;i++){const b=Math.min(BBF_BINS-1,Math.floor((Math.sqrt(D[i])-sl)*sc));BBF_KEY[i]=BBF_BINS-1-b;BBF_BC[BBF_KEY[i]+1]++;}
   for(let b=1;b<=BBF_BINS;b++)BBF_BC[b]+=BBF_BC[b-1];
-  for(let i=0;i<n;i++){const j=BBF_BC[BBF_KEY[i]]++,o=i*9;_bbc.setRGB(S[o+4],S[o+5],S[o+6]);bbPut(M,j,S[o],S[o+1],S[o+2],S[o+3],_bbc,S[o+8]);M.fxA.array[j]=S[o+7];}
-  fxSent(M,n);}
+  const O=BBF_ORD,U=BBF.under,cw=cp?WET[peek(cp.x,cp.y,cp.z)]:0;let na=0,nu=0;
+  for(let i=0;i<n;i++)O[BBF_BC[BBF_KEY[i]]++]=i;
+  for(let j=0;j<n;j++){const i=O[j],o=i*9,u=(S[o+1]<wy?WET[peek(S[o],S[o+1],S[o+2])]:0)!==cw,T=u?U:M,k=u?nu++:na++;
+    _bbc.setRGB(S[o+4],S[o+5],S[o+6]);bbPut(T,k,S[o],S[o+1],S[o+2],S[o+3],_bbc,S[o+8]);T.fxA.array[k]=S[o+7];}
+  fxSent(M,na);fxSent(U,nu);}
 // (each cube of cloud its own shade, from its seed: lighter and darker, browner or greyer, and now and then a sooty one,
 // so the cloud's lumpy and mottled rather than one flat colour)
 const BBF_SOOT=new THREE.Color(0x2e2925),BBF_BROWN=new THREE.Color(0x8a6f58),_bbFr=x=>x-Math.floor(x);
@@ -449,7 +456,7 @@ function bbFxTick(dt){
         _bbc.setHex(0xe2ddd5).lerp(_bbc2.setHex(0xa9a196),0.6*c);lit(bbVar(_bbc,a,b,d,0.03));
         put(CL.x+CL.wx*k*0.25+Math.cos(ang)*r,ch+R*0.05*(c-0.5)*(1-Math.abs(b-0.5)),CL.z+CL.wz*k*0.25+Math.sin(ang)*r,cube*(0.7+0.9*d)*1.2*ck,_bbc,0.6*ck);}}
   }
-  fxSent(B.glow,ng);bbCloudSend(nc);fxSent(B.wil,nw);
+  fxSent(B.glow,ng);bbCloudSend(nc,BB.clouds.reduce((m,c)=>Math.max(m,c.y+48),0));fxSent(B.wil,nw);
   const e=(fl>0||BBF.el)&&bbFlashEl();if(e){const v=Math.max(0,fl).toFixed(3);if(e.style.opacity!==v)e.style.opacity=v;}
   BB.glowK=glow*0.4;   // (after dark: how far the world's light goes orange, read by updateSky)
 }

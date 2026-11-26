@@ -33,6 +33,7 @@
 - Towns, farms and roads cut into hills more gently: the terraces beside a town's edge are lower and climb all the way up instead of ending in a cliff, and roads and railways run through wider cuttings with gentler sides.
 - Coasts change gradually as well: a sandy beach gives way to a rocky headland as the land gets rougher, and one kind of shore turns into the next in stretches rather than block by block.
 - Dust devils are easy to see now: tall, swirling funnels of dust that lean with the wind.
+- A dust devil behind smoke now stays behind it, rather than showing through.
 - Towns are built a little more their biome's way: in the desert and the badlands, small shops and eateries are adobe with parapets and log beam ends, squares are more often paved plazas, and there are more rows of shops; in forests, swamps and the cold they're log and plank with false fronts or steep roofs, and the squares are left green; on the moor they're stone.
 - This changes how the world is made, so a saved city starts afresh.
 
@@ -218,6 +219,7 @@
 - All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.
 - The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.
 - At night it lights the whole sky and the ground round it orange.
+- The mushroom cloud no longer draws over water it's behind: dust down in a flooded crater stays under the water, and from under the water the cloud shows through its surface.
 
 ### Screen layout
 

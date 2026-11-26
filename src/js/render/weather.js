@@ -148,7 +148,7 @@ const wxHere=()=>{for(const p of players)if(p.active&&p.wxL)return p.wxL;return 
 // skirt of puffs kicked up round its foot
 const DEVILS=[],DEVIL_N=150,DEVIL_MAX=4;
 const devilM=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xc4a074,transparent:true,opacity:0.5,depthWrite:false}),DEVIL_N*DEVIL_MAX);
-devilM.count=0;devilM.frustumCulled=false;devilM.renderOrder=2;scene.add(devilM);
+devilM.count=0;devilM.frustumCulled=false;devilM.renderOrder=2;scene.add(devilM);   // (filled here, but drawn sorted in with the smoke by seeDraw)
 let devilT=0;const _dm=new THREE.Matrix4(),_dq=new THREE.Quaternion(),_dv=new THREE.Vector3(),_ds=new THREE.Vector3(),_dax=new THREE.Vector3(0,1,0);
 function devilTick(dt){
   for(const p of players){if(!p.active||!p.wxL||!WX_TYPES[p.wxL].devil||p.pos.y>G+40)continue;
