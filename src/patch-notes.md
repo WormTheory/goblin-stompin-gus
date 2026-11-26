@@ -198,6 +198,7 @@
 
 ### Water
 
+- Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. It keeps pouring until the space is full, however far the tunnels or caves run, though a small pool only spills what it holds. The sea and rivers never drain.
 - Water now has a set amount. Break open an aquarium tank and it drains down to the bottom of the hole while the water runs out across the floor, spreading thin and settling, instead of flooding everything around it up to the tank's waterline.
 - Water can be shallow now, from an eighth of a block up, so floods spread out in sheets and puddles rather than solid blocks.
 - The sea, rivers and big lakes still never run dry. Dig into a tunnel or cave from the sea bed and it fills right up.
@@ -346,10 +347,6 @@
 - Further off, woods show as clumps of treetops, and ponds, park lakes and the theme park's boating lake show as water.
 - Distant trees change colour with the seasons and lose their leaves in winter, like the near ones.
 - Out in the countryside the distant view now shows farms' fields and orchards, and the farmhouses, barns and the buildings of country sites (power stations, bases, airports and airfields, mines, quarries, lumber camps, truck stops and the rest), rather than plain grass.
-
-### Water
-
-- Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. It keeps pouring until the space is full, however far the tunnels or caves run, though a small pool only spills what it holds. The sea and rivers never drain.
 
 ### Crashes
 
