@@ -58,11 +58,13 @@ function bbCarve(A,cx,cz,C,J){
       // counted in one go instead)
       if(y>G){if(B===undefined)B=bldgAt(x,z);if(B&&!J.vap.has(B.key))noteQ.push(x,y,z,v,B);}
       if(v===PUMP&&o.zone===4&&J.pumps.length<12)J.pumps.push({x,y,z,b:PUMP});
-      if(y<=G+1&&(lx>0&&A[i-1]===WATER||lx<CS-1&&A[i+1]===WATER||lz>0&&A[i-CS]===WATER||lz<CS-1&&A[i+CS]===WATER||y+1<H&&A[i+L]===WATER))wfNoteRemoved(x,y,z);
+      if(lx>0&&WET[A[i-1]]||lx<CS-1&&WET[A[i+1]]||lz>0&&WET[A[i-CS]]||lz<CS-1&&WET[A[i+CS]]||y+1<H&&WET[A[i+L]])wfNoteRemoved(x,y,z);   // (any water beside it, a flood's too, may pour in)
       if(J.fx.length<J.fxN&&!(n%7))J.fx.push({x,y,z,b:v});}
     if(o.zone===2&&o.l1>o.l0){   // the lip: heaped on the ground as it is now (after any crater before it), never over air or water
-      let y=Math.min(o.l1,H-1)-1;const lo=Math.max(1,o.l0-K.D-K.lip-6);while(y>=lo&&!A[base+y*L])y--;
-      if(y>=lo&&A[base+y*L]!==WATER)for(let k=1;k<=o.l1-o.l0&&y+k<H;k++){const i=base+(y+k)*L;if(A[i])continue;A[i]=o.lb;lip=true;}}
+      // (a thin sheet of water or ice on the ground is buried under it, not built on)
+      const sheet=v=>ICE_LV[v]||WET[v]&&v!==WATER;
+      let y=Math.min(o.l1,H-1)-1;const lo=Math.max(1,o.l0-K.D-K.lip-6);while(y>=lo&&(!A[base+y*L]||sheet(A[base+y*L])))y--;
+      if(y>=lo&&A[base+y*L]!==WATER)for(let k=1;k<=o.l1-o.l0&&y+k<H;k++){const i=base+(y+k)*L;if(A[i]&&!sheet(A[i]))continue;A[i]=o.lb;lip=true;}}
     else if(o.zone>=3&&bbScar(A,base,x,z,C,K,o))lip=true;
     if(J&&(n>n0||o.l1>o.l0))navCols.delete(colKey(x,z));
   }
