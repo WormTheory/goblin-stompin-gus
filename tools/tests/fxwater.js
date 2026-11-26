@@ -1,5 +1,5 @@
 // See-through effects that have to be sorted in with the others: a big blast's cloud on the far side of a water surface is
-// drawn before the water (BBF.under), the rest after it (BBF.cloud); dust devils' boxes go in the one sorted batch with the
+// drawn before the water (BBF.under), the rest after it (BBF.cloud), and its dust lies on shallow water's surface; dust devils' boxes go in the one sorted batch with the
 // smoke and puffs (SEE_M), far to near. Fails on a wrong result.
 const {T,E,run,els,pads,errs}=require('./harness.js')();
 const ok=[];const chk=(n,v)=>{ok.push(!!v);console.log(n,v?'ok':'BAD');};
@@ -19,6 +19,11 @@ if(W){
   cam.set(W.x+0.5,W.y-0.5,W.z+0.5);r=send();
   chk('camera in the water: the other way about',r.under.length===1&&r.under[0]===above[1]&&r.over.length===1&&r.over[0]===inW[1]);
   T.bbCloudSend(0);
+  // shallow water: the dust lies on its surface (half a block up a 4-eighths block), and only below that is under the water
+  const y0=W.y;T.setRaw(W.x,y0,W.z,T.WATER_L[4]);
+  chk('dust settles on shallow water, not on its bed',T.bbGroundY(W.x+0.5,W.z+0.5,y0+5)===y0+0.5);
+  chk('in a shallow block: under its surface wet, over it not',T.bbWet(W.x+0.5,y0+0.3,W.z+0.5)===1&&T.bbWet(W.x+0.5,y0+0.7,W.z+0.5)===0);
+  T.setRaw(W.x,y0,W.z,T.WATER);
 }
 // dust devils: one box behind a puff of dust and one in front, as seen from the camera; all three in SEE_M, far to near
 {const x=P.pos.x,y=P.pos.y+30,z=P.pos.z;cam.set(x,y,z+20);

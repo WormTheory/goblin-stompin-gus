@@ -38,6 +38,7 @@ Each part of the game has its notes in `docs/code/`. **Read the file for the par
 - Parody of real brands is welcome and part of the humour (names like "Goblin Walmart"). Draw parody logos rather than copying real artwork.
 - Comments are plain English, explaining *why*, often in parentheses. Match the existing style.
 - **Bump `SAVE_KEY`** (currently `'goblin-city-v112'`) whenever world generation changes, so old saves don't load into a different world.
+- **A new see-through effect** (anything transparent: smoke, dust, water, glows) goes into `tools/ui/fxorder.js` and that's run, so it's compared with every other one and with water, from above and below (`docs/code/tests.md`).
 - Make edits with exact, unique string replacements. Many identifiers repeat, so check for a single match within the file before replacing.
 - After every change: run the tests (below) before calling it done.
 

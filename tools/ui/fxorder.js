@@ -4,14 +4,17 @@
 // the game drew them in the wrong order, and the pair is flagged. Also lists every see-through material in the scene with
 // its renderOrder, depthWrite and depthTest.
 // Usage, from tools/ui (after python ../build_3d.py ../../game/index.html t3.html): node fxorder.js [outDir] [effects]
+// The big blast's cloud (nuke) is tried against the water on its own scale: its dust ring out over the water, over water only a
+// few eighths deep, and seen from under the water; and every effect under the water, seen from above it and from below.
+// When a new see-through thing is added to the game, add it here (FX, F.groups, F.spawn, F.clear, F.step, F.hide's keep).
 // effects: a comma list from FX below (default all). Open outDir/index.html to look through the shots, flagged ones first;
 // outDir/report.txt has the list. SCENERY=1 keeps the world's solid things in the pictures (by default only the effects, the
 // water and the sky are drawn), BAD sets how much of the picture may differ before a pair's flagged, SEED the world.
 const {chromium}=require('playwright');
 const fs=require('fs');
 const out=process.argv[2]||'fxorder',ONLY=process.argv[3]?process.argv[3].split(','):null;
-const EXP='puff,smoke,blood,addFire,fires,flameP,smokeP,shockwave,shockCone,shocks,cones,blastFx,blasts,fireball,FIREB,parts,PART_M,SEE_M,SEE_M2,flameM,smokeM,rainM,snowM,matWater,wxSet,WX,'+
-  'supportAt,WATER,updateParts,updateFires,updateShocks,updateCones,updateFireballs,updateCars,';
+const EXP='puff,smoke,blood,addFire,fires,flameP,smokeP,shockwave,shockCone,shocks,cones,blastFx,blasts,fireball,FIREB,parts,PART_M,SEE_M,SEE_M2,SEE_U,flameM,smokeM,rainM,snowM,matWater,wxSet,WX,'+
+  'supportAt,WATER,WATER_L,WET,peek,setRaw,BB,BBF,bbFxStart,bbFxTick,DEVILS,devilTick,devilM,fxDraw,updateParts,updateFires,updateShocks,updateCones,updateFireballs,updateCars,';
 const src=fs.readFileSync('t3.html','utf8');
 // (frameMs: how long frames have been taking; set while the stage is laid out, so the fires make the plumes a quick machine sees)
 fs.writeFileSync('t3fx.html',src.replace('window.__G={DT,','window.__G={'+EXP+'set frameMs(v){frameMs=v},DT,'));
@@ -22,7 +25,7 @@ const FX={
 // (ages part way through fading out, where a see-through thing drawn in the wrong order shows most)
   dust:{age:0.75,dy:0.1},smoke:{age:0.9,dy:0.3},blood:{age:0.1,dy:1.4},
   fire:{age:3,dy:0,bank:true},smoulder:{age:3,dy:0,bank:true},
-  ring:{age:0.2,dy:1.6},cone:{age:0.15,dy:1.4},flash:{age:0.25,dy:1.2},fireball:{age:0,dy:1.3}};
+  ring:{age:0.2,dy:1.6},cone:{age:0.15,dy:1.4},flash:{age:0.25,dy:1.2},fireball:{age:0,dy:1.3},devil:{age:3,dy:0,tall:true}};   // (tall: reaches up out of the water from two blocks down, so not tried wholly under it)
 const BAD=+(process.env.BAD||0.0005);   // (a pair is flagged when this much of the picture differs)
 const NAMES=Object.keys(FX).filter(k=>!ONLY||ONLY.includes(k));
 (async()=>{fs.mkdirSync(out+'/img',{recursive:true});
@@ -47,7 +50,7 @@ const setup=await p.evaluate(()=>{const G=window.__G;G.DT.invuln=true;G.wxSet('c
   const F=window.FXT={};
   F.waterMeshes=()=>{const L=[];G.scene.traverse(o=>{if(o.isMesh&&o.material===G.matWater)L.push(o);});return L;};
   // the water: the middle of the most of it near the start
-  const W=F.waterMeshes().map(o=>{o.geometry.computeBoundingBox();const bb=o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld);return{x:(bb.min.x+bb.max.x)/2,z:(bb.min.z+bb.max.z)/2,y:bb.max.y};});
+  const W=F.waterMeshes().filter(o=>o.geometry.attributes.position&&o.geometry.attributes.position.array).map(o=>{o.geometry.computeBoundingBox();const bb=o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld);return{x:(bb.min.x+bb.max.x)/2,z:(bb.min.z+bb.max.z)/2,y:bb.max.y};});
   if(!W.length)return null;
   let best=W[0],bn=-1;for(const a of W){const n=W.filter(b=>Math.hypot(a.x-b.x,a.z-b.z)<24).length;if(n>bn){bn=n;best=a;}}
   const C=F.C={x:best.x,y:best.y,z:best.z};
@@ -62,17 +65,20 @@ const setup=await p.evaluate(()=>{const G=window.__G;G.DT.invuln=true;G.wxSet('c
     const back=[1,2,3].every(k=>!wet(x+Math.cos(a)*k,z+Math.sin(a)*k));if(!back)continue;F.S={x,y:ground(x,z),z,dx:-Math.cos(a),dz:-Math.sin(a)};break bank;}
   // (puffs, fires' smoke, flashes and fireballs' glow are drawn as one batch sorted far to near, SEE_M: pairs of those can't be
   // drawn any other way, so they're only photographed)
-  F.groups={dust:()=>[G.SEE_M,G.SEE_M2],smoke:()=>[G.SEE_M,G.SEE_M2],blood:()=>[G.SEE_M,G.SEE_M2],fire:()=>[G.flameM,G.SEE_M,G.SEE_M2],smoulder:()=>[G.SEE_M,G.SEE_M2],
-    ring:()=>G.shocks.map(s=>s.m),cone:()=>G.cones.map(c=>c.m),flash:()=>[G.SEE_M,G.SEE_M2],fireball:()=>[G.SEE_M,G.SEE_M2],water:F.waterMeshes};
+  F.groups={dust:()=>[G.SEE_M,G.SEE_M2,G.SEE_U],smoke:()=>[G.SEE_M,G.SEE_M2,G.SEE_U],blood:()=>[G.SEE_M,G.SEE_M2,G.SEE_U],fire:()=>[G.flameM,G.SEE_M,G.SEE_M2],smoulder:()=>[G.SEE_M,G.SEE_M2,G.SEE_U],
+    ring:()=>G.shocks.map(s=>s.m),cone:()=>G.cones.map(c=>c.m),flash:()=>[G.SEE_M,G.SEE_M2,G.SEE_U],fireball:()=>[G.SEE_M,G.SEE_M2,G.SEE_U],devil:()=>[G.SEE_M,G.SEE_M2,G.SEE_U],
+    nuke:()=>[G.BBF.cloud,G.BBF.under,G.BBF.wil,G.BBF.glow],water:F.waterMeshes};
   // (yaw: the way the camera looks; flat: a ring lying on the ground rather than standing facing the camera)
   F.spawn={dust:(x,y,z)=>G.puff(x,y,z,14,0x9a948a,1.1),smoke:(x,y,z)=>G.smoke(x,y,z,10,0x4a4a4a),blood:(x,y,z)=>G.blood(x,y,z,14,null),
     fire:(x,y,z)=>G.addFire(x,y,z,1.1,60,true),smoulder:(x,y,z)=>G.addFire(x,y,z,1.1,60,false,{smoke:2}),
     ring:(x,y,z,yaw,flat)=>flat?G.shockwave(x,y-1.5,z,3):G.shockwave(x,y,z,3,yaw),cone:(x,y,z,yaw)=>G.shockCone(x,y,z,yaw+Math.PI/2,1.6,4,0.5),
-    flash:(x,y,z)=>G.blastFx(x,y,z,0.6,0.7),fireball:(x,y,z)=>{const f=G.fireball(x,y,z,x+1,y,z,{});if(f)f.v.set(0,0,0);}};
+    flash:(x,y,z)=>G.blastFx(x,y,z,0.6,0.7),devil:(x,y,z)=>G.DEVILS.push({x,z,y,t:600,a:0,s:9,H:6,t0:0,still:true}),
+    nuke:(x,y,z)=>G.bbFxStart({C:{x,y,z,R:24,s:7},fresh:true,fires:[]}),fireball:(x,y,z)=>{const f=G.fireball(x,y,z,x+1,y,z,{});if(f)f.v.set(0,0,0);}};
   F.clear=()=>{for(const q of G.parts){q.life=0;q.m.visible=false;}G.fires.length=0;for(const q of G.flameP)q.life=0;for(const q of G.smokeP)q.life=0;
     for(const s of G.shocks){s.t=0;s.d=0;s.m.visible=false;}for(const c of G.cones){c.t=0;c.d=0;c.g.visible=false;}
-    for(const bl of G.blasts){bl.t=0;for(const m of bl.m)m.visible=false;}for(const f of G.FIREB){f.live=false;f.g.visible=false;}};
-  F.step=dt=>{G.updateParts(dt);G.updateFires(dt);G.updateShocks(dt);G.updateCones(dt);G.updateFireballs(dt);G.updateCars(dt);};
+    for(const bl of G.blasts){bl.t=0;for(const m of bl.m)m.visible=false;}for(const f of G.FIREB){f.live=false;f.g.visible=false;}
+    G.DEVILS.length=0;G.devilM.count=0;G.BB.clouds.length=0;};
+  F.step=dt=>{G.updateParts(dt);G.updateFires(dt);G.updateShocks(dt);G.updateCones(dt);G.updateFireballs(dt);G.updateCars(dt);G.devilTick(dt);G.bbFxTick(dt);G.fxDraw();};
   // the camera D away from (tx,ty,tz), looking at it
   F.cam=(yaw,pitch,D,tx,ty,tz)=>{const cp=Math.cos(pitch),P=G.players[0];G.FC.pos.set(tx+Math.sin(yaw)*cp*D,ty-Math.sin(pitch)*D,tz+Math.cos(yaw)*cp*D);G.FC.yaw=yaw;G.FC.pitch=pitch;
     P.camera.position.copy(G.FC.pos);P.camera.rotation.set(pitch,yaw,0,'YXZ');P.camera.updateMatrixWorld();};
@@ -91,7 +97,7 @@ const setup=await p.evaluate(()=>{const G=window.__G;G.DT.invuln=true;G.wxSet('c
     const k=[String(o.renderOrder).padStart(5),o.type.padEnd(13),m.type.padEnd(18),'#'+(m.color?m.color.getHexString():'------'),'depthWrite '+m.depthWrite,'depthTest '+m.depthTest,m.blending===2?'additive':'normal',o.position.lengthSq()<1e-6?'at origin':'placed'].join(' | ');M.set(k,(M.get(k)||0)+1);});
     return [...M].sort((a,b)=>parseFloat(a[0])-parseFloat(b[0]));};
   // only the effects, the water and the sky left showing: every other material hidden, and the page's own overlays
-  F.hide=()=>{G.fireball(0,-999,0,1,-999,0,{});const keep=new Set([G.matWater,G.SEE_M.material,G.SEE_M2.material,G.PART_M.material,G.flameM.material,G.smokeM.material,G.rainM.material,G.snowM.material,
+  F.hide=()=>{G.fireball(0,-999,0,1,-999,0,{});const keep=new Set([G.matWater,G.SEE_M.material,G.SEE_M2.material,G.SEE_U.material,G.BBF.cloud.material,G.BBF.under.material,G.BBF.wil.material,G.BBF.glow.material,G.PART_M.material,G.flameM.material,G.smokeM.material,G.rainM.material,G.snowM.material,
       ...G.shocks.map(s=>s.m.material),...G.cones.map(c=>c.m.material),...G.blasts.flatMap(b=>b.m.map(m=>m.material)),...G.FIREB.flatMap(f=>f.g.children.map(c=>c.material))]);
     G.scene.traverse(o=>{const m=o.material;if(!m||Array.isArray(m)||o.renderOrder<0||keep.has(m))return;m.visible=false;});F.clear();
     document.querySelectorAll('body *').forEach(e=>{if(e!==G.renderer.domElement&&!e.contains(G.renderer.domElement))e.style.visibility='hidden';});};
@@ -125,16 +131,43 @@ await showWater(false);
 for(const near of NAMES)for(const far of NAMES){
   const list=[at(near,D.x-fx*2.5,D.y,D.z-fz*2.5),at(far,D.x+fx*2.5,D.y,D.z+fz*2.5)];
   await shot(near+'_over_'+far,list,[YAW,-0.1,10,D.x,D.y+1.8,D.z],near===far?null:far,near===far?null:near);}
-// 2. each effect over the water, looking down at it (the water's the far one); fire and smoulder on the bank, the water beyond
+// 2. each effect over the water (a block up at least, so none of it's under the water), looking down at it (the water's the far one); fire and smoulder on the bank, the water beyond
 await showWater(true);
 for(const k of NAMES)for(const [v,pitch] of [['low',-0.45],['steep',-1.0]]){
   if(FX[k].bank){const yaw=Math.atan2(-S.dx,-S.dz);await shot(k+'_by_water_'+v,[at(k,S.x,S.y,S.z)],[yaw,pitch,12,S.x+S.dx*2,S.y+1.5,S.z+S.dz*2],'water',k);}
-  else await shot(k+'_over_water_'+v,[at(k,C.x,C.y,C.z)],[YAW,pitch,12,C.x,C.y+1.2,C.z],'water',k,true);}
+  else await shot(k+'_over_water_'+v,[[k,C.x,C.y+Math.max(FX[k].dy,1),C.z,FX[k].age]],[YAW,pitch,12,C.x,C.y+1.2,C.z],'water',k,true);}
 // 3. each effect in rain and in snow (no reference: the weather is everywhere, near and far)
 await showWater(false);
 for(const w of ['rain','snow']){await p.evaluate(w=>{const G=window.__G;G.wxSet(w,true);G.WX.k.fog=0;},w);await frames(3);
   for(const k of NAMES)await shot(k+'_in_'+w,[at(k,D.x,D.y,D.z)],[YAW,-0.1,9,D.x,D.y+2,D.z]);}
 await p.evaluate(()=>window.__G.wxSet('clear',true));await showWater(true);
+// 4. under the water: each effect a couple of blocks down, looked at from above (the water's the near one), and from under the
+// water looking up at it above the surface (the water's the near one again). Where the water's 4 deep somewhere near the start.
+const deep=await p.evaluate(()=>{const G=window.__G,F=window.FXT;
+  // (round the middle of each piece of water drawn, nearest the stage first)
+  const W=F.waterMeshes().filter(o=>o.geometry.attributes.position&&o.geometry.attributes.position.array).map(o=>{o.geometry.computeBoundingBox();const bb=o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld);return{x:(bb.min.x+bb.max.x)/2,z:(bb.min.z+bb.max.z)/2,y:bb.max.y};}).sort((a,b)=>Math.hypot(a.x-F.C.x,a.z-F.C.z)-Math.hypot(b.x-F.C.x,b.z-F.C.z));
+  // (4 deep there and 4 blocks round it, so nothing thrown about there comes out by the bank)
+  const depth=(x,z,y0)=>{let y=y0;while(y>0&&G.peek(x,y,z)===0)y--;if(G.peek(x,y,z)!==G.WATER)return [0,y];let d=0;while(G.WET[G.peek(x,y-d,z)])d++;return [d,y];};
+  for(const C of W)for(let dx=-8;dx<=8;dx+=2)for(let dz=-8;dz<=8;dz+=2){const x=Math.floor(C.x+dx),z=Math.floor(C.z+dz),[d,y]=depth(x,z,Math.floor(C.y+2));if(d<4)continue;
+    let all=true;for(let u=-4;u<=4&&all;u+=2)for(let v=-4;v<=4&&all;v+=2)if(depth(x+u,z+v,y+2)[0]<4)all=false;if(all)return{x:x+0.5,y:y+1,z:z+0.5};}return null;});
+if(!deep)console.log('no water 4 deep, 9 across, near the start: the under-water shots are left out');
+// (the world there loaded and settled first, so nothing changes between a shot and its reference)
+else{await p.evaluate(d=>window.FXT.cam(0.7,-0.6,12,d.x,d.y,d.z),deep);await p.waitForTimeout(8000);}
+if(deep)for(const k of NAMES){if(FX[k].bank)continue;
+  if(!FX[k].tall)await shot(k+'_under_water',[[k,deep.x,deep.y-2.6,deep.z,FX[k].age]],[YAW,-0.6,9,deep.x,deep.y-1.5,deep.z],k,'water',true);
+  await shot(k+'_seen_from_under',[[k,deep.x,deep.y+0.8,deep.z,FX[k].age]],[YAW,0.5,3.2,deep.x,deep.y+0.6,deep.z],k,'water');}
+// 5. the big blast's cloud (R 24, so its own framing): its dust ring out over the water seen from above; the same over water
+// made a few eighths deep; and the cap seen from under the water
+{const nk=(name,age,cam,far,near,at)=>shot(name,[['nuke',at.x,at.y,at.z,age]],cam,far,near);
+ if(S){const bx=S.x-S.dx*14,bz=S.z-S.dz*14,yaw=Math.atan2(S.dx,S.dz);
+   await nk('nuke_ring_over_water',5,[yaw,-0.55,34,S.x+S.dx*8,S.y,S.z+S.dz*8],'water','nuke',{x:bx,y:S.y,z:bz});
+   // (the top of the water round the middle made shallow: WATER_L, 4 eighths)
+   const n=await p.evaluate(()=>{const G=window.__G,C=window.FXT.C;let n=0;for(let x=Math.floor(C.x)-14;x<=C.x+14;x++)for(let z=Math.floor(C.z)-14;z<=C.z+14;z++){
+     let y=Math.floor(C.y+2);while(y>0&&G.peek(x,y,z)===0)y--;if(G.peek(x,y,z)===G.WATER&&G.WET[G.peek(x,y-1,z)]){G.setRaw(x,y,z,G.WATER_L[4]);n++;}}return n;});
+   await p.waitForTimeout(1500);
+   await nk('nuke_ring_over_shallow_water',5,[yaw,-0.55,34,S.x+S.dx*8,S.y,S.z+S.dz*8],'water','nuke',{x:bx,y:S.y,z:bz});
+   console.log('      (made '+n+' columns of the water shallow)');}
+ if(deep)await nk('nuke_seen_from_under_water',12,[YAW,0.7,1.2,deep.x,deep.y-1.2,deep.z],'nuke','water',{x:deep.x+30*Math.sin(YAW)*-1,y:deep.y,z:deep.z-30*Math.cos(YAW)});}
 const flagged=shots.filter(s=>s.flag);
 let txt='See-through materials in the scene (renderOrder | object | material | colour | depthWrite | depthTest | blending | where its position is) x how many\n';
 for(const [k,n] of inv)txt+='  '+k+'  x'+n+'\n';

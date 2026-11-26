@@ -28,7 +28,7 @@ const parts=[];
 for(let i=0;i<200;i++)parts.push({m:fxObj(0xb79a72,1),v:new V3(),life:0,kind:0});
 const PART_M=fxBatch(new THREE.BoxGeometry(0.22,0.22,0.22),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false}),200,true);
 // (the see-through effects take turns by renderOrder, as three.js sorts whole meshes and every batch sits at the origin:
-// the part of a big blast's cloud beyond a water surface 0.9, water 1, flames 1.1, the rest of the cloud 1.5, the see-through boxes (these puffs, fires' smoke, dust devils, flashes and fireballs' glow,
+// the part of a big blast's cloud and the see-through boxes beyond a water surface 0.9 (SEE_U), rings and cones there 0.95, water 1, flames 1.1, the rest of the cloud 1.5, the see-through boxes (these puffs, fires' smoke, dust devils, flashes and fireballs' glow,
 // drawn as one sorted batch, SEE_M below) beyond the nearest ring 1.6, rings and cones 1.7, the boxes nearer than it 1.8.
 // All after the water, so it never paints over them; and none that fades writes depth, so a fading one never cuts a box-shaped
 // hole in the water or smoke behind it. tools/ui/fxorder.js checks every pair of them.)
@@ -110,7 +110,9 @@ function fxDraw(){
 // (in two: the boxes beyond the nearest shockwave ring or cone drawn before it, the rest after, so a ring shows through the
 // smoke in front of it and over the smoke behind it)
 const SEE_N=5000,seeBatch=()=>fxBatch(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false}),SEE_N,true);
-const SEE_M=seeBatch(),SEE_M2=seeBatch();SEE_M.renderOrder=1.6;SEE_M2.renderOrder=1.8;
+// (and the boxes on the far side of a water surface from the camera, in the water seen from above it or out of it seen from
+// under it, in a third, SEE_U, drawn before the water: after it, they'd paint over it as if in front)
+const SEE_M=seeBatch(),SEE_M2=seeBatch(),SEE_U=seeBatch();SEE_M.renderOrder=1.6;SEE_M2.renderOrder=1.8;SEE_U.renderOrder=0.9;
 let seeOff=false;
 function seeDraw(){
   if(!seeOff){seeOff=true;PART_M.visible=false;smokeM.visible=false;devilM.visible=false;FB_HALO.visible=false;for(const bl of blasts)for(const f of bl.m)f.material.visible=false;}
@@ -126,23 +128,32 @@ function seeDraw(){
   if(dm)for(let i=0;i<devilM.count;i++){let q=SEE_DV[i];if(!q||q.e.buffer!==dm.buffer)q=SEE_DV[i]={e:dm.subarray(i*16,i*16+16),c:devilM.material.color,a:0,d:0};
     q.a=devilM.material.opacity;q.d=d2(q.e,0);X.push(q);}
   if(X.length>1)X.sort((a,b)=>b.d-a.d);
-  let cut=-1;const near=t=>{if(!t.updateWorldMatrix)return;t.updateWorldMatrix(true,false);const d=d2(t.matrixWorld.elements,0);if(cut<0||d<cut)cut=d;};
+  // (a ring or cone on the far side of a water surface from the camera is drawn before the water, like SEE_U's boxes, and
+  // doesn't split the batch)
+  const cw=bbWet(c.x,c.y,c.z);
+  let cut=-1;const near=t=>{if(!t.updateWorldMatrix)return;t.updateWorldMatrix(true,false);const e=t.matrixWorld.elements;
+    const u=bbWet(e[12],e[13],e[14])!==cw;if(t.renderOrder===1.7||t.renderOrder===0.95)t.renderOrder=u?0.95:1.7;   // (left alone when a tool's set it otherwise: fxorder)
+    if(u)return;const d=d2(e,0);if(cut<0||d<cut)cut=d;};
   for(const s of shocks)if(s.m.visible)near(s.m);for(const k of cones)if(k.g.visible)near(k.m);
   // merged with the puffs (PART_M, put far to near by fxDraw) and fires' smoke (smokeM, put far to near by updateFires):
   // a pass down the three lists rather than sorting every box again
   const pe=PART_M.instanceMatrix.array,pc=PART_M.instanceColor.array,pa=PART_M.fxA.array,pn=PART_M.count;
   const se=smokeM.instanceMatrix.array,sc=smokeM.instanceColor.array,sa=smokeM.material.opacity,sn=smokeM.count;
-  let i=0,j=0,x=0,o=0,M=SEE_M,E=M.instanceMatrix.array,C=M.instanceColor.array,A=M.fxA.array;
+  let i=0,j=0,x=0,o=0,ou=0,M=SEE_M,E=M.instanceMatrix.array,C=M.instanceColor.array,A=M.fxA.array;
+  const UE=SEE_U.instanceMatrix.array,UC=SEE_U.instanceColor.array,UA=SEE_U.fxA.array;
   let di=pn?d2(pe,0):-1,dj=sn?d2(se,0):-1,dx=X.length?X[0].d:-1;
   for(let n=0;n<SEE_N;n++){
     const d=Math.max(di,dj,dx);if(d<0)break;
     if(M===SEE_M&&cut>=0&&d<cut){fxSent(SEE_M,o);M=SEE_M2;o=0;E=M.instanceMatrix.array;C=M.instanceColor.array;A=M.fxA.array;}   // (nearer than the nearest ring: drawn after it)
-    const t=o*16;
-    if(d===di){const s=i*16;for(let q=0;q<16;q++)E[t+q]=pe[s+q];for(const q of SEE_K)E[t+q]*=0.22;C[o*3]=pc[i*3];C[o*3+1]=pc[i*3+1];C[o*3+2]=pc[i*3+2];A[o]=pa[i];i++;di=i<pn?d2(pe,i*16):-1;}
-    else if(d===dj){const s=j*16;for(let q=0;q<16;q++)E[t+q]=se[s+q];C[o*3]=sc[j*3];C[o*3+1]=sc[j*3+1];C[o*3+2]=sc[j*3+2];A[o]=sa;j++;dj=j<sn?d2(se,j*16):-1;}
-    else{const L=X[x];for(let q=0;q<16;q++)E[t+q]=L.e[q];C[o*3]=L.c.r;C[o*3+1]=L.c.g;C[o*3+2]=L.c.b;A[o]=L.a;x++;dx=x<X.length?X[x].d:-1;}
-    o++;}
-  fxSent(M,o);if(M===SEE_M)fxSent(SEE_M2,0);
+    // (the box's matrix, from s in e, and its colour and alpha)
+    let e,s,r,g,b,a,pf=false;
+    if(d===di){e=pe;s=i*16;r=pc[i*3];g=pc[i*3+1];b=pc[i*3+2];a=pa[i];pf=true;i++;di=i<pn?d2(pe,i*16):-1;}
+    else if(d===dj){e=se;s=j*16;r=sc[j*3];g=sc[j*3+1];b=sc[j*3+2];a=sa;j++;dj=j<sn?d2(se,j*16):-1;}
+    else{const L=X[x];e=L.e;s=0;r=L.c.r;g=L.c.g;b=L.c.b;a=L.a;x++;dx=x<X.length?X[x].d:-1;}
+    const u=bbWet(e[s+12],e[s+13],e[s+14])!==cw,TE=u?UE:E,TC=u?UC:C,TA=u?UA:A,k=u?ou++:o++,t=k*16;
+    for(let q=0;q<16;q++)TE[t+q]=e[s+q];if(pf)for(const q of SEE_K)TE[t+q]*=0.22;
+    TC[k*3]=r;TC[k*3+1]=g;TC[k*3+2]=b;TA[k]=a;}
+  fxSent(M,o);if(M===SEE_M)fxSent(SEE_M2,0);fxSent(SEE_U,ou);
 }
 const SEE_X=[],SEE_DV=[],SEE_K=[0,1,2,4,5,6,8,9,10];   // (SEE_K: a matrix's turn-and-size part, scaled by a puff's 0.22 box)
 let rIdx=0;

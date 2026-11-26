@@ -215,6 +215,7 @@
 - Water no longer flickers where it meets weed in an aquarium, glass or a fence.
 - Shallow water with a block right over it shows its surface properly.
 - The underwater view comes on whenever your eyes are below the water's surface, in shallow water too, and not when they're just above it.
+- Dust, smoke, blood, dust devils and shockwave rings under the water look it: the water covers them when you look down at them, and from under the water anything above the surface shows through it.
 - Standing in a room as it floods, you float up and swim once it's deep enough, instead of walking along the bottom.
 - Goblins caught in a flood swim at the top with their heads out, or wade more slowly where it's shallower, instead of standing underwater.
 
@@ -232,6 +233,7 @@
 - The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.
 - At night it lights the whole sky and the ground round it orange.
 - The mushroom cloud no longer draws over water it's behind: dust down in a flooded crater stays under the water, and from under the water the cloud shows through its surface.
+- The nuke's ring of dust rides over shallow water rather than sinking to the bottom, and water behind it shows through it properly.
 
 ### Screen layout
 

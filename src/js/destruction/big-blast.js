@@ -324,16 +324,20 @@ function bbWorldPt(x,y,z){if(x>=SHIP_X0){const S=shipOfPos(x,z);if(S){const t=sh
 const BBF_N=13500,BBF_W=2400,BBF_SPD=343,BBF_LIFE=110,BBF_WIND=SMOKE_WIND,BB_GLOWC=new THREE.Color(1,0.46,0.16),_bbc=new THREE.Color(),_bbc2=new THREE.Color(),_bbFog=new THREE.Color();
 const BBF_HEAT=[[0,0x3a1408],[0.2,0x8a1e08],[0.4,0xe0460c],[0.6,0xff9a1a],[0.8,0xffe27a],[1,0xfffbea]].map(([k,c])=>[k,new THREE.Color(c)]);
 const BBF=(()=>{const geo=new THREE.BoxGeometry(1,1,1),mb=o=>new THREE.MeshBasicMaterial(Object.assign({color:0xffffff,fog:false},o));
-  return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true}),BBF_N,true),under:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true}),BBF_N,true),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
+  return{glow:fxBatch(geo,mb(),BBF_N,false),cloud:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true}),BBF_N,true),under:fxBatch(new THREE.BoxGeometry(1,1,1),mb({transparent:true,depthWrite:false}),BBF_N,true),wil:fxBatch(geo,mb({transparent:true,opacity:0.5,depthWrite:false}),BBF_W,false),el:null};})();
 BBF.cloud.renderOrder=1.5;BBF.under.renderOrder=0.9;BBF.wil.renderOrder=1.7;BB.glowK=0;BB.glowP=null;   // (after the water, renderOrder 1, which would otherwise paint over it, and before the fires' smoke, 2, which mostly stands in front of it; it writes depth, being drawn far to near anyway, so smoke behind it stays behind it)
 // (but the cubes on the far side of a water surface from the camera, in the water seen from above it or out of it seen from under
 // it, go in BBF.under, drawn before the water: the water writes no depth, so drawn after it they'd paint over it as if in front.
+// They write no depth themselves (being drawn far to near already), so one poking up out of the water can't cut a hole in the
+// water behind it.
 // Only cubes below wy, a little over the blasts, are looked up: water higher than that is taken as air, which saves a lookup
 // for each of the cap's thousands of cubes)
 // (the cloud is see-through, like the fires' smoke, so its cubes are gathered here first and drawn far to near: sorted into
 // BBF_BINS by distance from the camera, which is all the order see-through boxes this size need)
 const BBF_X=new Float32Array(SM_N*9);let BBF_XN=0;   // (the fires' smoke puffs, put here by updateFires while a cloud's up: place, size, colour, alpha, turn)
 const BBF_ST=new Float32Array(BBF_N*9),BBF_BINS=64,BBF_BC=new Uint32Array(BBF_BINS+1),BBF_KEY=new Uint8Array(BBF_N),BBF_D=new Float32Array(BBF_N),BBF_ORD=new Uint16Array(BBF_N);
+// (1 if (x,y,z) is under water's surface: in a water block and below its top, lvl eighths up in a shallow one)
+function bbWet(x,y,z){const b=peek(x,y,z);if(!WET[b])return 0;const l=BLOCK[b].lvl;return !l||y-Math.floor(y)<l/8?1:0;}
 function bbCloudSend(n,wy=H){for(let i=0;i<BBF_XN&&n<BBF_N;i++,n++)BBF_ST.set(BBF_X.subarray(i*9,i*9+9),n*9);BBF_XN=0;
  const M=BBF.cloud,S=BBF_ST,P=players.find(q=>q.active)||players[0],cp=P&&P.camera.position;
   let lo=Infinity,hi=0;const D=BBF_D;
@@ -341,9 +345,9 @@ function bbCloudSend(n,wy=H){for(let i=0;i<BBF_XN&&n<BBF_N;i++,n++)BBF_ST.set(BB
   const sc=hi>lo?BBF_BINS/(Math.sqrt(hi)-Math.sqrt(lo)+1e-6):0,sl=Math.sqrt(lo);BBF_BC.fill(0);
   for(let i=0;i<n;i++){const b=Math.min(BBF_BINS-1,Math.floor((Math.sqrt(D[i])-sl)*sc));BBF_KEY[i]=BBF_BINS-1-b;BBF_BC[BBF_KEY[i]+1]++;}
   for(let b=1;b<=BBF_BINS;b++)BBF_BC[b]+=BBF_BC[b-1];
-  const O=BBF_ORD,U=BBF.under,cw=cp?WET[peek(cp.x,cp.y,cp.z)]:0;let na=0,nu=0;
+  const O=BBF_ORD,U=BBF.under,cw=cp?bbWet(cp.x,cp.y,cp.z):0;let na=0,nu=0;
   for(let i=0;i<n;i++)O[BBF_BC[BBF_KEY[i]]++]=i;
-  for(let j=0;j<n;j++){const i=O[j],o=i*9,u=(S[o+1]<wy?WET[peek(S[o],S[o+1],S[o+2])]:0)!==cw,T=u?U:M,k=u?nu++:na++;
+  for(let j=0;j<n;j++){const i=O[j],o=i*9,u=(S[o+1]<wy?bbWet(S[o],S[o+1],S[o+2]):0)!==cw,T=u?U:M,k=u?nu++:na++;
     _bbc.setRGB(S[o+4],S[o+5],S[o+6]);bbPut(T,k,S[o],S[o+1],S[o+2],S[o+3],_bbc,S[o+8]);T.fxA.array[k]=S[o+7];}
   fxSent(M,na);fxSent(U,nu);}
 // (each cube of cloud its own shade, from its seed: lighter and darker, browner or greyer, and now and then a sooty one,
@@ -353,10 +357,12 @@ function bbVar(c,a,b,d,soot){const v=0.68+0.64*_bbFr(d*13.37+a*7.1);c.r*=v;c.g*=
   if(_bbFr(a*91.7+b*3.3)>1-soot)c.lerp(BBF_SOOT,0.6);return c;}
 // (the ground's height under a puff of the dust, for it to settle on, only in a chunk that's made (else null): looked for down
 // from y0, a little over the blast's own height, so it's the ground and not a tower's roof; inside a hill there, up to its top)
-const _bbSol=b=>b===WATER||b&&BLOCK[b].solid;
+// (water of any depth counts, the dust lying on its surface, BLOCK's lvl eighths up a shallow block: going down through
+// shallow water to the bed, dust sat in it, drawn as under the water before it and hiding the water behind)
+const _bbSol=b=>WET[b]||b&&BLOCK[b].solid,_bbTop=(b,y)=>y+(BLOCK[b].lvl?BLOCK[b].lvl/8:1);
 function bbGroundY(x,z,y0){x=Math.floor(x);z=Math.floor(z);if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return null;let y=Math.min(H-2,Math.floor(y0));
-  if(_bbSol(rawGet(x,y,z))){for(let k=0;k<80&&y<H-1;k++,y++)if(!_bbSol(rawGet(x,y+1,z)))return y+1;return null;}
-  for(const y1=Math.max(0,y-160);y>=y1;y--)if(_bbSol(rawGet(x,y,z)))return y+1;return null;}
+  if(_bbSol(rawGet(x,y,z))){for(let k=0;k<80&&y<H-1;k++,y++)if(!_bbSol(rawGet(x,y+1,z)))return _bbTop(rawGet(x,y,z),y);return null;}
+  for(const y1=Math.max(0,y-160);y>=y1;y--){const b=rawGet(x,y,z);if(_bbSol(b))return _bbTop(b,y);}return null;}
 // (each dust puff's ground, gy, eased toward what's under it now, gt; a few of them looked up again each frame, round and round)
 function bbDustY(CL,i,x,z,dt){if(!CL.gy){CL.gy=new Float32Array(2100).fill(NaN);CL.gt=new Float32Array(2100).fill(NaN);CL.gi=0;}
   const w=(i-CL.gi+2100)%2100;if(w<90||isNaN(CL.gt[i])&&w<400){const g=bbGroundY(x,z,CL.y+CL.R*0.06+10);if(g!==null)CL.gt[i]=g;}
