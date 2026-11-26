@@ -1,4 +1,4 @@
-// ---------- Options: Sound volume, Brightness, Block lighting, Tracks in snow, Hide blood and Hide controls ----------
+// ---------- Options: Sound volume, Brightness, Advanced lighting, Tracks in snow, Hide blood and Hide controls ----------
 // All three are kept in this browser and go for everyone at once: split screen shares one sound system and one picture.
 // (The volume itself is in core/audio.js, sndDest; Hide blood in destruction/smashing.js, BLOOD_OFF.)
 const BRIGHT_KEY='goblin-stompin-gus-brightness';
@@ -26,7 +26,7 @@ function brightApply(){const c=document.getElementById('world');if(c&&c.style)c.
   const kt=document.getElementById('keysTog');
   const showK=()=>{kt.setAttribute('aria-checked',String(KEYS_OFF));if(document.body)document.body.classList.toggle('nokeys',KEYS_OFF);};showK();   // (document.body: the tests' pretend page has none)
   kt.addEventListener('click',()=>{KEYS_OFF=!KEYS_OFF;showK();try{localStorage.setItem(KEYS_KEY,KEYS_OFF?'1':'0');}catch(e){}});
-  // (Block lighting: render/block-light.js)
+  // (Advanced lighting, the block lighting: render/block-light.js. Its localStorage key keeps its old name, so the setting carries over)
   const lt=document.getElementById('blkTog');
   const showLt=()=>lt.setAttribute('aria-checked',String(BL_ON));showLt();
   lt.addEventListener('click',()=>{setBlockLight(!BL_ON);showLt();});

@@ -328,7 +328,7 @@
 ### Lighting
 
 - At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.
-- It's switched on or off with Block lighting under Sound & picture in Options. Off, the game looks and runs exactly as before.
+- It's switched on or off with Advanced lighting under Sound & picture in Options. Off, the game looks and runs exactly as before.
 - A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.
 - In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.
 - In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.

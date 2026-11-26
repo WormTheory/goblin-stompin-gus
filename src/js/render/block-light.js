@@ -5,7 +5,7 @@
 // vertex colour (aBlk), averaged from the same four blocks the corner's shading reads, and the night shader (nightPatch) lifts
 // the dark toward it. Nothing's kept but the mesh: no light in saves or online, as it all follows from the blocks.
 // The sources: blocks with light:[level,colour] in BLOCK, the street lamps while they stand, lamp and screen props, and fires.
-// Options' Block lighting (BL_ON, localStorage BL_KEY) turns it all off: no fill, no aBlk, the shader as it was.
+// Options' Advanced lighting (BL_ON, localStorage BL_KEY, named from when it was called Block lighting) turns it all off: no fill, no aBlk, the shader as it was.
 const BL_KEY='goblin-stompin-gus-blocklight';
 let BL_ON=true;try{if(localStorage.getItem(BL_KEY)==='0')BL_ON=false;}catch(e){}
 // each block's light as a level per channel (its level, scaled by its colour)
