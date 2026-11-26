@@ -208,7 +208,9 @@ function coverMap(cam,who){
   C.y0=yLo;C.y1=yHi;const N=C.N,NN=N*N,sol=C.sol;sol.fill(0);
   // (straight from each column's chunk, not a get() a block: some 90,000 of them)
   for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=C.x0+i,z=C.z0+j,qx=Math.floor(x/CS),qz=Math.floor(z/CS),a=chunkArr(qx,qz),lx=x-qx*CS,lz=z-qz*CS;let top=-1;
-    for(let y=yHi;y>=yLo;y--){const b=a[li(lx,y,lz)];if(b&&b!==WATER&&!(b===LEAVES&&leafDown(x,y,z))){if(top<0)top=y+1;sol[(y-yLo)*NN+j*N+i]=1;}}C.top[j*N+i]=top;}
+    for(let y=yHi;y>=yLo;y--){const b=a[li(lx,y,lz)];if(!b||b===LEAVES&&leafDown(x,y,z))continue;
+      // (water, deep or shallow, is 2: a drop in it or under it is hidden, but it's no roof over what's beside it)
+      if(WET[b]){sol[(y-yLo)*NN+j*N+i]=2;continue;}if(top<0)top=y+1;sol[(y-yLo)*NN+j*N+i]=1;}C.top[j*N+i]=top;}
   C.under=C.top[(cz-C.z0)*C.N+(cx-C.x0)]>cam.y+1.2;C.v=(C.v||0)+1;
 }
 // the wind's shadow: rain and snow blown at a slant come in at a slant, so a drop is under cover if anything solid lies
@@ -242,7 +244,9 @@ function shadeMap(who,kind,sx,sz){
 // the drop moved, so snow by the edge of a gap flickered)
 function precipHid(K,x,y,z){
   const C=COVER,N=C.N,NN=N*N,D=K.D,sol=C.sol,fx=x-C.x0,fz=z-C.z0;let i=Math.floor(fx),j=Math.floor(fz);
-  if(i<0||j<0||i>=N||j>=N||y>=D[j*N+i])return false;if(y<C.y0)return true;
+  if(i<0||j<0||i>=N||j>=N)return false;if(y<C.y0)return true;
+  {const k=Math.floor(y)-C.y0;if(k<COVER_NY&&sol[k*NN+j*N+i])return true;}   // (in a block, or in water: under the surface)
+  if(y>=D[j*N+i])return false;
   const dx=-K.sx,dz=-K.sz,si=dx>0?1:-1,sj=dz>0?1:-1,ti=dx?Math.abs(1/dx):Infinity,tj=dz?Math.abs(1/dz):Infinity;
   let k=Math.floor(y)-C.y0,mi=dx>0?(i+1-fx)*ti:dx<0?(fx-i)*ti:Infinity,mj=dz>0?(j+1-fz)*tj:dz<0?(fz-j)*tj:Infinity,mk=Math.floor(y)+1-y,t=0;
   for(let n=0;n<400;n++){

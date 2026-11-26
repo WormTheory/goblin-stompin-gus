@@ -55,6 +55,17 @@ chk('sand: shows outside, upwind and in the lee',!sand(5,12,20)&&!sand(35,12,20)
 for(let z=18;z<22;z++)for(let y=12;y<14;y++)C.sol[(y-C.y0)*NN+z*N+10]=0;
 chk('sand: in through a hole in the windward wall, level with it',!sand(15,12,20)&&!sand(27,13,19),[sand(15,12,20),sand(27,13,19)]);
 chk('sand: not beside or above the hole',sand(15,12,25)&&sand(15,16,20),[sand(15,12,25),sand(15,16,20)]);
+// water: a pond 3 deep (y 10..12) over x 40..49 with the open sky above: a drop in it or under it is hidden, one just
+// over its surface shows, and a drop beside it is no more sheltered than before (water's no roof)
+C.sol.fill(0);C.top.fill(-1);for(let z=0;z<N;z++)for(let x=0;x<N;x++)solid(x,9,z);
+for(let z=0;z<N;z++)for(let x=40;x<50;x++)for(let y=10;y<13;y++)C.sol[(y-C.y0)*NN+z*N+x]=2;C.v++;
+const KW=T.shadeMap(0,'water',1,0),hidW=(x,y)=>T.precipHid(KW,x+0.5,y+0.5,20.5);
+chk('water: hidden in it and under the surface, shown above it and beside it',hidW(45,12)&&hidW(45,10)&&!hidW(45,13)&&!hidW(52,10)&&!hidW(38,10),[hidW(45,12),hidW(45,10),hidW(45,13),hidW(52,10),hidW(38,10)]);
+chk('water: sand in it is hidden',T.dustHid(45.5,11.5,20.5,-1,0));
+// and the real thing: the cover map marks water as 2, not as a block with a top
+{let w=0,c=0;const p=T.players[0];C.cx=1e9;T.coverMap({x:p.pos.x,y:p.pos.y+1.6,z:p.pos.z},0);
+ for(let j=0;j<N;j++)for(let i=0;i<N;i++)for(let y=C.y0;y<=C.y1;y++){const b=T.peek(C.x0+i,y,C.z0+j);if(T.WET[b]){w++;if(C.sol[(y-C.y0)*NN+j*N+i]===2)c++;}}
+ chk('the cover map marks every water block',c===w,[c,w]);}
 // every drop's looked at: the cover map reaches past the drops' box however far the camera's moved since it was made,
 // with room for a drop at the edge to be followed back a few blocks
 chk('the cover map covers the drops',C.N/2>=T.PBX+4+4,[C.N,T.PBX]);
