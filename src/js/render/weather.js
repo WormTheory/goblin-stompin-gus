@@ -193,27 +193,34 @@ function precipCamVel(cam,who){
     C.x=cam.x;C.y=cam.y;C.z=cam.z;C.t=now;}
   return C;
 }
-// the cover map: for each column in a square round the camera, the height of the highest solid block (refreshed as you move)
-const mkCover=()=>({N:44,x0:0,z0:0,top:new Int16Array(44*44),t:-1,cx:1e9,cz:1e9,under:false}),COVERS=[mkCover(),mkCover()];let COVER=COVERS[0];
+// the cover map: for each column in a square round the camera, the height of the highest solid block, and which blocks
+// are solid from 12 below the camera to 36 above (sol, a byte each: rain coming in at a slant through a gap in a roof
+// carries on under it), refreshed as you move
+const COVER_NY=49,mkCover=()=>({N:44,x0:0,z0:0,y0:0,y1:-1,top:new Int16Array(44*44),sol:new Uint8Array(44*44*COVER_NY),t:-1,cx:1e9,cz:1e9,under:false}),COVERS=[mkCover(),mkCover()];let COVER=COVERS[0];
 function coverMap(cam,who){
   const C=COVER=COVERS[who||0],cx=Math.floor(cam.x),cz=Math.floor(cam.z);
   if(Math.abs(cx-C.cx)<4&&Math.abs(cz-C.cz)<4&&wxClock-C.t<1.5)return;
   C.cx=cx;C.cz=cz;C.t=wxClock;C.x0=cx-(C.N>>1);C.z0=cz-(C.N>>1);
   const yHi=Math.min(H-1,Math.floor(cam.y)+36),yLo=Math.max(1,Math.floor(cam.y)-12);
-  for(let j=0;j<C.N;j++)for(let i=0;i<C.N;i++){let top=-1;for(let y=yHi;y>=yLo;y--){const b=get(C.x0+i,y,C.z0+j);if(b&&b!==WATER){top=y+1;break;}}C.top[j*C.N+i]=top;}
+  C.y0=yLo;C.y1=yHi;const N=C.N,NN=N*N,sol=C.sol;sol.fill(0);
+  // (straight from each column's chunk, not a get() a block: some 90,000 of them)
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=C.x0+i,z=C.z0+j,qx=Math.floor(x/CS),qz=Math.floor(z/CS),a=chunkArr(qx,qz),lx=x-qx*CS,lz=z-qz*CS;let top=-1;
+    for(let y=yHi;y>=yLo;y--){const b=a[li(lx,y,lz)];if(b&&b!==WATER&&!(b===LEAVES&&leafDown(x,y,z))){if(top<0)top=y+1;sol[(y-yLo)*NN+j*N+i]=1;}}C.top[j*N+i]=top;}
   C.under=C.top[(cz-C.z0)*C.N+(cx-C.x0)]>cam.y+1.2;C.v=(C.v||0)+1;
 }
 // the wind's shadow: rain and snow blown at a slant come in at a slant, so a drop is under cover if anything solid lies
 // back along its path, not just straight overhead (the lee of a wall, the far side of an overhang, a room with only a
 // door open to the wind). For each column of the cover map, the height below which nothing falling at that slant can
 // reach: the highest of each column back up the slope less how far it climbed to get there. Worked out once for the
-// whole map (only when the map's refreshed or the slant has turned), so each drop still costs one look-up.
+// whole map (only when the map's refreshed or the slant has turned), so a drop out in the open costs one look-up; one
+// below that height is followed back up its slant through the solid blocks (precipHid), so rain through a gap in a roof
+// or a window falls on in under it.
 // (sx,sz: how far a drop moves sideways per block it falls; capped at 2, a blizzard's flakes near flat)
 const PRECIP_SHADE=[];
 function shadeMap(who,kind,sx,sz){
   const C=COVER,K=(PRECIP_SHADE[who||0]||(PRECIP_SHADE[who||0]={}))[kind]||(PRECIP_SHADE[who||0][kind]={v:-1,sx:0,sz:0,S:new Float32Array(C.N*C.N)});
   const m=Math.hypot(sx,sz);if(m>2){sx*=2/m;sz*=2/m;}
-  if(K.v===C.v&&Math.abs(K.sx-sx)<0.04&&Math.abs(K.sz-sz)<0.04)return K.S;
+  if(K.v===C.v&&Math.abs(K.sx-sx)<0.04&&Math.abs(K.sz-sz)<0.04)return K;
   K.v=C.v;K.sx=sx;K.sz=sz;const N=C.N,T=C.top,S=K.S;let hi=-1;for(let i=0;i<T.length;i++)if(T[i]>hi)hi=T[i];
   // (stepped a block of height at a time, or less where the slant's steeper than one across for one down, so no column's skipped)
   const dh=1/Math.max(1,Math.hypot(sx,sz));
@@ -221,7 +228,16 @@ function shadeMap(who,kind,sx,sz){
     for(let h=dh;hi-h>s;h+=dh){const a=Math.floor(i+0.5-sx*h),b=Math.floor(j+0.5-sz*h);if(a<0||b<0||a>=N||b>=N)break;
       const v=T[b*N+a]-h;if(v>s)s=v;}
     S[j*N+i]=s;}
-  return S;
+  return K;
+}
+// is a drop at (x,y,z) hidden? Out in the open (at or above the wind's shadow) no; inside a block yes; otherwise back up
+// its slant a step at a time until it meets a block (hidden) or comes out above the shadow, or off the map (not hidden)
+function precipHid(K,x,y,z){
+  const C=COVER,N=C.N,NN=N*N,S=K.S,sol=C.sol,fx=x-C.x0,fz=z-C.z0;let i=Math.floor(fx),j=Math.floor(fz);
+  if(i<0||j<0||i>=N||j>=N||y>=S[j*N+i])return false;if(y<C.y0)return true;
+  const sx=K.sx,sz=K.sz,dh=1/Math.max(1,Math.hypot(sx,sz));
+  for(let h=0;;h+=dh){const py=y+h;if(py>C.y1)return false;i=Math.floor(fx-sx*h);j=Math.floor(fz-sz*h);if(i<0||j<0||i>=N||j>=N)return false;
+    if(sol[(Math.floor(py)-C.y0)*NN+j*N+i])return true;if(py>=S[j*N+i])return false;}
 }
 // how far the wind has carried each view's rain, snow and dust so far (added up as wxClock runs)
 const PRECIP_DRIFT=[];
@@ -241,14 +257,14 @@ function placePrecip(cam,who){
   // (each kind's shelter by its own slant, at its middling speed of fall: rain's 29 a second, snow's below. Blowing sand
   // goes near enough sideways that its shadow would cover a town, so it's only hidden under a roof, as before)
   const snowFall=2.5+w*0.6,rainS=nr?shadeMap(who,'rain',wx/29,wz/29):null,snowS=ns?shadeMap(who,'snow',wx*1.8/snowFall,wz*1.8/snowFall):null;
-  if(nr){const V=precipCamVel(cam,who),under=(x,y,z)=>cover(rainS,x,y,z);
+  if(nr){const V=precipCamVel(cam,who),under=(x,y,z)=>precipHid(rainS,x,y,z);
     // each streak lies along its drop's motion less the camera's (the wind, its own speed of fall), so it always points
     // the way it's moving on screen; stretched a little when that's fast (motion blur)
     for(let i=0;i<nr;i++){const d=drops[i],fall=26+d.s*6;_pv.set(wrapC(d.x+DR.x,cam.x,PBX),wrapC(d.y-fall*t,cam.y+4,PBY/2),wrapC(d.z+DR.z,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;
       _pa.set(V.vx-wx,fall+V.vy,V.vz-wz);const sp=_pa.length();if(sp>1e-3){_pa.multiplyScalar(1/sp);_pq.setFromUnitVectors(_pUp,_pa);}else _pq.set(0,0,0,1);
       _ps.y=Math.min(3,Math.max(1,sp/29));_pm.compose(_pv,_pq,_ps);rainM.setMatrixAt(i,_pm);}
     _ps.y=1;rainM.instanceMatrix.needsUpdate=true;}
-  if(ns){_pq.set(0,0,0,1);const under=(x,y,z)=>cover(snowS,x,y,z);
+  if(ns){_pq.set(0,0,0,1);const under=(x,y,z)=>precipHid(snowS,x,y,z);
     for(let i=0;i<ns;i++){const d=drops[PRECIP_N-1-i],sw=Math.sin(t*1.3+d.s*9)*0.5;_pv.set(wrapC(d.x+DR.x*1.8+sw,cam.x,PBX),wrapC(d.y-(1.8+d.s*1.4+w*0.6)*t,cam.y+4,PBY/2),wrapC(d.z+DR.z*1.8+Math.cos(t+d.s*7)*0.4,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);snowM.setMatrixAt(i,_pm);}
     snowM.instanceMatrix.needsUpdate=true;}
   if(nd){_pq.set(0,0,0,1);const L=WORLD_LIGHT.value,under=(x,y,z)=>cover(CM.top,x,y,z);dustM.material.color.setRGB(0.78*Math.max(0.1,L.r),0.62*Math.max(0.1,L.g),0.42*Math.max(0.1,L.b));
