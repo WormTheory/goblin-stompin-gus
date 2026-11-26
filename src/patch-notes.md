@@ -206,6 +206,11 @@
 - The sea, rivers and big lakes still never run dry. Dig into a tunnel or cave from the sea bed and it fills right up.
 - There's no longer a limit on how much water can pour out of one place.
 - Doors swing open to let water through.
+- The sides of water show now: shallow water beside deeper water, water at the edge of a spill and water behind glass all draw properly.
+- You can swim in spilled water that's deep enough, not just in the sea and rivers.
+- Wading through water slows you and goblins down, more the deeper it is.
+- Cars slow down in shallow water and get stuck in deep water. Drive into a lake or the sea and the car floats for a few seconds, then sinks nose first to the bottom.
+- Spilled water freezes over in winter, even a thin puddle, and thaws again in spring.
 
 ### Nukes
 

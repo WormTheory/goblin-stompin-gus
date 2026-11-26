@@ -59,6 +59,9 @@ function wfPress(x,y,z,amt){
     q.push(nx,ny,nz);}
   return hol.sort((p,q)=>p[1]-q[1]).slice(0,WF_PRESS_N);
 }
+// how deep the water is over y at (x,z), for wading: 0 if dry. Never makes a chunk
+function wadeDepth(x,y,z){const xi=Math.floor(x),zi=Math.floor(z);let yy=Math.floor(y+0.02);if(!WET[peek(xi,yy,zi)])return 0;
+  for(let k=0;k<4&&WET[peek(xi,yy+1,zi)];k++)yy++;const t=peek(xi,yy,zi);return Math.max(0,yy+(t===WATER?0.9:BLOCK[t].lvl/8)-y);}
 function updateWater(dt){
   wfDrawT+=dt;if(wfDirty.size&&(wfDrawT>=WF_DRAW||!wfAct.size)){wfDrawT=0;rebuildSet(wfDirty);wfDirty.clear();}
   if(!wfRemoved.length&&!wfAct.size&&!wfPark.size)return;
@@ -108,6 +111,10 @@ function updateWater(dt){
       // (what's above and beside may follow it in)
       wfWakeRound(x,y,z);}
     if(wait)wfPark.set(k,list[n]);
+    // (come to rest in winter, out in the open: it freezes over as the rest did when winter came, render/weather.js)
+    else if(!moved&&WX.frozen&&y>=ICE_Y0&&y<=ICE_Y1&&wfGet(x,y+1,z)===AIR&&!chg.has(k)&&chunkFreeze(Math.floor(x/CS),Math.floor(z/CS))){
+      const A=chunkArr(Math.floor(x/CS),Math.floor(z/CS)),i=li(x-Math.floor(x/CS)*CS,y,z-Math.floor(z/CS)*CS),b=A[i];
+      if(WET[b]){A[i]=b===WATER?ICE:ICE_L[BLOCK[b].lvl];lastK=-1;wfDirty.add(ckey(Math.floor(x/CS),Math.floor(z/CS)));}}
   }
   for(;n<list.length;n++){const [x,y,z]=list[n];wfAct.set(bkey(x,y,z),list[n]);}   // (what the budget didn't reach goes next time)
   // what changed, into the world: saved, sent to guests and redrawn

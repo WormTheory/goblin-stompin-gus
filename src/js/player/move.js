@@ -1,4 +1,6 @@
 const SWIM_HOLD=0.35;   // (holding jump in the water: seconds between paddle strokes upward)
+// how much of a block is water, up from its floor: 1 for WATER, 1/8 to 7/8 for the shallow ones (destruction/water-flow.js), 0 none
+const wetH=(x,y,z)=>{const b=get(x,y,z);return b===WATER?1:WET[b]?BLOCK[b].lvl/8:0;};
 const SWIM={float:0.2,rise:3.5,dive:3.5,out:7.5};   // (afloat his feet sit float above the top water block's floor, so his back's out; rising and diving speeds; a stroke at the surface throws him out at out, enough for a one-block ledge)
 // The hippos' timed animations are keyframed clips (src/assets/clips/hip*.json, layout 'hippo', made in the editor's
 // Hippo tab): hipAt(name,u) gives every channel at u (0 to 2 over the move's own length) in the layout's order, HC naming
@@ -172,7 +174,7 @@ function movePlayer(p,dt){
       const charge=inp.charge&&!p.exhausted&&p.stam>0,tramp=charge&&ABIL.trample;p.sprinting=charge&&!ABIL.trample;   // (trample switched off: holding B is just a sprint -- no damage, no smashing)
       if(tramp){p.trNow=true;if(!p.trWas)hbStart(p,'trample');}
       if(charge){charging=true;if(!p.wasCharging&&tramp)p.roarBurst=0.5;p.stam-=AB.trample.stamina*(tramp?1:0.6)*dt;if(p.stam<=0){p.stam=0;p.exhausted=true;flashLabel('Out of breath',p);}}
-      const sp=PSPEEDS[DT.psI]*(charge?AB.trample.speed:AB.walk.speed)*(Math.abs(diff)>1.5?0.35:1)*(0.6+0.4*p.hp/20)*Math.max(0.35,mag)*Math.max(0.04,(p.walkRamp??1));
+      const sp=PSPEEDS[DT.psI]*(charge?AB.trample.speed:AB.walk.speed)*(Math.abs(diff)>1.5?0.35:1)*(0.6+0.4*p.hp/20)*Math.max(0.35,mag)*Math.max(0.04,(p.walkRamp??1))*(p.wadeK??1);
       const hx=Math.sin(p.heading),hz=Math.cos(p.heading),frontX=p.pos.x+hx*1.8,frontZ=p.pos.z+hz*1.8;
       // locked: the stick works relative to the target (up = toward it, sideways = around it), not the trailing camera
       let mvx=p.gob?wx:hx,mvz=p.gob?wz:hz;   // (a goblin steps whichever way the stick says, facing where it looks)
@@ -551,11 +553,14 @@ function movePlayer(p,dt){
   // which would crash-land and blow a hole in it
   if(p.spawnSnap){if(g!==null&&chunks.has(ckey(Math.floor(p.pos.x/CS),Math.floor(p.pos.z/CS)))){if(g<p.pos.y)p.pos.y=g;p.spawnSnap=false;}p.vy=0;p.peakY=p.pos.y;}
   // in deep water: you sink slowly, can paddle up with jump, and the water breaks any fall
-  const wet=get(Math.floor(p.pos.x),Math.floor(p.pos.y+0.6),Math.floor(p.pos.z))===WATER;
+  // (shallow water counts as far as its surface: a 7/8 deep flood is swum in, a puddle round his feet isn't)
+  const wsy=p.pos.y+0.6,wfy=Math.floor(wsy),wh=wetH(Math.floor(p.pos.x),wfy,Math.floor(p.pos.z)),wet=wh>0&&(wh===1||wsy-wfy<wh);
   if(wet&&!p.wet){swimSpray(p,p.pos.y+0.6,12,1.6,true);sfx('Splash',()=>{noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);});}
+  // (wading: the deeper, the slower, down to under half speed; Gnash is shorter, so it's deep for him sooner)
+  p.wadeK=wet?1:Math.max(0.45,1-0.55*Math.min(1,wadeDepth(p.pos.x,p.pos.y,p.pos.z)/(p.gob?0.7:1.1)));
   p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();p.airDash=true;}
   // (the top water block over him, so he floats at the surface; climb held dives, as long as there's no wall to cling to)
-  if(wet){const x=Math.floor(p.pos.x),z=Math.floor(p.pos.z);let t=Math.floor(p.pos.y+0.6);for(let k=0;k<48&&get(x,t+1,z)===WATER;k++)t++;p.swimTop=t;}else p.swimTop=null;
+  if(wet){const x=Math.floor(p.pos.x),z=Math.floor(p.pos.z);let t=wfy;for(let k=0;k<48&&WET[get(x,t+1,z)];k++)t++;p.swimTop=t-1+wetH(x,t,z);}else p.swimTop=null;   // (lower where the top block's shallow)
   p.dive=wet&&p.state==='walk'&&!!p.in.climb;   // (the air dash comes back in the water, but can't be used until he's out of it)
   // (holding jump in the water keeps on paddling upward, a stroke every SWIM_HOLD seconds after the first)
   if(wet&&ABIL.jump&&p.in.jump&&!p.grounded&&p.state==='walk'){p.swimHoldT=(p.swimHoldT??SWIM_HOLD)-dt;if(p.swimHoldT<=0){p.swimHoldT=SWIM_HOLD;p.vy=Math.max(p.vy,4.2);swimSpray(p,p.swimTop!=null?p.swimTop+1:p.pos.y+0.5,4);}}else p.swimHoldT=SWIM_HOLD;
@@ -829,7 +834,7 @@ function movePlayer(p,dt){
     p.head.rotation.x=p.head.rotation.x*(1-k)-0.22*k;
     p.tail.rotation.x=p.tail.rotation.x*(1-k)+(0.9+Math.sin(ph*1.5)*0.3)*k;
     if(moving&&p.wet){p.swimFx=(p.swimFx||0)-dt;
-      if(p.swimFx<=0){p.swimFx=0.3;const yy=Math.floor(p.pos.y+0.6);let top=yy;while(top<yy+4&&get(Math.floor(p.pos.x),top+1,Math.floor(p.pos.z))===WATER)top++;
+      if(p.swimFx<=0){p.swimFx=0.3;const yy=Math.floor(p.pos.y+0.6);let top=yy;while(top<yy+4&&WET[get(Math.floor(p.pos.x),top+1,Math.floor(p.pos.z))])top++;
         if(top-yy<3)swimSpray(p,top+1,3);}}   // (a wake behind, never ahead: in front it was in a goblin's first-person view)
   } else p.swimT=0;
   // hanging from a ceiling: the whole standing pose flipped upside down about the feet, so they grip the ceiling

@@ -268,7 +268,8 @@ function wxAudio(){
 // few at a time; chunks built later freeze as they're made), and thaws back to water in spring
 const ICE_Y0=G-8,ICE_Y1=G+12,freezeQ=[];
 function freezeArr(a,on){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)for(let i=0;i<L;i++){const j=y*L+i,b=a[j];
-  if(on){if(b===WATER&&a[j+L]===AIR){a[j]=ICE;n++;}}else if(b===ICE){a[j]=WATER;n++;}}return n;}
+  if(on){if(a[j+L]===AIR){if(b===WATER){a[j]=ICE;n++;}else if(WET[b]){a[j]=ICE_L[BLOCK[b].lvl];n++;}}}   // (shallow water too, as thin ice)
+  else if(b===ICE){a[j]=WATER;n++;}else if(ICE_LV[b]){a[j]=WATER_L[ICE_LV[b]];n++;}}return n;}
 function freezeWorld(on){for(const [k,a] of chunks){const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;if(freezeArr(a,on&&chunkFreeze(cx,cz))&&meshes.has(k))freezeQ.push(k);}lastK=-1;}
 // (winter freezes the water only where it's not warm: never in the desert, the savanna or the rainforest)
 function chunkFreeze(cx,cz){if(!WX.frozen)return false;if(TENV||cx*CS>=SHIP_X0)return true;return climAt(cx*CS+8,cz*CS+8).t<0.64;}

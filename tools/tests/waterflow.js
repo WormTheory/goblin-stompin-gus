@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,editAt,chunks,CS,G,H,WATER,AIR,STONE,SAND,GLASS,NET,players,frame,ckey,wfAct,wfPark,wfRemoved,wfSrc,wfAmt,bkey,updateWater,WF_STEP,wfEndless,wfPress,WF_LV,WATER_L,DOOR_G};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,editAt,chunks,CS,G,H,WATER,AIR,STONE,SAND,GLASS,NET,players,frame,ckey,wfAct,wfPark,wfRemoved,wfSrc,wfAmt,bkey,updateWater,WF_STEP,wfEndless,wfPress,WF_LV,WATER_L,DOOR_G,cars,CAR_FLOAT_T,carPhysics,WX,freezeWorld,chunkFreeze,ICE_L,ICE,wadeDepth};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 const {Q,V3,Rot,Col,Mat,O3,M4,THREE}=require('./stub-three.js');   // (the stand-in three.js every suite shares)
 const listeners={};
@@ -118,6 +118,40 @@ if(ex===null)console.log('edge: no sea found');else{
   T.get(x1+1,ty,ez);for(let x=x1+1;x<=x1+4;x++)dig(x,ty,ez);for(let i=0;i<300&&busy();i++)T.updateWater(T.WF_STEP);
   console.log('edge: once made, the tunnel on in it',count(x1+1,x1+4,ty,ty,ez,ez),'of 4 | still waiting',T.wfPark.size);
   ok(count(x1+1,x1+4,ty,ty,ez,ez)===4,'edge');}
+// 8. cars: one dropped into the sea floats a few seconds, then sinks to the bed; one driven into a flood slows in
+// shallow water and stops in deep (carPhysics run on its own, moved by its speed)
+{const c=T.cars[0],ys=[];c.pos.set(sx+0.5,G+4,sz+0.5);c.vy=0;c.grounded=false;c.speed=0;c.kv.x=c.kv.z=0;c.floatT=0;c.wDep=0;
+  for(let i=0;i<14*60;i++){T.carPhysics(c,1/60);if(i%60===59)ys.push(c.pos.y-G);}
+  const afloat=ys.slice(1,4).every(y=>y>-0.2&&y<0.9),sunk=ys[13]<ys[6]-3;
+  console.log('car into the sea, height over sea level each second:',ys.map(y=>y.toFixed(1)).join(' '));ok(afloat&&sunk,'a car floats, then sinks');
+  const fx=sx+60,fy=G+40;for(let x=fx-2;x<fx+40;x++)for(let z=sz-3;z<=sz+3;z++){T.setRaw(x,fy-1,z,STONE);T.setRaw(x,fy,z,x>=fx+10&&x<fx+20?T.WATER_L[3]:x>=fx+20?W:AIR);}
+  c.pos.set(fx,fy,sz+0.5);c.vy=0;c.grounded=true;c.heading=Math.PI/2;c.wDep=0;let vS=0,vD=0;
+  for(let i=0;i<8*60;i++){c.speed=Math.min(12,c.speed+10/60);c.pos.x+=c.speed/60;T.carPhysics(c,1/60);c.pos.z=sz+0.5;const u=c.pos.x-fx;if(u>12&&u<18)vS=Math.max(vS,c.speed);if(u>21)vD=Math.max(vD,c.speed);}
+  console.log('car driven through 3/8 water: top speed',vS.toFixed(1),'| into 8/8:',vD.toFixed(1),'| got',(c.pos.x-fx).toFixed(1),'along');ok(vS>2&&vS<8&&vD<0.5,'cars wade and get stuck');}
+// 9. swimming: a pool two blocks deep and a 6/8 top is swum in at the shallower surface; a 2/8 puddle isn't
+{const bx=sx+120,by=G+40,bz=sz;for(let x=bx-4;x<=bx+4;x++)for(let z=bz-4;z<=bz+4;z++)for(let y=by-1;y<=by+4;y++){const e=Math.abs(x-bx)===4||Math.abs(z-bz)===4||y===by-1;T.setRaw(x,y,z,e?STONE:y<by+2?W:y===by+2?T.WATER_L[6]:AIR);}
+  A.pos.set(bx+0.5,by+3,bz+0.5);A.vy=0;run(3);const deep=A.wet,ay=A.pos.y-by;
+  for(let x=bx-3;x<=bx+3;x++)for(let z=bz-3;z<=bz+3;z++)for(let y=by;y<=by+3;y++)T.setRaw(x,y,z,y===by?T.WATER_L[2]:AIR);
+  A.pos.set(bx+0.5,by+1,bz+0.5);A.vy=0;run(2);
+  console.log('swimming: in a pool with a 6/8 top',deep,'floating',ay.toFixed(2),'over its floor (surface 2.75) | in a 2/8 puddle',A.wet);
+  ok(deep&&ay>1.8&&ay<2.8&&!A.wet,'swimming in shallow-topped water');}
+// 10. winter: shallow water freezes to a sheet of ice as thick as it was, and thaws back; water that pours out in winter
+// freezes over once it's still. (Over the sea, a stone floor 6 up, inside the height freezing reaches)
+{const ix=sx+3,iz=sz+3,iy=G+7,cold=T.chunkFreeze;
+  for(let x=ix-3;x<=ix+9;x++)for(let z=iz-3;z<=iz+3;z++){put(x,iy-1,z,STONE);put(x,iy,z,Math.abs(z-iz)===3||x===ix-3||x===ix+9?STONE:AIR);}
+  put(ix,iy,iz,T.WATER_L[5]);put(ix+1,iy,iz,W);
+  T.WX.frozen=true;const canFreeze=T.chunkFreeze(Math.floor(ix/16),Math.floor(iz/16));T.freezeWorld(true);
+  const f1=T.get(ix,iy,iz),f2=T.get(ix+1,iy,iz);T.WX.frozen=false;T.freezeWorld(false);const t1=T.get(ix,iy,iz),t2=T.get(ix+1,iy,iz);
+  console.log('winter here',canFreeze,'| 5/8 water froze to 5/8 ice',f1===T.ICE_L[5],'full to ice',f2===T.ICE,'| thawed back',t1===T.WATER_L[5],t2===W);
+  if(canFreeze){ok(f1===T.ICE_L[5]&&f2===T.ICE&&t1===T.WATER_L[5]&&t2===W,'freeze and thaw');
+    T.WX.frozen=true;for(let y=iy;y<iy+3;y++)put(ix+6,y,iz,W);dig(ix+6,iy+3,iz);settle();let ice=0,wet=0;
+    for(let x=ix-2;x<=ix+8;x++)for(let z=iz-2;z<=iz+2;z++){const b=T.get(x,iy,z);if(b===T.ICE||T.ICE_L.includes(b)&&b)ice++;else if(T.WF_LV[b]>0)wet++;}
+    T.WX.frozen=false;T.freezeWorld(false);console.log('poured out in winter: frozen over',ice,'blocks, still water',wet);ok(ice>0&&wet===0,'freezes over when still');}}
+// 11. wading: how deep the water is at the feet
+{const bx=sx+140,by=G+40,bz=sz;for(let x=bx-3;x<=bx+3;x++)for(let z=bz-3;z<=bz+3;z++){T.setRaw(x,by-1,z,STONE);T.setRaw(x,by,z,T.WATER_L[4]);T.setRaw(x,by+1,z,AIR);T.setRaw(x,by+2,z,AIR);}
+  A.pos.set(bx+0.5,by+0.5,bz+0.5);A.vy=0;run(1.5);const k6=A.wadeK;
+  for(let x=bx-3;x<=bx+3;x++)for(let z=bz-3;z<=bz+3;z++)T.setRaw(x,by,z,AIR);run(0.5);
+  console.log('wading in 4/8 water: walking speed x',k6.toFixed(2),'| dry x',A.wadeK.toFixed(2),'| depth there',T.wadeDepth(bx+0.5,by,bz+0.5).toFixed(2));ok(k6<0.85&&k6>0.4&&A.wadeK===1,'wading slows');}
 console.log('left moving',T.wfAct.size,'queued',T.wfRemoved.length/3,'waiting',T.wfPark.size);
 console.log(errs?'waterflow: FAILED '+errs:'waterflow: passed');
 process.exit(errs?1:0);

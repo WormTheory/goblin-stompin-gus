@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:35e029c769f43a18d157e809db2661faeb3b6985694f88a1c1d1996cdb846295 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:2b19e372156c31f72e16db591d2f83ef032aa2291d5fa53999fc57609a82d296 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1682,7 +1682,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Knock everything over</h3>
 <ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>A building coming down is spread over a few frames instead of landing on one, and several coming down at once take turns, so bringing down a whole block of towers no longer freezes the game for a moment.</li><li>Smashing through town keeps a steadier frame rate: the ground and buildings you've broken catch up over a few frames, nearest you first, and street lamps and benches on their way down no longer make the game redraw every fixture around you.</li><li>The world's blocks are now drawn up on your computer's spare processor cores, alongside the game rather than in the middle of its frames, so smashing buildings and the ground, and new parts of the world coming into view, cost the game far less time.</li><li>By day, when the street lights and neon can't be seen anyway, the world is drawn without working out their light, which makes it quicker still. It's all lit again before dusk, or before a storm darkens the sky.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Water</h3>
-<ul><li>Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. It keeps pouring until the space is full, however far the tunnels or caves run, though a small pool only spills what it holds. The sea and rivers never drain.</li><li>Water now has a set amount. Break open an aquarium tank and it drains down to the bottom of the hole while the water runs out across the floor, spreading thin and settling, instead of flooding everything around it up to the tank's waterline.</li><li>Water can be shallow now, from an eighth of a block up, so floods spread out in sheets and puddles rather than solid blocks.</li><li>The sea, rivers and big lakes still never run dry. Dig into a tunnel or cave from the sea bed and it fills right up.</li><li>There's no longer a limit on how much water can pour out of one place.</li><li>Doors swing open to let water through.</li></ul>
+<ul><li>Water now pours into holes. Knock out a block under water, or the wall holding it back, and the water flows in and fills the space below, up to its own level. Dig down through the sea bed or a river and the hole floods. It keeps pouring until the space is full, however far the tunnels or caves run, though a small pool only spills what it holds. The sea and rivers never drain.</li><li>Water now has a set amount. Break open an aquarium tank and it drains down to the bottom of the hole while the water runs out across the floor, spreading thin and settling, instead of flooding everything around it up to the tank's waterline.</li><li>Water can be shallow now, from an eighth of a block up, so floods spread out in sheets and puddles rather than solid blocks.</li><li>The sea, rivers and big lakes still never run dry. Dig into a tunnel or cave from the sea bed and it fills right up.</li><li>There's no longer a limit on how much water can pour out of one place.</li><li>Doors swing open to let water through.</li><li>The sides of water show now: shallow water beside deeper water, water at the edge of a spill and water behind glass all draw properly.</li><li>You can swim in spilled water that's deep enough, not just in the sea and rivers.</li><li>Wading through water slows you and goblins down, more the deeper it is.</li><li>Cars slow down in shallow water and get stuck in deep water. Drive into a lake or the sea and the car floats for a few seconds, then sinks nose first to the bottom.</li><li>Spilled water freezes over in winter, even a thin puddle, and thaws again in spring.</li></ul>
 <h3>Nukes</h3>
 <ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>A nuke fired a long way no longer goes off early in mid-air: it flies on until it hits something.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.</li><li>Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.</li><li>Smoke from fires shows through the nuke's dust, and the dust through the smoke.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li><li>The mushroom cloud no longer draws over water it's behind: dust down in a flooded crater stays under the water, and from under the water the cloud shows through its surface.</li></ul>
 <h3>Screen layout</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='b1301572d506';
+const GAME_VER='0.5.1',GAME_BUILD='859a9d6f0805';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -2596,6 +2596,10 @@ BLOCK[REEDS]    ={tiles:[106,2,106],solid:true,transparent:true};
 // (destruction/water-flow.js). Not WATER, so a puddle isn't somewhere to swim or float a boat; WET says it's water at all
 const WATER_L=[AIR,164,165,166,167,168,169,170],WET=new Uint8Array(256);WET[WATER]=1;
 for(let n=1;n<8;n++){BLOCK[WATER_L[n]]={tiles:[10,10,10],liquid:true,transparent:true,lvl:n};WET[WATER_L[n]]=1;}
+// and shallow water frozen in winter (render/weather.js): a sheet of ice as thick as the water was, thawing back to it.
+// Not solid, as a puddle isn't: it's walked and driven through
+const ICE_L=[AIR,171,172,173,174,175,176,177],ICE_LV=new Uint8Array(256);
+for(let n=1;n<8;n++){BLOCK[ICE_L[n]]={tiles:[76,76,76],transparent:true,lvl:n};ICE_LV[ICE_L[n]]=n;}
 // height of a ramp's surface above its block's base at (fx,fz) within the block (0..1 each)
 function rampH(b,fx,fz){const R=BLOCK[b].ramp,t=R.dir===0?fx:R.dir===1?1-fx:R.dir===2?fz:1-fz;return R.h0+(R.h1-R.h0)*Math.max(0,Math.min(1,t));}
 
@@ -10541,7 +10545,7 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G&&!wfQuiet)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){const fx=Math.floor(x),fz=Math.floor(z),A0=chunkArr(Math.floor(fx/CS),Math.floor(fz/CS)),top=(A0.tileTops||tileTopsOf(A0))[((fz&15)>>2)*4+((fx&15)>>2)];let open=true;for(let yy=y+1;yy<=top&&yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(colKey(Math.floor(x),Math.floor(z)),WX.snowClock);}navCols.delete(colKey(Math.floor(x),Math.floor(z)));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR&&(get(x,y,z)===ICE||y<=G&&get(x,y,z)===PACKICE))b=WATER;if(b===AIR&&!wfQuiet)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G&&!wfQuiet)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){const fx=Math.floor(x),fz=Math.floor(z),A0=chunkArr(Math.floor(fx/CS),Math.floor(fz/CS)),top=(A0.tileTops||tileTopsOf(A0))[((fz&15)>>2)*4+((fx&15)>>2)];let open=true;for(let yy=y+1;yy<=top&&yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(colKey(Math.floor(x),Math.floor(z)),WX.snowClock);}navCols.delete(colKey(Math.floor(x),Math.floor(z)));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR){const o=get(x,y,z);if(o===ICE||y<=G&&o===PACKICE)b=WATER;else if(ICE_LV[o])b=WATER_L[ICE_LV[o]];}if(b===AIR&&!wfQuiet)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(BB.jobs.length)bbTouch(x,z);if(b===AIR&&get(x,y,z)===WATER)b=WATER;editPut(Math.floor(x),Math.floor(y),Math.floor(z),b);}
 // The block at a place only if its chunk is already made, else AIR: for anything that looks about each frame (AI, effects,
 // sounds) and mustn't set a chunk being made, a couple of milliseconds, just by looking. get() makes the chunk.
@@ -11169,7 +11173,7 @@ const FACES=[
  {dir:[0,0,1], shade:.68,c:[[0,0,1,0,0],[1,0,1,1,0],[0,1,1,0,1],[1,1,1,1,1]]},
 ];
 const AO=[0.5,0.68,0.84,1],DIM=0.8;
-function faceVisible(b,nb){if(nb===AIR)return true;if(BLOCK[b].liquid)return false;return !!BLOCK[nb].transparent&&nb!==b;}
+function faceVisible(b,nb){if(nb===AIR)return true;if(BLOCK[b].liquid)return !BLOCK[nb].liquid&&!!BLOCK[nb].transparent;return !!BLOCK[nb].transparent&&nb!==b;}
 // the voxel world is unlit; at night it's darkened by WORLD_LIGHT, except glowing blocks (windows, neon, lamps),
 // which are tagged with a vertex colour of 2 and always render at full brightness
 const WORLD_LIGHT={value:new THREE.Color(1,1,1)};
@@ -11604,15 +11608,21 @@ function meshKernel(J){
     if(info.hide)continue;
     if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
     const skyTop=tops[lz*CS+lx]===y,tg=b===GRASS?0:b===LEAVES||b===PINE?1:-1,ti=tg<0?-1:(lz*CS+lx)*6+tg*3;
-    const waterTop=liquid&&!(BLOCK[at(lx,y+1,lz)]||0).liquid,wTop=info.lvl?info.lvl*0.11:0.88;   // (shallow water's surface lower down)
+    const waterTop=liquid&&!(BLOCK[at(lx,y+1,lz)]||0).liquid,wTop=info.lvl?info.lvl*0.11:0.88,wH=waterTop?wTop:1;   // (shallow water's surface lower down)
     // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
     const inner=midY&&lx>0&&lx<CS-1&&lz>0&&lz<CS-1,tiles=info.tiles;
     for(let fi=0;fi<6;fi++){
       const F=FACE_T[fi],nb=inner?a[i0+F.lin]:at(lx+F.dx,y+F.dy,lz+F.dz);
-      if(nb!==AIR&&(liquid||!B_SEE[nb]||nb===b))continue;   // (the face is hidden)
+      // (the face is hidden: behind anything solid; water's against water, but for a side that stands higher than the water
+      // beside it, drawn from that water's surface up; water behind glass, leaves or a fence is still seen)
+      let wLo=0;
+      if(nb!==AIR){if(!liquid){if(!B_SEE[nb]||nb===b)continue;}
+        else{const N=BLOCK[nb];if(!N.liquid){if(!B_SEE[nb])continue;}
+          else{if(F.dy)continue;const nh=(BLOCK[at(lx+F.dx,y+1,lz+F.dz)]||0).liquid?1:N.lvl?N.lvl*0.11:0.88;if(nh>=wH)continue;wLo=nh;}}}
       const tile=tiles[F.sel],tx=tile%AC,ty=Math.floor(tile/AC);
       const P=out.p.room(12),U=out.u.room(8),C=out.c.room(12),K=out.k.room(4),n=out.p.length/3,Bv=BL?out.b.room(12):null;
       let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length,bo=BL?out.b.length:0;
+      // (a sheet of ice is drawn as thick as its water was: info.lvl on a block that isn't water)
       const wb=lit?(lx+15)+(lz+15)*BLW+(y+1)*BLA:0,wi=wb+F.wf;   // (the block, and the open one in front of the face, in block light's window)
       const gm=gmOn&&F.dy1&&skyTop&&G_MIX[b]===1;
       const sky=F.dy1&&skyTop?snow[lz*CS+lx]:0,V0=1-(ty+1)/AR;
@@ -11620,7 +11630,7 @@ function meshKernel(J){
       const rdI=sky===1&&sr&&(RD_TOP[b]===1||b===METAL&&RD_TOP[at(lx-1,y,lz)]===1&&RD_TOP[at(lx+1,y,lz)]===1)?rdYs.indexOf(y):-2,rdO=rdI>=0?rdOuts[rdI]:null;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
-        P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+wTop:y+c.y;P[po++]=mz0+lz+c.z;
+        P[po++]=mx0+lx+c.x;P[po++]=(waterTop||info.lvl&&!liquid)&&c.y===1?y+wTop:wLo&&c.y===0?y+wLo:y+c.y;P[po++]=mz0+lz+c.z;
         U[uo++]=(tx+0.002+c.u*0.996)/AC;U[uo++]=V0+(0.002+c.v*0.996)/AR;
         let s;
         if(glow){s=2;if(BL){Bv[bo++]=0;Bv[bo++]=0;Bv[bo++]=0;}}
@@ -12349,7 +12359,8 @@ function wxAudio(){
 // few at a time; chunks built later freeze as they're made), and thaws back to water in spring
 const ICE_Y0=G-8,ICE_Y1=G+12,freezeQ=[];
 function freezeArr(a,on){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)for(let i=0;i<L;i++){const j=y*L+i,b=a[j];
-  if(on){if(b===WATER&&a[j+L]===AIR){a[j]=ICE;n++;}}else if(b===ICE){a[j]=WATER;n++;}}return n;}
+  if(on){if(a[j+L]===AIR){if(b===WATER){a[j]=ICE;n++;}else if(WET[b]){a[j]=ICE_L[BLOCK[b].lvl];n++;}}}   // (shallow water too, as thin ice)
+  else if(b===ICE){a[j]=WATER;n++;}else if(ICE_LV[b]){a[j]=WATER_L[ICE_LV[b]];n++;}}return n;}
 function freezeWorld(on){for(const [k,a] of chunks){const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;if(freezeArr(a,on&&chunkFreeze(cx,cz))&&meshes.has(k))freezeQ.push(k);}lastK=-1;}
 // (winter freezes the water only where it's not warm: never in the desert, the savanna or the rainforest)
 function chunkFreeze(cx,cz){if(!WX.frozen)return false;if(TENV||cx*CS>=SHIP_X0)return true;return climAt(cx*CS+8,cz*CS+8).t<0.64;}
@@ -13735,6 +13746,9 @@ function wfPress(x,y,z,amt){
     q.push(nx,ny,nz);}
   return hol.sort((p,q)=>p[1]-q[1]).slice(0,WF_PRESS_N);
 }
+// how deep the water is over y at (x,z), for wading: 0 if dry. Never makes a chunk
+function wadeDepth(x,y,z){const xi=Math.floor(x),zi=Math.floor(z);let yy=Math.floor(y+0.02);if(!WET[peek(xi,yy,zi)])return 0;
+  for(let k=0;k<4&&WET[peek(xi,yy+1,zi)];k++)yy++;const t=peek(xi,yy,zi);return Math.max(0,yy+(t===WATER?0.9:BLOCK[t].lvl/8)-y);}
 function updateWater(dt){
   wfDrawT+=dt;if(wfDirty.size&&(wfDrawT>=WF_DRAW||!wfAct.size)){wfDrawT=0;rebuildSet(wfDirty);wfDirty.clear();}
   if(!wfRemoved.length&&!wfAct.size&&!wfPark.size)return;
@@ -13784,6 +13798,10 @@ function updateWater(dt){
       // (what's above and beside may follow it in)
       wfWakeRound(x,y,z);}
     if(wait)wfPark.set(k,list[n]);
+    // (come to rest in winter, out in the open: it freezes over as the rest did when winter came, render/weather.js)
+    else if(!moved&&WX.frozen&&y>=ICE_Y0&&y<=ICE_Y1&&wfGet(x,y+1,z)===AIR&&!chg.has(k)&&chunkFreeze(Math.floor(x/CS),Math.floor(z/CS))){
+      const A=chunkArr(Math.floor(x/CS),Math.floor(z/CS)),i=li(x-Math.floor(x/CS)*CS,y,z-Math.floor(z/CS)*CS),b=A[i];
+      if(WET[b]){A[i]=b===WATER?ICE:ICE_L[BLOCK[b].lvl];lastK=-1;wfDirty.add(ckey(Math.floor(x/CS),Math.floor(z/CS)));}}
   }
   for(;n<list.length;n++){const [x,y,z]=list[n];wfAct.set(bkey(x,y,z),list[n]);}   // (what the budget didn't reach goes next time)
   // what changed, into the world: saved, sent to guests and redrawn
@@ -18422,6 +18440,8 @@ function mgWpnHud(p,H,on){
     b.w.textContent=b.D.name+(rl?(cool?' · cooling':' · reloading'):locks>=0?' · '+locks+' locked':brace?' · bracing':'');}
 }
 const SWIM_HOLD=0.35;   // (holding jump in the water: seconds between paddle strokes upward)
+// how much of a block is water, up from its floor: 1 for WATER, 1/8 to 7/8 for the shallow ones (destruction/water-flow.js), 0 none
+const wetH=(x,y,z)=>{const b=get(x,y,z);return b===WATER?1:WET[b]?BLOCK[b].lvl/8:0;};
 const SWIM={float:0.2,rise:3.5,dive:3.5,out:7.5};   // (afloat his feet sit float above the top water block's floor, so his back's out; rising and diving speeds; a stroke at the surface throws him out at out, enough for a one-block ledge)
 // The hippos' timed animations are keyframed clips (src/assets/clips/hip*.json, layout 'hippo', made in the editor's
 // Hippo tab): hipAt(name,u) gives every channel at u (0 to 2 over the move's own length) in the layout's order, HC naming
@@ -18595,7 +18615,7 @@ function movePlayer(p,dt){
       const charge=inp.charge&&!p.exhausted&&p.stam>0,tramp=charge&&ABIL.trample;p.sprinting=charge&&!ABIL.trample;   // (trample switched off: holding B is just a sprint -- no damage, no smashing)
       if(tramp){p.trNow=true;if(!p.trWas)hbStart(p,'trample');}
       if(charge){charging=true;if(!p.wasCharging&&tramp)p.roarBurst=0.5;p.stam-=AB.trample.stamina*(tramp?1:0.6)*dt;if(p.stam<=0){p.stam=0;p.exhausted=true;flashLabel('Out of breath',p);}}
-      const sp=PSPEEDS[DT.psI]*(charge?AB.trample.speed:AB.walk.speed)*(Math.abs(diff)>1.5?0.35:1)*(0.6+0.4*p.hp/20)*Math.max(0.35,mag)*Math.max(0.04,(p.walkRamp??1));
+      const sp=PSPEEDS[DT.psI]*(charge?AB.trample.speed:AB.walk.speed)*(Math.abs(diff)>1.5?0.35:1)*(0.6+0.4*p.hp/20)*Math.max(0.35,mag)*Math.max(0.04,(p.walkRamp??1))*(p.wadeK??1);
       const hx=Math.sin(p.heading),hz=Math.cos(p.heading),frontX=p.pos.x+hx*1.8,frontZ=p.pos.z+hz*1.8;
       // locked: the stick works relative to the target (up = toward it, sideways = around it), not the trailing camera
       let mvx=p.gob?wx:hx,mvz=p.gob?wz:hz;   // (a goblin steps whichever way the stick says, facing where it looks)
@@ -18974,11 +18994,14 @@ function movePlayer(p,dt){
   // which would crash-land and blow a hole in it
   if(p.spawnSnap){if(g!==null&&chunks.has(ckey(Math.floor(p.pos.x/CS),Math.floor(p.pos.z/CS)))){if(g<p.pos.y)p.pos.y=g;p.spawnSnap=false;}p.vy=0;p.peakY=p.pos.y;}
   // in deep water: you sink slowly, can paddle up with jump, and the water breaks any fall
-  const wet=get(Math.floor(p.pos.x),Math.floor(p.pos.y+0.6),Math.floor(p.pos.z))===WATER;
+  // (shallow water counts as far as its surface: a 7/8 deep flood is swum in, a puddle round his feet isn't)
+  const wsy=p.pos.y+0.6,wfy=Math.floor(wsy),wh=wetH(Math.floor(p.pos.x),wfy,Math.floor(p.pos.z)),wet=wh>0&&(wh===1||wsy-wfy<wh);
   if(wet&&!p.wet){swimSpray(p,p.pos.y+0.6,12,1.6,true);sfx('Splash',()=>{noise(0.4,0.35,900,'lowpass');tone('sine',300,120,0.25,0.06);});}
+  // (wading: the deeper, the slower, down to under half speed; Gnash is shorter, so it's deep for him sooner)
+  p.wadeK=wet?1:Math.max(0.45,1-0.55*Math.min(1,wadeDepth(p.pos.x,p.pos.y,p.pos.z)/(p.gob?0.7:1.1)));
   p.wet=wet;if(wet){p.peakY=p.pos.y;p.airJumps=airJumpsMax();p.airDash=true;}
   // (the top water block over him, so he floats at the surface; climb held dives, as long as there's no wall to cling to)
-  if(wet){const x=Math.floor(p.pos.x),z=Math.floor(p.pos.z);let t=Math.floor(p.pos.y+0.6);for(let k=0;k<48&&get(x,t+1,z)===WATER;k++)t++;p.swimTop=t;}else p.swimTop=null;
+  if(wet){const x=Math.floor(p.pos.x),z=Math.floor(p.pos.z);let t=wfy;for(let k=0;k<48&&WET[get(x,t+1,z)];k++)t++;p.swimTop=t-1+wetH(x,t,z);}else p.swimTop=null;   // (lower where the top block's shallow)
   p.dive=wet&&p.state==='walk'&&!!p.in.climb;   // (the air dash comes back in the water, but can't be used until he's out of it)
   // (holding jump in the water keeps on paddling upward, a stroke every SWIM_HOLD seconds after the first)
   if(wet&&ABIL.jump&&p.in.jump&&!p.grounded&&p.state==='walk'){p.swimHoldT=(p.swimHoldT??SWIM_HOLD)-dt;if(p.swimHoldT<=0){p.swimHoldT=SWIM_HOLD;p.vy=Math.max(p.vy,4.2);swimSpray(p,p.swimTop!=null?p.swimTop+1:p.pos.y+0.5,4);}}else p.swimHoldT=SWIM_HOLD;
@@ -19252,7 +19275,7 @@ function movePlayer(p,dt){
     p.head.rotation.x=p.head.rotation.x*(1-k)-0.22*k;
     p.tail.rotation.x=p.tail.rotation.x*(1-k)+(0.9+Math.sin(ph*1.5)*0.3)*k;
     if(moving&&p.wet){p.swimFx=(p.swimFx||0)-dt;
-      if(p.swimFx<=0){p.swimFx=0.3;const yy=Math.floor(p.pos.y+0.6);let top=yy;while(top<yy+4&&get(Math.floor(p.pos.x),top+1,Math.floor(p.pos.z))===WATER)top++;
+      if(p.swimFx<=0){p.swimFx=0.3;const yy=Math.floor(p.pos.y+0.6);let top=yy;while(top<yy+4&&WET[get(Math.floor(p.pos.x),top+1,Math.floor(p.pos.z))])top++;
         if(top-yy<3)swimSpray(p,top+1,3);}}   // (a wake behind, never ahead: in front it was in a goblin's first-person view)
   } else p.swimT=0;
   // hanging from a ceiling: the whole standing pose flipped upside down about the feet, so they grip the ceiling
@@ -23005,7 +23028,7 @@ function updateGoblins(dt){
               if(best){g.detour=1.3;g.detourH=Math.atan2(best[0],best[1]);}
               g.stuck=0;
             }
-          } else {const sp=g.wet?2:(g.spd||2.8);g.pos.x+=fx*sp*dt;g.pos.z+=fz*sp*dt;moving=true;g.phase+=dt*sp*4.5;g.stuck=0;}
+          } else {const sp=g.wet?2:(g.spd||2.8)*(g.wadeK??1);g.pos.x+=fx*sp*dt;g.pos.z+=fz*sp*dt;moving=true;g.phase+=dt*sp*4.5;g.stuck=0;}
           if(g.vy===0)g.atk=Math.max(g.atk,Math.max(0.5,strikeWind(foeMeleeK(FK))));
         } else if(!canHit){if(g.vy===0)g.atk=Math.max(g.atk,Math.max(0.5,strikeWind(foeMeleeK(FK))));
           // (a hippo stood on something just out of reach, a car roof, say: up at it, club first)
@@ -23026,8 +23049,8 @@ function updateGoblins(dt){
      for(let ix=cx-1;ix<=cx+1;ix++)for(let iz=cz-1;iz<=cz+1;iz++){const l=GOB_GRID.get(gobCell(ix,iz));if(!l)continue;
        for(const o of l){if(o===g||o.state!=='chase')continue;const ox=g.pos.x-o.pos.x,oz=g.pos.z-o.pos.z;if(ox>0.7||ox<-0.7||oz>0.7||oz<-0.7)continue;const od=Math.hypot(ox,oz);if(od<0.7&&od>0.001)nudge(g,ox/od*(0.7-od)*0.5,oz/od*(0.7-od)*0.5);}}}
     // in water too deep to stand in: up to the top of it and paddling, head out (or down after a hippo that's sunk close by)
-    {const xi=Math.floor(g.pos.x),zi=Math.floor(g.pos.z),wy=Math.floor(g.pos.y+0.6);g.wet=get(xi,wy,zi)===WATER&&get(xi,wy-1,zi)===WATER;
-     if(g.wet){let top=wy;while(top<H-1&&get(xi,top+1,zi)===WATER)top++;let wantY=g.civ?top:top-0.4;if(tgt&&!g.civ&&d<8&&tgt.p.wet&&tgt.p.pos.y<top)wantY=Math.max(tgt.p.pos.y,top-12);
+    {const xi=Math.floor(g.pos.x),zi=Math.floor(g.pos.z),wy=Math.floor(g.pos.y+0.6);g.wet=WET[get(xi,wy,zi)]&&WET[get(xi,wy-1,zi)];g.wadeK=g.wet?1:Math.max(0.45,1-0.55*Math.min(1,wadeDepth(g.pos.x,g.pos.y,g.pos.z)/0.7));   // (wading slows them)
+     if(g.wet){let top=wy;while(top<H-1&&WET[get(xi,top+1,zi)])top++;let wantY=g.civ?top:top-0.4;if(tgt&&!g.civ&&d<8&&tgt.p.wet&&tgt.p.pos.y<top)wantY=Math.max(tgt.p.pos.y,top-12);
        g.vy=0;g.pos.y+=Math.max(-3*dt,Math.min(3*dt,wantY-g.pos.y));
        if(moving&&(g.splash=(g.splash||0)-dt)<=0){g.splash=0.4;puff(g.pos.x,top+0.9,g.pos.z,2,0xcfe8ff,0.3);}}}
     const gr=g.wet?null:supportAt(g.pos.x,g.pos.z,g.pos.y);
@@ -23675,7 +23698,26 @@ function carFoot(c){return supportMax(c.pos.x,c.pos.z,c.heading,c.pos.y,c.pts);}
 // ---- car body physics: sits on four wheels, tips over edges, falls into pits, lands hard ----
 // the ground under a vehicle; a hovercraft also rides on open water, at its surface (as a road is at sea level)
 function hovSup(c,x,z,y){const v=supportAt(x,z,y);if(c.veh!=='hover'||y<G+0.6||!(v===null||v<G+1))return v;return get(Math.floor(x),G,Math.floor(z))===WATER&&!solidAt(x,G+1,z)?G+1:v;}
+// ---- in water: shallow water slows a car down, deeper (CAR_STUCK over its wheels' bottom) stops it where it is, and one
+// that drives or falls into deep water floats on it for CAR_FLOAT_T seconds, then fills and sinks nose first ----
+const CAR_STUCK=0.75,CAR_FLOAT_T=4;
+// (the water's surface over (x,y,z), from the block y is in up: null if it's dry there. Never makes a chunk)
+function carWaterTop(x,y,z){
+  const xi=Math.floor(x),zi=Math.floor(z);let yy=Math.floor(y);if(!WET[peek(xi,yy,zi)]){yy++;if(!WET[peek(xi,yy,zi)])return null;}
+  for(let k=0;k<8&&WET[peek(xi,yy+1,zi)];k++)yy++;const t=peek(xi,yy,zi);return yy+(t===WATER?0.9:BLOCK[t].lvl/8);
+}
+function carWater(c,dt){
+  const wt=c.veh==='hover'?null:carWaterTop(c.pos.x,c.pos.y,c.pos.z),d=wt===null?0:Math.max(0,wt-c.pos.y);
+  if(d>0.5&&!(c.wDep>0.5)&&c.vy<-3){c.vy*=0.25;puff(c.pos.x,wt,c.pos.z,16,0xd8ecf8,1.5);sfx('Car splashes into water',()=>{noise(0.45,0.35,900,'lowpass');tone('sine',220,90,0.3,0.06);});}
+  c.wDep=d;c.wTop=wt;
+  if(d<=0.02){c.floatT=0;return;}
+  // (the deeper, the slower: driven or on its rounds, the wheels can't push it faster than this, and past CAR_STUCK not at all)
+  const vmax=d>=CAR_STUCK?0:Math.max(0.4,24*(1-d/CAR_STUCK)*(1-d/CAR_STUCK));
+  c.speed=Math.max(-vmax,Math.min(vmax,c.speed))*Math.exp(-dt*d*1.5);
+  if(d>0.5&&!c.grounded)c.floatT=(c.floatT||0)+dt;
+}
 function carPhysics(c,dt){
+  carWater(c,dt);
   const s=Math.sin(c.heading),k=Math.cos(c.heading),wx=c.hx*1.1,wz=Math.max(0.12,c.hz-0.36);   // (never under a short one's middle: the Gobway's half-length is under 0.36, and the pitch's sums went the wrong way round)
   // on a ramp the wheels ride the slope (a long truck's sit well above or below its middle); anywhere else a car won't climb a ledge
   const onRamp=rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)||rampUnder(c.pos.x+s*wz,c.pos.z+k*wz,c.pos.y+0.5)||rampUnder(c.pos.x-s*wz,c.pos.z-k*wz,c.pos.y+0.5);
@@ -23709,9 +23751,15 @@ function carPhysics(c,dt){
   } else {
     // falling: gravity, keep momentum, nose (or side) dips toward the drop and the car slides off the lip
     const was=c.grounded;c.grounded=false;
-    c.vy-=25*dt;c.pos.y+=c.vy*dt;
+    if(c.wDep>0.5){
+      // afloat: it bobs at the surface a while, then fills and sinks, slowly, as water holds it back
+      if(c.floatT<CAR_FLOAT_T)c.vy+=((c.wTop-0.55-c.pos.y)*8-c.vy*3)*dt;else c.vy+=(-1.1-c.vy)*Math.min(1,dt*2);
+      c.kv.x*=Math.exp(-dt*2);c.kv.z*=Math.exp(-dt*2);
+    } else c.vy-=25*dt;
+    c.pos.y+=c.vy*dt;
     tp=Math.max(-1.2,Math.min(1.2,Math.atan2((cl(bl)+cl(br))/2-(cl(fl)+cl(fr))/2,2*wz)*1.6));
     tr=Math.max(-1.2,Math.min(1.2,Math.atan2((cl(fl)+cl(bl))/2-(cl(fr)+cl(br))/2,2*wx)*1.6));
+    if(c.wDep>0.5){const f=c.floatT<CAR_FLOAT_T;tp=f?Math.sin(playTime*1.7)*0.05+c.floatT/CAR_FLOAT_T*0.15:0.35;tr=f?Math.sin(playTime*1.3)*0.06:0;}   // (bobbing, then nose down: the engine's the heavy end)
     if(was&&!comOK){const lx=((fl+bl)-(fr+br))>0?-1:1,lz=((bl+br)-(fl+fr))>0?1:-1;const sx=(Math.abs(fl+fr-bl-br)>0.3?lz:0),sr=(Math.abs(fl+bl-fr-br)>0.3?lx:0);c.kv.x+=(sr*k+sx*s)*2.5;c.kv.z+=(-sr*s+sx*k)*2.5;}
     const land=hovSup(c,c.pos.x,c.pos.z,c.pos.y+0.4);
     // with its middle over the hole, the wheels still up on the lip don't hold it

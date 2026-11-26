@@ -404,7 +404,7 @@ function updateGoblins(dt){
               if(best){g.detour=1.3;g.detourH=Math.atan2(best[0],best[1]);}
               g.stuck=0;
             }
-          } else {const sp=g.wet?2:(g.spd||2.8);g.pos.x+=fx*sp*dt;g.pos.z+=fz*sp*dt;moving=true;g.phase+=dt*sp*4.5;g.stuck=0;}
+          } else {const sp=g.wet?2:(g.spd||2.8)*(g.wadeK??1);g.pos.x+=fx*sp*dt;g.pos.z+=fz*sp*dt;moving=true;g.phase+=dt*sp*4.5;g.stuck=0;}
           if(g.vy===0)g.atk=Math.max(g.atk,Math.max(0.5,strikeWind(foeMeleeK(FK))));
         } else if(!canHit){if(g.vy===0)g.atk=Math.max(g.atk,Math.max(0.5,strikeWind(foeMeleeK(FK))));
           // (a hippo stood on something just out of reach, a car roof, say: up at it, club first)
@@ -425,8 +425,8 @@ function updateGoblins(dt){
      for(let ix=cx-1;ix<=cx+1;ix++)for(let iz=cz-1;iz<=cz+1;iz++){const l=GOB_GRID.get(gobCell(ix,iz));if(!l)continue;
        for(const o of l){if(o===g||o.state!=='chase')continue;const ox=g.pos.x-o.pos.x,oz=g.pos.z-o.pos.z;if(ox>0.7||ox<-0.7||oz>0.7||oz<-0.7)continue;const od=Math.hypot(ox,oz);if(od<0.7&&od>0.001)nudge(g,ox/od*(0.7-od)*0.5,oz/od*(0.7-od)*0.5);}}}
     // in water too deep to stand in: up to the top of it and paddling, head out (or down after a hippo that's sunk close by)
-    {const xi=Math.floor(g.pos.x),zi=Math.floor(g.pos.z),wy=Math.floor(g.pos.y+0.6);g.wet=get(xi,wy,zi)===WATER&&get(xi,wy-1,zi)===WATER;
-     if(g.wet){let top=wy;while(top<H-1&&get(xi,top+1,zi)===WATER)top++;let wantY=g.civ?top:top-0.4;if(tgt&&!g.civ&&d<8&&tgt.p.wet&&tgt.p.pos.y<top)wantY=Math.max(tgt.p.pos.y,top-12);
+    {const xi=Math.floor(g.pos.x),zi=Math.floor(g.pos.z),wy=Math.floor(g.pos.y+0.6);g.wet=WET[get(xi,wy,zi)]&&WET[get(xi,wy-1,zi)];g.wadeK=g.wet?1:Math.max(0.45,1-0.55*Math.min(1,wadeDepth(g.pos.x,g.pos.y,g.pos.z)/0.7));   // (wading slows them)
+     if(g.wet){let top=wy;while(top<H-1&&WET[get(xi,top+1,zi)])top++;let wantY=g.civ?top:top-0.4;if(tgt&&!g.civ&&d<8&&tgt.p.wet&&tgt.p.pos.y<top)wantY=Math.max(tgt.p.pos.y,top-12);
        g.vy=0;g.pos.y+=Math.max(-3*dt,Math.min(3*dt,wantY-g.pos.y));
        if(moving&&(g.splash=(g.splash||0)-dt)<=0){g.splash=0.4;puff(g.pos.x,top+0.9,g.pos.z,2,0xcfe8ff,0.3);}}}
     const gr=g.wet?null:supportAt(g.pos.x,g.pos.z,g.pos.y);

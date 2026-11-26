@@ -1,7 +1,26 @@
 // ---- car body physics: sits on four wheels, tips over edges, falls into pits, lands hard ----
 // the ground under a vehicle; a hovercraft also rides on open water, at its surface (as a road is at sea level)
 function hovSup(c,x,z,y){const v=supportAt(x,z,y);if(c.veh!=='hover'||y<G+0.6||!(v===null||v<G+1))return v;return get(Math.floor(x),G,Math.floor(z))===WATER&&!solidAt(x,G+1,z)?G+1:v;}
+// ---- in water: shallow water slows a car down, deeper (CAR_STUCK over its wheels' bottom) stops it where it is, and one
+// that drives or falls into deep water floats on it for CAR_FLOAT_T seconds, then fills and sinks nose first ----
+const CAR_STUCK=0.75,CAR_FLOAT_T=4;
+// (the water's surface over (x,y,z), from the block y is in up: null if it's dry there. Never makes a chunk)
+function carWaterTop(x,y,z){
+  const xi=Math.floor(x),zi=Math.floor(z);let yy=Math.floor(y);if(!WET[peek(xi,yy,zi)]){yy++;if(!WET[peek(xi,yy,zi)])return null;}
+  for(let k=0;k<8&&WET[peek(xi,yy+1,zi)];k++)yy++;const t=peek(xi,yy,zi);return yy+(t===WATER?0.9:BLOCK[t].lvl/8);
+}
+function carWater(c,dt){
+  const wt=c.veh==='hover'?null:carWaterTop(c.pos.x,c.pos.y,c.pos.z),d=wt===null?0:Math.max(0,wt-c.pos.y);
+  if(d>0.5&&!(c.wDep>0.5)&&c.vy<-3){c.vy*=0.25;puff(c.pos.x,wt,c.pos.z,16,0xd8ecf8,1.5);sfx('Car splashes into water',()=>{noise(0.45,0.35,900,'lowpass');tone('sine',220,90,0.3,0.06);});}
+  c.wDep=d;c.wTop=wt;
+  if(d<=0.02){c.floatT=0;return;}
+  // (the deeper, the slower: driven or on its rounds, the wheels can't push it faster than this, and past CAR_STUCK not at all)
+  const vmax=d>=CAR_STUCK?0:Math.max(0.4,24*(1-d/CAR_STUCK)*(1-d/CAR_STUCK));
+  c.speed=Math.max(-vmax,Math.min(vmax,c.speed))*Math.exp(-dt*d*1.5);
+  if(d>0.5&&!c.grounded)c.floatT=(c.floatT||0)+dt;
+}
 function carPhysics(c,dt){
+  carWater(c,dt);
   const s=Math.sin(c.heading),k=Math.cos(c.heading),wx=c.hx*1.1,wz=Math.max(0.12,c.hz-0.36);   // (never under a short one's middle: the Gobway's half-length is under 0.36, and the pitch's sums went the wrong way round)
   // on a ramp the wheels ride the slope (a long truck's sit well above or below its middle); anywhere else a car won't climb a ledge
   const onRamp=rampUnder(c.pos.x,c.pos.z,c.pos.y+0.5)||rampUnder(c.pos.x+s*wz,c.pos.z+k*wz,c.pos.y+0.5)||rampUnder(c.pos.x-s*wz,c.pos.z-k*wz,c.pos.y+0.5);
@@ -35,9 +54,15 @@ function carPhysics(c,dt){
   } else {
     // falling: gravity, keep momentum, nose (or side) dips toward the drop and the car slides off the lip
     const was=c.grounded;c.grounded=false;
-    c.vy-=25*dt;c.pos.y+=c.vy*dt;
+    if(c.wDep>0.5){
+      // afloat: it bobs at the surface a while, then fills and sinks, slowly, as water holds it back
+      if(c.floatT<CAR_FLOAT_T)c.vy+=((c.wTop-0.55-c.pos.y)*8-c.vy*3)*dt;else c.vy+=(-1.1-c.vy)*Math.min(1,dt*2);
+      c.kv.x*=Math.exp(-dt*2);c.kv.z*=Math.exp(-dt*2);
+    } else c.vy-=25*dt;
+    c.pos.y+=c.vy*dt;
     tp=Math.max(-1.2,Math.min(1.2,Math.atan2((cl(bl)+cl(br))/2-(cl(fl)+cl(fr))/2,2*wz)*1.6));
     tr=Math.max(-1.2,Math.min(1.2,Math.atan2((cl(fl)+cl(bl))/2-(cl(fr)+cl(br))/2,2*wx)*1.6));
+    if(c.wDep>0.5){const f=c.floatT<CAR_FLOAT_T;tp=f?Math.sin(playTime*1.7)*0.05+c.floatT/CAR_FLOAT_T*0.15:0.35;tr=f?Math.sin(playTime*1.3)*0.06:0;}   // (bobbing, then nose down: the engine's the heavy end)
     if(was&&!comOK){const lx=((fl+bl)-(fr+br))>0?-1:1,lz=((bl+br)-(fl+fr))>0?1:-1;const sx=(Math.abs(fl+fr-bl-br)>0.3?lz:0),sr=(Math.abs(fl+bl-fr-br)>0.3?lx:0);c.kv.x+=(sr*k+sx*s)*2.5;c.kv.z+=(-sr*s+sx*k)*2.5;}
     const land=hovSup(c,c.pos.x,c.pos.z,c.pos.y+0.4);
     // with its middle over the hole, the wheels still up on the lip don't hold it
