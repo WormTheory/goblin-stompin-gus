@@ -328,7 +328,7 @@
 ### Lighting
 
 - At night, lights now light up what's around them. Street lamps pool light on the pavement, neon signs throw their own colours across the street, lit windows glow on the walls and rooms beside them, and lamps, TVs and screens light the rooms they're in. Walls block the light, so it stays in the room or the street it's in. Smash a lamp or a sign and its light goes out.
-- It's switched on or off with Advanced lighting under Sound & picture in Options. Off, the game looks and runs exactly as before.
+- It's switched on or off with Advanced lighting in Settings' Performance tab. Off, the game looks and runs exactly as before.
 - A building that's been destroyed or brought down goes dark: its windows, neon and signs stop glowing, and the pieces of it falling don't glow either.
 - In fog, rain and snow at night, lit windows, neon, lamps and the light they cast now show through the murk as a soft glow, some way past where the buildings themselves disappear.
 - In thick fog the sky and clouds are now lost in the fog too, so far-off towers no longer stand out as dark shapes against a clear sky.
@@ -488,7 +488,7 @@
 - It gets going quicker from a standstill, and no longer gets stuck walking slowly into a step or a ledge (it used to end up wedged in it, and only a jump or a quick boost got it free).
 - Its lock-on picks out tanks, helicopters, an aircraft carrier's deck weapons and its jets in the air twice as far off as goblins, and holds a lock on them that far too.
 - Pick its loadout in the Testing Environment tab, under "Mobile Gear loadout": each of its four weapon slots has a second choice. The left arm can carry a second Rivet Rifle instead of the Heat Cleaver; the right arm a Scrap Shotgun (a spread of pellets, short-ranged and hard-hitting); the left shoulder a Rocket Volley (a stream of unguided rockets, no locking needed); and the right shoulder a Clod Lobber (shells lobbed high on to whatever you aim at, more of them than the cannon and no bracing). Your choice is remembered, and only Mobile Gears spawned after it carry it.
-- Its controls can be rebound in Options, in their own "Piloting a Mobile Gear" section. The weapon buttons are now named by slot (left arm, right shoulder and so on), since the loadout decides what's in each.
+- Its controls can be rebound in Settings' Controls tab, in their own "Piloting a Mobile Gear" section. The weapon buttons are now named by slot (left arm, right shoulder and so on), since the loadout decides what's in each.
 - Mobile Gears aren't kept when you leave the Testing Environment.
 - While you're piloting, the controls line for on foot is hidden.
 - Getting into any vehicle or gun seat no longer pops up a card of its controls on the right: they're all in the list down the left, including a helicopter's climb and drop, flying a plane, and the fire buttons.
@@ -526,7 +526,7 @@
 
 ### PvP
 
-- A new PvP switch in Options, off unless you turn it on. With it on, players can fight each other, in split screen or online, whoever they're playing as.
+- A new PvP switch in Settings' Multiplayer tab, off unless you turn it on. With it on, players can fight each other, in split screen or online, whoever they're playing as.
 - Lock on to another player as you would a goblin, on foot, from a tank or helicopter, or with a Mobile Gear's lock box, and its missiles home in on them. A player in a vehicle is locked on as the vehicle.
 - Every attack lands on other players: bites and uppercuts, stomps, ground pounds, ground spikes, trampling, rolls, dashes, blast dashes and blast long jumps, and Gnash's club, dagger, guns and grenades. A hippo's blows hit another player for about a third of what they do to a goblin, so a fight lasts a while.
 - Vehicles too: run another player down in a car or a tank, shoot them with a tank's or helicopter's guns, shells and rockets, or with a Mobile Gear's rifle, blade, missiles and cannon (it tramples them as well).
@@ -547,7 +547,7 @@
 - The forklift's forks work. Hold Space to raise them and C to lower them (RB and LB on a controller), and hold Left Shift (X) with either to tilt the mast. Raise them under a crate, a goblin or a light car and it comes up with you. Lower it on to anything, a ledge, a roof or the ground, and it's set down there. Drive at a goblin with the forks up and they spear it. The forklift steers with its back wheels, so it turns almost on the spot with its tail swinging wide, and it beeps when it reverses. Take a sharp turn with a load held high and it tips over on its side, throwing you out; get back in to rock it back on to its wheels.
 - Lifting a car on the forklift no longer sends it sliding backwards: the car and the forklift were shoving each other apart every moment. A car on the forks now stays put and the forklift drives off with it.
 - The forklift can lift players too. Stand on the forks, as Gus, Gertie, Gnash or Grizzle, while someone raises them and up you go, carried along as it drives. The instruments show who's on board (a hippo weighs more than a car, so mind the tip risk). Step or jump off whenever you like.
-- Theme park rides and zoo animals have health bars (Options' Health bars), like every other vehicle: each coaster car, the Ferris wheel and each of its gondolas, the carousel, and every animal.
+- Theme park rides and zoo animals have health bars (Health bars, in Settings' Display tab), like every other vehicle: each coaster car, the Ferris wheel and each of its gondolas, the carousel, and every animal.
 - The tractor has a hand throttle: R steps it up through low, middle and high, Left Shift steps it down (D-pad right and down on a controller), and it holds that speed with nothing pressed. Braking knocks it off.
 - The tractor carries a plough or a mower on its hitch (right click, or LB, swaps them). Lower it with Space (RB). The plough turns grass to dirt behind you and flings goblins aside; the mower makes short work of any goblin it catches. Both cut down flowers and slow the tractor while they work. An empty hitch lowered on a road scrapes and throws sparks.
 - Cars, vans, trucks and motorcycles now slide: where you're going only comes round to where you point as fast as the tyres grip, and they grip less on grass, sand, snow and ice. Steering eases off at speed, so changing lanes on the motorway is steadier. On the keyboard the throttle comes on over a moment rather than all at once.
@@ -559,7 +559,7 @@
 - Crash a motorcycle into a wall fast enough and you go flying off it.
 - The plane's throttle and the ship's engine order and rudder are now shown on their instruments rather than in the list of controls.
 - Planes fly properly in three dimensions now: roll right round, loop, fly upside down and knife-edge. Pull too hard when slow and the wing stalls, the nose drops and a wing goes down with it.
-- Two ways to fly, picked in Options under Plane controls: Mouse-aim (point the camera where you want to go and the plane rolls and pulls itself there, keeping out of stalls and off the ground; W and S are the throttle, A and D roll by hand, hold X to look round without turning) and Direct (W and S pitch, A and D roll, Left Shift and C the throttle, Q and E the rudder; on a controller the left stick, RT and LT the throttle, LB and RB the rudder). Auto picks Mouse-aim on a mouse and Direct on a controller. Let go of the stick in Direct and the wings come level and the plane holds its height.
+- Two ways to fly, picked under Plane controls in Settings' Controls tab: Mouse-aim (point the camera where you want to go and the plane rolls and pulls itself there, keeping out of stalls and off the ground; W and S are the throttle, A and D roll by hand, hold X to look round without turning) and Direct (W and S pitch, A and D roll, Left Shift and C the throttle, Q and E the rudder; on a controller the left stick, RT and LT the throttle, LB and RB the rudder). Auto picks Mouse-aim on a mouse and Direct on a controller. Let go of the stick in Direct and the wings come level and the plane holds its height.
 - Space is the wheel brakes on the ground and the airbrake in the air. R raises and lowers the undercarriage (the jet's R is still its hook). Land with the gear up and you slide in on the belly: you'll walk away, but that plane won't fly again.
 - The two-seater rolls quickly and loops easily, and right click turns on a smoke trail for skywriting.
 - The airliner is heavy and turns wide. Right click switches on the autopilot, which holds your height and heading (with a chime); touch the stick and it lets go. Pull it too hard and the wings creak, then start to give.
@@ -642,7 +642,7 @@
 
 - Props out in the open (patio tables, beach and harbour gear, the stadium's fittings and the like) are now drawn out to 64 blocks, up from 34, and furniture indoors stays at 34 as before. The distance is now the same in every direction, so things on the diagonal no longer show up later than things straight ahead.
 - Props now grow up out of the ground over a moment as they come into range, instead of suddenly appearing.
-- New PROPS slider in Options, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.
+- New PROPS slider in Settings' Performance tab, under Render distance: set how far props are drawn, from 32 to 192 blocks. Furniture indoors goes about half as far as the setting.
 
 ### Weather
 
@@ -667,7 +667,7 @@
 
 ### Health bars
 
-- With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.
+- With Health bars on (Settings' Display tab), Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.
 - Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.
 
 ### Shorter menu text
