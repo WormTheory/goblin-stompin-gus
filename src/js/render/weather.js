@@ -267,10 +267,12 @@ function wxAudio(){
 // winter: the top layer of every pond, river and fountain freezes to ice (loaded chunks are converted and re-meshed a
 // few at a time; chunks built later freeze as they're made), and thaws back to water in spring
 const ICE_Y0=G-8,ICE_Y1=G+12,freezeQ=[];
+// (shallow water with air or more shallow water under it is still falling, so it doesn't freeze where it hangs)
+const wetFalling=u=>u===AIR||u!==WATER&&!!WET[u];
 // (frac under 1: only the blocks whose hash is under it, so winter can come on in steps, freezeTick; cx,cz place them)
 function freezeArr(a,on,cx=0,cz=0,frac=1){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)for(let i=0;i<L;i++){const j=y*L+i,b=a[j];
   if(frac<1&&(b===AIR||b===WATER&&a[j+L]===WATER||hash2(cx*CS+i%CS+y*131,cz*CS+((i/CS)|0)+y*17)>=frac))continue;
-  if(on){if(a[j+L]===AIR){if(b===WATER){a[j]=ICE;n++;}else if(WET[b]){a[j]=ICE_L[BLOCK[b].lvl];n++;}}}   // (shallow water too, as thin ice)
+  if(on){if(a[j+L]===AIR){if(b===WATER){a[j]=ICE;n++;}else if(WET[b]&&!wetFalling(a[j-L])){a[j]=ICE_L[BLOCK[b].lvl];n++;}}}   // (shallow water too, as thin ice)
   else if(b===ICE){a[j]=WATER;n++;}else if(ICE_LV[b]){a[j]=WATER_L[ICE_LV[b]];n++;}}return n;}
 // (now: every chunk at once, as when a game's loaded in winter; otherwise the ice creeps over the water in FZ_STEPS steps
 // over about FZ_TIME seconds, or melts the same way, freezeTick, and the chunks it changes join the frame's budgeted rebuilds)

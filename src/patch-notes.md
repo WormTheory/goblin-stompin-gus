@@ -212,6 +212,7 @@
 - Cars slow down in shallow water and get stuck in deep water. Drive into a lake or the sea and the car floats for a few seconds, then sinks nose first to the bottom.
 - Spilled water freezes over in winter, even a thin puddle, and thaws again in spring. You can walk on the ice, thin sheets too.
 - When winter comes, the ice creeps over the water nearby over half a minute or so instead of appearing all at once, and the game no longer stalls while it does. Spring melts it the same way.
+- Water that's still pouring down doesn't freeze where it hangs in the air: it lands first.
 - Water puts out a fire: flood one and it hisses out in a puff of steam.
 - Water pouring out from high up shows as a stream all the way down, rather than vanishing and appearing at the bottom.
 - Water no longer flickers where it meets weed in an aquarium, glass or a fence.

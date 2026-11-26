@@ -139,10 +139,10 @@ if(ex===null)console.log('edge: no sea found');else{
 // freezes over once it's still. (Over the sea, a stone floor 6 up, inside the height freezing reaches)
 {const ix=sx+3,iz=sz+3,iy=G+7,cold=T.chunkFreeze;
   for(let x=ix-3;x<=ix+9;x++)for(let z=iz-3;z<=iz+3;z++){put(x,iy-1,z,STONE);put(x,iy,z,Math.abs(z-iz)===3||x===ix-3||x===ix+9?STONE:AIR);}
-  put(ix,iy,iz,T.WATER_L[5]);put(ix+1,iy,iz,W);
+  put(ix,iy,iz,T.WATER_L[5]);put(ix+1,iy,iz,W);put(ix+3,iy+3,iz,T.WATER_L[2]);   // (and a drop of water falling through the air)
   T.WX.frozen=true;const canFreeze=T.chunkFreeze(Math.floor(ix/16),Math.floor(iz/16));T.freezeWorld(true,true);
-  const f1=T.get(ix,iy,iz),f2=T.get(ix+1,iy,iz);T.WX.frozen=false;T.freezeWorld(false,true);const t1=T.get(ix,iy,iz),t2=T.get(ix+1,iy,iz);
-  console.log('winter here',canFreeze,'| 5/8 water froze to 5/8 ice',f1===T.ICE_L[5],'full to ice',f2===T.ICE,'| thawed back',t1===T.WATER_L[5],t2===W);
+  const f1=T.get(ix,iy,iz),f2=T.get(ix+1,iy,iz),f3=T.get(ix+3,iy+3,iz);put(ix+3,iy+3,iz,AIR);T.WX.frozen=false;T.freezeWorld(false,true);const t1=T.get(ix,iy,iz),t2=T.get(ix+1,iy,iz);
+  console.log('winter here',canFreeze,'| 5/8 water froze to 5/8 ice',f1===T.ICE_L[5],'full to ice',f2===T.ICE,'| thawed back',t1===T.WATER_L[5],t2===W,'| falling water left to fall',f3===T.WATER_L[2]);ok(!canFreeze||f3===T.WATER_L[2],'falling water doesn\'t freeze in the air');
   if(canFreeze){ok(f1===T.ICE_L[5]&&f2===T.ICE&&t1===T.WATER_L[5]&&t2===W,'freeze and thaw');
     T.WX.frozen=true;for(let y=iy;y<iy+3;y++)put(ix+6,y,iz,W);dig(ix+6,iy+3,iz);settle();let ice=0,wet=0;
     for(let x=ix-2;x<=ix+8;x++)for(let z=iz-2;z<=iz+2;z++){const b=T.get(x,iy,z);if(b===T.ICE||T.ICE_L.includes(b)&&b)ice++;else if(T.WF_LV[b]>0)wet++;}

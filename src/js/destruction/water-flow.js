@@ -118,7 +118,7 @@ function updateWater(dt){
       wfWakeRound(x,y,z);}
     if(wait)wfPark.set(k,list[n]);
     // (come to rest in winter, out in the open: it freezes over as the rest did when winter came, render/weather.js)
-    else if(!moved&&WX.frozen&&y>=ICE_Y0&&y<=ICE_Y1&&wfGet(x,y+1,z)===AIR&&!chg.has(k)&&chunkFreeze(Math.floor(x/CS),Math.floor(z/CS))){
+    else if(!moved&&WX.frozen&&y>=ICE_Y0&&y<=ICE_Y1&&wfGet(x,y+1,z)===AIR&&!wetFalling(wfGet(x,y-1,z))&&!chg.has(k)&&chunkFreeze(Math.floor(x/CS),Math.floor(z/CS))){
       const A=chunkArr(Math.floor(x/CS),Math.floor(z/CS)),i=li(x-Math.floor(x/CS)*CS,y,z-Math.floor(z/CS)*CS),b=A[i];
       if(WET[b]){A[i]=b===WATER?ICE:ICE_L[BLOCK[b].lvl];lastK=-1;wfDirty.add(ckey(Math.floor(x/CS),Math.floor(z/CS)));}}
   }
