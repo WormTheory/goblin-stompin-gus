@@ -60,12 +60,12 @@ function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
   for(const el of document.querySelectorAll('.gamepane .hostmain'))el.classList.add('p1only');
-  for(const id of ['Gameplay','Perf','Display','Multi'])document.getElementById('tabBtn'+id).hidden=two;document.getElementById('tabBtnNotes').hidden=two;   // (player two's Settings is just their Controls)
+  for(const id of ['Gameplay','Perf','Display'])document.getElementById('tabBtn'+id).hidden=two;document.getElementById('tabBtnNotes').hidden=two;   // (player two's Settings is just their Controls, and Multiplayer's Players and Player 2 screen)
   document.getElementById('tabBtnDev').hidden=two||!DT.quick;
   if(two)document.getElementById('tabBtnTest').hidden=true;
   menuWhoShow();
   {const pc=document.getElementById('playCoop');if(pc)pc.textContent=two?'Resume':'Split screen';}   // (in player two's menu the co-op game is already on: the button just carries on)
-  if(two&&['gameplay','perf','display','multi','dev','test','notes'].includes(curTab))showTab('game');
+  if(two&&['gameplay','perf','display','dev','test','notes'].includes(curTab))showTab('game');
 }
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
 // (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it; only in
@@ -84,7 +84,7 @@ const SUB_TITLES={map:'Map',obit:'Obituary',custom:"Who's stompin'?",controls:'S
 // Settings opens again on whichever tab was last looked at
 const SET_TABS=['controls','gameplay','perf','display','multi'];let setLast='controls';
 const isSetTab=t=>SET_TABS.includes(t);
-const setFirst=()=>menuP2()?'controls':setLast;   // (player two only has Controls)
+const setFirst=()=>menuP2()?'controls':setLast;   // (player two has only Controls and Multiplayer)
 // (Play solo / Co-op and Play online: on the title screen they're in its main menu, paused they're in Settings'
 // Multiplayer tab. The very same buttons are moved between the two, so everything that listens to them carries on)
 const MP_MOVE=['play','playCoop','onlineBtn','onlinePanel'];

@@ -18,7 +18,7 @@ const st=()=>p.evaluate(()=>{const G=window.__G,[P1,P2]=G.players,r=q=>[...docum
     p1:[P1.pos.x.toFixed(1),P1.pos.z.toFixed(1)].join(','),p2:[P2.pos.x.toFixed(1),P2.pos.z.toFixed(1)].join(','),p1pad:!!P1.pad,p2pad:!!P2.pad,divider:!document.getElementById('divider').hidden};});
 await p.click('#play');await p.waitForTimeout(1500);
 await p.keyboard.press('Escape');await p.waitForTimeout(400);
-await p.click('#tabBtnControls',{force:true});await p.waitForTimeout(300);
+await p.evaluate(()=>document.getElementById('tabBtnMulti').click());await p.waitForTimeout(300);
 console.log('controls, auto, alone',JSON.stringify(await st()));
 await p.evaluate(()=>window.__tap(1,10));await p.waitForTimeout(80);
 console.log('controller 2 pressed L3 (lit)',JSON.stringify(await st()));
@@ -28,7 +28,7 @@ console.log('keyboard given to player 2',JSON.stringify(await st()));
 await p.click('#scrSeg button[data-scr="win"]');await p.waitForTimeout(150);
 await p.screenshot({path:out+'/players-manual.png'});
 console.log('open window button shown',await p.isVisible('#scrOpen'));
-await p.click('#subBack',{force:true});await p.waitForTimeout(200);
+// (Split screen is right there in the Multiplayer tab while paused)
 const [w]=await Promise.all([p.waitForEvent('popup'),p.click('#playCoop')]);
 await p.waitForTimeout(3000);
 console.log('co-op in two windows',JSON.stringify(await st()));

@@ -52,7 +52,7 @@ function seatsSeen(st){
   const now=performance.now();
   for(const s of st)if(s.b.some(Boolean)||s.p.axes.some(a=>Math.abs(a)>0.5))SEAT.padT.set(s.p.index,now);
   w2Check();
-  const pane=document.getElementById('tabControls');if(!menuOpen||!pane||pane.hidden)return;
+  const pane=document.getElementById('tabMulti');if(!menuOpen||!pane||pane.hidden)return;
   const sig=st.map(s=>s.p.index+':'+s.p.id).join('|')+'/'+JSON.stringify(INMAP)+(twoHere()?'2':'1')+(W2.win?'w':'');
   if(sig!==SEAT.sig){SEAT.sig=sig;seatsRender();}
   for(const r of document.querySelectorAll('#seatRows .seatrow')){const k=r.dataset.in,t=k==='kb'?SEAT.kbT:SEAT.padT.get(+k)||-1e9;r.classList.toggle('live',now-t<350);}
