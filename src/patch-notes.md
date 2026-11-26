@@ -241,7 +241,7 @@
 - How much of a settlement you've razed is now a bar curved round the top of the minimap, with the place's name and how much of it is down curved along it (on two lines when the name's long), so the speedometer no longer jumps up to make room for a card. It stays up for 5 seconds after you leave a place, then fades away, unless you walk into another place, which takes over at once.
 - Your controls on foot are now listed down the left of the screen, one to a line, where a vehicle's go, and they stay there rather than fading away. In a vehicle its own controls take their place.
 - Next and previous weapon are one line in the controls list now, "switch weapon", shown as the scroll wheel or the D-pad's left and right.
-- Options has a Hide controls switch, which hides the controls list down the left, on foot and in vehicles.
+- Settings' Display tab has a Hide controls switch, which hides the controls list down the left, on foot and in vehicles.
 - The time of day is gone from the card beside the clock, which now shows just the day and season. It's in the debug menu's Info pane instead, as a clock time (and whether time's paused) beside the time of day.
 
 ### Profiler
@@ -540,7 +540,7 @@
 - On a controller, the triggers are now an analog throttle and brake in cars: squeeze RT to go, LT to brake and reverse.
 - Planes: on the keyboard the throttle is now Left Shift and C (Space is the brakes); on a controller RT and LT. Lock on in a plane is the middle mouse button (R3), so Q and E are free for the rudder.
 - Tanks fire with RT on a controller, helicopters fire their gun with RT and rockets with LT, and LB and RB descend and climb.
-- Options: the Speedometer switch is now Vehicle instruments.
+- The Speedometer switch is now Vehicle instruments.
 - The two-seater plane's and the airliner's instruments now have a throttle gauge, like the boats'.
 - Every vehicle has instruments of its own in the bottom-right corner in place of the one speedometer: a dashboard with a rev counter for cars, a digital display that shows the lean on motorcycles, a truck dial with an air-pressure gauge, a fan and slip gauge on the hovercraft, the mast height, tilt and tip risk on the forklift, the gear range and implement on the tractor, a turret and hull compass on the tank, an artificial horizon with height and airspeed on the helicopter, round dials in the two-seater, a glass cockpit display in the airliner, an engine telegraph and rudder on boats and ships, oars on the rowing boat, a brake and power lever on trains and the wind at each height in the balloon. The fighter jet's display is drawn over the whole view, like a real head-up display.
 - Speeds are in km/h on land and knots on the water and in the air.
