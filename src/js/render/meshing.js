@@ -443,7 +443,13 @@ function meshKernel(J){
     if(info.hide)continue;
     if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
     const skyTop=tops[lz*CS+lx]===y,tg=b===GRASS?0:b===LEAVES||b===PINE?1:-1,ti=tg<0?-1:(lz*CS+lx)*6+tg*3;
-    const waterTop=liquid&&!(BLOCK[at(lx,y+1,lz)]||0).liquid,wTop=info.lvl?info.lvl*0.11:0.88,wH=waterTop?wTop:1;   // (shallow water's surface lower down)
+    // (shallow water's surface lower down; shallow water over open air or more shallow water is falling, and is drawn as a stream the
+    // whole block high, thinner the less of it there is)
+    const fb=info.lvl?at(lx,y-1,lz):0,fall=liquid&&info.lvl&&(fb===AIR||!!BLOCK[fb].lvl&&!!BLOCK[fb].liquid),fs=fall?(8-info.lvl)*0.045:0,fw=1-2*fs;
+    // (over open air the stream is drawn on down to what's under it, since the water falling through it comes in spurts)
+    let fBot=y;if(fall&&fb===AIR){let yb=y-1;while(yb>0&&y-yb<64&&a[i0-(y-yb)*A2]===AIR)yb--;const u=a[i0-(y-yb)*A2],U=BLOCK[u]||0,vb=yb>0?a[i0-(y-yb+1)*A2]:STONE,v=BLOCK[vb]||0;
+      fBot=yb+(U.liquid&&U.lvl&&!(vb===AIR||v.liquid&&v.lvl)?U.lvl*0.11:U.liquid&&!U.lvl?0.88:1);}   // (down to the top of more falling water, or the surface of the pool it lands in)
+    const waterTop=liquid&&!fall&&!(BLOCK[at(lx,y+1,lz)]||0).liquid,wTop=info.lvl?info.lvl*0.11:0.88,wH=waterTop?wTop:1;
     // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
     const inner=midY&&lx>0&&lx<CS-1&&lz>0&&lz<CS-1,tiles=info.tiles;
     for(let fi=0;fi<6;fi++){
@@ -451,9 +457,12 @@ function meshKernel(J){
       // (the face is hidden: behind anything solid; water's against water, but for a side that stands higher than the water
       // beside it, drawn from that water's surface up; water behind glass, leaves or a fence is still seen)
       let wLo=0;
-      if(nb!==AIR){if(!liquid){if(!B_SEE[nb]||nb===b)continue;}
-        else{const N=BLOCK[nb];if(!N.liquid){if(!B_SEE[nb])continue;}
-          else{if(F.dy)continue;const nh=(BLOCK[at(lx+F.dx,y+1,lz+F.dz)]||0).liquid?1:N.lvl?N.lvl*0.11:0.88;if(nh>=wH)continue;wLo=nh;}}}
+      if(nb!==AIR){if(!liquid){if((!B_SEE[nb]||nb===b)&&!(info.lvl&&F.dy===1))continue;}
+        else{const N=BLOCK[nb];if(!N.liquid){if(!B_SEE[nb]&&!(waterTop&&F.dy===1))continue;}
+          else{if(F.dy)continue;const nh=(BLOCK[at(lx+F.dx,y+1,lz+F.dz)]||0).liquid?1:N.lvl?N.lvl*0.11:0.88;if(nh>=wH&&!fall)continue;wLo=fall?0:nh;}}}
+      // (water's surface is drawn under a block over it too, since it's lower than the block's bottom)
+      // (water's face against weed, glass or a fence is set in a hair, so the two faces don't flicker through each other)
+      const ins=liquid&&nb!==AIR&&!BLOCK[nb].liquid?0.004:0;
       const tile=tiles[F.sel],tx=tile%AC,ty=Math.floor(tile/AC);
       const P=out.p.room(12),U=out.u.room(8),C=out.c.room(12),K=out.k.room(4),n=out.p.length/3,Bv=BL?out.b.room(12):null;
       let po=out.p.length,uo=out.u.length,co=out.c.length,ko=out.k.length,bo=BL?out.b.length:0;
@@ -465,7 +474,7 @@ function meshKernel(J){
       const rdI=sky===1&&sr&&(RD_TOP[b]===1||b===METAL&&RD_TOP[at(lx-1,y,lz)]===1&&RD_TOP[at(lx+1,y,lz)]===1)?rdYs.indexOf(y):-2,rdO=rdI>=0?rdOuts[rdI]:null;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
-        P[po++]=mx0+lx+c.x;P[po++]=(waterTop||info.lvl&&!liquid)&&c.y===1?y+wTop:wLo&&c.y===0?y+wLo:y+c.y;P[po++]=mz0+lz+c.z;
+        P[po++]=mx0+lx+fs+c.x*fw-F.dx*ins;P[po++]=((waterTop||info.lvl&&!liquid)&&c.y===1?y+wTop:c.y===0?(wLo?y+wLo:fBot):y+c.y)-F.dy*ins;P[po++]=mz0+lz+fs+c.z*fw-F.dz*ins;
         U[uo++]=(tx+0.002+c.u*0.996)/AC;U[uo++]=V0+(0.002+c.v*0.996)/AR;
         let s;
         if(glow){s=2;if(BL){Bv[bo++]=0;Bv[bo++]=0;Bv[bo++]=0;}}

@@ -152,6 +152,14 @@ if(ex===null)console.log('edge: no sea found');else{
   A.pos.set(bx+0.5,by+0.5,bz+0.5);A.vy=0;run(1.5);const k6=A.wadeK;
   for(let x=bx-3;x<=bx+3;x++)for(let z=bz-3;z<=bz+3;z++)T.setRaw(x,by,z,AIR);run(0.5);
   console.log('wading in 4/8 water: walking speed x',k6.toFixed(2),'| dry x',A.wadeK.toFixed(2),'| depth there',T.wadeDepth(bx+0.5,by,bz+0.5).toFixed(2));ok(k6<0.85&&k6>0.4&&A.wadeK===1,'wading slows');}
+// 12. a leak from high up: water on a shelf 8 over a floor, a side knocked out: on its way down it shows as a stream
+{const lx=Math.floor(A.pos.x)+40,lz=Math.floor(A.pos.z)+40,fy=G+40;
+  for(let x=lx-3;x<=lx+5;x++)for(let z=lz-3;z<=lz+5;z++)put(x,fy,z,STONE);
+  for(let x=lx;x<lx+3;x++)for(let z=lz;z<lz+3;z++){put(x,fy+8,z,STONE);put(x,fy+9,z,W);}
+  for(let x=lx-1;x<=lx+3;x++)for(let z=lz-1;z<=lz+3;z++)if(x<lx||x>lx+2||z<lz||z>lz+2)put(x,fy+9,z,GLASS);
+  dig(lx+3,fy+9,lz+1);let most=0;
+  for(let i=0;i<20;i++){T.updateWater(T.WF_STEP);let n=0;for(let y=fy+2;y<=fy+8;y++)if(lvAt(lx+3,y,lz+1)||lvAt(lx+4,y,lz+1))n++;most=Math.max(most,n);}
+  settle();console.log('leak from 8 up: most of the drop with water in it at once',most,'of 7 (the mesh draws each on down to where it lands)');ok(most>=3,'water on its way down');}
 console.log('left moving',T.wfAct.size,'queued',T.wfRemoved.length/3,'waiting',T.wfPark.size);
 console.log(errs?'waterflow: FAILED '+errs:'waterflow: passed');
 process.exit(errs?1:0);

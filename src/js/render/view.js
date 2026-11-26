@@ -2,7 +2,9 @@
 function renderView(p,x,y,w,h,R=renderer){   // (R: player two's own window draws with a renderer of its own, ui/seats.js)
   const wk0=WXK;WXK=p.wxk||WXK;try{renderView0(p,x,y,w,h,R);}finally{WXK=wk0;}}   // (each view in its own player's weather)
 function renderView0(p,x,y,w,h,R){
-  const c=p.camera.position,under=get(c.x,c.y,c.z)===WATER;
+  // (under the surface as it's drawn: shallow water's lower down, and the top of water with no water over it at 0.88)
+  const c=p.camera.position,cb=peek(c.x,c.y,c.z),cf=c.y-Math.floor(c.y),
+    under=!!WET[cb]&&(BLOCK[peek(c.x,c.y+1,c.z)].liquid||cf<(cb===WATER?0.88:BLOCK[cb].lvl*0.11));
   p.ui.tint.hidden=!under;
   const far=lodFar();
   if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;FOG_GLOW.value=0;skyU.uFog.value=0;}

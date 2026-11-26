@@ -211,6 +211,10 @@
 - Wading through water slows you and goblins down, more the deeper it is.
 - Cars slow down in shallow water and get stuck in deep water. Drive into a lake or the sea and the car floats for a few seconds, then sinks nose first to the bottom.
 - Spilled water freezes over in winter, even a thin puddle, and thaws again in spring.
+- Water pouring out from high up shows as a stream all the way down, rather than vanishing and appearing at the bottom.
+- Water no longer flickers where it meets weed in an aquarium, glass or a fence.
+- Shallow water with a block right over it shows its surface properly.
+- The underwater view comes on whenever your eyes are below the water's surface, in shallow water too, and not when they're just above it.
 
 ### Nukes
 

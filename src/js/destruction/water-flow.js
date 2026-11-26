@@ -92,7 +92,9 @@ function updateWater(dt){
     // down, as far as the block under it has room
     const d=y>0?amt(x,y-1,z):-1;
     if(d===-2)wait=true;
-    else if(d>=0&&d<WF_FULL&&!shut(x,y-1,z,d)){const m=src?WF_FULL-d:Math.min(a,WF_FULL-d);put(x,y-1,z,d+m);if(!src)a-=m;moved=true;}
+    // (into open air it falls a block a step, so there's water on the way down from where it's pouring out, which the
+    // mesh draws as a stream on down to where it lands, render/meshing.js)
+    else if(d>=0&&d<WF_FULL&&!shut(x,y-1,z,d)){const m=src?WF_FULL-d:Math.min(a,WF_FULL-d);put(x,y-1,z,d+m,d===0);if(!src)a-=m;moved=true;}
     // then out to the sides, once it can't fall
     if(a>0&&(d<0||d===WF_FULL||src)){
       const up=amt(x,y+1,z)>0;   // (water pressing down on it: it fills what's beside it right up, as in a flooded room)
