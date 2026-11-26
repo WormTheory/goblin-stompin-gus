@@ -155,6 +155,7 @@ function civAI(g,dt){
     else if(g.wt){want=Math.atan2(g.wt.x-g.pos.x,g.wt.z-g.pos.z);speed=1.5;}
   }
   if(g.detour>0){g.detour-=dt;want=g.detourH;}
+  if(!g.wet)speed*=g.wadeK??1;   // (wading slows them, routes.js)
   let diff=want-g.heading;while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
   g.heading+=Math.max(-7*dt,Math.min(7*dt,diff));
   let moving=false;

@@ -425,10 +425,12 @@ function updateGoblins(dt){
      for(let ix=cx-1;ix<=cx+1;ix++)for(let iz=cz-1;iz<=cz+1;iz++){const l=GOB_GRID.get(gobCell(ix,iz));if(!l)continue;
        for(const o of l){if(o===g||o.state!=='chase')continue;const ox=g.pos.x-o.pos.x,oz=g.pos.z-o.pos.z;if(ox>0.7||ox<-0.7||oz>0.7||oz<-0.7)continue;const od=Math.hypot(ox,oz);if(od<0.7&&od>0.001)nudge(g,ox/od*(0.7-od)*0.5,oz/od*(0.7-od)*0.5);}}}
     // in water too deep to stand in: up to the top of it and paddling, head out (or down after a hippo that's sunk close by)
-    {const xi=Math.floor(g.pos.x),zi=Math.floor(g.pos.z),wy=Math.floor(g.pos.y+0.6);g.wet=WET[get(xi,wy,zi)]&&WET[get(xi,wy-1,zi)];g.wadeK=g.wet?1:Math.max(0.45,1-0.55*Math.min(1,wadeDepth(g.pos.x,g.pos.y,g.pos.z)/0.7));   // (wading slows them)
-     if(g.wet){let top=wy;while(top<H-1&&WET[get(xi,top+1,zi)])top++;let wantY=g.civ?top:top-0.4;if(tgt&&!g.civ&&d<8&&tgt.p.wet&&tgt.p.pos.y<top)wantY=Math.max(tgt.p.pos.y,top-12);
+    {const xi=Math.floor(g.pos.x),zi=Math.floor(g.pos.z),wy=Math.floor(g.pos.y+0.6);const wd=wadeDepth(g.pos.x,g.pos.y,g.pos.z);g.wet=!!(WET[get(xi,wy,zi)]&&WET[get(xi,wy-1,zi)])||wd>=(g.wet?0.8:1.05);g.wadeK=g.wet?1:Math.max(0.45,1-0.55*Math.min(1,wd/0.7));   // (wading slows them; water over its waist, even standing on a floor, and it swims)
+     if(g.wet){let top=WET[get(xi,wy,zi)]?wy:Math.floor(g.pos.y+0.02);while(top<H-1&&WET[get(xi,top+1,zi)])top++;let bot=top;while(bot>0&&bot>top-16&&WET[get(xi,bot-1,zi)])bot--;
+      const tb=get(xi,top,zi),surf=top+(tb===WATER?0.88:BLOCK[tb].lvl/8);let wantY=Math.max(bot,g.civ?surf-0.9:surf-1.3);   // (by the surface, shallow water's lower down; never into the floor)
+      if(tgt&&!g.civ&&d<8&&tgt.p.wet&&tgt.p.pos.y<top)wantY=Math.max(tgt.p.pos.y,top-12);
        g.vy=0;g.pos.y+=Math.max(-3*dt,Math.min(3*dt,wantY-g.pos.y));
-       if(moving&&(g.splash=(g.splash||0)-dt)<=0){g.splash=0.4;puff(g.pos.x,top+0.9,g.pos.z,2,0xcfe8ff,0.3);}}}
+       if(moving&&(g.splash=(g.splash||0)-dt)<=0){g.splash=0.4;puff(g.pos.x,surf,g.pos.z,2,0xcfe8ff,0.3);}}}
     const gr=g.wet?null:supportAt(g.pos.x,g.pos.z,g.pos.y);
     if(gr!==null){
       if(g.vy>0||g.pos.y>gr+0.01){g.fallTop=Math.max(g.fallTop??g.pos.y,g.pos.y);g.vy-=25*dt;g.pos.y+=g.vy*dt;if(g.pos.y<gr){g.pos.y=gr;g.vy=0;gobLand(g);}}

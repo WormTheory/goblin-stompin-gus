@@ -571,7 +571,8 @@ function movePlayer(p,dt){
       p.pos.y=Math.min(H+30,p.pos.y+p.vy*dt);p.peakY=p.pos.y;p.grounded=false;p.airJumps=0;p.coyote=0;
       if(p.pos.y<=g){p.pos.y=g;p.vy=0;p.grounded=true;p.airJumps=airJumpsMax();}
     }
-    else if(p.vy>0||p.pos.y>g+0.01&&!stickToRamp(p,g)){
+    // (standing on the floor of water deep enough to float in, as a flood rises round him: up he comes)
+    else if(p.vy>0||p.pos.y>g+0.01&&!stickToRamp(p,g)||wet&&p.state==='walk'&&p.swimTop+SWIM.float>g+0.05){
       p.peakY=Math.max(p.peakY??p.pos.y,p.pos.y);
       // rocket boost: jump held on after the jump itself (once it's stopped rising fast) fires the foot rockets, which
       // take the weight off and ease him up at a slow climb for as long as the stamina lasts

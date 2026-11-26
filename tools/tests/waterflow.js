@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,editAt,chunks,CS,G,H,WATER,AIR,STONE,SAND,GLASS,NET,players,frame,ckey,wfAct,wfPark,wfRemoved,wfSrc,wfAmt,bkey,updateWater,WF_STEP,wfEndless,wfPress,WF_LV,WATER_L,DOOR_G,cars,CAR_FLOAT_T,carPhysics,WX,freezeWorld,chunkFreeze,ICE_L,ICE,wadeDepth};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,editAt,chunks,CS,G,H,WATER,AIR,STONE,SAND,GLASS,NET,players,frame,ckey,wfAct,wfPark,wfRemoved,wfSrc,wfAmt,bkey,updateWater,WF_STEP,wfEndless,wfPress,WF_LV,WATER_L,DOOR_G,cars,CAR_FLOAT_T,carPhysics,WX,freezeWorld,chunkFreeze,ICE_L,ICE,wadeDepth,goblins};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 const {Q,V3,Rot,Col,Mat,O3,M4,THREE}=require('./stub-three.js');   // (the stand-in three.js every suite shares)
 const listeners={};
@@ -160,6 +160,22 @@ if(ex===null)console.log('edge: no sea found');else{
   dig(lx+3,fy+9,lz+1);let most=0;
   for(let i=0;i<20;i++){T.updateWater(T.WF_STEP);let n=0;for(let y=fy+2;y<=fy+8;y++)if(lvAt(lx+3,y,lz+1)||lvAt(lx+4,y,lz+1))n++;most=Math.max(most,n);}
   settle();console.log('leak from 8 up: most of the drop with water in it at once',most,'of 7 (the mesh draws each on down to where it lands)');ok(most>=3,'water on its way down');}
+// 12b. the hippo standing on the floor as a flood rises round him: deep enough, he comes up and swims
+{const bx=sx+140,by=G+40,bz=sz,res=[];
+  for(const dep of [6,8,10,12,14,16,20]){for(let x=bx-4;x<=bx+4;x++)for(let z=bz-4;z<=bz+4;z++)for(let y=by-1;y<=by+4;y++){const e=Math.abs(x-bx)===4||Math.abs(z-bz)===4||y===by-1,l=Math.max(0,Math.min(8,dep-(y-by)*8));T.setRaw(x,y,z,e?STONE:l===8?W:l?T.WATER_L[l]:AIR);}
+    A.pos.set(bx+0.5,by,bz+0.5);A.vy=0;run(2);res.push(dep/8+':'+(A.wet?'swim':'walk')+'@'+(A.pos.y-by).toFixed(2));}
+  console.log('hippo on the floor of a flood, depth:state@feet',res.join(' '));ok(parseFloat(res[4].split('@')[1])>0.5,'the hippo floats up off a flooded floor');}
+// 13. a goblin in a flooded room: water 1.75 deep on a stone floor, it swims at the top, head out; in 4/8 it wades
+{const gx=Math.floor(A.pos.x)+12,gz=Math.floor(A.pos.z),fy=Math.floor(A.pos.y)+30;
+  for(let x=gx-3;x<=gx+3;x++)for(let z=gz-3;z<=gz+3;z++){put(x,fy,z,STONE);put(x,fy+1,z,W);put(x,fy+2,z,T.WATER_L[6]);}
+  const g=T.goblins.find(o=>o.state==='chase')||T.goblins[0];
+  if(!g)console.log('goblin in water: no goblin');else{
+    g.state='chase';g.civ=true;g.root.visible=true;g.vendor=null;g.indoor=false;g.act=null;g.stun=0;g.vy=0;g.pos.set(gx+0.5,fy+1,gz+0.5);run(2);
+    const y1=g.pos.y-fy-1,sw=g.wet;
+    for(let x=gx-3;x<=gx+3;x++)for(let z=gz-3;z<=gz+3;z++){put(x,fy+2,z,AIR);put(x,fy+1,z,T.WATER_L[4]);}
+    g.pos.set(gx+0.5,fy+1,gz+0.5);g.vy=0;run(1);
+    console.log('goblin in a 1.75 deep flood: swimming',sw,'feet',y1.toFixed(2),'over the floor (surface 1.75) | in 4/8: swimming',g.wet,'walking speed x',(g.wadeK??1).toFixed(2));
+    ok(sw&&y1>0.5&&y1<1.2&&!g.wet&&g.wadeK<0.9,'goblins swim and wade in a flood');}}
 console.log('left moving',T.wfAct.size,'queued',T.wfRemoved.length/3,'waiting',T.wfPark.size);
 console.log(errs?'waterflow: FAILED '+errs:'waterflow: passed');
 process.exit(errs?1:0);

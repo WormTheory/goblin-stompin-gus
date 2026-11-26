@@ -215,6 +215,8 @@
 - Water no longer flickers where it meets weed in an aquarium, glass or a fence.
 - Shallow water with a block right over it shows its surface properly.
 - The underwater view comes on whenever your eyes are below the water's surface, in shallow water too, and not when they're just above it.
+- Standing in a room as it floods, you float up and swim once it's deep enough, instead of walking along the bottom.
+- Goblins caught in a flood swim at the top with their heads out, or wade more slowly where it's shallower, instead of standing underwater.
 
 ### Nukes
 
