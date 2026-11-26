@@ -71,6 +71,9 @@ function updateFires(dt){
   blkFireTick(dt);blkHaloTick(dt);   // (their light round them at night, and the lamps' and fires' halos in fog: render/block-light.js)
   for(let i=fires.length-1;i>=0;i--){
     const F=fires[i];if(FIRE_DURS[fireDurI].m!==Infinity||F.douse)F.t-=dt;if(F.t<=0){fires.splice(i,1);continue;}
+    // water over it (a flood, a spill, the sea come in): it hisses out in a puff of steam within half a second
+    F.wetT=(F.wetT||0)-dt;if(F.wetT<=0){F.wetT=0.25;if(WET[peek(F.x,F.y+0.1,F.z)]&&!F.drown){F.drown=true;F.douse=true;F.t=Math.min(F.t,0.5);
+      puff(F.x,F.y+0.6,F.z,8,0xe8eef2,0.8);sfx('Fire hisses out',()=>{noise(0.5,0.25,2400,'highpass');});}}
     // the heat melts the snow round it (it starts settling again, from nothing, once the fire's out) -- off the ground,
     // and off any car, goblin or hippo standing close by
     F.melt=(F.melt||0)-dt;

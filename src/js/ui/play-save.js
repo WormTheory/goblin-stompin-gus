@@ -51,7 +51,7 @@ function playClock(k){
   for(const n of ['wet','snowCover','snowClock'])C.wx[n]=plNum(w[n],C.wx[n]);
   clockApply(C);
   // (winter's ice: chunks made from here on freeze as they're made, and any made already are frozen now)
-  WX.frozen=false;freezeQ.length=0;if(seasonOf()===3){WX.frozen=true;freezeWorld(true);}
+  WX.frozen=false;freezeQ.length=0;FZ.keys.length=0;if(seasonOf()===3){WX.frozen=true;freezeWorld(true,true);}
   try{updateSeasonW();}catch(e){}try{renderTime();}catch(e){}
 }
 // on loading (just after the world, before anyone's placed): what belongs to the whole game, and each seat's part kept back

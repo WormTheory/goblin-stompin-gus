@@ -354,9 +354,10 @@ function boxClear(x0,x1,z0,z1,y){
 let madeNow=0;
 function mayLook(x,z){if(chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return true;if(madeNow>=1)return false;madeNow++;return true;}
 function solidAt(x,y,z){if(y<0)return true;if(y>=H)return false;const b=get(x,y,z);return !!(b&&BLOCK[b].solid);}
-function groundAt(x,z,fromY){const xi=Math.floor(x),zi=Math.floor(z);for(let y=Math.min(H-1,Math.floor(fromY+1.2));y>=0;y--){const b=y<0?STONE:get(xi,y,zi);if(b&&BLOCK[b].solid)return BLOCK[b].ramp?y+rampH(b,x-xi,z-zi):y+1;}return 0;}
+// (a thin sheet of ice, ICE_L, isn't solid, but bears weight at its top: it's walked on, not through)
+function groundAt(x,z,fromY){const xi=Math.floor(x),zi=Math.floor(z);for(let y=Math.min(H-1,Math.floor(fromY+1.2));y>=0;y--){const b=y<0?STONE:get(xi,y,zi);if(ICE_LV[b])return y+ICE_LV[b]*0.11;if(b&&BLOCK[b].solid)return BLOCK[b].ramp?y+rampH(b,x-xi,z-zi):y+1;}return 0;}
 // what something standing at height y rests on: the first solid block at or below its feet, but only if that block has open air above it (otherwise it's a wall, and nothing gets lifted up it)
-function supportAt(x,z,y){const xi=Math.floor(x),zi=Math.floor(z);for(let yy=Math.min(H-1,Math.floor(y+0.05));yy>=0;yy--){const b=get(xi,yy,zi);if(b&&BLOCK[b].solid){if(solidAt(xi,yy+1,zi)){
+function supportAt(x,z,y){const xi=Math.floor(x),zi=Math.floor(z);for(let yy=Math.min(H-1,Math.floor(y+0.05));yy>=0;yy--){const b=get(xi,yy,zi);if(ICE_LV[b]&&!solidAt(xi,yy+1,zi))return yy+ICE_LV[b]*0.11;if(b&&BLOCK[b].solid){if(solidAt(xi,yy+1,zi)){
   // a ramp sitting on this block still makes a floor (something that slipped a little below its slope rides back up)
   const a2=get(xi,yy+1,zi);if(BLOCK[a2].ramp&&!solidAt(xi,yy+2,zi))return yy+1+rampH(a2,x-xi,z-zi);return null;}
   return BLOCK[b].ramp?yy+rampH(b,x-xi,z-zi):yy+1;}}return 0;}

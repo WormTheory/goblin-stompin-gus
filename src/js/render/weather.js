@@ -33,7 +33,7 @@ const MOON_NAMES=[['New moon','🌑'],['Waxing crescent','🌒'],['First quarter
 const moonInfo=()=>MOON_NAMES[Math.round(moonPhase()*8)%8];
 function wxPick(se){const O=WX_ODDS[se];let tot=0;for(const k in O)tot+=O[k];let u=Math.random()*tot;for(const k in O){if(u<O[k])return k;u-=O[k];}return'partly';}
 function wxSet(type,now){WX.type=type;WX.until=gameDays()+0.3+Math.random()*0.7;if(now){const T=WX_TYPES[type];for(const k of WX_KEYS)WX.k[k]=T[k]??WX_DEF[k];WX.snap=true;}}
-function wxReset(){WX.frozen=false;freezeQ.length=0;wxSet('clear',true);WX.until=1;   // day 1 is always a clear spring day
+function wxReset(){WX.frozen=false;freezeQ.length=0;FZ.keys.length=0;wxSet('clear',true);WX.until=1;   // day 1 is always a clear spring day
  WX.wet=WX.k.rain>0.2?0.6:0;WX.snowCover=seasonOf()===3&&WX.k.snow>0?0.5:0;WX.flash=0;WX.thunder.length=0;
  WX.snowP=1;WX.snowC=0.8;WX.snowW=0;WX.snowClock=Math.max(1,WX.snowClock);}
 // ---------- weather by region ----------
@@ -267,10 +267,27 @@ function wxAudio(){
 // winter: the top layer of every pond, river and fountain freezes to ice (loaded chunks are converted and re-meshed a
 // few at a time; chunks built later freeze as they're made), and thaws back to water in spring
 const ICE_Y0=G-8,ICE_Y1=G+12,freezeQ=[];
-function freezeArr(a,on){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)for(let i=0;i<L;i++){const j=y*L+i,b=a[j];
+// (frac under 1: only the blocks whose hash is under it, so winter can come on in steps, freezeTick; cx,cz place them)
+function freezeArr(a,on,cx=0,cz=0,frac=1){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)for(let i=0;i<L;i++){const j=y*L+i,b=a[j];
+  if(frac<1&&(b===AIR||b===WATER&&a[j+L]===WATER||hash2(cx*CS+i%CS+y*131,cz*CS+((i/CS)|0)+y*17)>=frac))continue;
   if(on){if(a[j+L]===AIR){if(b===WATER){a[j]=ICE;n++;}else if(WET[b]){a[j]=ICE_L[BLOCK[b].lvl];n++;}}}   // (shallow water too, as thin ice)
   else if(b===ICE){a[j]=WATER;n++;}else if(ICE_LV[b]){a[j]=WATER_L[ICE_LV[b]];n++;}}return n;}
-function freezeWorld(on){for(const [k,a] of chunks){const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;if(freezeArr(a,on&&chunkFreeze(cx,cz))&&meshes.has(k))freezeQ.push(k);}lastK=-1;}
+// (now: every chunk at once, as when a game's loaded in winter; otherwise the ice creeps over the water in FZ_STEPS steps
+// over about FZ_TIME seconds, or melts the same way, freezeTick, and the chunks it changes join the frame's budgeted rebuilds)
+const FZ_STEPS=4,FZ_TIME=24,FZ_NEAR=56,FZ={on:false,step:0,keys:[],i:0,t:0};
+function freezeWorld(on,now){
+  if(now){FZ.keys.length=0;for(const [k,a] of chunks){const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;if(freezeArr(a,on&&chunkFreeze(cx,cz),cx,cz)&&meshes.has(k))freezeQ.push(k);}lastK=-1;return;}
+  FZ.on=on;FZ.step=1;FZ.keys=[...chunks.keys()];FZ.i=0;FZ.t=0;}
+function freezeTick(dt){
+  if(!FZ.keys.length)return;FZ.t+=dt;
+  // (this step's share of the chunks by now, a step every FZ_TIME/FZ_STEPS seconds)
+  const per=FZ_TIME/FZ_STEPS,want=Math.min(FZ.keys.length,Math.ceil(FZ.keys.length*Math.min(1,FZ.t/per))),frac=FZ.step/FZ_STEPS,set=new Set();
+  // (only near a player is it seen creeping: further off a chunk's done whole on the first step, so it's rebuilt once)
+  for(;FZ.i<want;FZ.i++){const k=FZ.keys[FZ.i],a=chunks.get(k);if(!a)continue;const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;
+    const near=players.some(p=>p.active&&Math.abs(p.pos.x-cx*CS-8)<FZ_NEAR&&Math.abs(p.pos.z-cz*CS-8)<FZ_NEAR);if(!near&&FZ.step>1)continue;
+    if(freezeArr(a,FZ.on&&chunkFreeze(cx,cz),cx,cz,near?frac:1)&&meshes.has(k))set.add(k);}
+  if(set.size){lastK=-1;rebuildSet(set);}
+  if(FZ.i>=FZ.keys.length){if(FZ.step>=FZ_STEPS)FZ.keys.length=0;else{FZ.step++;FZ.i=0;FZ.t=0;}}}
 // (winter freezes the water only where it's not warm: never in the desert, the savanna or the rainforest)
 function chunkFreeze(cx,cz){if(!WX.frozen)return false;if(TENV||cx*CS>=SHIP_X0)return true;return climAt(cx*CS+8,cz*CS+8).t<0.64;}
 // is (x,y,z) out under the open sky? (undefined where its chunk isn't made: a vehicle left far behind, a plane or train
@@ -332,7 +349,7 @@ function updateWeather(dt){
   if(!playing)wxPlayers(0,0);coldTick();
   updateSeasonW();SNOW_U.value=WX.snowCover;SNOWB_U.value.set(WX.snowP,WX.snowC,WX.snowCover,WX.snowW);SNOWCLK_U.value=WX.snowClock;WET_U.value=WX.wet;
   {const fz=seasonOf()===3;if(fz!==!!WX.frozen){WX.frozen=fz;freezeWorld(fz);}}
-  for(let n=0;n<3&&freezeQ.length;n++){const e=meshes.get(freezeQ.shift());if(e)buildChunk(e.cx,e.cz);}
+  freezeTick(dt);if(freezeQ.length){rebuildSet(new Set(freezeQ));freezeQ.length=0;}   // (into the frame's budgeted rebuilds: three whole chunks a frame was a long stall in winter)
 }
 
 
