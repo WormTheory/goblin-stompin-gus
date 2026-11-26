@@ -242,6 +242,16 @@ function precipHid(K,x,y,z){
   for(let h=0;;h+=dh){const py=y+h;if(py>C.y1)return false;i=Math.floor(fx-sx*h);j=Math.floor(fz-sz*h);if(i<0||j<0||i>=N||j>=N)return false;
     if(sol[(Math.floor(py)-C.y0)*NN+j*N+i])return true;if(py>=S[j*N+i])return false;}
 }
+// blowing sand, near enough sideways: out under the sky it shows (it eddies into the lee of a wall); under a roof it's
+// followed back upwind, level, half a block at a time, and shows only if it gets out from under cover without meeting a
+// block first: through a broken wall or an open door on the windward side, but not into a closed room. (ux,uz: upwind)
+function dustHid(x,y,z,ux,uz){
+  const C=COVER,N=C.N,NN=N*N,T=C.top,sol=C.sol,fx=x-C.x0,fz=z-C.z0,yy=Math.floor(y)-C.y0;
+  if(yy<0)return true;if(yy>=COVER_NY)return false;
+  for(let s=0;s<N;s+=0.5){const i=Math.floor(fx+ux*s),j=Math.floor(fz+uz*s);if(i<0||j<0||i>=N||j>=N)return false;
+    if(sol[yy*NN+j*N+i])return true;if(y>=T[j*N+i])return false;}
+  return false;
+}
 // how far the wind has carried each view's rain, snow and dust so far (added up as wxClock runs)
 const PRECIP_DRIFT=[];
 function precipDrift(who,wx,wz){const D=PRECIP_DRIFT[who||0]||(PRECIP_DRIFT[who||0]={t:wxClock,x:0,z:0}),dt=wxClock-D.t;
@@ -258,7 +268,7 @@ function placePrecip(cam,who){
   // change of weather bends the fall rather than jumping every drop to a new place)
   const t=wxClock,w=WXK.wind,wa=windNow().a,wx=Math.sin(wa)*w*1.75,wz=Math.cos(wa)*w*1.75,DR=precipDrift(who,wx,wz);
   // (each kind's shelter by its own slant, at its middling speed of fall: rain's 29 a second, snow's below. Blowing sand
-  // goes near enough sideways that its shadow would cover a town, so it's only hidden under a roof, as before)
+  // goes near enough sideways that its shadow would cover a town, so it has its own way, dustHid)
   const snowFall=2.5+w*0.6,rainS=nr?shadeMap(who,'rain',wx/29,wz/29):null,snowS=ns?shadeMap(who,'snow',wx*1.8/snowFall,wz*1.8/snowFall):null;
   if(nr){const V=precipCamVel(cam,who),under=(x,y,z)=>precipHid(rainS,x,y,z);
     // each streak lies along its drop's motion less the camera's (the wind, its own speed of fall), so it always points
@@ -274,7 +284,7 @@ function placePrecip(cam,who){
   if(ns){_pq.set(0,0,0,1);const under=(x,y,z)=>precipHid(snowS,x,y,z);
     for(let i=0;i<ns;i++){const d=drops[PRECIP_N-1-i],sw=Math.sin(t*1.3+d.s*9)*0.5;_pv.set(wrapC(d.x+DR.x*1.8+sw,cam.x,PBX),wrapC(d.y-(1.8+d.s*1.4+w*0.6)*t,cam.y+4,PBY/2),wrapC(d.z+DR.z*1.8+Math.cos(t+d.s*7)*0.4,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);snowM.setMatrixAt(i,_pm);}
     snowM.instanceMatrix.needsUpdate=true;}
-  if(nd){_pq.set(0,0,0,1);const L=WORLD_LIGHT.value,under=(x,y,z)=>cover(CM.top,x,y,z);dustM.material.color.setRGB(0.78*Math.max(0.1,L.r),0.62*Math.max(0.1,L.g),0.42*Math.max(0.1,L.b));
+  if(nd){_pq.set(0,0,0,1);const L=WORLD_LIGHT.value,wl=Math.hypot(wx,wz),ux=wl>0.05?-wx/wl:0,uz=wl>0.05?-wz/wl:0,under=(x,y,z)=>wl>0.05?dustHid(x,y,z,ux,uz):cover(CM.top,x,y,z);dustM.material.color.setRGB(0.78*Math.max(0.1,L.r),0.62*Math.max(0.1,L.g),0.42*Math.max(0.1,L.b));
     for(let i=0;i<nd;i++){const d=drops[(i*7)%PRECIP_N],sw=Math.sin(t*3+d.s*11)*0.6;_pv.set(wrapC(d.x+DR.x*6,cam.x,PBX),wrapC(d.y*0.5+sw-t*0.4,cam.y+2,PBY/4),wrapC(d.z+DR.z*6+Math.cos(t*2+d.s*5),cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);dustM.setMatrixAt(i,_pm);}
     dustM.instanceMatrix.needsUpdate=true;}
 }

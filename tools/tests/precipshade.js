@@ -44,6 +44,17 @@ chk('above the roof, open',!hid(10,22)&&!hid(30,25));
 chk('inside a block, hidden',hid(10,20));
 const K0=T.shadeMap(0,'gap0',0,0),hid0=(x,y)=>T.precipHid(K0,x+0.5,y+0.5,20.5);
 chk('no wind: straight down through the gap only',!hid0(19,12)&&hid0(17,12)&&hid0(22,12));
+// blowing sand: a room roofed at 20 over x 10..29, walls at x 10 and 29 up to it; wind towards +x (upwind is -x).
+// Closed, no sand inside; with a hole in the windward wall at y 12..13, z 18..21, sand streams in level through it
+// and only there; outside, in the open, it shows (lee included)
+C.sol.fill(0);C.top.fill(10);for(let z=0;z<N;z++)for(let x=0;x<N;x++)solid(x,9,z);
+for(let z=0;z<N;z++){for(let x=10;x<30;x++)solid(x,20,z);for(let y=10;y<20;y++){solid(10,y,z);solid(29,y,z);}}
+const sand=(x,y,z)=>T.dustHid(x+0.5,y+0.5,z+0.5,-1,0);
+chk('sand: none in a closed room',sand(15,12,20)&&sand(25,15,10));
+chk('sand: shows outside, upwind and in the lee',!sand(5,12,20)&&!sand(35,12,20));
+for(let z=18;z<22;z++)for(let y=12;y<14;y++)C.sol[(y-C.y0)*NN+z*N+10]=0;
+chk('sand: in through a hole in the windward wall, level with it',!sand(15,12,20)&&!sand(27,13,19),[sand(15,12,20),sand(27,13,19)]);
+chk('sand: not beside or above the hole',sand(15,12,25)&&sand(15,16,20),[sand(15,12,25),sand(15,16,20)]);
 // every drop's looked at: the cover map reaches past the drops' box however far the camera's moved since it was made,
 // with room for a drop at the edge to be followed back a few blocks
 chk('the cover map covers the drops',C.N/2>=T.PBX+4+4,[C.N,T.PBX]);
