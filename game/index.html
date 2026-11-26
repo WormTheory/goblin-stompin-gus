@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:a896c8d2d6759d0de7e1c1032e86f3c013103bf8c10c86d31b3e0e8f6f459e84 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:fabb62a5dbce3d12e1b1397e2786663244ff37d4eace31e596632973f2980572 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2438,7 +2438,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='97f27270435d';
+const GAME_VER='0.5.1',GAME_BUILD='8862c949cb88';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -12360,7 +12360,7 @@ function coverMap(cam,who){
 // (sx,sz: how far a drop moves sideways per block it falls; capped at 2, a blizzard's flakes near flat)
 const PRECIP_SHADE=[];
 function shadeMap(who,kind,sx,sz){
-  const C=COVER,K=(PRECIP_SHADE[who||0]||(PRECIP_SHADE[who||0]={}))[kind]||(PRECIP_SHADE[who||0][kind]={v:-1,sx:0,sz:0,S:new Float32Array(C.N*C.N)});
+  const C=COVER,K=(PRECIP_SHADE[who||0]||(PRECIP_SHADE[who||0]={}))[kind]||(PRECIP_SHADE[who||0][kind]={v:-1,sx:0,sz:0,S:new Float32Array(C.N*C.N),D:new Float32Array(C.N*C.N)});
   const m=Math.hypot(sx,sz);if(m>2){sx*=2/m;sz*=2/m;}
   if(K.v===C.v&&Math.abs(K.sx-sx)<0.04&&Math.abs(K.sz-sz)<0.04)return K;
   K.v=C.v;K.sx=sx;K.sz=sz;const N=C.N,T=C.top,S=K.S;let hi=-1;for(let i=0;i<T.length;i++)if(T[i]>hi)hi=T[i];
@@ -12370,25 +12370,36 @@ function shadeMap(who,kind,sx,sz){
     for(let h=dh;hi-h>s;h+=dh){const a=Math.floor(i+0.5-sx*h),b=Math.floor(j+0.5-sz*h);if(a<0||b<0||a>=N||b>=N)break;
       const v=T[b*N+a]-h;if(v>s)s=v;}
     S[j*N+i]=s;}
+  // (D: the same, the highest of each column and its eight neighbours and a block more, for precipHid to be sure a drop's
+  // in the open: S is followed from each column's middle, and a drop off to one side may pass a roof's corner it missed)
+  const D=K.D;for(let j=0;j<N;j++)for(let i=0;i<N;i++){let s=-1e9;for(let b=Math.max(0,j-1);b<=Math.min(N-1,j+1);b++)for(let a=Math.max(0,i-1);a<=Math.min(N-1,i+1);a++)if(S[b*N+a]>s)s=S[b*N+a];D[j*N+i]=s+1;}
   return K;
 }
 // is a drop at (x,y,z) hidden? Out in the open (at or above the wind's shadow) no; inside a block yes; otherwise back up
-// its slant a step at a time until it meets a block (hidden) or comes out above the shadow, or off the map (not hidden)
+// its slant until it meets a block (hidden) or comes out above the shadow, or off the map (not hidden). Block by block
+// through every block the line passes (not points along it a step apart: those slipped past a roof's edge or not as
+// the drop moved, so snow by the edge of a gap flickered)
 function precipHid(K,x,y,z){
-  const C=COVER,N=C.N,NN=N*N,S=K.S,sol=C.sol,fx=x-C.x0,fz=z-C.z0;let i=Math.floor(fx),j=Math.floor(fz);
-  if(i<0||j<0||i>=N||j>=N||y>=S[j*N+i])return false;if(y<C.y0)return true;
-  const sx=K.sx,sz=K.sz,dh=1/Math.max(1,Math.hypot(sx,sz));
-  for(let h=0;;h+=dh){const py=y+h;if(py>C.y1)return false;i=Math.floor(fx-sx*h);j=Math.floor(fz-sz*h);if(i<0||j<0||i>=N||j>=N)return false;
-    if(sol[(Math.floor(py)-C.y0)*NN+j*N+i])return true;if(py>=S[j*N+i])return false;}
+  const C=COVER,N=C.N,NN=N*N,D=K.D,sol=C.sol,fx=x-C.x0,fz=z-C.z0;let i=Math.floor(fx),j=Math.floor(fz);
+  if(i<0||j<0||i>=N||j>=N||y>=D[j*N+i])return false;if(y<C.y0)return true;
+  const dx=-K.sx,dz=-K.sz,si=dx>0?1:-1,sj=dz>0?1:-1,ti=dx?Math.abs(1/dx):Infinity,tj=dz?Math.abs(1/dz):Infinity;
+  let k=Math.floor(y)-C.y0,mi=dx>0?(i+1-fx)*ti:dx<0?(fx-i)*ti:Infinity,mj=dz>0?(j+1-fz)*tj:dz<0?(fz-j)*tj:Infinity,mk=Math.floor(y)+1-y,t=0;
+  for(let n=0;n<400;n++){
+    if(k>=COVER_NY||k+C.y0>C.y1)return false;if(sol[k*NN+j*N+i])return true;if(y+t>=D[j*N+i])return false;
+    if(mk<=mi&&mk<=mj){t=mk;mk+=1;k++;}else if(mi<=mj){t=mi;mi+=ti;i+=si;if(i<0||i>=N)return false;}else{t=mj;mj+=tj;j+=sj;if(j<0||j>=N)return false;}}
+  return false;
 }
 // blowing sand, near enough sideways: out under the sky it shows (it eddies into the lee of a wall); under a roof it's
-// followed back upwind, level, half a block at a time, and shows only if it gets out from under cover without meeting a
+// followed back upwind, level, and shows only if it gets out from under cover without meeting a
 // block first: through a broken wall or an open door on the windward side, but not into a closed room. (ux,uz: upwind)
 function dustHid(x,y,z,ux,uz){
   const C=COVER,N=C.N,NN=N*N,T=C.top,sol=C.sol,fx=x-C.x0,fz=z-C.z0,yy=Math.floor(y)-C.y0;
   if(yy<0)return true;if(yy>=COVER_NY)return false;
-  for(let s=0;s<N;s+=0.5){const i=Math.floor(fx+ux*s),j=Math.floor(fz+uz*s);if(i<0||j<0||i>=N||j>=N)return false;
-    if(sol[yy*NN+j*N+i])return true;if(y>=T[j*N+i])return false;}
+  // (block by block along the level line, as precipHid does)
+  let i=Math.floor(fx),j=Math.floor(fz);if(i<0||j<0||i>=N||j>=N)return false;
+  const si=ux>0?1:-1,sj=uz>0?1:-1,ti=ux?Math.abs(1/ux):Infinity,tj=uz?Math.abs(1/uz):Infinity;let mi=ux>0?(i+1-fx)*ti:ux<0?(fx-i)*ti:Infinity,mj=uz>0?(j+1-fz)*tj:uz<0?(fz-j)*tj:Infinity;
+  for(let n=0;n<2*N;n++){if(sol[yy*NN+j*N+i])return true;if(y>=T[j*N+i])return false;
+    if(mi<=mj){mi+=ti;i+=si;if(i<0||i>=N)return false;}else{mj+=tj;j+=sj;if(j<0||j>=N)return false;}}
   return false;
 }
 // how far the wind has carried each view's rain, snow and dust so far (added up as wxClock runs)
@@ -12421,7 +12432,11 @@ function placePrecip(cam,who){
       _pm.compose(_pv,_pq,_ps);rainM.setMatrixAt(i,_pm);}
     _ps.y=1;rainM.instanceMatrix.needsUpdate=true;}
   if(ns){_pq.set(0,0,0,1);const under=(x,y,z)=>precipHid(snowS,x,y,z);
-    for(let i=0;i<ns;i++){const d=drops[PRECIP_N-1-i],sw=Math.sin(t*1.3+d.s*9)*0.5;_pv.set(wrapC(d.x+DR.x*1.8+sw,cam.x,PBX),wrapC(d.y-(1.8+d.s*1.4+w*0.6)*t,cam.y+4,PBY/2),wrapC(d.z+DR.z*1.8+Math.cos(t+d.s*7)*0.4,cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);snowM.setMatrixAt(i,_pm);}
+    // (whether a flake's under cover goes by its path, not by where its sway has taken it this moment: swaying back and
+    // forth across the edge of the shelter it would be hidden and shown over and over, a flicker under a gap in a roof)
+    for(let i=0;i<ns;i++){const d=drops[PRECIP_N-1-i],sw=Math.sin(t*1.3+d.s*9)*0.5,bx=wrapC(d.x+DR.x*1.8,cam.x,PBX),bz=wrapC(d.z+DR.z*1.8,cam.z,PBX);
+      _pv.set(bx,wrapC(d.y-(1.8+d.s*1.4+w*0.6)*t,cam.y+4,PBY/2),bz);if(under(bx,_pv.y,bz))_pv.y=-500;else{_pv.x+=sw;_pv.z+=Math.cos(t+d.s*7)*0.4;}
+      _pm.compose(_pv,_pq,_ps);snowM.setMatrixAt(i,_pm);}
     snowM.instanceMatrix.needsUpdate=true;}
   if(nd){_pq.set(0,0,0,1);const L=WORLD_LIGHT.value,wl=Math.hypot(wx,wz),ux=wl>0.05?-wx/wl:0,uz=wl>0.05?-wz/wl:0,under=(x,y,z)=>wl>0.05?dustHid(x,y,z,ux,uz):cover(CM.top,x,y,z);dustM.material.color.setRGB(0.78*Math.max(0.1,L.r),0.62*Math.max(0.1,L.g),0.42*Math.max(0.1,L.b));
     for(let i=0;i<nd;i++){const d=drops[(i*7)%PRECIP_N],sw=Math.sin(t*3+d.s*11)*0.6;_pv.set(wrapC(d.x+DR.x*6,cam.x,PBX),wrapC(d.y*0.5+sw-t*0.4,cam.y+2,PBY/4),wrapC(d.z+DR.z*6+Math.cos(t*2+d.s*5),cam.z,PBX));if(under(_pv.x,_pv.y,_pv.z))_pv.y=-500;_pm.compose(_pv,_pq,_ps);dustM.setMatrixAt(i,_pm);}
