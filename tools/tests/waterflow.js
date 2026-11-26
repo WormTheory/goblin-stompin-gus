@@ -27,7 +27,7 @@ const dig=(x,y,z)=>{T.setRaw(x,y,z,AIR);T.addEdit(x,y,z,AIR);};   // (as a smash
 const put=(x,y,z,b)=>{T.setRaw(x,y,z,b);T.addEdit(x,y,z,b);};
 const lvAt=(x,y,z)=>{const b=T.get(x,y,z);return T.WF_LV[b]>0?T.WF_LV[b]:0;};
 // (in 64ths, as the flow keeps it: eighths x 8, or what it's left between them)
-const amtAt=(x,y,z)=>{const l=lvAt(x,y,z);if(!l)return 0;const m=T.wfAmt.get(T.bkey(x,y,z));return m!==undefined&&Math.max(1,Math.min(8,m+4>>3))===l?m:l*8;};
+const amtAt=(x,y,z)=>{const l=lvAt(x,y,z);if(!l)return 0;const m=T.wfAmt.get(T.bkey(x,y,z));return m!==undefined&&m>0&&Math.abs(m-l*8)<=7?m:l*8;};
 const units=(x0,x1,y0,y1,z0,z1)=>{let n=0;for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)for(let z=z0;z<=z1;z++)n+=amtAt(x,y,z);return n;};   // (64ths)
 const count=(x0,x1,y0,y1,z0,z1)=>{let n=0;for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)for(let z=z0;z<=z1;z++)if(T.get(x,y,z)===W)n++;return n;};
 const busy=()=>T.wfAct.size||T.wfRemoved.length||T.wfPark.size;

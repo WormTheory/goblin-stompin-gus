@@ -341,7 +341,9 @@ function meshPrep(cx,cz,copy){
   const gfx=GFX_OFF.caves||GFX_OFF.sewers||GFX_OFF.subway;
   const a0=gfx?gfxArr(cx,cz):chunkArr(cx,cz),x0=cx*CS,z0=cz*CS,A2=CS*CS,lf=leafFall>0;
   // (leaves that have fallen)
-  const leafed=(N,qx,qz)=>N.map((b,i)=>{if(b!==LEAVES)return b;const y=Math.floor(i/A2),r=i-y*A2;return leafDown(qx*CS+(r%CS),y,qz*CS+Math.floor(r/CS))?AIR:b;});
+  // (a plain loop over a copy: a map with a call for every block of nine chunks made each rebuild in autumn and winter
+  // several times as slow)
+  const leafed=(N,qx,qz)=>{const O=N.slice(),n=O.length;for(let i=0;i<n;i++){if(O[i]!==LEAVES)continue;const y=(i/A2)|0,r=i-y*A2;if(leafDown(qx*CS+(r%CS),y,qz*CS+((r/CS)|0)))O[i]=AIR;}return O;};
   const a=lf?leafed(a0,cx,cz):copy&&!gfx?a0.slice():a0;
   // (a ship's chunk is laid out from the ship's own middle, not where its pocket is: numbers that big lose their fractions on
   // the graphics card, and the deck shakes as it moves. See ships.js)

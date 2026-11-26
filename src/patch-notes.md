@@ -218,6 +218,7 @@
 - Dust, smoke, blood, dust devils and shockwave rings under the water look it: the water covers them when you look down at them, and from under the water anything above the surface shows through it.
 - Standing in a room as it floods, you float up and swim once it's deep enough, instead of walking along the bottom.
 - Goblins caught in a flood swim at the top with their heads out, or wade more slowly where it's shallower, instead of standing underwater.
+- A big flood costs far less to draw while it spreads, and the game no longer slows right down in autumn and winter when things are being smashed or water is moving.
 
 ### Nukes
 

@@ -11,7 +11,7 @@
 // or one running on past the world that's made, never goes down. Water that would go into a chunk not made yet waits for
 // it (wfPark). A door lets it through, swinging open (wfSide). Only the host's game runs it (a guest skips the step that does): each block it changes goes through
 // addEdit, which saves it and sends it to guests like any smashed block.
-const WF_STEP=0.05,WF_BUDGET=6000,WF_MS=2,WF_LOOK=6000,WF_SEA=4000,WF_FULL=64,WF_FILM=12,WF_EVEN=2,WF_PRESS=1500,WF_PRESS_N=6,WF_DRAW=0.15;
+const WF_STEP=0.05,WF_BUDGET=6000,WF_MS=2,WF_LOOK=6000,WF_SEA=4000,WF_FULL=64,WF_FILM=12,WF_EVEN=4,WF_BAND=7,WF_PRESS=1500,WF_PRESS_N=6,WF_DRAW=0.15;
 const wfRemoved=[];   // (blocks knocked out since the last step, x,y,z each: setRaw adds them, the step looks at them)
 const wfAct=new Map();   // (bkey -> [x,y,z]: water that may move next step)
 const wfPark=new Map();   // (the same, waiting for a chunk beside it to be made)
@@ -23,6 +23,9 @@ const WF_SIDES=[[1,0,0],[0,0,1],[-1,0,0],[0,0,-1]],WF_N6=[[0,-1,0],[1,0,0],[-1,0
 // how many eighths of water a block holds: 0 open, 1 to 8 water, -1 anything else (water doesn't go there)
 // (and the eighths a block shows for an amount in 64ths: the nearest, but never none while there's any)
 const wfL=a=>a<=0?0:Math.max(1,Math.min(8,a+4>>3));
+// (the eighths shown for an amount, keeping what's shown now while the amount stays within WF_BAND of it: water lapping
+// to and fro across the line between two depths would otherwise redraw its chunk every time)
+const wfShow=(a,cur)=>a<=0?0:cur>0&&Math.abs(a-cur*8)<=WF_BAND?cur:wfL(a);
 const WF_LV=new Int8Array(256).fill(-1);WF_LV[AIR]=0;WF_LV[WATER]=8;for(let n=1;n<8;n++)WF_LV[WATER_L[n]]=n;
 // the block there, or -1 if its chunk isn't made (looking would make it)
 function wfGet(x,y,z){if(y<0||y>=H||x>=SHIP_X0)return -1;if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return -1;return get(x,y,z);}
@@ -63,7 +66,8 @@ function wfPress(x,y,z,amt){
 function wadeDepth(x,y,z){const xi=Math.floor(x),zi=Math.floor(z);let yy=Math.floor(y+0.02);if(!WET[peek(xi,yy,zi)])return 0;
   for(let k=0;k<4&&WET[peek(xi,yy+1,zi)];k++)yy++;const t=peek(xi,yy,zi);return Math.max(0,yy+(t===WATER?0.9:BLOCK[t].lvl/8)-y);}
 function updateWater(dt){
-  wfDrawT+=dt;if(wfDirty.size&&(wfDrawT>=WF_DRAW||!wfAct.size)){wfDrawT=0;rebuildSet(wfDirty);wfDirty.clear();}
+  wfDrawT+=dt;   // (a big flood over many chunks redraws less often, up to 4 times as long between, so it doesn't fill every frame's rebuilds)
+  if(wfDirty.size&&(wfDrawT>=WF_DRAW*Math.min(4,1+Math.max(0,wfDirty.size-4)/4)||!wfAct.size)){wfDrawT=0;rebuildSet(wfDirty);wfDirty.clear();}
   if(!wfRemoved.length&&!wfAct.size&&!wfPark.size)return;
   wfClock+=dt;if(wfClock<WF_STEP)return;wfClock=0;
   // (something opened: the water on it and beside it may move)
@@ -77,7 +81,7 @@ function updateWater(dt){
   wfTurn=(wfTurn+1)&3;
   // (this step's amounts in 64ths: what's changed so far, or what's there; -1 not for water, -2 a chunk not made)
   const amt=(x,y,z)=>{const k=bkey(x,y,z),c=chg.get(k);if(c)return c[3];const b=wfGet(x,y,z);if(b<0)return wfUnmade(x,y,z)?-2:-1;
-    const l=WF_LV[b];if(l<=0)return l;const m=wfAmt.get(k);return m!==undefined&&wfL(m)===l?m:l*8;};
+    const l=WF_LV[b];if(l<=0)return l;const m=wfAmt.get(k);return m!==undefined&&m>0&&Math.abs(m-l*8)<=WF_BAND?m:l*8;};
   const put=(x,y,z,a,side)=>{const k=bkey(x,y,z);chg.set(k,[x,y,z,a]);if(side)got.add(k);else if(!inL.has(k)){inL.add(k);list.push([x,y,z]);}};
   let n=0;
   for(;n<list.length;n++){
@@ -123,7 +127,7 @@ function updateWater(dt){
   const ch=wfDirty,n0=ch.size;wfQuiet=true;
   try{for(const [k,[x,y,z,a]] of chg){
     if(a>0)wfAct.set(k,[x,y,z]);
-    const l=wfL(a);if(a>0&&a!==l*8)wfAmt.set(k,a);else wfAmt.delete(k);
+    const g0=wfGet(x,y,z),l=wfShow(a,g0>0?Math.max(0,WF_LV[g0]):0);if(a>0&&a!==l*8)wfAmt.set(k,a);else wfAmt.delete(k);
     const b=l?l===8?WATER:WATER_L[l]:AIR;if(wfGet(x,y,z)===b)continue;
     setRaw(x,y,z,b);addEdit(x,y,z,b);
     const cx=Math.floor(x/CS),cz=Math.floor(z/CS),lx=x-cx*CS,lz=z-cz*CS;ch.add(ckey(cx,cz));
