@@ -56,11 +56,37 @@ function fbClear(){gobPickupsClear();minesClear();for(const F of FIREB){F.live=f
 const TRACERS=[],TR_MAT=new THREE.MeshBasicMaterial({color:0xfff0a0});
 function tracer(x0,y0,z0,x1,y1,z1){
   let T=TRACERS.find(o=>o.t<=0);if(!T){if(TRACERS.length>=24)T=TRACERS[0];else{const m=new THREE.Mesh(FB_GEO,TR_MAT);m.visible=false;scene.add(m);T={m,t:0};TRACERS.push(T);}}
-  if(x0>=SHIP_X0){const S=shipOfPos(x0,z0);if(S){shipToWorld(S,x0,z0,_sv);x0=_sv.x;z0=_sv.z;y0-=S.sk;shipToWorld(S,x1,z1,_sv);x1=_sv.x;z1=_sv.z;y1-=S.sk;}}   // (fired aboard a ship: drawn where that is)
-  const L=Math.hypot(x1-x0,y1-y0,z1-z0)||0.01;T.m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);T.m.scale.set(0.05,0.05,L);T.m.lookAt(x1,y1,z1);T.m.visible=true;T.t=0.07;
-  // (its light, the moving light and halo, is the muzzle flash: where it starts, the size of a flash, not the middle of the
-  // streak, which put the light out along the bullet's path: glowAt, glowR in block-light.js)
+  let cv=false;if(x0>=SHIP_X0){const S=shipOfPos(x0,z0);if(S){cv=true;shipToWorld(S,x0,z0,_sv);x0=_sv.x;z0=_sv.z;y0-=S.sk;shipToWorld(S,x1,z1,_sv);x1=_sv.x;z1=_sv.z;y1-=S.sk;}}   // (fired aboard a ship: drawn where that is)
+  trPlace(T,x0,y0,z0,x1,y1,z1);T.m.visible=true;T.t=0.07;
+  // (its start kept on the muzzle while it shows, tracerFollow: TR_FOL, set by fireRound for the round being fired, says
+  // whose. A player's own shot on foot follows their view; a vehicle's gun, the vehicle (not one in a ship's pocket))
+  const F=TR_FOL;T.fol=null;
+  if(F&&F.p)T.fol={p:F.p,wk:F.wk,mz:F.mz,x1,y1,z1};
+  else if(F&&F.o&&!cv){const q=F.o.pos||F.o;if(isFinite(q.x+q.y+q.z)&&q.x<SHIP_X0)T.fol={o:F.o,x0,y0,z0,ox:q.x,oy:q.y,oz:q.z,x1,y1,z1};}
+}
+// (the streak from x0,y0,z0 to x1,y1,z1; its light, the moving light and halo, is the muzzle flash: where it starts, the
+// size of a flash, not the middle of the streak, which put the light out along the bullet's path: glowAt, glowR in block-light.js)
+function trPlace(T,x0,y0,z0,x1,y1,z1){
+  const L=Math.hypot(x1-x0,y1-y0,z1-z0)||0.01;T.m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);T.m.scale.set(0.05,0.05,L);T.m.lookAt(x1,y1,z1);
   const U=T.m.userData;(U.lp||(U.lp=new THREE.Vector3())).set(x0,y0,z0);U.lr=0.3;
+}
+// Tracers kept on the gun that fired them. A shot is fired in the players' step, before the view's placed for the frame,
+// and the streak stays for a few frames after; left where it started, it trailed behind the muzzle of anyone moving
+// (and well behind a jet's nose). So once every view's placed (the frame loop), each one's start is put back on its muzzle:
+// a player's own, the barrel's tip as their view gun's posed now (gobMuzzle, or where it was taken from when fired) in the
+// view as it's placed now; a vehicle's, moved on as far as the vehicle has. The far end stays where the round went.
+// (And p.camAt: where each player stood when their view was placed, for gobEyeNow)
+let TR_FOL=null;const _tfV=new THREE.Vector3(),_tfM=new Map();
+function tracerFollow(){
+  for(const p of players)if(p.active){const a=p.camAt||(p.camAt={x:0,y:0,z:0});a.x=p.pos.x;a.y=p.pos.y;a.z=p.pos.z;}
+  _tfM.clear();
+  for(const T of TRACERS){const F=T.fol;if(!F||!(T.t>0))continue;let x0,y0,z0;
+    if(F.p){const p=F.p;if(!p.active||DT.freecam&&p===P1)continue;
+      let C=_tfM.get(p);if(!C)_tfM.set(p,C={});
+      if(!(F.wk in C))C[F.wk]=gobMuzzle(p,F.wk);
+      const m=C[F.wk]||F.mz,K=p.camera;_tfV.set(m.x,m.y,m.z).applyQuaternion(K.quaternion).add(K.position);x0=_tfV.x;y0=_tfV.y;z0=_tfV.z;}   // (the camera has no parent: its own turn and place are its view's)
+    else{const q=F.o.pos||F.o;x0=F.x0+q.x-F.ox;y0=F.y0+q.y-F.oy;z0=F.z0+q.z-F.oz;}
+    if(isFinite(x0+y0+z0))trPlace(T,x0,y0,z0,F.x1,F.y1,F.z1);}
 }
 // ---- things thrown and fired that go off: grenades, tank shells, rockets. Each flies under gravity (a shell
 // barely), a bomb bounces and rolls until its fuse is done; a shell or a rocket goes off on whatever it hits ----

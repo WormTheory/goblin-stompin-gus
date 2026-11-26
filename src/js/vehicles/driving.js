@@ -297,7 +297,8 @@ function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
 // ---- one round from any gun: down the line from the muzzle to the first thing in its way, with a tracer to show it ----
 // Where it goes: x,y,z the muzzle; at {x,y,z} what it's aimed at, or dir (a unit vector) and range; sc how much it scatters
 // (per block it's aimed off); step how finely the line's followed (0.5 by default); tr where the tracer starts, if not at
-// the muzzle; own the vehicle it's fired from (spared); by the player firing (or null).
+// the muzzle (trF: a player's own shot, its start kept on their view gun: tracerFollow); own the vehicle it's fired from
+// (spared, and the tracer's start moves with it); by the player firing (or null).
 // What it can hit (each gun's own switches): gobs, goblins (dmg each; gb [radius, lowest, highest] how near the line,
 // from its feet), and with PvP on another player (pvp {n, cause, opt} for pvpHurt); vehs, stopping at a vehicle in its
 // way (vd to it through vehBlast, 4 by default); breaks, the block it hits may break (bulletBreak: glass every time, brick half the time); ship,
@@ -337,7 +338,8 @@ function fireRound(o){
   // (and stops at a street fixture or prop in its way short of that, knocking it over)
   let kr=null;if(!o.tgt&&(kr=knockRay(mx,my,mz,ux,uy,uz,Math.min(R,t)))){t=kr.t;hit='fix';oh=null;}
   let mr=null;if(!o.tgt&&MINES.length&&(mr=mineRay(mx,my,mz,ux,uy,uz,Math.min(R,t+0.4)))){t=mr.t;hit='mine';oh=null;}
-  t=Math.min(t,R);const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t,T0=o.tr||o;tracer(T0.x,T0.y,T0.z,ex,ey,ez);
+  t=Math.min(t,R);const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t,T0=o.tr||o;
+  TR_FOL=o.trF||(o.own?{o:o.own}:null);try{tracer(T0.x,T0.y,T0.z,ex,ey,ez);}finally{TR_FOL=null;}   // (kept on the muzzle as it moves: tracerFollow)
   if(typeof o.snd==='function')o.snd();else if(o.snd&&audio)sfx(o.snd,()=>noise(0.06,0.1,2400,'highpass'));
   // (where it struck, in the frame of whatever it struck)
   const hx=oh?oh.x:ex,hy=oh?oh.y:ey,hz=oh?oh.z:ez;if(oh&&oh.b){wx=oh.b[0];wy=oh.b[1];wz=oh.b[2];}

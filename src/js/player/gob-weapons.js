@@ -45,9 +45,14 @@ function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
 // Followed across a ship's side too, from the shore or the sea at its blocks and the goblins aboard, or from aboard out
 // into the world. A vehicle takes VEH_SHOT_K times a goblin's damage, as from the enemies' rounds; half the time the
 // block it hits breaks (bulletBreak), as an enemy's round does: the damage, range and breaking are the weapon's
+// (where his eye is now: the view's placed after the players' step, so the camera's still where he was last frame, and
+// what's fired from it, on the move, started a step behind him. Moved on as far as he has since (p.camAt, tracerFollow),
+// unless that's a jump of more than a few blocks: a respawn, say)
+function gobEyeNow(p){const c=shipEye(p),a=p.camAt;if(!a||p.net)return c;const dx=p.pos.x-a.x,dy=p.pos.y-a.y,dz=p.pos.z-a.z;
+  return dx*dx+dy*dy+dz*dz>25?c:{x:c.x+dx,y:c.y+dy,z:c.z+dz};}
 function gobShoot(p){
-  const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,
-    fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
+  const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=gobEyeNow(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,
+    rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
   // (a round out of the magazine: its count, kept per weapon (gobAmmo))
   if(W.mag){const n=gobAmmo(p,wk);if(n<=0)return;if(!DT.infAmmo)p.ammo[wk]=n-1;}   // (the debug menu's Infinite ammo: none used up)
   p.shotT=camClock;p.shotN=(p.shotN||0)+1;
@@ -61,14 +66,16 @@ function gobShoot(p){
     // (a shotgun's pellets each a round of their own, scattered round the middle of the view: across along the view's right,
     // up and down along the view's own up (right x forward), so the pattern stays round aiming steeply up or down too)
     // (the tracer, and the flash's light with it, from the barrel's tip as it is in your own view (gobMuzzle); scoped, or
-    // with no view gun shown, a little ahead and below the eye as before)
-    const mz=gobMuzzle(p,wk),sy=Math.sin(p.cam.yaw),cy=Math.cos(p.cam.yaw),sp=dy;
-    const tr=mz?{x:c.x+rx*mz.x+sy*sp*mz.y-dx*mz.z,y:c.y+cp*mz.y-dy*mz.z,z:c.z+rz*mz.x+cy*sp*mz.y-dz*mz.z}:{x:c.x+fx*0.5+rx*0.18,y:c.y-0.18,z:c.z+fz*0.5+rz*0.18};
+    // with no view gun shown, a little ahead and below the eye. Kept there while it shows (trF, tracerFollow), but not a
+    // guest's on the host or with the free cam out: that's not the view they're seeing)
+    const mz=gobMuzzle(p,wk)||GOB_MZ0,sy=Math.sin(p.cam.yaw),cy=Math.cos(p.cam.yaw),sp=dy;
+    const tr={x:c.x+rx*mz.x+sy*sp*mz.y-dx*mz.z,y:c.y+cp*mz.y-dy*mz.z,z:c.z+rz*mz.x+cy*sp*mz.y-dz*mz.z};
+    const trF=p.net||DT.freecam&&p===P1?null:{p,wk,mz};
     const n=W.pellets||1,ux=-rz*dy,uy=rz*dx-rx*dz,uz=rx*dy,hip=W.hip&&!(p.scope>0.9)?W.hip:0;for(let i=0;i<n;i++){let ex=dx,ey=dy,ez=dz;
       // (a scoped gun fired off the scope: a little way off the middle, the same way the pellets scatter)
       if(hip){const a=Math.random()*6.283,r=hip*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
       if(n>1){const a=Math.random()*6.283,r=W.spread*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
-      fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr,
+      fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr,trF,
         gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:W.breaks,ship:true,
         snd:i?null:()=>wpnCrack(wk)});}}   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,W.shake);rumble(p,W.rumble,50);
@@ -77,7 +84,7 @@ function gobShoot(p){
 }
 // the barrel's tip of the gun in your own view, in the camera's frame (x right, y up, -z ahead): the middle of its
 // frontmost face, from the boxes as they're posed now (a magazine out in a reload isn't counted). Null if it isn't shown
-const _mzA=new THREE.Vector3();
+const _mzA=new THREE.Vector3(),GOB_MZ0={x:0.18,y:-0.18,z:-0.5};   // (GOB_MZ0: where a tracer starts with no view gun shown)
 function gobMuzzle(p,wk){
   const K=p.gb;if(!K||!K.vm.visible||!K.held[wk]||!K.held[wk].visible)return null;
   try{K.vm.updateMatrixWorld(true);const P=[];
@@ -92,7 +99,7 @@ function gobMuzzle(p,wk){
 // weapon's cast): out of the free hand, a little below and left of the eye, at whatever's under the crosshair. It flies
 // and bends after the nearest enemy goblin ahead of it (fbTarget, shots.js), the weapon's numbers as a cultist's
 function gobCast(p){const W=WEAPONS[gobArms(p).wpn];if(!W||W.kind!=='spell')return;
-  const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
+  const c=gobEyeNow(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
   fireball(c.x+dx*0.5-rx*0.25,c.y-0.2+dy*0.5,c.z+dz*0.5-rz*0.25,c.x+dx*W.range,c.y+dy*W.range,c.z+dz*W.range,{W,pl:p,by:pvpBy(p),cause:W.player.cause});
   rumble(p,0.12,60);}
 // the attack button's sound as it starts: the club's or dagger's swing, a spell's rising note while it's conjured (a gun's

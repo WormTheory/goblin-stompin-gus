@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:ecba966cf98de518c6b159521a492ea1aa4e545a3eff5c5174d87e3dc9e00f27 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:35e029c769f43a18d157e809db2661faeb3b6985694f88a1c1d1996cdb846295 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1678,7 +1678,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Playing online</h3>
 <ul><li>As a guest, your own shots show the moment you fire: the tracer and the bang no longer wait on the host, and bullet streaks no longer hang in the air.</li><li>Guests now see grenades, shells, rockets and the Nuke Launcher's warhead in flight, instead of a warhead stuck where it was fired.</li><li>As a guest you see your own goblin stealing a vehicle and riding anything open, as everyone else does.</li></ul>
 <h3>Gunfire</h3>
-<ul><li>The flash of light from a gunshot now comes from the barrel, not from a spot partway along the bullet's streak. That goes for every gun: goblins', Gnash's, vehicles', the Mobile Gear's and the carrier's, and online too.</li><li>Gnash's bullets now start from the tip of the gun in your hands.</li></ul>
+<ul><li>The flash of light from a gunshot now comes from the barrel, not from a spot partway along the bullet's streak. That goes for every gun: goblins', Gnash's, vehicles', the Mobile Gear's and the carrier's, and online too.</li><li>Gnash's bullets now start from the tip of the gun in your hands.</li><li>Bullet streaks stay on the muzzle while you fire on the move, instead of starting a little behind it. Gunners' streaks stay on their vehicle's gun too, even in a jet at full speed.</li></ul>
 <h3>Knock everything over</h3>
 <ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>A building coming down is spread over a few frames instead of landing on one, and several coming down at once take turns, so bringing down a whole block of towers no longer freezes the game for a moment.</li><li>Smashing through town keeps a steadier frame rate: the ground and buildings you've broken catch up over a few frames, nearest you first, and street lamps and benches on their way down no longer make the game redraw every fixture around you.</li><li>The world's blocks are now drawn up on your computer's spare processor cores, alongside the game rather than in the middle of its frames, so smashing buildings and the ground, and new parts of the world coming into view, cost the game far less time.</li><li>By day, when the street lights and neon can't be seen anyway, the world is drawn without working out their light, which makes it quicker still. It's all lit again before dusk, or before a storm darkens the sky.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Water</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='11e3adfb14d4';
+const GAME_VER='0.5.1',GAME_BUILD='b1301572d506';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -15556,7 +15556,8 @@ function gunRound(M,p,mx,my,mz,dmg,sc0,cause,snd,A0){
 // ---- one round from any gun: down the line from the muzzle to the first thing in its way, with a tracer to show it ----
 // Where it goes: x,y,z the muzzle; at {x,y,z} what it's aimed at, or dir (a unit vector) and range; sc how much it scatters
 // (per block it's aimed off); step how finely the line's followed (0.5 by default); tr where the tracer starts, if not at
-// the muzzle; own the vehicle it's fired from (spared); by the player firing (or null).
+// the muzzle (trF: a player's own shot, its start kept on their view gun: tracerFollow); own the vehicle it's fired from
+// (spared, and the tracer's start moves with it); by the player firing (or null).
 // What it can hit (each gun's own switches): gobs, goblins (dmg each; gb [radius, lowest, highest] how near the line,
 // from its feet), and with PvP on another player (pvp {n, cause, opt} for pvpHurt); vehs, stopping at a vehicle in its
 // way (vd to it through vehBlast, 4 by default); breaks, the block it hits may break (bulletBreak: glass every time, brick half the time); ship,
@@ -15596,7 +15597,8 @@ function fireRound(o){
   // (and stops at a street fixture or prop in its way short of that, knocking it over)
   let kr=null;if(!o.tgt&&(kr=knockRay(mx,my,mz,ux,uy,uz,Math.min(R,t)))){t=kr.t;hit='fix';oh=null;}
   let mr=null;if(!o.tgt&&MINES.length&&(mr=mineRay(mx,my,mz,ux,uy,uz,Math.min(R,t+0.4)))){t=mr.t;hit='mine';oh=null;}
-  t=Math.min(t,R);const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t,T0=o.tr||o;tracer(T0.x,T0.y,T0.z,ex,ey,ez);
+  t=Math.min(t,R);const ex=mx+ux*t,ey=my+uy*t,ez=mz+uz*t,T0=o.tr||o;
+  TR_FOL=o.trF||(o.own?{o:o.own}:null);try{tracer(T0.x,T0.y,T0.z,ex,ey,ez);}finally{TR_FOL=null;}   // (kept on the muzzle as it moves: tracerFollow)
   if(typeof o.snd==='function')o.snd();else if(o.snd&&audio)sfx(o.snd,()=>noise(0.06,0.1,2400,'highpass'));
   // (where it struck, in the frame of whatever it struck)
   const hx=oh?oh.x:ex,hy=oh?oh.y:ey,hz=oh?oh.z:ez;if(oh&&oh.b){wx=oh.b[0];wy=oh.b[1];wz=oh.b[2];}
@@ -21931,11 +21933,37 @@ function fbClear(){gobPickupsClear();minesClear();for(const F of FIREB){F.live=f
 const TRACERS=[],TR_MAT=new THREE.MeshBasicMaterial({color:0xfff0a0});
 function tracer(x0,y0,z0,x1,y1,z1){
   let T=TRACERS.find(o=>o.t<=0);if(!T){if(TRACERS.length>=24)T=TRACERS[0];else{const m=new THREE.Mesh(FB_GEO,TR_MAT);m.visible=false;scene.add(m);T={m,t:0};TRACERS.push(T);}}
-  if(x0>=SHIP_X0){const S=shipOfPos(x0,z0);if(S){shipToWorld(S,x0,z0,_sv);x0=_sv.x;z0=_sv.z;y0-=S.sk;shipToWorld(S,x1,z1,_sv);x1=_sv.x;z1=_sv.z;y1-=S.sk;}}   // (fired aboard a ship: drawn where that is)
-  const L=Math.hypot(x1-x0,y1-y0,z1-z0)||0.01;T.m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);T.m.scale.set(0.05,0.05,L);T.m.lookAt(x1,y1,z1);T.m.visible=true;T.t=0.07;
-  // (its light, the moving light and halo, is the muzzle flash: where it starts, the size of a flash, not the middle of the
-  // streak, which put the light out along the bullet's path: glowAt, glowR in block-light.js)
+  let cv=false;if(x0>=SHIP_X0){const S=shipOfPos(x0,z0);if(S){cv=true;shipToWorld(S,x0,z0,_sv);x0=_sv.x;z0=_sv.z;y0-=S.sk;shipToWorld(S,x1,z1,_sv);x1=_sv.x;z1=_sv.z;y1-=S.sk;}}   // (fired aboard a ship: drawn where that is)
+  trPlace(T,x0,y0,z0,x1,y1,z1);T.m.visible=true;T.t=0.07;
+  // (its start kept on the muzzle while it shows, tracerFollow: TR_FOL, set by fireRound for the round being fired, says
+  // whose. A player's own shot on foot follows their view; a vehicle's gun, the vehicle (not one in a ship's pocket))
+  const F=TR_FOL;T.fol=null;
+  if(F&&F.p)T.fol={p:F.p,wk:F.wk,mz:F.mz,x1,y1,z1};
+  else if(F&&F.o&&!cv){const q=F.o.pos||F.o;if(isFinite(q.x+q.y+q.z)&&q.x<SHIP_X0)T.fol={o:F.o,x0,y0,z0,ox:q.x,oy:q.y,oz:q.z,x1,y1,z1};}
+}
+// (the streak from x0,y0,z0 to x1,y1,z1; its light, the moving light and halo, is the muzzle flash: where it starts, the
+// size of a flash, not the middle of the streak, which put the light out along the bullet's path: glowAt, glowR in block-light.js)
+function trPlace(T,x0,y0,z0,x1,y1,z1){
+  const L=Math.hypot(x1-x0,y1-y0,z1-z0)||0.01;T.m.position.set((x0+x1)/2,(y0+y1)/2,(z0+z1)/2);T.m.scale.set(0.05,0.05,L);T.m.lookAt(x1,y1,z1);
   const U=T.m.userData;(U.lp||(U.lp=new THREE.Vector3())).set(x0,y0,z0);U.lr=0.3;
+}
+// Tracers kept on the gun that fired them. A shot is fired in the players' step, before the view's placed for the frame,
+// and the streak stays for a few frames after; left where it started, it trailed behind the muzzle of anyone moving
+// (and well behind a jet's nose). So once every view's placed (the frame loop), each one's start is put back on its muzzle:
+// a player's own, the barrel's tip as their view gun's posed now (gobMuzzle, or where it was taken from when fired) in the
+// view as it's placed now; a vehicle's, moved on as far as the vehicle has. The far end stays where the round went.
+// (And p.camAt: where each player stood when their view was placed, for gobEyeNow)
+let TR_FOL=null;const _tfV=new THREE.Vector3(),_tfM=new Map();
+function tracerFollow(){
+  for(const p of players)if(p.active){const a=p.camAt||(p.camAt={x:0,y:0,z:0});a.x=p.pos.x;a.y=p.pos.y;a.z=p.pos.z;}
+  _tfM.clear();
+  for(const T of TRACERS){const F=T.fol;if(!F||!(T.t>0))continue;let x0,y0,z0;
+    if(F.p){const p=F.p;if(!p.active||DT.freecam&&p===P1)continue;
+      let C=_tfM.get(p);if(!C)_tfM.set(p,C={});
+      if(!(F.wk in C))C[F.wk]=gobMuzzle(p,F.wk);
+      const m=C[F.wk]||F.mz,K=p.camera;_tfV.set(m.x,m.y,m.z).applyQuaternion(K.quaternion).add(K.position);x0=_tfV.x;y0=_tfV.y;z0=_tfV.z;}   // (the camera has no parent: its own turn and place are its view's)
+    else{const q=F.o.pos||F.o;x0=F.x0+q.x-F.ox;y0=F.y0+q.y-F.oy;z0=F.z0+q.z-F.oz;}
+    if(isFinite(x0+y0+z0))trPlace(T,x0,y0,z0,F.x1,F.y1,F.z1);}
 }
 // ---- things thrown and fired that go off: grenades, tank shells, rockets. Each flies under gravity (a shell
 // barely), a bomb bounces and rolls until its fuse is done; a shell or a rocket goes off on whatever it hits ----
@@ -22155,9 +22183,14 @@ function gobAttack(p){const k=gobArms(p).wpn,K=WEAPONS[k];
 // Followed across a ship's side too, from the shore or the sea at its blocks and the goblins aboard, or from aboard out
 // into the world. A vehicle takes VEH_SHOT_K times a goblin's damage, as from the enemies' rounds; half the time the
 // block it hits breaks (bulletBreak), as an enemy's round does: the damage, range and breaking are the weapon's
+// (where his eye is now: the view's placed after the players' step, so the camera's still where he was last frame, and
+// what's fired from it, on the move, started a step behind him. Moved on as far as he has since (p.camAt, tracerFollow),
+// unless that's a jump of more than a few blocks: a respawn, say)
+function gobEyeNow(p){const c=shipEye(p),a=p.camAt;if(!a||p.net)return c;const dx=p.pos.x-a.x,dy=p.pos.y-a.y,dz=p.pos.z-a.z;
+  return dx*dx+dy*dy+dz*dz>25?c:{x:c.x+dx,y:c.y+dy,z:c.z+dz};}
 function gobShoot(p){
-  const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,
-    fx=-Math.sin(p.cam.yaw),fz=-Math.cos(p.cam.yaw),rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
+  const wk=gobGun(gobArms(p).wpn)?p.wpn:'rifle',W=GOB_WPN[wk],c=gobEyeNow(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,
+    rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
   // (a round out of the magazine: its count, kept per weapon (gobAmmo))
   if(W.mag){const n=gobAmmo(p,wk);if(n<=0)return;if(!DT.infAmmo)p.ammo[wk]=n-1;}   // (the debug menu's Infinite ammo: none used up)
   p.shotT=camClock;p.shotN=(p.shotN||0)+1;
@@ -22171,14 +22204,16 @@ function gobShoot(p){
     // (a shotgun's pellets each a round of their own, scattered round the middle of the view: across along the view's right,
     // up and down along the view's own up (right x forward), so the pattern stays round aiming steeply up or down too)
     // (the tracer, and the flash's light with it, from the barrel's tip as it is in your own view (gobMuzzle); scoped, or
-    // with no view gun shown, a little ahead and below the eye as before)
-    const mz=gobMuzzle(p,wk),sy=Math.sin(p.cam.yaw),cy=Math.cos(p.cam.yaw),sp=dy;
-    const tr=mz?{x:c.x+rx*mz.x+sy*sp*mz.y-dx*mz.z,y:c.y+cp*mz.y-dy*mz.z,z:c.z+rz*mz.x+cy*sp*mz.y-dz*mz.z}:{x:c.x+fx*0.5+rx*0.18,y:c.y-0.18,z:c.z+fz*0.5+rz*0.18};
+    // with no view gun shown, a little ahead and below the eye. Kept there while it shows (trF, tracerFollow), but not a
+    // guest's on the host or with the free cam out: that's not the view they're seeing)
+    const mz=gobMuzzle(p,wk)||GOB_MZ0,sy=Math.sin(p.cam.yaw),cy=Math.cos(p.cam.yaw),sp=dy;
+    const tr={x:c.x+rx*mz.x+sy*sp*mz.y-dx*mz.z,y:c.y+cp*mz.y-dy*mz.z,z:c.z+rz*mz.x+cy*sp*mz.y-dz*mz.z};
+    const trF=p.net||DT.freecam&&p===P1?null:{p,wk,mz};
     const n=W.pellets||1,ux=-rz*dy,uy=rz*dx-rx*dz,uz=rx*dy,hip=W.hip&&!(p.scope>0.9)?W.hip:0;for(let i=0;i<n;i++){let ex=dx,ey=dy,ez=dz;
       // (a scoped gun fired off the scope: a little way off the middle, the same way the pellets scatter)
       if(hip){const a=Math.random()*6.283,r=hip*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
       if(n>1){const a=Math.random()*6.283,r=W.spread*Math.sqrt(Math.random()),ca=Math.cos(a)*r,sa=Math.sin(a)*r;ex+=rx*ca+ux*sa;ey+=uy*sa;ez+=rz*ca+uz*sa;const L=Math.hypot(ex,ey,ez);ex/=L;ey/=L;ez/=L;}
-      fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr,
+      fireRound({x:c.x,y:c.y,z:c.z,dir:{x:ex,y:ey,z:ez},range:W.range,step:0.2,by:p,tr,trF,
         gobs:true,gb:[0.45,0,1.5],dmg:W.dmg,cause:W.cause,pvp:{n:W.dmg,cause:'Shot',opt:{cd:0}},vehs:true,vd:W.dmg*VEH_SHOT_K,breaks:W.breaks,ship:true,
         snd:i?null:()=>wpnCrack(wk)});}}   // (the handgun cracks higher and shorter, as the police's does)
   p.shake=Math.max(p.shake||0,W.shake);rumble(p,W.rumble,50);
@@ -22187,7 +22222,7 @@ function gobShoot(p){
 }
 // the barrel's tip of the gun in your own view, in the camera's frame (x right, y up, -z ahead): the middle of its
 // frontmost face, from the boxes as they're posed now (a magazine out in a reload isn't counted). Null if it isn't shown
-const _mzA=new THREE.Vector3();
+const _mzA=new THREE.Vector3(),GOB_MZ0={x:0.18,y:-0.18,z:-0.5};   // (GOB_MZ0: where a tracer starts with no view gun shown)
 function gobMuzzle(p,wk){
   const K=p.gb;if(!K||!K.vm.visible||!K.held[wk]||!K.held[wk].visible)return null;
   try{K.vm.updateMatrixWorld(true);const P=[];
@@ -22202,7 +22237,7 @@ function gobMuzzle(p,wk){
 // weapon's cast): out of the free hand, a little below and left of the eye, at whatever's under the crosshair. It flies
 // and bends after the nearest enemy goblin ahead of it (fbTarget, shots.js), the weapon's numbers as a cultist's
 function gobCast(p){const W=WEAPONS[gobArms(p).wpn];if(!W||W.kind!=='spell')return;
-  const c=shipEye(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
+  const c=gobEyeNow(p),cp=Math.cos(p.cam.pitch),dx=-Math.sin(p.cam.yaw)*cp,dy=Math.sin(p.cam.pitch),dz=-Math.cos(p.cam.yaw)*cp,rx=Math.cos(p.cam.yaw),rz=-Math.sin(p.cam.yaw);
   fireball(c.x+dx*0.5-rx*0.25,c.y-0.2+dy*0.5,c.z+dz*0.5-rz*0.25,c.x+dx*W.range,c.y+dy*W.range,c.z+dz*W.range,{W,pl:p,by:pvpBy(p),cause:W.player.cause});
   rumble(p,0.12,60);}
 // the attack button's sound as it starts: the club's or dagger's swing, a spell's rising note while it's conjured (a gun's
@@ -32183,6 +32218,7 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
   // (a guest online is shown players it doesn't run itself: anything amiss with one mustn't stop the whole game)
   for(const p of players){try{poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);shipCam(p);drvHud(p);updateSpeedo(p,dt);shipView(()=>updateMinimap(p,dt));p.shake*=Math.exp(-gdt*7);}catch(e){if(!netGuest())throw e;safe('view',()=>{throw e;});}}
   if(DT.freecam){P1.camera.position.copy(FC.pos);P1.camera.rotation.set(FC.pitch,FC.yaw,0,'YXZ');}
+  safe('tracers',tracerFollow);   // (each tracer's start back on the muzzle that fired it, now the views are placed: shots.js)
   const act=players.filter(p=>p.active);
   const nAct=act.length||1,mx=act.reduce((s,p)=>s+pwx(p),0)/nAct,mz=act.reduce((s,p)=>s+pwz(p),0)/nAct;   // (nobody active: the middle, not NaN)
   // each deck follows the players (so it always covers the sky) but its pattern stays put in the world and drifts on the

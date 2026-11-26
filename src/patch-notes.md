@@ -187,6 +187,7 @@
 
 - The flash of light from a gunshot now comes from the barrel, not from a spot partway along the bullet's streak. That goes for every gun: goblins', Gnash's, vehicles', the Mobile Gear's and the carrier's, and online too.
 - Gnash's bullets now start from the tip of the gun in your hands.
+- Bullet streaks stay on the muzzle while you fire on the move, instead of starting a little behind it. Gunners' streaks stay on their vehicle's gun too, even in a jet at full speed.
 
 ### Knock everything over
 
