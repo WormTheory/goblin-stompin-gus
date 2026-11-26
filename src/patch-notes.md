@@ -113,6 +113,7 @@
 - Winter only freezes ponds and rivers where it's cold enough, never in the desert, savanna or rainforest.
 - In split screen, each player sees the weather where they are.
 - Rain, snow, blowing sand and the clouds overhead all drift with the wind now, the same way smoke blows, and turn with it as it slowly shifts.
+- Rain and snow blowing in at a slant no longer show up under overhangs, in the lee of walls or indoors: they're kept off anywhere sheltered from the way they're blowing, not just from straight overhead.
 
 ### Coasts
 
