@@ -90,7 +90,8 @@ function updateFires(dt){
       F.acc+=dt*R*R*9*k;
       while(F.acc>=1){F.acc--;const p=flameP[flI];flI=(flI+1)%FL_N;
         const a=Math.random()*Math.PI*2,d=Math.sqrt(Math.random())*R,px=F.x+Math.cos(a)*d,pz=F.z+Math.sin(a)*d;
-        const g=supportAt(px,pz,F.y+3);p.x=px;p.z=pz;p.y=(g===null?F.y:g)+0.1;
+        const g=chunks.has(ckey(Math.floor(px/CS),Math.floor(pz/CS)))?supportAt(px,pz,F.y+3):null;p.x=px;   // (a fire left burning far behind: its chunk's been put away, and asking would make it again)
+        p.z=pz;p.y=(g===null?F.y:g)+0.1;
         p.vy=2+Math.random()*2.5*(0.6+0.4*k);p.max=p.life=0.45+Math.random()*0.5;p.s=(0.35+Math.random()*0.45)*(0.6+0.5*Math.min(1,R/2.5))*(0.5+0.5*k);p.ph=Math.random()*6;}
       // burns whoever stands in it (and goblins)
       F.hurt-=dt;

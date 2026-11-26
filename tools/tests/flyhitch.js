@@ -3,8 +3,9 @@
 // the profiler on; it says where each frame's time went flying, just after and later, and then, over a further 30 s still,
 // how many chunks were made and by what. Standing still nothing should be: a vehicle passed on the way and left far
 // behind used to ask its block of sky with get() about once a second (openSky, for the snow on it), making its chunk
-// again each time, only for it to be unloaded as too far off: a hitch every second or so, for good.
-// Usage: node flyhitch.js     (SPD=220 FLY=120 STAY=30 VIEW=2400)
+// again each time, only for it to be unloaded as too far off: a hitch every second or so, for good. So did a fire left
+// burning back there (updateFires, finding the ground for each flame).
+// Usage: node flyhitch.js     (SPD=220 FLY=120 STAY=30 VIEW=2400 SMASH=6)
 const {T,E,step,els,pads,errs}=require('./harness.js')();
 for(const f of els.play.L.click)f();pads.length=0;step(120);
 T.DT.prof=true;T.DT.invuln=true;T.viewSetting=+(process.env.VIEW||2400);T.farDirty=true;
@@ -14,7 +15,9 @@ let cur=new Map();E('(f)=>{const o=profAdd;profAdd=(k,ms)=>{o(k,ms);f(k,ms);}}')
 const SPD=+(process.env.SPD||220),FLY=+(process.env.FLY||120),STAY=+(process.env.STAY||30);
 const y0=T.G+120;let x=P.pos.x,z=P.pos.z;
 const rec=[];
-function fr(move){cur=new Map();if(move){x+=SPD/60;z+=SPD*0.3/60;}P.pos.set(x,y0,z);P.vy=0;P.grounded=false;const t0=performance.now();step(1);rec.push({t:performance.now()-t0,m:cur,move});}
+let fN=0;const SMASH=+(process.env.SMASH??6);   // (a big blast under the flight every SMASH seconds, 0 none: the fires it leaves burn on behind)
+function fr(move){cur=new Map();if(move){x+=SPD/60;z+=SPD*0.3/60;
+  if(SMASH&&++fN%(SMASH*60)===0){const gy=T.groundAt(x,z,T.H-2);T.bigBlast(x,gy+2,z,12);}}P.pos.set(x,y0,z);P.vy=0;P.grounded=false;const t0=performance.now();step(1);rec.push({t:performance.now()-t0,m:cur,move});}
 for(let i=0;i<FLY*60;i++)fr(true);
 for(let i=0;i<STAY*60;i++)fr(false);
 function summ(a,lab){const n=a.length,tot={};for(const r of a)for(const [k,v] of r.m)tot[k]=(tot[k]||0)+v;
