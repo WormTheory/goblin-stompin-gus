@@ -202,6 +202,7 @@
 - Water can be shallow now, from an eighth of a block up, so floods spread out in sheets and puddles rather than solid blocks.
 - The sea, rivers and big lakes still never run dry. Dig into a tunnel or cave from the sea bed and it fills right up.
 - There's no longer a limit on how much water can pour out of one place.
+- Doors swing open to let water through.
 
 ### Nukes
 

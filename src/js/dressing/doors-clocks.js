@@ -105,6 +105,9 @@ function updateDoors(dt){
   for(const D of doorsOn.values()){
     const R=D.R;let near=null,nd=1e9;
     for(const [x,z,y,r] of who){if(Math.abs(y-(R.y||G+1))>3)continue;const d=Math.hypot(x-R.x,z-R.z)-((R.a1-R.a0)/2-0.5);if(d<r&&d<nd){nd=d;near=[x,z];}}
+    // (water at the doorway, either side: it swings open away from it to let it through, destruction/water-flow.js)
+    if(!near){const y0=R.y||G+1,m=Math.floor(R.ax==='x'?R.x:R.z);
+      for(const k of [-1,1]){const wx=R.ax==='x'?m:R.c+k,wz=R.ax==='x'?R.c+k:m;if(WET[peek(wx,y0,wz)]){near=[wx+0.5,wz+0.5];break;}}}
     const tgt=near?1:0;
     // (a door just come into range with someone already at it, as when a city or the Testing Environment loads with
     // you or a crowd by a row of doors, is simply open: no sound. Otherwise they all went off at once, a loud crash of

@@ -9,7 +9,7 @@
 // and it floods. Only water that just moved or had something opened beside it is looked at (wfAct), so still water
 // costs nothing. The sea, rivers and big lakes are endless (wfEndless): natural water in a body of WF_SEA blocks or more,
 // or one running on past the world that's made, never goes down. Water that would go into a chunk not made yet waits for
-// it (wfPark). Only the host's game runs it (a guest skips the step that does): each block it changes goes through
+// it (wfPark). A door lets it through, swinging open (wfSide). Only the host's game runs it (a guest skips the step that does): each block it changes goes through
 // addEdit, which saves it and sends it to guests like any smashed block.
 const WF_STEP=0.05,WF_BUDGET=6000,WF_MS=2,WF_LOOK=6000,WF_SEA=4000,WF_FULL=64,WF_FILM=12,WF_EVEN=2,WF_PRESS=1500,WF_PRESS_N=6,WF_DRAW=0.15;
 const wfRemoved=[];   // (blocks knocked out since the last step, x,y,z each: setRaw adds them, the step looks at them)
@@ -30,6 +30,12 @@ const wfUnmade=(x,y,z)=>y>=0&&y<H&&x<SHIP_X0&&!chunks.has(ckey(Math.floor(x/CS),
 // (a long-lived list, so it's kept from growing without end: a guest's never looked at, as only the host runs the water)
 function wfNoteRemoved(x,y,z){if(wfRemoved.length<WF_LOOK*30)wfRemoved.push(Math.floor(x),Math.floor(y),Math.floor(z));}
 function wfWake(x,y,z){const b=wfGet(x,y,z);if(b>0&&WET[b])wfAct.set(bkey(x,y,z),[x,y,z]);}
+// (a door lets water through: it swings open for it, dressing/doors-clocks.js. So the block beside, in direction S, is the
+// one beyond the door when there's a door there; a wall's only one block thick)
+const wfDoor=(x,y,z)=>{const b=wfGet(x,y,z);return b>0&&!!BLOCK[b].door;};
+function wfSide(x,y,z,S){const nx=x+S[0],nz=z+S[2];return wfDoor(nx,y,nz)?[nx+S[0],nz+S[2]]:[nx,nz];}
+// (what's above and beside a block that's lost water, through doors too, may follow it in)
+function wfWakeRound(x,y,z){wfWake(x,y+1,z);for(const S of WF_SIDES){const [nx,nz]=wfSide(x,y,z,S);wfWake(nx,y,nz);}}
 // natural water (never changed) that's part of the sea, a river or a big lake: it never runs dry
 function wfEndless(x,y,z){
   if(editAt(x,y,z)!==undefined)return false;   // (water that's poured in, or was changed, is only what's there)
@@ -59,7 +65,7 @@ function updateWater(dt){
   wfClock+=dt;if(wfClock<WF_STEP)return;wfClock=0;
   // (something opened: the water on it and beside it may move)
   for(let n=0;wfRemoved.length&&n<WF_LOOK;n++){const z=wfRemoved.pop(),y=wfRemoved.pop(),x=wfRemoved.pop();
-    wfWake(x,y+1,z);for(const [dx,,dz] of WF_SIDES)wfWake(x+dx,y,z+dz);}
+    wfWakeRound(x,y,z);}
   // (what's waiting at the edge of the made world tries again once a second)
   wfParkT+=WF_STEP;if(wfParkT>=0.999&&wfPark.size){wfParkT=0;for(const [k,v] of wfPark)wfAct.set(k,v);wfPark.clear();}
   if(!wfAct.size)return;
@@ -87,7 +93,7 @@ function updateWater(dt){
     // then out to the sides, once it can't fall
     if(a>0&&(d<0||d===WF_FULL||src)){
       const up=amt(x,y+1,z)>0;   // (water pressing down on it: it fills what's beside it right up, as in a flooded room)
-      for(let j=0;j<4&&a>0;j++){const S=WF_SIDES[(j+wfTurn)&3],nx=x+S[0],nz=z+S[2],s=amt(nx,y,nz);
+      for(let j=0;j<4&&a>0;j++){const S=WF_SIDES[(j+wfTurn)&3],[nx,nz]=wfSide(x,y,z,S),s=amt(nx,y,nz);
         if(s===-2){wait=true;continue;}if(s<0||s>=a||shut(nx,y,nz,s))continue;
         const pr=up&&!(amt(nx,y+1,nz)>0);if(!pr&&a-s<WF_EVEN)continue;   // (near enough level: it stops)
         let m=(a-s)>>1;
@@ -100,7 +106,7 @@ function updateWater(dt){
     if(src&&moved)wfAct.set(k,list[n]);   // (it goes on pouring while there's room)
     if(moved){if(!src)put(x,y,z,a);
       // (what's above and beside may follow it in)
-      wfWake(x,y+1,z);for(const [dx,,dz] of WF_SIDES)wfWake(x+dx,y,z+dz);}
+      wfWakeRound(x,y,z);}
     if(wait)wfPark.set(k,list[n]);
   }
   for(;n<list.length;n++){const [x,y,z]=list[n];wfAct.set(bkey(x,y,z),list[n]);}   // (what the budget didn't reach goes next time)

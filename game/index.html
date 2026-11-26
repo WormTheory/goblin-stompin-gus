@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:c5f10fafb3721bae5adcd6c3f6866dd95b0eceeb93ac4db003181911f9b598ce -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:b8354caf11ba4eb9410ef924d8d9f7f2bf53843db6d0ddb23f1bd6e95c073bba -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1682,7 +1682,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Knock everything over</h3>
 <ul><li>A tower falling into other buildings takes about a third less of each frame's time, so big chain collapses run smoother.</li><li>A building coming down is spread over a few frames instead of landing on one, and several coming down at once take turns, so bringing down a whole block of towers no longer freezes the game for a moment.</li><li>Smashing through town keeps a steadier frame rate: the ground and buildings you've broken catch up over a few frames, nearest you first, and street lamps and benches on their way down no longer make the game redraw every fixture around you.</li><li>The world's blocks are now drawn up on your computer's spare processor cores, alongside the game rather than in the middle of its frames, so smashing buildings and the ground, and new parts of the world coming into view, cost the game far less time.</li><li>By day, when the street lights and neon can't be seen anyway, the world is drawn without working out their light, which makes it quicker still. It's all lit again before dusk, or before a storm darkens the sky.</li><li>Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.</li></ul>
 <h3>Water</h3>
-<ul><li>Water now has a set amount. Break open an aquarium tank and it drains down to the bottom of the hole while the water runs out across the floor, spreading thin and settling, instead of flooding everything around it up to the tank's waterline.</li><li>Water can be shallow now, from an eighth of a block up, so floods spread out in sheets and puddles rather than solid blocks.</li><li>The sea, rivers and big lakes still never run dry. Dig into a tunnel or cave from the sea bed and it fills right up.</li><li>There's no longer a limit on how much water can pour out of one place.</li></ul>
+<ul><li>Water now has a set amount. Break open an aquarium tank and it drains down to the bottom of the hole while the water runs out across the floor, spreading thin and settling, instead of flooding everything around it up to the tank's waterline.</li><li>Water can be shallow now, from an eighth of a block up, so floods spread out in sheets and puddles rather than solid blocks.</li><li>The sea, rivers and big lakes still never run dry. Dig into a tunnel or cave from the sea bed and it fills right up.</li><li>There's no longer a limit on how much water can pour out of one place.</li><li>Doors swing open to let water through.</li></ul>
 <h3>Nukes</h3>
 <ul><li>A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.</li><li>A nuke fired a long way no longer goes off early in mid-air: it flies on until it hits something.</li><li>The cloud drifts off with the wind and thins away over a minute or so. It's mottled in lighter and darker shades rather than one flat colour.</li><li>The fireball swells and rolls over into the mushroom's ring in one smooth movement, rather than sliding from a ball into a ring.</li><li>The mushroom cloud is see-through at its edges like other smoke, its stem flares out into the cap and turns only slowly, the collar round the stem is mottled, and the ring of dust along the ground keeps billowing out, climbing and drifting rather than sitting still. Dust hangs over the whole blast area too, drifting outward, faster the further out it is. The dust settles on the ground under it, down in the crater too, rather than hanging at one height.</li><li>Water, smoke and dust behind the mushroom cloud and the white dome no longer show through in front of them.</li><li>Smoke from fires shows through the nuke's dust, and the dust through the smoke.</li><li>The smoke rising round the edge of the blast fans out, bends over and drifts away rather than standing in columns.</li><li>All smoke now blows with the wind: burning buildings, campfires and wrecked vehicles too.</li><li>The boom and the shaking reach you at the speed of sound, so from far off you see it well before you hear it.</li><li>At night it lights the whole sky and the ground round it orange.</li></ul>
 <h3>Screen layout</h3>
@@ -2408,7 +2408,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='095ef6f5b82a';
+const GAME_VER='0.5.1',GAME_BUILD='ffc6fdcad3aa';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -13683,7 +13683,7 @@ function crashTopple(T){
 // and it floods. Only water that just moved or had something opened beside it is looked at (wfAct), so still water
 // costs nothing. The sea, rivers and big lakes are endless (wfEndless): natural water in a body of WF_SEA blocks or more,
 // or one running on past the world that's made, never goes down. Water that would go into a chunk not made yet waits for
-// it (wfPark). Only the host's game runs it (a guest skips the step that does): each block it changes goes through
+// it (wfPark). A door lets it through, swinging open (wfSide). Only the host's game runs it (a guest skips the step that does): each block it changes goes through
 // addEdit, which saves it and sends it to guests like any smashed block.
 const WF_STEP=0.05,WF_BUDGET=6000,WF_MS=2,WF_LOOK=6000,WF_SEA=4000,WF_FULL=64,WF_FILM=12,WF_EVEN=2,WF_PRESS=1500,WF_PRESS_N=6,WF_DRAW=0.15;
 const wfRemoved=[];   // (blocks knocked out since the last step, x,y,z each: setRaw adds them, the step looks at them)
@@ -13704,6 +13704,12 @@ const wfUnmade=(x,y,z)=>y>=0&&y<H&&x<SHIP_X0&&!chunks.has(ckey(Math.floor(x/CS),
 // (a long-lived list, so it's kept from growing without end: a guest's never looked at, as only the host runs the water)
 function wfNoteRemoved(x,y,z){if(wfRemoved.length<WF_LOOK*30)wfRemoved.push(Math.floor(x),Math.floor(y),Math.floor(z));}
 function wfWake(x,y,z){const b=wfGet(x,y,z);if(b>0&&WET[b])wfAct.set(bkey(x,y,z),[x,y,z]);}
+// (a door lets water through: it swings open for it, dressing/doors-clocks.js. So the block beside, in direction S, is the
+// one beyond the door when there's a door there; a wall's only one block thick)
+const wfDoor=(x,y,z)=>{const b=wfGet(x,y,z);return b>0&&!!BLOCK[b].door;};
+function wfSide(x,y,z,S){const nx=x+S[0],nz=z+S[2];return wfDoor(nx,y,nz)?[nx+S[0],nz+S[2]]:[nx,nz];}
+// (what's above and beside a block that's lost water, through doors too, may follow it in)
+function wfWakeRound(x,y,z){wfWake(x,y+1,z);for(const S of WF_SIDES){const [nx,nz]=wfSide(x,y,z,S);wfWake(nx,y,nz);}}
 // natural water (never changed) that's part of the sea, a river or a big lake: it never runs dry
 function wfEndless(x,y,z){
   if(editAt(x,y,z)!==undefined)return false;   // (water that's poured in, or was changed, is only what's there)
@@ -13733,7 +13739,7 @@ function updateWater(dt){
   wfClock+=dt;if(wfClock<WF_STEP)return;wfClock=0;
   // (something opened: the water on it and beside it may move)
   for(let n=0;wfRemoved.length&&n<WF_LOOK;n++){const z=wfRemoved.pop(),y=wfRemoved.pop(),x=wfRemoved.pop();
-    wfWake(x,y+1,z);for(const [dx,,dz] of WF_SIDES)wfWake(x+dx,y,z+dz);}
+    wfWakeRound(x,y,z);}
   // (what's waiting at the edge of the made world tries again once a second)
   wfParkT+=WF_STEP;if(wfParkT>=0.999&&wfPark.size){wfParkT=0;for(const [k,v] of wfPark)wfAct.set(k,v);wfPark.clear();}
   if(!wfAct.size)return;
@@ -13761,7 +13767,7 @@ function updateWater(dt){
     // then out to the sides, once it can't fall
     if(a>0&&(d<0||d===WF_FULL||src)){
       const up=amt(x,y+1,z)>0;   // (water pressing down on it: it fills what's beside it right up, as in a flooded room)
-      for(let j=0;j<4&&a>0;j++){const S=WF_SIDES[(j+wfTurn)&3],nx=x+S[0],nz=z+S[2],s=amt(nx,y,nz);
+      for(let j=0;j<4&&a>0;j++){const S=WF_SIDES[(j+wfTurn)&3],[nx,nz]=wfSide(x,y,z,S),s=amt(nx,y,nz);
         if(s===-2){wait=true;continue;}if(s<0||s>=a||shut(nx,y,nz,s))continue;
         const pr=up&&!(amt(nx,y+1,nz)>0);if(!pr&&a-s<WF_EVEN)continue;   // (near enough level: it stops)
         let m=(a-s)>>1;
@@ -13774,7 +13780,7 @@ function updateWater(dt){
     if(src&&moved)wfAct.set(k,list[n]);   // (it goes on pouring while there's room)
     if(moved){if(!src)put(x,y,z,a);
       // (what's above and beside may follow it in)
-      wfWake(x,y+1,z);for(const [dx,,dz] of WF_SIDES)wfWake(x+dx,y,z+dz);}
+      wfWakeRound(x,y,z);}
     if(wait)wfPark.set(k,list[n]);
   }
   for(;n<list.length;n++){const [x,y,z]=list[n];wfAct.set(bkey(x,y,z),list[n]);}   // (what the budget didn't reach goes next time)
@@ -27216,6 +27222,9 @@ function updateDoors(dt){
   for(const D of doorsOn.values()){
     const R=D.R;let near=null,nd=1e9;
     for(const [x,z,y,r] of who){if(Math.abs(y-(R.y||G+1))>3)continue;const d=Math.hypot(x-R.x,z-R.z)-((R.a1-R.a0)/2-0.5);if(d<r&&d<nd){nd=d;near=[x,z];}}
+    // (water at the doorway, either side: it swings open away from it to let it through, destruction/water-flow.js)
+    if(!near){const y0=R.y||G+1,m=Math.floor(R.ax==='x'?R.x:R.z);
+      for(const k of [-1,1]){const wx=R.ax==='x'?m:R.c+k,wz=R.ax==='x'?R.c+k:m;if(WET[peek(wx,y0,wz)]){near=[wx+0.5,wz+0.5];break;}}}
     const tgt=near?1:0;
     // (a door just come into range with someone already at it, as when a city or the Testing Environment loads with
     // you or a crowd by a row of doors, is simply open: no sound. Otherwise they all went off at once, a loud crash of

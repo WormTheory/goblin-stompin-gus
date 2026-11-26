@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,editAt,chunks,CS,G,H,WATER,AIR,STONE,SAND,GLASS,NET,players,frame,ckey,wfAct,wfPark,wfRemoved,wfSrc,wfAmt,bkey,updateWater,WF_STEP,wfEndless,wfPress,WF_LV,WATER_L};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,editAt,chunks,CS,G,H,WATER,AIR,STONE,SAND,GLASS,NET,players,frame,ckey,wfAct,wfPark,wfRemoved,wfSrc,wfAmt,bkey,updateWater,WF_STEP,wfEndless,wfPress,WF_LV,WATER_L,DOOR_G};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 const {Q,V3,Rot,Col,Mat,O3,M4,THREE}=require('./stub-three.js');   // (the stand-in three.js every suite shares)
 const listeners={};
@@ -87,6 +87,15 @@ let floor=0,dp=0,hi=0;for(let x=ax;x<ax+AW;x++)for(let z=az+4;z<az+AD;z++){const
 console.log('aquarium tank holed 3 up: tank',tk0,'->',tk1,'64ths | all of it',all,'| on the hall floor over',floor,'blocks, deepest',dp+'/8, any higher than the floor',hi,
   '| settled in',(steps*T.WF_STEP).toFixed(1)+'s, worst step',worst.toFixed(2),'ms');
 ok(all===tk0,'the aquarium keeps its water');ok(tk1<tk0&&tk1>=30*3*3*64,'drains to the bottom of the hole');ok(hi===0,'nothing stands up off the floor');ok(steps<6000,'it settles');
+// 4b. a door: a pool behind a wall with a glass door in it, a block knocked out beside the water: it goes through the door
+const dx0=ax,dz0=az+AD+20,dy=G+30;
+for(let x=dx0-1;x<=dx0+20;x++)for(let z=dz0-1;z<=dz0+6;z++)for(let y=dy-1;y<=dy+4;y++)put(x,y,z,y===dy-1||y===dy+4||x===dx0-1||x===dx0+20||z===dz0-1||z===dz0+6||x===dx0+6?STONE:AIR);
+put(dx0+6,dy,dz0+2,T.DOOR_G);put(dx0+6,dy+1,dz0+2,T.DOOR_G);
+for(let x=dx0;x<dx0+6;x++)for(let z=dz0;z<dz0+6;z++)for(let y=dy;y<dy+2;y++)put(x,y,z,W);
+put(dx0+2,dy+2,dz0+2,STONE);dig(dx0+2,dy+2,dz0+2);settle();
+const dIn=units(dx0,dx0+5,dy,dy+3,dz0,dz0+5),dOut=units(dx0+7,dx0+19,dy,dy+3,dz0,dz0+5);
+console.log('through a door: behind it',dIn,'+ beyond it',dOut,'=',dIn+dOut,'of',72*64,'| the door still there',T.get(dx0+6,dy,dz0+2)===T.DOOR_G&&T.get(dx0+6,dy+1,dz0+2)===T.DOOR_G);
+ok(dOut>0&&dIn+dOut===72*64&&T.get(dx0+6,dy,dz0+2)===T.DOOR_G,'through a door');
 // 5. a block knocked out with no water near it: nothing happens
 dig(qx+5,qy+2,qz+1);settle();console.log('dry hole stays dry',T.get(qx+5,qy+2,qz+1)===AIR);ok(T.get(qx+5,qy+2,qz+1)===AIR,'dry hole');
 // 6. online: the host sends each changed block to its guests, as a smashed one
