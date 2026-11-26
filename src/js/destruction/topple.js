@@ -56,7 +56,7 @@ function updateTopples(dt){
         const cx=Math.floor(R00*lx+R01*ly+R02*lz+px),cz=Math.floor(R20*lx+R21*ly+R22*lz+pz),b=cy<=G?STONE:get(cx,cy,cz);
         // the ground (and the natural lie of the land: a grassy hill) stops it; anything else it smashes through
         if(cy<=G||(b===GRASS||b===DIRT||b===SAND||b===SNOW||b===RED_SAND||b===MUD||b===SALT||b===SANDSTONE||b===TERRA||b===TERRA2)&&cy<=G+6){if(T.far[k]||T.dropping)ground++;continue;}
-        if(b===AIR||b===WATER||b===BEDROCK)continue;
+        if(b===AIR||WET[b]||b===BEDROCK)continue;
         setRaw(cx,cy,cz,AIR);addEdit(cx,cy,cz,AIR);batch.push({x:cx,y:cy,z:cz,b});
         ch.add(ckey(Math.floor(cx/CS),Math.floor(cz/CS)));for(const [ox,oz] of [[1,0],[-1,0],[0,1],[0,-1]])ch.add(ckey(Math.floor((cx+ox)/CS),Math.floor((cz+oz)/CS)));
       }

@@ -1,7 +1,7 @@
 let __s=+(process.env.SEED||1);Math.random=()=>{__s=(__s*16807)%2147483647;return (__s-1)/2147483646;};
 const fs=require('fs');
 let src0=fs.readFileSync('g.js','utf8');
-let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,get edits(){return edits},chunks,CS,G,H,WATER,AIR,STONE,SAND,NET,players,frame,ckey,wfJobs,wfRemoved,wfSeen,updateWater,WF_CAP};\n})();');
+let src=src0.replace(/requestAnimationFrame\(frame\);\n\}\)\(\);\s*$/,'window.__t={get,setRaw,addEdit,editAt,chunks,CS,G,H,WATER,AIR,STONE,SAND,GLASS,NET,players,frame,ckey,wfAct,wfPark,wfRemoved,wfSrc,wfAmt,bkey,updateWater,WF_STEP,wfEndless,wfPress,WF_LV,WATER_L};\n})();');
 const deep=()=>new Proxy(function(){}, {get:(t,p)=>p===Symbol.toPrimitive?()=>0:(p==='length'?0:deep()),apply:()=>deep(),construct:()=>deep()});
 const {Q,V3,Rot,Col,Mat,O3,M4,THREE}=require('./stub-three.js');   // (the stand-in three.js every suite shares)
 const listeners={};
@@ -19,15 +19,20 @@ const mk=i=>({index:i,connected:true,axes:[0,0,0,0],buttons:Array.from({length:1
 const pads=[mk(0),mk(1)];
 Object.defineProperty(global,'navigator',{value:{getGamepads:()=>pads},configurable:true});
 eval(src);const T=window.__t;let now=1000;const run=s=>{for(let i=0;i<s*60;i++){now+=16.7;T.frame(now);}};
-// Water flow (destruction/water-flow.js): knock out a block under or beside water and the water pours in, as far as its
-// surface, until the space is full (WF_CAP a breach is only a safety net), never more than a small body it came from
-// holds, and waiting at the edge of the made world till that part is made. Prints what each case filled.
+// Water flow (destruction/water-flow.js): finite water in eighths. Knock out a block under or beside water and it pours in;
+// what comes out of a tank is taken from it, the sea never goes down, a flood spreads thin and stops. Prints each case.
 const [A]=T.players;for(const f of els.play.L.click)f();pads.length=0;run(1);
-const {G,WATER:W,AIR,STONE}=T;
+const {G,WATER:W,AIR,STONE,GLASS}=T;
 const dig=(x,y,z)=>{T.setRaw(x,y,z,AIR);T.addEdit(x,y,z,AIR);};   // (as a smash does it)
 const put=(x,y,z,b)=>{T.setRaw(x,y,z,b);T.addEdit(x,y,z,b);};
+const lvAt=(x,y,z)=>{const b=T.get(x,y,z);return T.WF_LV[b]>0?T.WF_LV[b]:0;};
+// (in 64ths, as the flow keeps it: eighths x 8, or what it's left between them)
+const amtAt=(x,y,z)=>{const l=lvAt(x,y,z);if(!l)return 0;const m=T.wfAmt.get(T.bkey(x,y,z));return m!==undefined&&Math.max(1,Math.min(8,m+4>>3))===l?m:l*8;};
+const units=(x0,x1,y0,y1,z0,z1)=>{let n=0;for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)for(let z=z0;z<=z1;z++)n+=amtAt(x,y,z);return n;};   // (64ths)
 const count=(x0,x1,y0,y1,z0,z1)=>{let n=0;for(let x=x0;x<=x1;x++)for(let y=y0;y<=y1;y++)for(let z=z0;z<=z1;z++)if(T.get(x,y,z)===W)n++;return n;};
-const settle=()=>{for(let i=0;i<600&&(T.wfJobs.length||T.wfRemoved.length);i++)run(0.1);};
+const busy=()=>T.wfAct.size||T.wfRemoved.length||T.wfPark.size;
+const settle=(max=6000)=>{let i=0;for(;i<max&&busy();i++)T.updateWater(T.WF_STEP);return i;};
+let errs=0;const ok=(c,what)=>{if(!c){errs++;console.log('FAIL',what);}};
 // 1. the sea: find a column of deep water and the sea bed under it
 let sx=null,sz,bed;
 for(let r=0;r<6000&&sx===null;r+=37)for(const [x,z] of [[r,0],[-r,0],[0,r],[0,-r],[r,r],[-r,-r],[r,-r],[-r,r]]){
@@ -35,45 +40,63 @@ for(let r=0;r<6000&&sx===null;r+=37)for(const [x,z] of [[r,0],[-r,0],[0,r],[0,-r
 if(sx===null){console.log('no sea found');process.exit(0);}
 A.pos.set(sx+0.5,G+3,sz+0.5);run(1);
 const room=(x0,y0,z0,w,h)=>{for(let x=x0;x<x0+w;x++)for(let z=z0;z<z0+w;z++)for(let y=y0;y<y0+h;y++)dig(x,y,z);};
-// a shaft three deep straight down through the sea bed
+const seaU0=units(sx-2,sx+2,bed+1,G,sz-2,sz+2);
 dig(sx,bed,sz);dig(sx,bed-1,sz);dig(sx,bed-2,sz);
-let t=0;while(t<5&&T.get(sx,bed-2,sz)!==W){run(0.05);t+=0.05;}
-console.log('sea shaft: filled',count(sx,sx,bed-2,bed,sz,sz),'of 3 in',t.toFixed(2)+'s','| saved as edits',T.edits[sx+','+(bed-2)+','+sz]===W);
-// a room 4 x 4 x 3 carved out under the bed (nothing open to the water yet), then a hole through to it
+let t=0;while(t<5&&T.get(sx,bed-2,sz)!==W){T.updateWater(T.WF_STEP);t+=T.WF_STEP;}settle();
+console.log('sea shaft: full',count(sx,sx,bed-2,bed,sz,sz),'of 3 in',t.toFixed(1)+'s | sea round it still',units(sx-2,sx+2,bed+1,G,sz-2,sz+2),'of',seaU0);
+ok(count(sx,sx,bed-2,bed,sz,sz)===3,'sea shaft');ok(units(sx-2,sx+2,bed+1,G,sz-2,sz+2)===seaU0,'the sea never goes down');
 const bedAt=(x,z)=>{let y=G;while(T.get(x,y,z)===W)y--;return y;};
 const rx=sx+3,rb=bedAt(rx,sz),ry=rb-6;room(rx,ry,sz,4,3);settle();
 const dry=count(rx,rx+3,ry,ry+2,sz,sz+3);
-for(let y=rb;y>=ry+3;y--)dig(rx,y,sz);settle();
-console.log('sea room 48: dry before',dry,'after',count(rx,rx+3,ry,ry+2,sz,sz+3),'| shaft',count(rx,rx,ry+3,rb,sz,sz),'of',rb-ry-2);
-// a cavern 10 x 10 x 5 = 500: fills to the last block
+for(let y=rb;y>=ry+3;y--)dig(rx,y,sz);const rs=settle();
+console.log('sea room 48: dry before',dry,'after',count(rx,rx+3,ry,ry+2,sz,sz+3),'full in',(rs*T.WF_STEP).toFixed(1)+'s | shaft',count(rx,rx,ry+3,rb,sz,sz),'of',rb-ry-2);
+ok(dry===0&&count(rx,rx+3,ry,ry+2,sz,sz+3)===48,'sea room');
 let cx=sx-14;for(const k of [-14,-20,-26,-32,10,16,22,28])if(T.get(sx+k,G,sz)===W){cx=sx+k;break;}
 const cb=bedAt(cx,sz),cy=cb-12;room(cx,cy,sz,10,5);settle();
-for(let y=cb;y>cy+4;y--)dig(cx,y,sz);settle();
-console.log('sea cavern 500: filled',count(cx,cx+9,cy,cy+4,sz,sz+9),'+ shaft',count(cx,cx,cy+5,cb,sz,sz),'of',cb-cy-4,'| safety cap',T.WF_CAP);
-// 2. a little tank: 2 x 2 of water on a stone pillar in the air, its stone knocked out from under it
-const px=sx+40,pz=sz+40;
-const py=G+20;for(let x=px-3;x<=px+3;x++)for(let z=pz-3;z<=pz+3;z++)put(x,py-6,z,STONE);   // (a floor to catch it)
+for(let y=cb;y>cy+4;y--)dig(cx,y,sz);const cs=settle();
+console.log('sea cavern 500: full',count(cx,cx+9,cy,cy+4,sz,sz+9),'in',(cs*T.WF_STEP).toFixed(1)+'s + shaft',count(cx,cx,cy+5,cb,sz,sz),'of',cb-cy-4);
+ok(count(cx,cx+9,cy,cy+4,sz,sz+9)===500,'sea cavern');
+// 2. a little tank: 2 x 2 of water on a stone pillar, its stone knocked out under it: the 32 eighths go on down, no more
+const px=sx+40,pz=sz+40,py=G+20;
+for(let x=px-6;x<=px+7;x++)for(let z=pz-6;z<=pz+7;z++)put(x,py-6,z,STONE);
 for(let y=py-5;y<py;y++)for(const [a,b] of [[0,0],[1,0],[0,1],[1,1]])put(px+a,y,pz+b,STONE);
 for(const [a,b] of [[0,0],[1,0],[0,1],[1,1]])put(px+a,py,pz+b,W);
-settle();dig(px,py-1,pz);settle();
-console.log('tank of 4 holed underneath: water below it',count(px-3,px+3,py-6,py-1,pz-3,pz+3),'(at most 4) | tank still',count(px,px+1,py,py,pz,pz+1));
-// 3. water held in by a wall, the wall broken at the water's level, a pit dug beside it: fills no higher than the surface
-const qx=px+20,qz=pz,qy=G+20;
-for(let x=qx-1;x<=qx+8;x++)for(let z=qz-1;z<=qz+3;z++)for(let y=qy-4;y<=qy+3;y++)put(x,y,z,y===qy-4||x===qx-1||x===qx+8||z===qz-1||z===qz+3||x===qx+3?STONE:AIR);   // (a stone box, split in two by a wall at qx+3)
-for(let x=qx;x<=qx+2;x++)for(let z=qz;z<=qz+2;z++)for(let y=qy-3;y<=qy;y++)put(x,y,z,W);   // (3 x 3, 4 deep: 36 blocks of water, surface at qy)
+settle();const u0=units(px-6,px+7,py-5,py,pz-6,pz+7);dig(px,py-1,pz);settle();
+const u1=units(px-6,px+7,py-5,py,pz-6,pz+7);
+let wide=0;for(let x=px-6;x<=px+7;x++)for(let z=pz-6;z<=pz+7;z++)if(lvAt(x,py-5,z))wide++;
+console.log('tank of 4 holed underneath: eighths before',u0,'after',u1,'| tank now',units(px,px+1,py,py,pz,pz+1),'| spread over',wide,'blocks of the floor');
+ok(u0===256&&u1===256,'a tank keeps its water');
+// 3. water held in by a wall, the wall broken at its surface: what's above the hole's bottom runs out, none higher
+const qx=px+30,qz=pz,qy=G+20;
+for(let x=qx-1;x<=qx+8;x++)for(let z=qz-1;z<=qz+3;z++)for(let y=qy-4;y<=qy+3;y++)put(x,y,z,y===qy-4||x===qx-1||x===qx+8||z===qz-1||z===qz+3||x===qx+3?STONE:AIR);
+for(let x=qx;x<=qx+2;x++)for(let z=qz;z<=qz+2;z++)for(let y=qy-3;y<=qy;y++)put(x,y,z,W);
 settle();dig(qx+3,qy,qz+1);settle();
-console.log('walled pool broken at its surface: beside it',count(qx+4,qx+7,qy-3,qy+3,qz,qz+2),'above the surface',count(qx+4,qx+7,qy+1,qy+3,qz,qz+2),'(0) | gap',count(qx+3,qx+3,qy,qy,qz+1,qz+1));
-// 4. a block knocked out with no water near it: nothing happens
-dig(qx+5,qy+2,qz+1);settle();console.log('dry hole stays dry',T.get(qx+5,qy+2,qz+1)===AIR);
-// 5. online: the host sends each filled block to its guests, as a smashed one
+const pool=units(qx,qx+2,qy-3,qy+3,qz,qz+2),side=units(qx+4,qx+7,qy-3,qy+3,qz,qz+2),gap=amtAt(qx+3,qy,qz+1);
+console.log('walled pool broken at its surface: pool',pool,'+ beside',side,'+ gap',gap,'=',pool+side+gap,'of',36*64,'| above the surface',units(qx,qx+7,qy+1,qy+3,qz,qz+2));
+ok(pool+side+gap===36*64&&units(qx,qx+7,qy+1,qy+3,qz,qz+2)===0,'walled pool');
+// 4. an aquarium's tank: 3 x 6 deep x 30 of water behind glass, in a big closed hall; a pane knocked out 3 up
+const ax=qx+40,az=pz-10,ay=G+30,AW=40,AD=30;
+for(let x=ax-1;x<=ax+AW;x++)for(let z=az-1;z<=az+AD;z++)for(let y=ay-1;y<=ay+8;y++)put(x,y,z,y===ay-1||y===ay+8||x===ax-1||x===ax+AW||z===az-1||z===az+AD?STONE:AIR);
+for(let x=ax+5;x<ax+35;x++){for(let z=az;z<az+3;z++)for(let y=ay;y<ay+6;y++)put(x,y,z,W);for(let y=ay;y<ay+6;y++)put(x,y,az+3,GLASS);}
+for(let z=az;z<=az+3;z++)for(let y=ay;y<ay+6;y++){put(ax+4,y,z,GLASS);put(ax+35,y,z,GLASS);}
+settle();const tk0=units(ax+5,ax+34,ay,ay+5,az,az+2);
+let worst=0,steps=0;dig(ax+20,ay+3,az+3);
+for(;steps<6000&&busy();steps++){const t0=performance.now();T.updateWater(T.WF_STEP);worst=Math.max(worst,performance.now()-t0);}
+const tk1=units(ax+5,ax+34,ay,ay+5,az,az+2),all=units(ax,ax+AW-1,ay,ay+7,az,az+AD-1);
+let floor=0,dp=0,hi=0;for(let x=ax;x<ax+AW;x++)for(let z=az+4;z<az+AD;z++){const l=lvAt(x,ay,z);if(l)floor++;dp=Math.max(dp,l);for(let y=ay+1;y<ay+8;y++)if(lvAt(x,y,z))hi++;}
+console.log('aquarium tank holed 3 up: tank',tk0,'->',tk1,'64ths | all of it',all,'| on the hall floor over',floor,'blocks, deepest',dp+'/8, any higher than the floor',hi,
+  '| settled in',(steps*T.WF_STEP).toFixed(1)+'s, worst step',worst.toFixed(2),'ms');
+ok(all===tk0,'the aquarium keeps its water');ok(tk1<tk0&&tk1>=30*3*3*64,'drains to the bottom of the hole');ok(hi===0,'nothing stands up off the floor');ok(steps<6000,'it settles');
+// 5. a block knocked out with no water near it: nothing happens
+dig(qx+5,qy+2,qz+1);settle();console.log('dry hole stays dry',T.get(qx+5,qy+2,qz+1)===AIR);ok(T.get(qx+5,qy+2,qz+1)===AIR,'dry hole');
+// 6. online: the host sends each changed block to its guests, as a smashed one
 const out=[];T.NET.mode=1;T.NET.guests.set('g',{net:{out}});
-dig(sx+1,bed,sz);for(let i=0;i<20&&T.wfRemoved.length+T.wfJobs.length;i++)T.updateWater(0.1);
+put(px+4,py-5,pz+4,STONE);for(let i=0;i<4;i++)put(px+3+i,py-4,pz+3,W);dig(px+2,py-4,pz+3);settle(40);
 T.NET.mode=0;T.NET.guests.clear();
-const sent=[];for(const e of out)if(e[0]==='e')for(let i=0;i<e[1].length;i+=4)sent.push(e[1].slice(i,i+4).join(','));
-console.log('sent to a guest',sent.join(' '),'| water',sent.some(s=>s===[sx+1,bed,sz,W].join(',')));
-// 6. the edge of the made world: a tunnel from the sea runs to the end of its chunk, and the next chunk isn't made yet
-// (far from the players, stepping the water alone: a frame would let go of chunks out there)
-const step=s=>{for(let t=0;t<s;t+=0.25)T.updateWater(0.25);};
+const sent=[];for(const e of out)if(e[0]==='e')for(let i=0;i<e[1].length;i+=4)sent.push(e[1][i+3]);
+console.log('sent to a guest',sent.length,'blocks, shallow water among them',sent.some(v=>T.WF_LV[v]>0&&T.WF_LV[v]<8));
+ok(sent.some(v=>T.WF_LV[v]>0&&T.WF_LV[v]<8),'online');
+// 7. the edge of the made world: a tunnel from the sea runs to the end of its chunk, and the next chunk isn't made yet
 let ex=null,ez,eb;
 for(let r=2600;r<9000&&ex===null;r+=53)for(const [x,z] of [[r,r],[-r,r],[r,-r],[-r,-r]]){
   const c=Math.floor(x/T.CS);if(T.chunks.has(T.ckey(c+1,Math.floor(z/T.CS))))continue;
@@ -81,10 +104,11 @@ for(let r=2600;r<9000&&ex===null;r+=53)for(const [x,z] of [[r,r],[-r,r],[r,-r],[
 if(ex===null)console.log('edge: no sea found');else{
   const ty=eb-3,x1=(Math.floor(ex/T.CS)+1)*T.CS-1,nb=T.ckey(Math.floor(ex/T.CS)+1,Math.floor(ez/T.CS));
   for(let y=eb;y>=ty;y--)dig(ex,y,ez);for(let x=ex+1;x<=x1;x++)dig(x,ty,ez);
-  for(let i=0;i<80&&!(T.wfJobs.some(J=>J.park.length));i++)step(0.25);
-  console.log('edge: tunnel',count(ex,x1,ty,ty,ez,ez),'of',x1-ex+1,'| waiting at the edge',T.wfJobs.reduce((n,J)=>n+J.park.length/3,0),'| next chunk still unmade',!T.chunks.has(nb));
-  T.get(x1+1,ty,ez);for(let x=x1+1;x<=x1+4;x++)dig(x,ty,ez);step(3);
-  console.log('edge: once made, the tunnel on in it',count(x1+1,x1+4,ty,ty,ez,ez),'of 4 | still waiting',T.wfJobs.reduce((n,J)=>n+J.park.length/3,0));}
-T.wfJobs.length=0;T.wfSeen.clear();
-console.log('jobs left',T.wfJobs.length,'queued',T.wfRemoved.length/3,'seen',T.wfSeen.size);
-process.exit(0);
+  for(let i=0;i<1200&&!(T.wfPark.size&&count(ex,x1,ty,ty,ez,ez)===x1-ex+1);i++)T.updateWater(T.WF_STEP);
+  console.log('edge: tunnel',count(ex,x1,ty,ty,ez,ez),'of',x1-ex+1,'| waiting at the edge',T.wfPark.size,'| next chunk still unmade',!T.chunks.has(nb));
+  T.get(x1+1,ty,ez);for(let x=x1+1;x<=x1+4;x++)dig(x,ty,ez);for(let i=0;i<300&&busy();i++)T.updateWater(T.WF_STEP);
+  console.log('edge: once made, the tunnel on in it',count(x1+1,x1+4,ty,ty,ez,ez),'of 4 | still waiting',T.wfPark.size);
+  ok(count(x1+1,x1+4,ty,ty,ez,ez)===4,'edge');}
+console.log('left moving',T.wfAct.size,'queued',T.wfRemoved.length/3,'waiting',T.wfPark.size);
+console.log(errs?'waterflow: FAILED '+errs:'waterflow: passed');
+process.exit(errs?1:0);

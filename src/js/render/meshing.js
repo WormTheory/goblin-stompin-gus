@@ -443,7 +443,7 @@ function meshKernel(J){
     if(info.hide)continue;
     if(info.thin){emitFence(out,mx0+lx,y,mz0+lz,b,info,at(lx-1,y,lz),at(lx+1,y,lz),at(lx,y,lz-1),at(lx,y,lz+1),at(lx,y+1,lz),tops[lz*CS+lx]===y);continue;}
     const skyTop=tops[lz*CS+lx]===y,tg=b===GRASS?0:b===LEAVES||b===PINE?1:-1,ti=tg<0?-1:(lz*CS+lx)*6+tg*3;
-    const waterTop=liquid&&at(lx,y+1,lz)!==WATER;
+    const waterTop=liquid&&!(BLOCK[at(lx,y+1,lz)]||0).liquid,wTop=info.lvl?info.lvl*0.11:0.88;   // (shallow water's surface lower down)
     // (not on the chunk's edge, nor the world's top or bottom: every block asked about is right here in the array)
     const inner=midY&&lx>0&&lx<CS-1&&lz>0&&lz<CS-1,tiles=info.tiles;
     for(let fi=0;fi<6;fi++){
@@ -459,7 +459,7 @@ function meshKernel(J){
       const rdI=sky===1&&sr&&(RD_TOP[b]===1||b===METAL&&RD_TOP[at(lx-1,y,lz)]===1&&RD_TOP[at(lx+1,y,lz)]===1)?rdYs.indexOf(y):-2,rdO=rdI>=0?rdOuts[rdI]:null;
       for(let q=0;q<4;q++){
         const c=F.cn[q];
-        P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+0.88:y+c.y;P[po++]=mz0+lz+c.z;
+        P[po++]=mx0+lx+c.x;P[po++]=waterTop&&c.y===1?y+wTop:y+c.y;P[po++]=mz0+lz+c.z;
         U[uo++]=(tx+0.002+c.u*0.996)/AC;U[uo++]=V0+(0.002+c.v*0.996)/AR;
         let s;
         if(glow){s=2;if(BL){Bv[bo++]=0;Bv[bo++]=0;Bv[bo++]=0;}}

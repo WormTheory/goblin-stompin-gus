@@ -135,6 +135,10 @@ BLOCK[MUD]      ={tiles:[102,102,102],solid:true};
 BLOCK[CACTUS]   ={tiles:[104,104,103],solid:true};
 BLOCK[PINE]     ={tiles:[105,105,105],solid:true,transparent:true};
 BLOCK[REEDS]    ={tiles:[106,2,106],solid:true,transparent:true};
+// shallower water, 1 to 7 eighths of a block deep (WATER itself is 8): what water pouring out and spreading leaves
+// (destruction/water-flow.js). Not WATER, so a puddle isn't somewhere to swim or float a boat; WET says it's water at all
+const WATER_L=[AIR,164,165,166,167,168,169,170],WET=new Uint8Array(256);WET[WATER]=1;
+for(let n=1;n<8;n++){BLOCK[WATER_L[n]]={tiles:[10,10,10],liquid:true,transparent:true,lvl:n};WET[WATER_L[n]]=1;}
 // height of a ramp's surface above its block's base at (fx,fz) within the block (0..1 each)
 function rampH(b,fx,fz){const R=BLOCK[b].ramp,t=R.dir===0?fx:R.dir===1?1-fx:R.dir===2?fz:1-fz;return R.h0+(R.h1-R.h0)*Math.max(0,Math.min(1,t));}
 

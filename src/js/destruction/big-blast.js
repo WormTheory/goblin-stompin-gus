@@ -51,8 +51,8 @@ function bbCarve(A,cx,cz,C,J){
     const x=x0+lx,z=z0+lz;bbCol(C,K,x,z,o);if(!o.zone)continue;
     const base=lx+lz*CS,top=Math.max(T[(lz>>2)*4+(lx>>2)],o.l1);let n0=n,B=undefined;
     if(melt>=0){const ck=colKey(x,z);if(!(snowBorn.get(ck)>=melt))snowBorn.set(ck,melt);}
-    if(o.floor>=1){const i=base+o.floor*L,v=A[i];if(v&&v!==WATER&&v!==BEDROCK)A[i]=o.fb;}
-    for(let y=Math.max(1,o.cut);y<=top&&y<H;y++){const i=base+y*L,v=A[i];if(!v||v===WATER||v===BEDROCK)continue;A[i]=AIR;n++;
+    if(o.floor>=1){const i=base+o.floor*L,v=A[i];if(v&&!WET[v]&&v!==BEDROCK)A[i]=o.fb;}
+    for(let y=Math.max(1,o.cut);y<=top&&y<H;y++){const i=base+y*L,v=A[i];if(!v||WET[v]||v===BEDROCK)continue;A[i]=AIR;n++;
       if(!host)continue;
       // (the building counts catch up over the next few frames, as they do for a collapse; a building vaporised outright is
       // counted in one go instead)
@@ -112,7 +112,7 @@ function bbGen(a,cx,cz){
 // and a chunk made again comes out as it is. Water's kept (the crater leaves water where it is).
 function bbPrune(C,cx,cz){
   const k=ckey(cx,cz),L=chunkEdits.get(k);if(!L||!L.size)return;const K=bbK(C),o=bbO();
-  editsDrop(k,(x,y,z,b)=>{bbCol(C,K,x,z,o);return b!==WATER&&o.zone&&(y>=o.cut||y===o.floor||y>=o.l0&&y<o.l1);});
+  editsDrop(k,(x,y,z,b)=>{bbCol(C,K,x,z,o);return !WET[b]&&o.zone&&(y>=o.cut||y===o.floor||y>=o.l0&&y<o.l1);});
 }
 // a chunk the job hasn't reached yet, about to be changed by something else: carved first, so the change lands on top of the
 // crater as it does on every other machine (and in the save)
@@ -310,7 +310,7 @@ function bbShipCol(S,C,K,q,o,Q){
   const x=S.ox+q.u,z=S.oz+q.w;shipToWorld(S,x+0.5,z+0.5,_bbv);bbCol(C,K,Math.floor(_bbv.x),Math.floor(_bbv.z),o);if(!o.zone)return;if(o.zone<=3)Q.flat++;
   if(!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return;
   const y1=Math.min(H-1,S.K.y1??H-1);let n=0;
-  for(let y=Math.max(1,o.cut+Math.round(S.sk||0));y<=y1;y++){const b=rawGet(x,y,z);if(!b||b===WATER||b===BEDROCK)continue;setRaw(x,y,z,AIR);addEdit(x,y,z,AIR);n++;}
+  for(let y=Math.max(1,o.cut+Math.round(S.sk||0));y<=y1;y++){const b=rawGet(x,y,z);if(!b||WET[b]||b===BEDROCK)continue;setRaw(x,y,z,AIR);addEdit(x,y,z,AIR);n++;}
   if(n)for(const ox of [-1,1])for(const oz of [-1,1])Q.ch.add(ckey(Math.floor((x+ox)/CS),Math.floor((z+oz)/CS)));
 }
 // a point in a ship's pocket, out in the world where it really is (else as it is)

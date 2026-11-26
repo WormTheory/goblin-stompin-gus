@@ -237,7 +237,7 @@ function smashSoftUnder(p,g){
   let soft=0;
   for(const [a,b] of ptsOf(p)){
     const x=Math.floor(p.pos.x+a*c+b*s),z=Math.floor(p.pos.z-a*s+b*c),blk=get(x,y,z);
-    if(blk===AIR||blk===WATER)continue;
+    if(blk===AIR||WET[blk])continue;
     if(!SOFT.has(blk))return false;   // something solid under a foot: land on it
     soft++;
   }
@@ -268,7 +268,7 @@ function crushDisc(x,y,z,R,h,opt={}){
     const bx=Math.floor(x)+dx,by=y0+dy,bz=Math.floor(z)+dz;if(by<1||by>=H)continue;
     {const nx=Math.max(bx,Math.min(bx+1,x))-x,nz=Math.max(bz,Math.min(bz+1,z))-z;if(nx*nx+nz*nz>R*R)continue;}   // any block the circle reaches into
     if(SC){SC.push(bx,by,bz);continue;}
-    const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK||BLOCK[b].ramp&&!BLOCK[b].stair)continue;
+    const b=get(bx,by,bz);if(b===AIR||WET[b]||b===BEDROCK||BLOCK[b].ramp&&!BLOCK[b].stair)continue;
     {const ab=BLOCK[get(bx,by+1,bz)];if(ab&&ab.ramp&&!ab.stair)continue;}   // (nor what a ramp rests on: without it his feet lose the slope at every block)
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
     chNear(ch,bx,bz);
@@ -297,7 +297,7 @@ function crushShape(shape,x,y,z,R,hx,hz,opt={}){
     else if(shape==='cube'){if(Math.abs(cx)>R+0.01||Math.abs(cy)>R+0.01||Math.abs(cz)>R+0.01)continue;}
     else{const a=cx*ux+cz*uz;if(a<-0.5||a>L)continue;const pr=Math.sqrt(Math.max(0,cx*cx+cy*cy+cz*cz-a*a));if(pr>Math.max(0,a)*CT+0.6)continue;}
     if(SC){SC.push(bx,by,bz);continue;}
-    const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK)continue;
+    const b=get(bx,by,bz);if(b===AIR||WET[b]||b===BEDROCK)continue;
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
     chNear(ch,bx,bz);
   }
@@ -319,7 +319,7 @@ function crush(x,y,z,r,d0,d1,opt={}){
     if(by<1||by>=H)continue;
     if(RR&&dx*dx+dz*dz>RR)continue;
     if(SC){SC.push(bx,by,bz);continue;}
-    const b=get(bx,by,bz);if(b===AIR||b===WATER||b===BEDROCK)continue;
+    const b=get(bx,by,bz);if(b===AIR||WET[b]||b===BEDROCK)continue;
     setRaw(bx,by,bz,AIR);addEdit(bx,by,bz,AIR);broken.push({x:bx,y:by,z:bz,b});
     chNear(ch,bx,bz);
   }

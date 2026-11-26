@@ -196,6 +196,13 @@
 - By day, when the street lights and neon can't be seen anyway, the world is drawn without working out their light, which makes it quicker still. It's all lit again before dusk, or before a storm darkens the sky.
 - Street lamps, traffic lights, signs, flags, billboards, benches, bins and furniture now go over to every attack, not just smashing into them: a bite, roll or dash, Gnash's blades and clubs, bullets, grenades, shells, rockets, fireballs and the Mobile Gear's blade. A bullet stops at the post it hits.
 
+### Water
+
+- Water now has a set amount. Break open an aquarium tank and it drains down to the bottom of the hole while the water runs out across the floor, spreading thin and settling, instead of flooding everything around it up to the tank's waterline.
+- Water can be shallow now, from an eighth of a block up, so floods spread out in sheets and puddles rather than solid blocks.
+- The sea, rivers and big lakes still never run dry. Dig into a tunnel or cave from the sea bed and it fills right up.
+- There's no longer a limit on how much water can pour out of one place.
+
 ### Nukes
 
 - A nuke looks the part now: a blinding flash, a fireball that cools from white to red and rolls up into a mushroom cloud on a stem of dust, a ring of dust racing out along the ground, a white dome round the fireball for a moment and a collar round the stem.

@@ -14,7 +14,7 @@ const MW={ws:[],off:false,pend:new Map(),done:[],id:0,why:''};
 // the worker's script: the tables it reads, its own working arrays, and the functions
 function mwBody(){
   const val=x=>ArrayBuffer.isView(x)?'new '+x.constructor.name+'(['+Array.from(x).join(',')+'])':JSON.stringify(x);
-  const blk=BLOCK.map(b=>b&&{tiles:b.tiles,liquid:b.liquid,glow:b.glow,ramp:b.ramp,thin:b.thin,hide:b.hide,post:b.post,stair:b.stair,solid:b.solid,transparent:b.transparent,brittle:b.brittle});
+  const blk=BLOCK.map(b=>b&&{tiles:b.tiles,liquid:b.liquid,glow:b.glow,ramp:b.ramp,thin:b.thin,hide:b.hide,post:b.post,stair:b.stair,solid:b.solid,transparent:b.transparent,lvl:b.lvl,brittle:b.brittle});
   const K={CS,H,G,AC,AR,DIM,AO,RD_OPEN,BLW,BLA,BLN,BL_QM,GM_M,FACES,FACE_T,B_OPQ,B_SEE,RD_TOP,G_MIX,TILE_AVG,BL_D,BL_CX,BL_CZ,GMC,BLOCK:blk,
     AIR,STONE,WATER,GRASS,LEAVES,PINE,METAL,FENCE,FENCE_W,CHAINLINK};
   let s='"use strict";\n';for(const k in K)s+='const '+k+'='+val(K[k])+';\n';

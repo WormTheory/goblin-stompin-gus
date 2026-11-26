@@ -79,10 +79,10 @@ function stMeshes(X0,Z0,X1,Z1,Y0,Y1){
       if(info.ramp){emitRamp(out,x,y,z,info);continue;}
       if(info.hide)continue;
       if(info.thin){emitFence(out,x,y,z,b,info,at(x-1,y,z),at(x+1,y,z),at(x,y,z-1),at(x,y,z+1),at(x,y+1,z),top===y);continue;}
-      const waterTop=liquid&&at(x,y+1,z)!==WATER;
+      const waterTop=liquid&&!(BLOCK[at(x,y+1,z)]||0).liquid,wTop=info.lvl?info.lvl*0.11:0.88;
       for(const f of FACES){const [dx,dy,dz]=f.dir,nb=at(x+dx,y+dy,z+dz);if(!faceVisible(b,nb))continue;
         const tile=dy===1?info.tiles[0]:dy===-1?info.tiles[1]:info.tiles[2],tx=tile%AC,ty=Math.floor(tile/AC),n=out.p.length/3,axis=dx?0:dy?1:2,ua=(axis+1)%3,va=(axis+2)%3;
-        for(const c of f.c){out.p.push(x+c[0],(waterTop&&c[1]===1)?y+0.88:y+c[1],z+c[2]);out.u.push((tx+0.002+c[3]*0.996)/AC,1-(ty+1)/AR+(0.002+c[4]*0.996)/AR);
+        for(const c of f.c){out.p.push(x+c[0],(waterTop&&c[1]===1)?y+wTop:y+c[1],z+c[2]);out.u.push((tx+0.002+c[3]*0.996)/AC,1-(ty+1)/AR+(0.002+c[4]*0.996)/AR);
           let s;if(glow)s=2;else{s=f.shade*DIM;if(!liquid){const bx=x+dx,by=y+dy,bz=z+dz,du=[0,0,0],dv=[0,0,0];du[ua]=c[ua]?1:-1;dv[va]=c[va]?1:-1;
             const s1=opq(bx+du[0],by+du[1],bz+du[2]),s2=opq(bx+dv[0],by+dv[1],bz+dv[2]),cc=opq(bx+du[0]+dv[0],by+du[1]+dv[1],bz+du[2]+dv[2]);s*=AO[(s1&&s2)?0:3-(s1+s2+cc)];}}
           out.c.push(s,s,s);out.k.push(0);}

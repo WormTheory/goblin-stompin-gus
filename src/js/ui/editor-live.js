@@ -71,6 +71,7 @@ const BLOCK_NAMES='AIR,GRASS,DIRT,STONE,LOG,LEAVES,SAND,PLANKS,GLASS,WATER,COBBL
 // (a block's name for the palette: the plain ones from the list above, the ramps, stairs and the rest worked out)
 function liveBlockName(i){
   const DIRS=['+x','-x','+z','-z'];
+  if(WET[i]&&i!==WATER)return 'Water '+BLOCK[i].lvl+'/8 deep';
   if(i>=RAMP0&&i<RAMP0+12)return 'Ramp '+DIRS[Math.floor((i-RAMP0)/3)]+['',' low half',' high half'][(i-RAMP0)%3];
   if(i>=RAMPL0&&i<RAMPL0+36){const j=i-RAMPL0;return 'Road ramp '+['yellow','white edge','dashed'][Math.floor(j/12)]+' '+DIRS[Math.floor(j%12/3)]+['',' low half',' high half'][j%3];}
   if(i>=STAIR0&&i<STAIR0+12)return ['Concrete','Steel','Wood'][Math.floor((i-STAIR0)/4)]+' stairs '+DIRS[(i-STAIR0)%4];

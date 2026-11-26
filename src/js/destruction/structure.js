@@ -7,7 +7,7 @@ function colSupport(x,z,fromY){for(let y=Math.min(H-1,fromY-1);y>=0;y--)if(solid
 const FC_REACH=72;
 function floatingCluster(sx,sy,sz,supported){
   if(sy<=G)return null;
-  const b0=get(sx,sy,sz);if(b0===AIR||b0===WATER||b0===LEAVES||b0===PINE)return null;
+  const b0=get(sx,sy,sz);if(b0===AIR||WET[b0]||b0===LEAVES||b0===PINE)return null;
   const k0=bkey(sx,sy,sz);if(supported.has(k0))return null;
   const seen=new Set([k0]),list=[];
   const held=()=>{for(const k of seen)supported.add(k);return null;};
@@ -28,7 +28,7 @@ function floatingCluster(sx,sy,sz,supported){
       if(ny<0||ny>=H)continue;
       if(Math.abs(nx-sx)>FC_REACH||Math.abs(nz-sz)>FC_REACH)return held();
       if(!chunks.has(ckey(Math.floor(nx/CS),Math.floor(nz/CS))))return held();
-      const b=get(nx,ny,nz);if(b===AIR||b===WATER||b===LEAVES||b===PINE)continue;
+      const b=get(nx,ny,nz);if(b===AIR||WET[b]||b===LEAVES||b===PINE)continue;
       if(ny<=G)return held();
       const k=bkey(nx,ny,nz);if(seen.has(k))continue;if(supported.has(k))return held();
       seen.add(k);push(nx,ny,nz);
