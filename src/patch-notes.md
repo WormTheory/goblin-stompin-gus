@@ -41,6 +41,7 @@
 - Flying fast no longer outruns the distant view. The far rings of the world used to start over every time you'd moved a little, so at a plane's speed they never finished and the land ahead was bare; now each one finishes, is drawn ahead of where you're going, and only works out the land that's new.
 - There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.
 - Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.
+- After a long flight the game no longer hitches every second or so, even once you've landed: vehicles passed on the way kept having the far-off ground under them made again, only for it to be put away again.
 
 ### The world
 

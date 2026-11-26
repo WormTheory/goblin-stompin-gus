@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:3cb417e07d4951db32feb82e53570b6881f5bac62c1992efa475f75f8d7f0cf3 -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:c91d29c6c4ad4957631add4a5fe0b14cf2df349c0ef0615b85e299aba443c253 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1652,7 +1652,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Biomes, polished</h3>
 <ul><li>Waterfalls drop into a proper plunge pool now, about six blocks deep under the fall and shallower toward the rim, deep enough to dive into.</li><li>Where a river meets a lake it runs down to the lake's level in a steady slope, with no more steps like little weirs.</li><li>The land behind a rocky headland rises into the hills inland, instead of lying flat behind it.</li><li>The pause map marks stone arches, waterfalls and landmarks you've explored, and colours natural shores by kind: sandy shores, shingle, ice shelves, mangroves, red sand, cliffs and headlands, and fjords. Each has an entry in the key. The World Generator's Map has the same, as its Wonders and Coasts layers.</li><li>Out in the far view, the oil fields, peat diggings, research stations, safari lodges, stilt villages and ski slopes look like themselves (the rigs and tanks, the trenches, the radar dome and mast, the tents and waterhole, the huts over the water, the piste and its lift) rather than plain patches of ground.</li><li>Biomes blend into each other now: where two meet, patches of each mix across a wide band instead of meeting at a sharp line or in a speckle of single blocks, and the grass and leaves change colour gradually across it, in the far view too.</li><li>Farms, compounds, bases and other sites out in the country no longer sit in a pit below the hills with cliffs all round them: they're only built where the land round them is low enough to meet them gently.</li><li>Where one kind of ground meets another (grass and sand, sand and red sand, dirt and snow), their colours fade into each other over some fifty blocks instead of stopping at a block's edge.</li><li>Towns, farms and roads cut into hills more gently: the terraces beside a town's edge are lower and climb all the way up instead of ending in a cliff, and roads and railways run through wider cuttings with gentler sides.</li><li>Coasts change gradually as well: a sandy beach gives way to a rocky headland as the land gets rougher, and one kind of shore turns into the next in stretches rather than block by block.</li><li>Dust devils are easy to see now: tall, swirling funnels of dust that lean with the wind.</li><li>Towns are built a little more their biome's way: in the desert and the badlands, small shops and eateries are adobe with parapets and log beam ends, squares are more often paved plazas, and there are more rows of shops; in forests, swamps and the cold they're log and plank with false fronts or steep roofs, and the squares are left green; on the moor they're stone.</li><li>This changes how the world is made, so a saved city starts afresh.</li></ul>
 <h3>The far view at speed</h3>
-<ul><li>Flying fast no longer outruns the distant view. The far rings of the world used to start over every time you'd moved a little, so at a plane's speed they never finished and the land ahead was bare; now each one finishes, is drawn ahead of where you're going, and only works out the land that's new.</li><li>There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.</li><li>Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.</li></ul>
+<ul><li>Flying fast no longer outruns the distant view. The far rings of the world used to start over every time you'd moved a little, so at a plane's speed they never finished and the land ahead was bare; now each one finishes, is drawn ahead of where you're going, and only works out the land that's new.</li><li>There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.</li><li>Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.</li><li>After a long flight the game no longer hitches every second or so, even once you've landed: vehicles passed on the way kept having the far-off ground under them made again, only for it to be put away again.</li></ul>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Biomes</h3>
@@ -2406,7 +2406,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='7dda8caa232e';
+const GAME_VER='0.5.1',GAME_BUILD='f8298416b5b0';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -12349,10 +12349,13 @@ function freezeArr(a,on){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)fo
 function freezeWorld(on){for(const [k,a] of chunks){const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;if(freezeArr(a,on&&chunkFreeze(cx,cz))&&meshes.has(k))freezeQ.push(k);}lastK=-1;}
 // (winter freezes the water only where it's not warm: never in the desert, the savanna or the rainforest)
 function chunkFreeze(cx,cz){if(!WX.frozen)return false;if(TENV||cx*CS>=SHIP_X0)return true;return climAt(cx*CS+8,cz*CS+8).t<0.64;}
-// is (x,y,z) out under the open sky?
-function openSky(x,y,z){const cx=Math.floor(x),cz=Math.floor(z);for(let yy=Math.floor(y)+2;yy<Math.min(H,y+45);yy++)if(solidAt(cx,yy,cz))return false;return true;}
+// is (x,y,z) out under the open sky? (undefined where its chunk isn't made: a vehicle left far behind, a plane or train
+// passed on a long flight, would otherwise have that chunk made again every second, only for it to be unloaded again
+// as too far off, a hitch every second for as long as it stays out there. The callers keep what they last knew.)
+function openSky(x,y,z){const cx=Math.floor(x),cz=Math.floor(z);if(!chunks.has(ckey(Math.floor(cx/CS),Math.floor(cz/CS))))return undefined;
+  for(let yy=Math.floor(y)+2;yy<Math.min(H,y+45);yy++)if(solidAt(cx,yy,cz))return false;return true;}
 function snowGather(o,dt,moving){
-  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.5;o.skyOpen=openSky(o.pos.x,o.pos.y,o.pos.z);o.wxS=wxSnowFall(o.pos.x,o.pos.z,o.pos.y);}
+  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.5;o.skyOpen=openSky(o.pos.x,o.pos.y,o.pos.z)??o.skyOpen;o.wxS=wxSnowFall(o.pos.x,o.pos.z,o.pos.y);}
   const u=o.snowU,sf=o.wxS??WX.k.snow;if(sf>0.08&&o.skyOpen)u.value=Math.min(1,u.value+dt*sf/50*(moving?0.35:1));
   else u.value=Math.max(0,u.value-dt/(sf>0.08?240:45));
 }
@@ -12373,7 +12376,7 @@ function vehSnow(o,x,y,z,gone,dt,gs){
   if(gone)return;
   if(!o.snowU){if(snowMax()<0.01||snowAt(x,z,y)<0.01)return;vehSnowKit(o,gs);}
   const P=o.snowP||(o.snowP={x,z}),sp=Math.hypot(x-P.x,z-P.z)/Math.max(dt,1e-3);P.x=x;P.z=z;
-  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.4;o.skyOpen=openSky(x,y,z);o.snowHere=snowAt(x,z,y);}
+  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.4;o.skyOpen=openSky(x,y,z)??o.skyOpen;o.snowHere=snowAt(x,z,y);}
   const fast=sp>20,u=o.snowU;u.value+=((o.skyOpen&&!fast?o.snowHere??WX.snowCover:0)-u.value)*Math.min(1,dt*(fast?1.5:0.4));
 }
 function updateVehSnow(dt){

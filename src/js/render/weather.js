@@ -272,10 +272,13 @@ function freezeArr(a,on){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)fo
 function freezeWorld(on){for(const [k,a] of chunks){const cx=Math.floor(k/65536)-32768,cz=k%65536-32768;if(freezeArr(a,on&&chunkFreeze(cx,cz))&&meshes.has(k))freezeQ.push(k);}lastK=-1;}
 // (winter freezes the water only where it's not warm: never in the desert, the savanna or the rainforest)
 function chunkFreeze(cx,cz){if(!WX.frozen)return false;if(TENV||cx*CS>=SHIP_X0)return true;return climAt(cx*CS+8,cz*CS+8).t<0.64;}
-// is (x,y,z) out under the open sky?
-function openSky(x,y,z){const cx=Math.floor(x),cz=Math.floor(z);for(let yy=Math.floor(y)+2;yy<Math.min(H,y+45);yy++)if(solidAt(cx,yy,cz))return false;return true;}
+// is (x,y,z) out under the open sky? (undefined where its chunk isn't made: a vehicle left far behind, a plane or train
+// passed on a long flight, would otherwise have that chunk made again every second, only for it to be unloaded again
+// as too far off, a hitch every second for as long as it stays out there. The callers keep what they last knew.)
+function openSky(x,y,z){const cx=Math.floor(x),cz=Math.floor(z);if(!chunks.has(ckey(Math.floor(cx/CS),Math.floor(cz/CS))))return undefined;
+  for(let yy=Math.floor(y)+2;yy<Math.min(H,y+45);yy++)if(solidAt(cx,yy,cz))return false;return true;}
 function snowGather(o,dt,moving){
-  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.5;o.skyOpen=openSky(o.pos.x,o.pos.y,o.pos.z);o.wxS=wxSnowFall(o.pos.x,o.pos.z,o.pos.y);}
+  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.5;o.skyOpen=openSky(o.pos.x,o.pos.y,o.pos.z)??o.skyOpen;o.wxS=wxSnowFall(o.pos.x,o.pos.z,o.pos.y);}
   const u=o.snowU,sf=o.wxS??WX.k.snow;if(sf>0.08&&o.skyOpen)u.value=Math.min(1,u.value+dt*sf/50*(moving?0.35:1));
   else u.value=Math.max(0,u.value-dt/(sf>0.08?240:45));
 }
@@ -296,7 +299,7 @@ function vehSnow(o,x,y,z,gone,dt,gs){
   if(gone)return;
   if(!o.snowU){if(snowMax()<0.01||snowAt(x,z,y)<0.01)return;vehSnowKit(o,gs);}
   const P=o.snowP||(o.snowP={x,z}),sp=Math.hypot(x-P.x,z-P.z)/Math.max(dt,1e-3);P.x=x;P.z=z;
-  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.4;o.skyOpen=openSky(x,y,z);o.snowHere=snowAt(x,z,y);}
+  o.skyT=(o.skyT||0)-dt;if(o.skyT<=0){o.skyT=0.6+Math.random()*0.4;o.skyOpen=openSky(x,y,z)??o.skyOpen;o.snowHere=snowAt(x,z,y);}
   const fast=sp>20,u=o.snowU;u.value+=((o.skyOpen&&!fast?o.snowHere??WX.snowCover:0)-u.value)*Math.min(1,dt*(fast?1.5:0.4));
 }
 function updateVehSnow(dt){
