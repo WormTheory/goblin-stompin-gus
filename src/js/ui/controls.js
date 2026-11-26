@@ -275,7 +275,7 @@ function renderControls(){
   const gb=(t,c)=>`<span class="gb" style="background:${c}">${t}</span>`,gs=(t,c)=>`<span class="gs" style="${c?'background:'+c+';color:#0c0f14;border-color:#0a0d10':''}">${t}</span>`,gk=t=>`<span class="gk">${t}</span>`,or='<span class="or">or</span>';
   if(view==='pad'){
     const L=ps?{A:'✕',B:'○',X:'□',LB:'L1',RB:'R1',LT:'L2',RT:'R2',ST:'Options',L3:'L3'}:{A:'A',B:'B',X:'X',LB:'LB',RB:'RB',LT:'LT',RT:'RT',ST:'Start',L3:'L3'};
-    body.innerHTML=`<div class="ctl-grid"><div class="ctl-fig">${padSVG(ps)}<p class="ctl-note">Co-op: Gertie needs her own controller. Press ${L.ST} on a second controller to join mid-game.</p></div>
+    body.innerHTML=`<div class="ctl-grid"><div class="ctl-fig">${padSVG(ps)}<p class="ctl-note">Split screen: Gertie needs her own controller. Press ${L.ST} on a second controller to join mid-game.</p></div>
     <dl class="ctl-legend">
       <dt>${gs('L stick',CC.walk)}</dt><dd>Walk</dd>
       <dt>${gs('R stick',CC.look)}</dt><dd>Look around</dd>
@@ -314,7 +314,7 @@ function renderControls(){
       ${legendRows('kb',gb,gs,gk,or)}
       <dt>${gs('Mouse',CC.look)}</dt><dd>Look around</dd>
       <dt>${gk('Esc')}</dt><dd>Pause and resume</dd>
-      <dt>${gs('Co-op',CC.menu)}</dt><dd>Gertie needs a controller</dd>
+      <dt>${gs('Split screen',CC.menu)}</dt><dd>Gertie needs a controller</dd>
     </dl></div>${rebindHTML()}`;
   }
 }

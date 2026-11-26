@@ -167,7 +167,7 @@
 
 - The Controls screen has a new Players section listing the keyboard and mouse and every controller plugged in, each lighting up as you use it. Give each one to Player 1 or Player 2, so player two can play on the keyboard and player one on a controller, or each player can have a controller of their own however they're numbered. Auto puts it back as it was.
 - Player 2 screen: Split screen, as before, or Second window, which gives player two a window of their own to put on a second monitor. In Chrome and Edge it opens full screen on the other monitor by itself, once you've allowed the game to see your screens; in other browsers drag it across and press Full screen.
-- With Second window chosen, it opens when you click Co-op, or with Open window. Close it and you're back to split screen.
+- With Second window chosen, it opens when you click Split screen, or with Open window. Close it and you're back to split screen.
 - Drawing two windows is harder work for the graphics card than split screen.
 
 ### Saves
@@ -678,7 +678,8 @@
 
 - Controls and Options are one Settings screen now, with five tabs: Controls, Gameplay, Performance, Display and Multiplayer. LB / RB (Q / E) step through the tabs.
 - Plane controls are under Controls; enemy hostility and day / night speed under Gameplay; render distance, crowds, traffic, fires, goblin pathfinding, Advanced lighting and tracks in snow under Performance; sound, brightness and what's on screen under Display; PvP and online chat and voice under Multiplayer.
-- On the pause menu, Play solo / Co-op and Play online have moved into Settings' Multiplayer tab. The title screen keeps them where they were.
+- The Co-op button is called Split screen now.
+- On the pause menu, Play solo / Split screen and Play online have moved into Settings' Multiplayer tab. The title screen keeps them where they were.
 - The Testing Environment and Dev links are only on the pause menu now, not the title screen.
 - Abilities and the loadout no longer say On or Off: the greyed-out cards already show it.
 - The pause menu's seed line no longer says that smashed blocks save in the browser.
