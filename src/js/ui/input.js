@@ -60,12 +60,12 @@ function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
   for(const el of document.querySelectorAll('.gamepane .hostmain'))el.classList.add('p1only');
-  document.getElementById('tabBtnOptions').hidden=two;document.getElementById('tabBtnNotes').hidden=two;
+  for(const id of ['Perf','Display','Multi'])document.getElementById('tabBtn'+id).hidden=two;document.getElementById('tabBtnNotes').hidden=two;   // (player two's Settings is just their Controls)
   document.getElementById('tabBtnDev').hidden=two||!DT.quick;
   if(two)document.getElementById('tabBtnTest').hidden=true;
   menuWhoShow();
   {const pc=document.getElementById('playCoop');if(pc)pc.textContent=two?'Resume':'Co-op';}   // (in player two's menu the co-op game is already on: the button just carries on)
-  if(two&&['options','dev','test','notes'].includes(curTab))showTab('game');
+  if(two&&['perf','display','multi','dev','test','notes'].includes(curTab))showTab('game');
 }
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
 // (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it; only in
@@ -79,7 +79,20 @@ function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;
 // logo, Gus stomping along in front of the city and the main menu card; and the pause menu. Either can open a screen
 // (Options, Map, Character...) in the same card, with a Back button at its head (subHead); B, Esc or Back returns to
 // where it was opened from (backHome), and LB / RB (Q / E on the keyboard) step through the screens (subStep).
-const SUB_TITLES={map:'Map',obit:'Obituary',custom:"Who's stompin'?",controls:'Controls',options:'Options',notes:'Patch notes',dev:'Dev',test:'Testing Environment'};
+const SUB_TITLES={map:'Map',obit:'Obituary',custom:"Who's stompin'?",controls:'Settings',perf:'Settings',display:'Settings',multi:'Settings',notes:'Patch notes',dev:'Dev',test:'Testing Environment'};
+// Settings: one screen with its own tabs (setTabs, under its heading). LB / RB step through those while it's open, and
+// Settings opens again on whichever tab was last looked at
+const SET_TABS=['controls','perf','display','multi'];let setLast='controls';
+const isSetTab=t=>SET_TABS.includes(t);
+const setFirst=()=>menuP2()?'controls':setLast;   // (player two only has Controls)
+// (Play solo / Co-op and Play online: on the title screen they're in its main menu, paused they're in Settings'
+// Multiplayer tab. The very same buttons are moved between the two, so everything that listens to them carries on)
+const MP_MOVE=['play','playCoop','onlineBtn','onlinePanel'];
+function mpPlace(){
+  const tm=document.getElementById('titleMenu'),mp=document.getElementById('mpMenu');if(!tm||!mp)return;
+  const to=atTitle?tm:mp,before=atTitle?tm.querySelector('.tm2'):null;
+  for(const id of MP_MOVE){const el=document.getElementById(id);if(el&&el.parentNode!==to)to.insertBefore(el,before);}
+}
 let SUB_FROM=null;
 function menuMode(){
   const pe=document.getElementById('pause');if(!pe||!pe.classList)return;
@@ -88,6 +101,8 @@ function menuMode(){
   try{document.body.classList.toggle('attitle',atTitle&&menuOpen);}catch(e){}
   const sh=document.getElementById('subHead');if(sh)sh.hidden=home;
   const st=document.getElementById('subTitle');if(st&&!home)st.textContent=SUB_TITLES[curTab]||'';
+  const set=isSetTab(curTab),stb=document.getElementById('setTabs');if(stb)stb.hidden=!set;if(set)setLast=curTab;
+  try{mpPlace();}catch(e){}
   // (on the pause menu, Play and Co-op switch between solo and co-op: only the one you're not playing is offered)
   let co=false;try{co=inCoop();}catch(e){}
   pe.classList.toggle('coopon',co);
@@ -113,7 +128,11 @@ function backHome(){
 }
 // (the screens in order, for LB / RB: the ones whose tab is there to be had)
 function subStep(d){
-  const L=TABS.filter(([t,id])=>t!=='game'&&!document.getElementById('tabBtn'+id).hidden).map(t=>t[0]);if(!L.length)return;
+  // (in Settings, its own tabs; elsewhere the screens, with Settings as one of them)
+  const set=isSetTab(curTab);
+  let L=TABS.filter(([t,id])=>t!=='game'&&!document.getElementById('tabBtn'+id).hidden&&isSetTab(t)===set).map(t=>t[0]);
+  if(!set){const i=L.indexOf('notes');L.splice(i<0?L.length:i,0,setFirst());}
+  if(!L.length)return;
   const i=L.indexOf(curTab),n=i<0?(d>0?0:L.length-1):(i+d+L.length)%L.length;
   if(curTab==='game')SUB_FROM=document.activeElement&&document.activeElement.id||null;
   showTab(L[n]);const pane=document.querySelector('.main .tabpane:not([hidden])');
@@ -123,7 +142,8 @@ document.getElementById('subBack').addEventListener('click',()=>backHome());
 document.getElementById('resumeBtn').addEventListener('click',()=>startPlay(null));
 document.getElementById('quitBtn').addEventListener('click',()=>toTitle());
 menuMode();   // (the page opens on the title screen)
-document.getElementById('optBtn').addEventListener('click',()=>openSub('options','optBtn'));
+document.getElementById('optBtn').addEventListener('click',()=>openSub(setFirst(),'optBtn'));
+document.getElementById('setBtn').addEventListener('click',()=>openSub(setFirst(),'setBtn'));
 document.getElementById('devLink').addEventListener('click',()=>openSub('dev','devLink'));
 addEventListener('keydown',e=>{if(!menuOpen||BIND_CAP||e.repeat)return;const t=e.target;if(t&&(t.tagName==='INPUT'&&t.type!=='range'&&t.type!=='checkbox'||t.tagName==='TEXTAREA'))return;
   if(e.code==='KeyQ'||e.code==='KeyE'){e.preventDefault();subStep(e.code==='KeyE'?1:-1);}});

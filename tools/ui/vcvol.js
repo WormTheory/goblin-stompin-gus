@@ -14,7 +14,7 @@ const open=async w=>{const ctx=await b.newContext({viewport:{width:w,height:950}
     Object.defineProperty(navigator,'getGamepads',{value:()=>[window.__pad]});});
   await p.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());
   await p.goto('file://'+process.cwd()+'/vcvol.html');await p.waitForTimeout(1500);
-  await p.evaluate(()=>{document.getElementById('tabBtnOptions').click();document.getElementById('vcSub').hidden=false;});await p.waitForTimeout(300);return [ctx,p];};
+  await p.evaluate(()=>{document.getElementById('tabBtnMulti').click();document.getElementById('vcSub').hidden=false;});await p.waitForTimeout(300);return [ctx,p];};
 const box=(p,id)=>p.evaluate(id=>{const r=document.getElementById(id).getBoundingClientRect();return {x:Math.round(r.left),y:Math.round(r.top),b:Math.round(r.bottom),w:Math.round(r.width)};},id);
 const mid=r=>(r.y+r.b)/2;
 for(const w of [1200,560,400]){const [ctx,p]=await open(w);
@@ -40,7 +40,7 @@ for(const w of [1200,560,400]){const [ctx,p]=await open(w);
     await p.reload();await p.waitForTimeout(1500);const v=await p.evaluate(()=>[window.__V.VC.vol,document.getElementById('vcVolVal').textContent]);
     check('180% kept over a reload',v[0]===1.8&&v[1]==='180%',v);
     // controller round the rows
-    await p.evaluate(()=>{document.getElementById('tabBtnOptions').click();document.getElementById('vcSub').hidden=false;});await p.waitForTimeout(300);
+    await p.evaluate(()=>{document.getElementById('tabBtnMulti').click();document.getElementById('vcSub').hidden=false;});await p.waitForTimeout(300);
     const press=async i=>{await p.evaluate(i=>{window.__pad.buttons[i].pressed=true;window.__pad.buttons[i].value=1;},i);await p.waitForTimeout(120);await p.evaluate(i=>{window.__pad.buttons[i].pressed=false;window.__pad.buttons[i].value=0;},i);await p.waitForTimeout(120);};
     const cur=()=>p.evaluate(()=>document.activeElement&&document.activeElement.id);
     await p.evaluate(()=>{const e=document.getElementById('vcPttTog');e.focus();e.classList.add('padfocus');});

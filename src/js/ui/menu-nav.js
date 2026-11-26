@@ -34,7 +34,12 @@ function menuNav(dir){
   const cur=document.activeElement,dx=dir==='left'?-1:dir==='right'?1:0,dy=dir==='up'?-1:dir==='down'?1:0;
   if(dx&&cur&&cur.matches&&cur.matches('input[type=range]')&&menuCard.contains(cur)){nudgeRange(cur,dx);return;}
   // (the head of a screen: its Back button where there's one, otherwise its tab)
-  const pane=document.querySelector('.main .tabpane:not([hidden])'),sb=document.getElementById('subBack'),tabBtn=sb&&sb.offsetParent?sb:document.getElementById('tabBtn'+TABS[tabIndex()][1]);
+  const pane=document.querySelector('.main .tabpane:not([hidden])'),sb=document.getElementById('subBack'),stab=isSetTab(curTab)?document.getElementById('tabBtn'+TABS[tabIndex()][1]):null,tabBtn=stab&&stab.offsetParent?stab:sb&&sb.offsetParent?sb:document.getElementById('tabBtn'+TABS[tabIndex()][1]);
+  // (Settings' tabs: left and right go along them, down into the tab, up to Back)
+  if(cur&&cur.closest&&cur.closest('#setTabs')){
+    if(dx){const B=[...document.querySelectorAll('#setTabs [role=tab]')].filter(b=>!b.hidden),n=B[B.indexOf(cur)+dx];if(n){showTab(SET_TABS[[...document.querySelectorAll('#setTabs [role=tab]')].indexOf(n)]);padFocus(n);}return;}
+    if(dy<0){padFocus(sb);return;}
+    if(dy>0){const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}}
   const title=false;
   // (Patch notes are mostly text to read, so up and down scroll it, stopping on an older update's bar only once it's in view:
   // jumping straight to the first bar would skip past the newest notes)
@@ -48,7 +53,7 @@ function menuNav(dir){
   if(dx&&cur&&cur.closest&&cur.closest('#charSel .cs-row')){const C=[...cur.closest('.cs-row').querySelectorAll('.cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   // (the menu itself, title or pause: wherever's nearest that way)
   if(curTab==='game'){if(!moveFocus(dx,dy)&&dy&&pane)pane.scrollTop+=dy*80;return;}
-  if(cur===sb&&dy>0){const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}
+  if(cur===sb&&dy>0){if(stab&&stab.offsetParent){padFocus(stab);return;}const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   // (the ability switches: up and down from a basic move goes to the next basic move, not into the upgrades beside it)
@@ -133,7 +138,7 @@ function menuPad(st,dt){
 }
 // the mouse takes over again: drop the controller highlight
 addEventListener('mousemove',e=>{if(menuOpen&&(Math.abs(e.movementX)+Math.abs(e.movementY)>2))for(const el of menuCard.querySelectorAll('.padfocus'))el.classList.remove('padfocus');});
-for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>{if(t==='game')backHome();else openSub(t,'tabBtn'+id);});
+for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>{if(t==='game')backHome();else if(isSetTab(t)&&isSetTab(curTab))showTab(t);else openSub(t,'tabBtn'+id);});   // (a Settings tab from within Settings: Back still goes where Settings was opened from)
 // (the title screen's "What's new" line opens the Patch notes tab, leaving the highlight on its tab so B and LB/RB carry on from there)
 // (the Patch notes tab's "Play 0.1" links open the website's copy of that version, kept at <site>/v/<version>/ beside the
 // live game (or beside /test/'s parent), in a new tab so this game keeps running; played from a file on disk there's no
@@ -193,7 +198,7 @@ function menuPromptItems(){
   if(kind==='pad'){
     if(range)out.push([['DPAD:h'],'Adjust']);else out.push([['A'],card?'Ready!':'Pick']);
     if(cf||!home)out.push([['B'],'Back']);else if(!atTitle&&begun)out.push([['B'],'Resume']);
-    out.push([['LB','RB'],'Jump between screens']);
+    out.push([['LB','RB'],isSetTab(curTab)?'Tabs':'Jump between screens']);
     if(curTab==='custom')out.push([['Y'],'Ability toggles']);
     if(curTab==='map'){out.push([['RS'],'Pan']);out.push([['LT','RT'],'Zoom']);out.push([['X'],'Re-centre']);out.push([['Y'],'Marker']);}
     else if(curTab==='obit'){out.push([['RS:h'],'Turn']);if(scrolls)out.push([['RS:v'],'Scroll']);}
@@ -211,7 +216,7 @@ function menuPromptItems(){
     else if(scrolls)out.push([['WHEEL'],'Scroll']);
     if(range)out.push([['KEY:←','KEY:→'],'Adjust']);else out.push([['KEY:Enter'],'Pick']);
     if(cf||!home)out.push([['KEY:Esc'],'Back']);else if(!atTitle&&begun)out.push([['KEY:Esc'],'Resume']);
-    if(!home||!atTitle)out.push([['KEY:Q','KEY:E'],'Jump between screens']);
+    if(!home||!atTitle)out.push([['KEY:Q','KEY:E'],isSetTab(curTab)?'Tabs':'Jump between screens']);
   }
   return out;
 }

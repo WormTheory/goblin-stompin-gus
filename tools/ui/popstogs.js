@@ -12,7 +12,7 @@ const open=async(ctx,pre,arg)=>{const p=await ctx.newPage();p.on('pageerror',e=>
   if(pre)await p.addInitScript(pre,arg);
   await p.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());
   await p.goto('file://'+process.cwd()+'/ui.html');await p.waitForTimeout(1500);
-  await p.evaluate(()=>document.getElementById('tabBtnOptions').click());await p.waitForTimeout(300);return p;};
+  await p.evaluate(()=>document.getElementById('tabBtnDisplay').click());await p.waitForTimeout(300);return p;};
 const st=p=>p.evaluate(()=>{const a=id=>document.getElementById(id).getAttribute('aria-checked');const L=k=>localStorage.getItem('goblin-stompin-gus-'+k);
   return{dmg:a('dmgPopTog'),shout:a('shoutTog'),hp:a('hpBarTog'),kDmg:L('pop-dmg'),kShout:L('pop-shout'),kHp:L('hpBars'),old:L('pops')};});
 const ctx=await b.newContext({viewport:{width:1200,height:950}});
@@ -22,7 +22,7 @@ await p.click('#shoutTog');s=await st(p);
 check('Shouts click: only shouts off, saved alone',s.dmg==='true'&&s.shout==='false'&&s.hp==='false'&&s.kShout==='0'&&s.kDmg===null,s);
 await p.click('#hpBarTog');s=await st(p);
 check('Health bars click: only health bars on',s.dmg==='true'&&s.shout==='false'&&s.hp==='true'&&s.kHp==='1',s);
-await p.reload();await p.waitForTimeout(1500);await p.evaluate(()=>document.getElementById('tabBtnOptions').click());await p.waitForTimeout(300);s=await st(p);
+await p.reload();await p.waitForTimeout(1500);await p.evaluate(()=>document.getElementById('tabBtnDisplay').click());await p.waitForTimeout(300);s=await st(p);
 check('kept over a reload',s.dmg==='true'&&s.shout==='false'&&s.hp==='true',s);
 // controller: from Damage numbers, down to Shouts and Health bars, A switches each; up goes back
 const press=async i=>{await p.evaluate(i=>{window.__pad.buttons[i].pressed=true;window.__pad.buttons[i].value=1;},i);await p.waitForTimeout(120);await p.evaluate(i=>{window.__pad.buttons[i].pressed=false;window.__pad.buttons[i].value=0;},i);await p.waitForTimeout(120);};
@@ -49,7 +49,7 @@ for(const [old,want] of [['0','false'],['1',null]]){
   s=await st(p);
   if(want)check('old switch off: all three off',s.dmg==='false'&&s.shout==='false'&&s.hp==='false'&&s.old===null&&s.kDmg==='0'&&s.kShout==='0'&&s.kHp==='0',s);
   else check('old switch on: numbers and shouts on, health bars as they were',s.dmg==='true'&&s.shout==='true'&&s.hp==='true',s);
-  await p.reload();await p.waitForTimeout(1500);await p.evaluate(()=>document.getElementById('tabBtnOptions').click());await p.waitForTimeout(300);
+  await p.reload();await p.waitForTimeout(1500);await p.evaluate(()=>document.getElementById('tabBtnDisplay').click());await p.waitForTimeout(300);
   const s2=await st(p);check('  ... and the same after a reload',s2.dmg===s.dmg&&s2.shout===s.shout&&s2.hp===s.hp,s2);
   await c2.close();}
 console.log(errs.join('\n')||'no errors');console.log(bad?bad+' BAD':'all ok');await b.close();})();

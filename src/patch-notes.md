@@ -674,6 +674,15 @@
 
 - The menus, Options and abilities say less: notes that only repeated what a button or switch already says are gone, and the rest are cut down to a few words.
 
+### Settings
+
+- Controls and Options are one Settings screen now, with four tabs: Controls, Performance, Display and Multiplayer. LB / RB (Q / E) step through the tabs.
+- Plane controls are under Controls; render distance, crowds, traffic, fires, goblin pathfinding, Advanced lighting and tracks in snow under Performance; sound, brightness, what's on screen, enemy hostility and day / night speed under Display; PvP and online chat and voice under Multiplayer.
+- On the pause menu, Play solo / Co-op and Play online have moved into Settings' Multiplayer tab. The title screen keeps them where they were.
+- The Testing Environment and Dev links are only on the pause menu now, not the title screen.
+- Abilities and the loadout no longer say On or Off: the greyed-out cards already show it.
+- The pause menu's seed line no longer says that smashed blocks save in the browser.
+
 ### Fixes
 
 - Clicking another window or switching tabs no longer pauses the game: it carries on in the background (handy for hosting online with the tab hidden), in the Testing Environment too. Esc still pauses, and a click on the game takes the mouse back.

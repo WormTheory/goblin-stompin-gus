@@ -60,7 +60,7 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   // voice between two tabs: refused with a note, no microphone asked for
   await B.keyboard.press('Escape');await wait(600);
   const menu=await B.evaluate(()=>!document.getElementById('pause').hidden);if(!menu){await B.evaluate(()=>window.__G&&0);}
-  await B.evaluate(()=>{const b=document.getElementById('tabBtnOptions')||[...document.querySelectorAll('[role=tab]')].find(t=>/Options/.test(t.textContent));if(b)b.click();});await wait(300);
+  await B.evaluate(()=>{const b=document.getElementById('tabBtnMulti')||[...document.querySelectorAll('[role=tab]')].find(t=>/Options/.test(t.textContent));if(b)b.click();});await wait(300);
   await B.evaluate(()=>document.getElementById('vcTog').click());await wait(500);
   const note=await B.textContent('#vcNote'),gum=await B.evaluate(()=>window.__gum);
   await B.evaluate(()=>document.getElementById('chatOpts').scrollIntoView());await wait(200);await B.screenshot({path:out+'/5-guest-options.png'});

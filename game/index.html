@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:05a757bf2c35059028aed8f1ce00790b9502c83835fb8860932a3d95be29157c -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:e96f01e93d10a40806ff676a3bfe1c71f96ff0a7fa507711c0768f0483b73b6a -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -897,6 +897,20 @@ body.calm .tmenu>.online,body.calm .tmenu>.confirm{animation:none!important}
 .subhead .ck{height:46px;font-size:21px;padding:4px 16px;flex:none;width:auto}
 .subhead h2{margin:0;font:400 36px/1 var(--f-px);letter-spacing:1px;color:var(--paper);text-transform:uppercase}
 .subwho{margin-left:auto}
+/* Settings: its tabs under the heading */
+.settabs{display:flex;flex-wrap:wrap;gap:10px;flex:none}
+.settabs[hidden]{display:none}
+.settabs button{font:400 19px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase;color:var(--ink);background:#e9dccb;border:3px solid var(--ink);border-radius:var(--wobs);box-shadow:3px 3px 0 var(--ink);padding:7px 14px 6px;cursor:pointer}
+.settabs button:nth-child(even){border-radius:14px 9px 15px 10px/9px 14px 10px 15px}
+.settabs button[aria-selected="true"]{background:var(--yolk);transform:translateY(-2px);box-shadow:3px 5px 0 var(--ink)}
+.settabs button[hidden]{display:none}
+#pause .settabs button.padfocus,.settabs button:focus-visible{outline:4px dashed var(--yolk)!important;outline-offset:3px!important;box-shadow:3px 3px 0 var(--ink)!important}
+/* (Multiplayer's Play solo / Co-op and Play online, while paused) */
+.tmenu.mpmenu:empty{display:none}
+.opts.ctlplane{max-width:none;margin:0}
+.pause:not(.title) .tmenu.mpmenu{border-top:0;padding:0}
+/* the Workshop (Testing Environment, Dev) is only in the pause menu */
+.pause.title .tws{display:none}
 .pause.title:not(.home){background:rgba(43,27,46,.35)}
 
 /* ---- the Character screen: WHO'S STOMPIN'? (docs/ui-overhaul/CharSelect.html) ---- */
@@ -1095,6 +1109,7 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 :is(#abilList,#gwpnList) .tog .nm{font:400 19px/1 var(--f-px);letter-spacing:.5px;text-transform:uppercase}
 :is(#abilList,#gwpnList) .tog small{font:500 12px/1.3 var(--f-body);color:#4a3a4d}
 :is(#abilList,#gwpnList) .tog .st{flex:none;font:400 13px/1 var(--f-px);letter-spacing:.4px;text-transform:uppercase;padding:3px 6px 2px;border:2px solid var(--ink);border-radius:6px 8px 5px 9px;background:var(--paper);white-space:nowrap}
+:is(#abilList,#gwpnList) .tog .st:empty{display:none}   /* (on or off shows in the card's colour) */
 /* a basic move: a big card */
 :is(#abilList,#gwpnList) .ab-base{min-height:46px}
 :is(#abilList,#gwpnList) .ab-base[aria-checked="true"]{background:#d9f3b8}
@@ -1418,14 +1433,14 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <button type="button" role="tab" class="ck on" id="tabBtnMap" aria-selected="false" aria-controls="tabMap">Map</button>
       <button type="button" role="tab" class="ck on" id="tabBtnObit" aria-selected="false" aria-controls="tabObit">Obituary<span class="cnt" id="obitCount">0</span></button>
       <button type="button" role="tab" class="ck set" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
-      <button type="button" role="tab" class="ck set" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button>
-      <button type="button" role="tab" class="ck set" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Options</button>
+      <button type="button" class="ck set" id="setBtn">Settings</button>
       <button type="button" class="ck set" id="fullBtnP">Full screen</button>
       <button type="button" class="ck quit" id="quitBtn">Quit to title</button>
       <button type="button" role="tab" class="cornertag" id="tabBtnNotes" aria-selected="false" aria-controls="tabNotes">Patch notes</button>
       <button type="button" role="tab" class="cornertag" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
     </div>
     <div class="subhead" id="subHead" hidden><button type="button" class="ck set subback" id="subBack"><span aria-hidden="true">‹</span> Back</button><h2 class="px out2" id="subTitle"></h2><span class="subwho" id="subWho"></span></div>
+    <div class="settabs" id="setTabs" role="tablist" aria-label="Settings" hidden><button type="button" role="tab" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button><button type="button" role="tab" id="tabBtnPerf" aria-selected="false" aria-controls="tabPerf">Performance</button><button type="button" role="tab" id="tabBtnDisplay" aria-selected="false" aria-controls="tabDisplay">Display</button><button type="button" role="tab" id="tabBtnMulti" aria-selected="false" aria-controls="tabMulti">Multiplayer</button></div>
     <div class="tabpane gamepane" id="tabGame" role="tabpanel">
      <div class="gamemain">
       <h1 class="tlogo"><span class="tl1 px out">Goblin-Stompin'</span> <em class="tl2 px out">Gus</em></h1>
@@ -1443,7 +1458,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <div class="note on-st" id="netStatus" role="status"></div>
         <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
-        <div class="tm2"><button type="button" class="ck set" id="newWorld">New world</button><button type="button" class="ck set" id="optBtn">Options</button></div>
+        <div class="tm2"><button type="button" class="ck set" id="newWorld">New world</button><button type="button" class="ck set" id="optBtn">Settings</button></div>
         <button type="button" class="ck set tsave" id="saveNow">Save now</button>
         <div class="savesw" id="saveSw" role="radiogroup" aria-label="Where your game is saved"><button type="button" role="radio" class="sv" id="saveBrowser" aria-checked="true">Browser save</button><button type="button" role="radio" class="sv" id="saveLocal" aria-checked="false" aria-expanded="false" aria-controls="savePanel">Local save</button></div>
         <div class="online savepanel" id="savePanel" hidden>
@@ -1513,6 +1528,10 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         </div>
       </div>
       <div class="abil"><button type="button" class="tog" role="checkbox" id="camTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Camera auto-recenter</span></button></div>
+      <div class="opts ctlplane">
+      <div class="crow"><span class="clab" id="planeLab">PLANE CONTROLS</span><div class="seg" role="radiogroup" aria-labelledby="planeLab" id="planeSeg"><button type="button" role="radio" data-pctl="auto" aria-checked="true">Auto</button><button type="button" role="radio" data-pctl="aim" aria-checked="false">Mouse-aim</button><button type="button" role="radio" data-pctl="direct" aria-checked="false">Direct</button></div></div>
+      <p class="vnote" id="planeTxt"></p>
+      </div>
       <div class="custom seats" id="seats">
         <h2>PLAYERS <button type="button" class="pmenu seatauto" id="seatAuto" hidden>Auto</button></h2>
         <div id="seatRows"></div>
@@ -1559,25 +1578,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
     </div>
     </div>
     </div>
-    <div class="tabpane" id="tabOptions" role="tabpanel" hidden>
+    <div class="tabpane" id="tabPerf" role="tabpanel" hidden>
     <div class="opts">
-      <div class="custom hostmain">
-      <div class="crow"><label class="clab" for="hostMain">ENEMY HOSTILITY</label><input type="range" id="hostMain" class="vrange" min="0" max="3" step="1" value="3" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
-      <p class="vnote" id="hostMainTxt"></p>
-      <div class="crow"><span class="clab" id="pathLab">GOBLIN PATHFINDING</span><div class="seg" role="radiogroup" aria-labelledby="pathLab" id="pathSeg"><button type="button" role="radio" data-path="0" aria-checked="true">Advanced</button><button type="button" role="radio" data-path="1" aria-checked="false">Simple</button></div></div>
-      <p class="vnote" id="pathTxt"></p>
-      <div class="crow"><span class="clab" id="planeLab">PLANE CONTROLS</span><div class="seg" role="radiogroup" aria-labelledby="planeLab" id="planeSeg"><button type="button" role="radio" data-pctl="auto" aria-checked="true">Auto</button><button type="button" role="radio" data-pctl="aim" aria-checked="false">Mouse-aim</button><button type="button" role="radio" data-pctl="direct" aria-checked="false">Direct</button></div></div>
-      <p class="vnote" id="planeTxt"></p>
-      <div class="crow"><span class="clab" id="pvpLab">PVP</span><div class="seg" role="radiogroup" aria-labelledby="pvpLab" id="pvpSeg"><button type="button" role="radio" data-pvp="0" aria-checked="true">Off</button><button type="button" role="radio" data-pvp="1" aria-checked="false">On</button></div></div>
-      <p class="vnote" id="pvpTxt"></p>
-    </div>
-    <div class="custom" id="avOpts">
-      <h2>SOUND &amp; PICTURE</h2>
-      <div class="crow"><label class="clab" for="sndVol">SOUND VOLUME</label><input type="range" id="sndVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="vval" id="sndVolVal">100%</span></div>
-      <p class="vnote">Voice chat volume is under Online.</p>
-      <div class="crow"><label class="clab" for="brightness">BRIGHTNESS</label><input type="range" id="brightness" class="vrange" min="20" max="250" step="5" value="100" aria-label="Brightness"><span class="vval" id="brightVal">100%</span></div>
-      <div class="abil"><button type="button" class="tog" role="checkbox" id="blkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Advanced lighting</span></button><button type="button" class="tog" role="checkbox" id="trkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Tracks in snow</span></button></div>
-    </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
       <div class="crow"><label class="clab" for="detailDist">DETAIL</label><input type="range" id="detailDist" class="vrange" min="48" max="1024" step="16" value="112" aria-label="Detail distance"><span class="vval" id="detailVal">112 blocks</span></div>
@@ -1595,15 +1597,30 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <p class="vnote">Above 300% can be slow.</p>
     </div>
     <div class="custom">
-      <div class="crow"><label class="clab" for="daySpeed">DAY / NIGHT SPEED</label><input type="range" id="daySpeed" class="vrange" min="0" max="7" step="1" value="3" aria-label="Day and night speed"><span class="vval" id="daySpeedVal">Normal</span></div>
-      <p class="vnote" id="daySpeedNote">One full day and night takes 10 minutes.</p>
-    </div>
-    <div class="custom">
       <div class="crow"><label class="clab" for="fireDur">FIRE &amp; SMOKE DURATION</label><input type="range" id="fireDur" class="vrange" min="0" max="5" step="1" value="2" aria-label="How long fires and smoke last"><span class="vval" id="fireDurVal">Normal</span></div>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="fireCap">MAX FIRES &amp; SMOKE</label><input type="range" id="fireCap" class="vrange" min="0" max="9" step="1" value="5" aria-label="Most fires and smoke plumes at once"><span class="vval" id="fireCapVal">70</span></div>
       <p class="vnote">Lower if big fires stutter.</p>
+    </div>
+    <div class="custom">
+      <div class="crow"><span class="clab" id="pathLab">GOBLIN PATHFINDING</span><div class="seg" role="radiogroup" aria-labelledby="pathLab" id="pathSeg"><button type="button" role="radio" data-path="0" aria-checked="true">Advanced</button><button type="button" role="radio" data-path="1" aria-checked="false">Simple</button></div></div>
+      <p class="vnote" id="pathTxt"></p>
+      <div class="abil"><button type="button" class="tog" role="checkbox" id="blkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Advanced lighting</span></button><button type="button" class="tog" role="checkbox" id="trkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Tracks in snow</span></button></div>
+    </div>
+    <div class="custom">
+      <h2>DEBUG</h2>
+      <div class="abil" id="dbgMenuTog">
+        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>~ or Select to open</small></span></button>
+      </div>
+    </div>
+    </div>
+    </div>
+    <div class="tabpane" id="tabDisplay" role="tabpanel" hidden>
+    <div class="opts">
+    <div class="custom" id="avOpts">
+      <div class="crow"><label class="clab" for="sndVol">SOUND VOLUME</label><input type="range" id="sndVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="vval" id="sndVolVal">100%</span></div>
+      <div class="crow"><label class="clab" for="brightness">BRIGHTNESS</label><input type="range" id="brightness" class="vrange" min="20" max="250" step="5" value="100" aria-label="Brightness"><span class="vval" id="brightVal">100%</span></div>
     </div>
     <div class="custom">
       <h2>ON SCREEN</h2>
@@ -1616,6 +1633,21 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <button type="button" class="tog" role="checkbox" id="keysTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide controls</span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Follows your system setting</small></span></button>
       </div>
+    </div>
+    <div class="custom hostmain">
+      <div class="crow"><label class="clab" for="hostMain">ENEMY HOSTILITY</label><input type="range" id="hostMain" class="vrange" min="0" max="3" step="1" value="3" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
+      <p class="vnote" id="hostMainTxt"></p>
+      <div class="crow"><label class="clab" for="daySpeed">DAY / NIGHT SPEED</label><input type="range" id="daySpeed" class="vrange" min="0" max="7" step="1" value="3" aria-label="Day and night speed"><span class="vval" id="daySpeedVal">Normal</span></div>
+      <p class="vnote" id="daySpeedNote">One full day and night takes 10 minutes.</p>
+    </div>
+    </div>
+    </div>
+    <div class="tabpane" id="tabMulti" role="tabpanel" hidden>
+    <div class="opts">
+    <div class="tmenu mpmenu" id="mpMenu"></div>
+    <div class="custom">
+      <div class="crow"><span class="clab" id="pvpLab">PVP</span><div class="seg" role="radiogroup" aria-labelledby="pvpLab" id="pvpSeg"><button type="button" role="radio" data-pvp="0" aria-checked="true">Off</button><button type="button" role="radio" data-pvp="1" aria-checked="false">On</button></div></div>
+      <p class="vnote" id="pvpTxt"></p>
     </div>
     <div class="custom" id="chatOpts">
       <h2>ONLINE CHAT &amp; VOICE</h2>
@@ -1632,12 +1664,6 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
         <div class="abil" id="vcPeers"></div>
       </div>
       <p class="vnote" id="vcNote" role="status"></p>
-    </div>
-    <div class="custom">
-      <h2>DEBUG</h2>
-      <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>~ or Select to open</small></span></button>
-      </div>
     </div>
     </div>
     </div>
@@ -1759,6 +1785,8 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <ul><li>With Options' Health bars on, Mobile Gears, hot-air balloons, the barge, the aircraft carrier and its deck weapons, and subway trains now show health bars like every other vehicle; they never had one.</li><li>Anything aboard a ship (goblins, cars, tanks, helicopters, the carrier's jets) now has its health bar over it, rather than out of sight far away.</li></ul>
 <h3>Shorter menu text</h3>
 <ul><li>The menus, Options and abilities say less: notes that only repeated what a button or switch already says are gone, and the rest are cut down to a few words.</li></ul>
+<h3>Settings</h3>
+<ul><li>Controls and Options are one Settings screen now, with four tabs: Controls, Performance, Display and Multiplayer. LB / RB (Q / E) step through the tabs.</li><li>Plane controls are under Controls; render distance, crowds, traffic, fires, goblin pathfinding, Advanced lighting and tracks in snow under Performance; sound, brightness, what's on screen, enemy hostility and day / night speed under Display; PvP and online chat and voice under Multiplayer.</li><li>On the pause menu, Play solo / Co-op and Play online have moved into Settings' Multiplayer tab. The title screen keeps them where they were.</li><li>The Testing Environment and Dev links are only on the pause menu now, not the title screen.</li><li>Abilities and the loadout no longer say On or Off: the greyed-out cards already show it.</li><li>The pause menu's seed line no longer says that smashed blocks save in the browser.</li></ul>
 <h3>Fixes</h3>
 <ul><li>Clicking another window or switching tabs no longer pauses the game: it carries on in the background (handy for hosting online with the tab hidden), in the Testing Environment too. Esc still pauses, and a click on the game takes the mouse back.</li><li>Roller coaster cars now glide smoothly up and down the track, tilting to match the slope, instead of jumping a block at a time where it changes height. Anyone riding on top goes up and down smoothly with them.</li><li>Playing online, the buildings the host has destroyed and the vehicles wrecked are now kept up to date for everyone else too.</li><li>The controls listed down the left while driving now match what each vehicle really does. On a controller, the left stick now shows for a boat's or ship's throttle and rudder (the trawler's among them), a tank's tracks, a train's lever, a helicopter in Agile mode and the Gobway, where nothing showed before, and cars list the triggers as throttle and brake. The horn now shows for cars, the forklift, the tractor, the hovercraft and the pedalo, and the kick scooter's brake too. Pressing a stick in now shows as L3 or R3, rather than looking the same as pushing the stick about.</li><li>The chase camera behind a vehicle no longer swings back round behind it on its own. Switch on Camera auto-recenter in the Controls tab to have it back; it now swings round at the same pace whatever the frame rate.</li><li>Goblins riding bicycles, kick scooters, Gobways and motor scooters through town no longer sometimes vanish from them, leaving the vehicle rolling along empty. Motorbike riders and the heads of goblins driving cars had the same trouble.</li><li>The rush of air from sprinting no longer keeps playing after you get into a vehicle while running.</li><li>Cars, lorries and other traffic no longer vanish from under you when you stand on one that's stopped and look the other way.</li><li>The prompt to get into a vehicle no longer stays on screen once you're in.</li><li>Gnash's rifle and handgun now damage every vehicle they hit, the same way: cars, tanks, helicopters, trains, planes, boats, balloons, Mobile Gears and the carrier's deck weapons all take three times what a goblin would. Before, they went straight through most vehicles, did a single point to cars, and only the deck weapons took real harm.</li><li>Bullets from any gun now do more to the carrier's deck weapons: about 25 rounds wreck one (a few more for a Sea Sparrow launcher), where it used to take 40 or more and looked as if they did nothing.</li><li>The minimap no longer draws the grey of the surrounding blocks over big sites that take up several blocks, such as theme parks, which hid most of their buildings.</li><li>Enemy gunfire now hits whatever you're driving. Before, rifles, the militia's machine guns, the helicopters' guns and the cultists' fireballs did nothing at all to a goblin behind the wheel; now the vehicle takes the hit instead.</li><li>Rounds from the fighter jets' cannons, the carrier's CIWS, the militia's machine guns and the helicopters' guns are stopped by walls, one round at a time. Before, some went straight through buildings, and a burst kept coming even after you ducked behind something.</li><li>Invulnerability now covers a train or subway train you're driving, as it does every other vehicle.</li><li>Every vehicle now plays by the same rules. Boats, trains and hot-air balloons gather snow like the rest; bringing down a hot-air balloon (400), a Mobile Gear (2,000) or one of the carrier's deck weapons (300) scores points; a balloon's health shows correctly to everyone playing online; and the smoke and flames off a badly hurt vehicle show for players online too.</li><li>Every vehicle now has the same health wherever it turns up: buses, articulated lorries, fire engines and ambulances take 45, motorhomes 40, police cars 40 and everything else 30. Before, an articulated lorry on the motorway or a police car in the traffic went down as easily as a family car, and the Testing Environment's ambulances and motorhomes did too.</li><li>The Dev tab's Enemies section now has the soldiers who crew the military bases' tanks and helicopters, with every animation the other armed enemies have.</li><li>The aircraft carrier's deck weapons gather snow in a blizzard like every other vehicle (its decks already did).</li><li>Behind the scenes, every kind of enemy now has its own list of the weapons it carries (street goblins a club, police a club and a handgun, thieves and cultists a dagger, preppers, militia and marines a rifle and grenades, sailors and soldiers a rifle), and what they hold, when they shoot, throw or strike, and what they drop all come from it. Nothing changes in play; it just means an enemy can be handed a new weapon in one place. Drawing a gun at range and putting it away for a club or dagger up close, as the police do, now works for any enemy given both.</li><li>Every weapon now works the same whoever carries it, you or the enemy. Rifles hit for a full heart, reach 48 blocks and fire once a second; handguns hit for three quarters of a heart, reach 30 and fire every half second; both chip away at the wall they hit, the enemies' rounds too, so cover doesn't last for ever. Daggers stab for a full heart every half second, clubs hit for half a heart every 1.2 s, and grenades are the same for everyone. Enemy rifles and police handguns hit harder and fire faster than before, while Gnash and Grizzle fire and swing a little slower. Enemies still take a moment to aim and miss more from far off.</li><li>The pause menu's This rampage card counts "Vehicles destroyed" instead of "Cars totaled": every vehicle you wreck now counts, not just cars. Tanks, helicopters, planes, boats, hot-air balloons, Mobile Gears, the carrier's deck weapons, each car of a train you wreck, and a ship you sink.</li><li>Grenades, shells and rockets now hurt zoo animals, the Ferris wheel's rim and the carousel, as stomps already did, and a shell or rocket goes off when it hits an animal.</li><li>Online, a guest playing as Gnash or Grizzle now sees their own gun kick and the bolt, pump or slide worked after each shot, as the host does. An error on the guest's side could stop their weapons working at all.</li><li>A forklift wrecked or cleared away with something on its forks lets go of it: a car lifted on them falls to the ground, rather than hanging in the air.</li><li>Landmines now go off under tanks, helicopters on the ground, Mobile Gears, trains and planes, not just cars.</li><li>The Large Club only slams the ground with its shockwave when you're on the ground; swung in mid-air it's an ordinary blow. Landmines can only be planted standing on the ground.</li><li>The shotgun's pellets spread evenly when you aim steeply up or down, rather than squashing into a flat line.</li><li>Changing the Loadout no longer refills or empties your guns or swaps the weapon in your hand: each gun keeps what's left in its magazine.</li><li>If you'd moved X (or D-pad down) on to another control, the new Reload action no longer takes it as well: it's left unbound for you to set.</li><li>Theme park rides' and zoo animals' health now shows correctly to guests online.</li><li>Big worlds saved into the browser's database could be saved over by an older save finishing late, or not loaded back at all after a save that didn't finish; saves now go one at a time, and loading finds the blocks either way.</li><li>A badly smashed-up world no longer stutters every few seconds as it saves: the game only writes the parts of it that changed since the last save.</li><li>Wind turbines, motorways, bridges, stadiums and other things that aren't buildings no longer have rows of lit windows on them when seen from far off, and neither do windowless buildings such as building sites, car parks and the data centre.</li><li>Online, a guest's Mobile Gear quick boost keeps its thruster flash from the moment it's pressed, instead of the flash cutting out for a moment until the host catches up.</li><li>When the Ferris wheel comes down, its two A-frames topple over with it, instead of being left standing with nothing to hold up.</li><li>Wind turbines no longer fall down by themselves as you arrive: one could be put where a farm's fields were laid, leaving its blades with no tower.</li><li>A wind turbine's blades now come down with it. Topple the tower and they go over with the top of it, then lie flat on the ground where they land; smash just the top and they drop off. They're still lying there when you come back.</li><li>Driving a pickup, van or lorry through a wall now takes out the bottom row of blocks too, instead of leaving a low ledge you then bump up over.</li><li>Drifting slowly into a building no longer lets the side of your car, or a corner swinging round, slide into the wall.</li><li>Dust, smoke puffs, shockwave rings, blast flashes and fireball glows no longer disappear behind water or cut box-shaped holes in it, and flames no longer flicker against water.</li><li>Overlapping smoke, dust, blast flashes, fireball glows and shockwave rings now show through each other in the right order, rather than one always painting over the other.</li><li>Blood and scorch marks on the carrier's decks now go where the carrier goes, instead of staying behind in the sea.</li><li>Hitting the carrier from outside no longer puts a little damage puff in the middle of the island, wherever you hit it.</li><li>A piece of the carrier's island that's knocked off and toppling is now drawn on the ship, falling where it should.</li><li>The Mobile Gear's lock box now sits right on what it's locked on to, even while you or it are moving fast. Before, it trailed a frame behind.</li><li>The Mobile Gear's rifles point at exactly where their rounds go, not just the way you're looking, and the Breaker Cannon swings round on to what it fires at.</li><li>Some cars stayed tipped forwards or backwards for good. A car that had been a Gobway before it came back kept the Gobway's lean; now every car comes back level.</li><li>Drifting or sliding sideways into a wall fast enough now smashes through it, just as driving into it does. Before, only a car's front could break a wall, so a drift just stopped dead against it.</li><li>A goblin that reaches Gus or Gertie while they're in a vehicle now clubs the vehicle instead of doing nothing, the same way its shots already did.</li></ul>
 <h3>World Generator</h3>
@@ -2406,7 +2434,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='28ad8eea7e98';
+const GAME_VER='0.5.1',GAME_BUILD='969e86557430';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -13946,7 +13974,7 @@ function renderAbil(){
   const A=ABILS[abilSeat()],list=document.getElementById('abilList');if(!list)return;list.dataset.seat=String(abilSeat());
   for(const b of list.querySelectorAll('.tog')){const on=!!A[b.dataset.k],base=b.dataset.base,prev=b.dataset.prev,need=(base&&!A[base])?base:(prev&&!A[prev])?prev:null;
     b.setAttribute('aria-checked',String(on&&!need));b.classList.toggle('dim',!!need);
-    const t=b.querySelector('.st');if(t)t.textContent=need?'Needs '+(ABIL_SHORT[need]||need):on?'On':'Off';}
+    const t=b.querySelector('.st');if(t)t.textContent=need?'Needs '+(ABIL_SHORT[need]||need):'';}   // (on or off shows in the card's colour)
   const n=document.getElementById('abilNote');
   if(n){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}n.textContent=co?(abilSeat()?"Player two's":"Player one's")+' moves':'';n.hidden=!co;}
 }
@@ -20355,7 +20383,7 @@ function renderMap(){
  addEventListener('keydown',e=>{if(menuOpen&&curTab==='map'&&e.code==='KeyC'&&!e.repeat)mapRecentre();});
  addEventListener('resize',()=>{if(menuOpen&&curTab==='map')mapDraw();});
 }
-const TABS=[['game','Game'],['test','Test'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['notes','Notes'],['dev','Dev']];let curTab='game';
+const TABS=[['game','Game'],['test','Test'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['perf','Perf'],['display','Display'],['multi','Multi'],['notes','Notes'],['dev','Dev']];let curTab='game';
 // (a tab whose button is hidden -- the Testing Environment's, outside it -- is passed over by next / previous tab)
 function showTab(which){
   if(typeof which==='number'){const d=which<tabIndex()?-1:1;for(let k=0;k<TABS.length;k++,which+=d){const T=TABS[(which%TABS.length+TABS.length)%TABS.length];if(!document.getElementById('tabBtn'+T[1]).hidden){which=T[0];break;}}}
@@ -20913,7 +20941,12 @@ function menuNav(dir){
   const cur=document.activeElement,dx=dir==='left'?-1:dir==='right'?1:0,dy=dir==='up'?-1:dir==='down'?1:0;
   if(dx&&cur&&cur.matches&&cur.matches('input[type=range]')&&menuCard.contains(cur)){nudgeRange(cur,dx);return;}
   // (the head of a screen: its Back button where there's one, otherwise its tab)
-  const pane=document.querySelector('.main .tabpane:not([hidden])'),sb=document.getElementById('subBack'),tabBtn=sb&&sb.offsetParent?sb:document.getElementById('tabBtn'+TABS[tabIndex()][1]);
+  const pane=document.querySelector('.main .tabpane:not([hidden])'),sb=document.getElementById('subBack'),stab=isSetTab(curTab)?document.getElementById('tabBtn'+TABS[tabIndex()][1]):null,tabBtn=stab&&stab.offsetParent?stab:sb&&sb.offsetParent?sb:document.getElementById('tabBtn'+TABS[tabIndex()][1]);
+  // (Settings' tabs: left and right go along them, down into the tab, up to Back)
+  if(cur&&cur.closest&&cur.closest('#setTabs')){
+    if(dx){const B=[...document.querySelectorAll('#setTabs [role=tab]')].filter(b=>!b.hidden),n=B[B.indexOf(cur)+dx];if(n){showTab(SET_TABS[[...document.querySelectorAll('#setTabs [role=tab]')].indexOf(n)]);padFocus(n);}return;}
+    if(dy<0){padFocus(sb);return;}
+    if(dy>0){const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}}
   const title=false;
   // (Patch notes are mostly text to read, so up and down scroll it, stopping on an older update's bar only once it's in view:
   // jumping straight to the first bar would skip past the newest notes)
@@ -20927,7 +20960,7 @@ function menuNav(dir){
   if(dx&&cur&&cur.closest&&cur.closest('#charSel .cs-row')){const C=[...cur.closest('.cs-row').querySelectorAll('.cs-card')],i=C.indexOf(cur)+dx;if(i>=0&&i<C.length){C[i].click();padFocus(C[i]);}return;}
   // (the menu itself, title or pause: wherever's nearest that way)
   if(curTab==='game'){if(!moveFocus(dx,dy)&&dy&&pane)pane.scrollTop+=dy*80;return;}
-  if(cur===sb&&dy>0){const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}
+  if(cur===sb&&dy>0){if(stab&&stab.offsetParent){padFocus(stab);return;}const U=paneUnits(pane);if(U.length)unitFocus(U[0]);else pane.scrollTop+=80;return;}
   if(dx&&(title||cur&&cur.closest&&cur.closest('.tabs'))){showTab(tabIndex()+dx);padFocus(document.getElementById('tabBtn'+TABS[tabIndex()][1]));return;}
   if(dy&&title&&pane.contains(cur)){const U=paneUnits(pane),i=U.findIndex(u=>u===cur||u.contains(cur))+dy;if(i<0)padFocus(tabBtn);else if(i<U.length)unitFocus(U[i]);return;}
   // (the ability switches: up and down from a basic move goes to the next basic move, not into the upgrades beside it)
@@ -21012,7 +21045,7 @@ function menuPad(st,dt){
 }
 // the mouse takes over again: drop the controller highlight
 addEventListener('mousemove',e=>{if(menuOpen&&(Math.abs(e.movementX)+Math.abs(e.movementY)>2))for(const el of menuCard.querySelectorAll('.padfocus'))el.classList.remove('padfocus');});
-for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>{if(t==='game')backHome();else openSub(t,'tabBtn'+id);});
+for(const [t,id] of TABS)document.getElementById('tabBtn'+id).addEventListener('click',()=>{if(t==='game')backHome();else if(isSetTab(t)&&isSetTab(curTab))showTab(t);else openSub(t,'tabBtn'+id);});   // (a Settings tab from within Settings: Back still goes where Settings was opened from)
 // (the title screen's "What's new" line opens the Patch notes tab, leaving the highlight on its tab so B and LB/RB carry on from there)
 // (the Patch notes tab's "Play 0.1" links open the website's copy of that version, kept at <site>/v/<version>/ beside the
 // live game (or beside /test/'s parent), in a new tab so this game keeps running; played from a file on disk there's no
@@ -21072,7 +21105,7 @@ function menuPromptItems(){
   if(kind==='pad'){
     if(range)out.push([['DPAD:h'],'Adjust']);else out.push([['A'],card?'Ready!':'Pick']);
     if(cf||!home)out.push([['B'],'Back']);else if(!atTitle&&begun)out.push([['B'],'Resume']);
-    out.push([['LB','RB'],'Jump between screens']);
+    out.push([['LB','RB'],isSetTab(curTab)?'Tabs':'Jump between screens']);
     if(curTab==='custom')out.push([['Y'],'Ability toggles']);
     if(curTab==='map'){out.push([['RS'],'Pan']);out.push([['LT','RT'],'Zoom']);out.push([['X'],'Re-centre']);out.push([['Y'],'Marker']);}
     else if(curTab==='obit'){out.push([['RS:h'],'Turn']);if(scrolls)out.push([['RS:v'],'Scroll']);}
@@ -21090,7 +21123,7 @@ function menuPromptItems(){
     else if(scrolls)out.push([['WHEEL'],'Scroll']);
     if(range)out.push([['KEY:←','KEY:→'],'Adjust']);else out.push([['KEY:Enter'],'Pick']);
     if(cf||!home)out.push([['KEY:Esc'],'Back']);else if(!atTitle&&begun)out.push([['KEY:Esc'],'Resume']);
-    if(!home||!atTitle)out.push([['KEY:Q','KEY:E'],'Jump between screens']);
+    if(!home||!atTitle)out.push([['KEY:Q','KEY:E'],isSetTab(curTab)?'Tabs':'Jump between screens']);
   }
   return out;
 }
@@ -22635,7 +22668,7 @@ function renderGwpn(){
   const seat=abilSeat(),L=GOB_LOADS[seat],list=gwpnBuild();if(!list)return;list.dataset.seat=String(seat);
   const n=GOB_PICK.filter(k=>L.w[k]).length;
   for(const b of list.querySelectorAll('.tog[data-k]')){const k=b.dataset.k,on=!!L.w[k];b.setAttribute('aria-checked',String(on));
-    const t=b.querySelector('.st');if(t)t.textContent=on&&n===1?'Last one':on?'On':'Off';}
+    const t=b.querySelector('.st');if(t)t.textContent=on&&n===1?'Last one':'';}
   for(const c of list.querySelectorAll('.gl-cnt')){const sk=c.dataset.s,v=L[stkField(sk)]||0,mx=stkMax(sk);c.setAttribute('aria-checked',String(v>0));const nm=c.querySelector('.gl-n');if(nm)nm.textContent=v+' / '+mx;
     const B=[...c.querySelectorAll('.gl-b')];if(B.length===2){B[0].setAttribute('aria-disabled',String(v<=0));B[1].setAttribute('aria-disabled',String(v>=mx));}}   // (not disabled: the controller's focus stays on it)
   const no=document.getElementById('gwpnNote');
@@ -24502,7 +24535,7 @@ function renderTime(){
   const dp=document.getElementById('dbgPad');dp.hidden=!DT.menu;
   for(const b of document.querySelectorAll('#dbgMenuTog .tog'))b.setAttribute('aria-checked',String(DT.quick));
   // (the Dev tab comes and goes with the debug menu; if it's the tab on show as it goes, Game options takes its place)
-  {const dv=document.getElementById('tabBtnDev'),off=!DT.quick||menuP2();if(dv&&dv.hidden!==off){dv.hidden=off;try{if(!DT.quick&&curTab==='dev')showTab('options');}catch(e){}}
+  {const dv=document.getElementById('tabBtnDev'),off=!DT.quick||menuP2();if(dv&&dv.hidden!==off){dv.hidden=off;try{if(!DT.quick&&curTab==='dev')showTab('perf');}catch(e){}}
    const dl=document.getElementById('devLinkW');if(dl&&dl.hidden!==off)dl.hidden=off;}   // (and the title screen's Dev link, in the Workshop line)
   if(DT.menu){
     const dbgL=dbgItems();
@@ -31509,12 +31542,12 @@ function menuSeat(){
   const two=menuP2();pauseEl.classList.toggle('seat2',two);
   for(const id of P1_ONLY){const el=document.getElementById(id);if(el)el.classList.toggle('p1only',true);}
   for(const el of document.querySelectorAll('.gamepane .hostmain'))el.classList.add('p1only');
-  document.getElementById('tabBtnOptions').hidden=two;document.getElementById('tabBtnNotes').hidden=two;
+  for(const id of ['Perf','Display','Multi'])document.getElementById('tabBtn'+id).hidden=two;document.getElementById('tabBtnNotes').hidden=two;   // (player two's Settings is just their Controls)
   document.getElementById('tabBtnDev').hidden=two||!DT.quick;
   if(two)document.getElementById('tabBtnTest').hidden=true;
   menuWhoShow();
   {const pc=document.getElementById('playCoop');if(pc)pc.textContent=two?'Resume':'Co-op';}   // (in player two's menu the co-op game is already on: the button just carries on)
-  if(two&&['options','dev','test','notes'].includes(curTab))showTab('game');
+  if(two&&['perf','display','multi','dev','test','notes'].includes(curTab))showTab('game');
 }
 // (the name over the tabs: whose menu it is, kept up to date if they pick someone else in the Character tab)
 // (the corner tag on the pause card: 1P MENU in Gus green, 2P MENU in Gertie pink, with whose it is beside it; only in
@@ -31528,7 +31561,20 @@ function menuWhoShow(){const w=document.getElementById('menuWho');if(!w)return;
 // logo, Gus stomping along in front of the city and the main menu card; and the pause menu. Either can open a screen
 // (Options, Map, Character...) in the same card, with a Back button at its head (subHead); B, Esc or Back returns to
 // where it was opened from (backHome), and LB / RB (Q / E on the keyboard) step through the screens (subStep).
-const SUB_TITLES={map:'Map',obit:'Obituary',custom:"Who's stompin'?",controls:'Controls',options:'Options',notes:'Patch notes',dev:'Dev',test:'Testing Environment'};
+const SUB_TITLES={map:'Map',obit:'Obituary',custom:"Who's stompin'?",controls:'Settings',perf:'Settings',display:'Settings',multi:'Settings',notes:'Patch notes',dev:'Dev',test:'Testing Environment'};
+// Settings: one screen with its own tabs (setTabs, under its heading). LB / RB step through those while it's open, and
+// Settings opens again on whichever tab was last looked at
+const SET_TABS=['controls','perf','display','multi'];let setLast='controls';
+const isSetTab=t=>SET_TABS.includes(t);
+const setFirst=()=>menuP2()?'controls':setLast;   // (player two only has Controls)
+// (Play solo / Co-op and Play online: on the title screen they're in its main menu, paused they're in Settings'
+// Multiplayer tab. The very same buttons are moved between the two, so everything that listens to them carries on)
+const MP_MOVE=['play','playCoop','onlineBtn','onlinePanel'];
+function mpPlace(){
+  const tm=document.getElementById('titleMenu'),mp=document.getElementById('mpMenu');if(!tm||!mp)return;
+  const to=atTitle?tm:mp,before=atTitle?tm.querySelector('.tm2'):null;
+  for(const id of MP_MOVE){const el=document.getElementById(id);if(el&&el.parentNode!==to)to.insertBefore(el,before);}
+}
 let SUB_FROM=null;
 function menuMode(){
   const pe=document.getElementById('pause');if(!pe||!pe.classList)return;
@@ -31537,6 +31583,8 @@ function menuMode(){
   try{document.body.classList.toggle('attitle',atTitle&&menuOpen);}catch(e){}
   const sh=document.getElementById('subHead');if(sh)sh.hidden=home;
   const st=document.getElementById('subTitle');if(st&&!home)st.textContent=SUB_TITLES[curTab]||'';
+  const set=isSetTab(curTab),stb=document.getElementById('setTabs');if(stb)stb.hidden=!set;if(set)setLast=curTab;
+  try{mpPlace();}catch(e){}
   // (on the pause menu, Play and Co-op switch between solo and co-op: only the one you're not playing is offered)
   let co=false;try{co=inCoop();}catch(e){}
   pe.classList.toggle('coopon',co);
@@ -31562,7 +31610,11 @@ function backHome(){
 }
 // (the screens in order, for LB / RB: the ones whose tab is there to be had)
 function subStep(d){
-  const L=TABS.filter(([t,id])=>t!=='game'&&!document.getElementById('tabBtn'+id).hidden).map(t=>t[0]);if(!L.length)return;
+  // (in Settings, its own tabs; elsewhere the screens, with Settings as one of them)
+  const set=isSetTab(curTab);
+  let L=TABS.filter(([t,id])=>t!=='game'&&!document.getElementById('tabBtn'+id).hidden&&isSetTab(t)===set).map(t=>t[0]);
+  if(!set){const i=L.indexOf('notes');L.splice(i<0?L.length:i,0,setFirst());}
+  if(!L.length)return;
   const i=L.indexOf(curTab),n=i<0?(d>0?0:L.length-1):(i+d+L.length)%L.length;
   if(curTab==='game')SUB_FROM=document.activeElement&&document.activeElement.id||null;
   showTab(L[n]);const pane=document.querySelector('.main .tabpane:not([hidden])');
@@ -31572,7 +31624,8 @@ document.getElementById('subBack').addEventListener('click',()=>backHome());
 document.getElementById('resumeBtn').addEventListener('click',()=>startPlay(null));
 document.getElementById('quitBtn').addEventListener('click',()=>toTitle());
 menuMode();   // (the page opens on the title screen)
-document.getElementById('optBtn').addEventListener('click',()=>openSub('options','optBtn'));
+document.getElementById('optBtn').addEventListener('click',()=>openSub(setFirst(),'optBtn'));
+document.getElementById('setBtn').addEventListener('click',()=>openSub(setFirst(),'setBtn'));
 document.getElementById('devLink').addEventListener('click',()=>openSub('dev','devLink'));
 addEventListener('keydown',e=>{if(!menuOpen||BIND_CAP||e.repeat)return;const t=e.target;if(t&&(t.tagName==='INPUT'&&t.type!=='range'&&t.type!=='checkbox'||t.tagName==='TEXTAREA'))return;
   if(e.code==='KeyQ'||e.code==='KeyE'){e.preventDefault();subStep(e.code==='KeyE'?1:-1);}});
@@ -35411,8 +35464,8 @@ function svUi(){
 }
 // (the line under the menu and at the foot of the pause menu: the version, the city's seed and where it's saved)
 function seedLine(){const sn=svEl('seedNote');if(!sn)return;
-  const where=SV.mode==='local'&&SV.rec?(SV.perm==='granted'&&!SV.block?'saving to '+SV.rec.name:'saving in this browser until '+SV.rec.name+' can be reached'):'smashed blocks save in this browser';
-  const t=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`World seed ${seed}${worldCfgSent()?' · custom':''} · endless · ${where}`;
+  const where=SV.mode==='local'&&SV.rec?(SV.perm==='granted'&&!SV.block?' · saving to '+SV.rec.name:' · saving in this browser until '+SV.rec.name+' can be reached'):'';   // (a browser save goes without saying)
+  const t=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`World seed ${seed}${worldCfgSent()?' · custom':''} · endless${where}`;
   sn.textContent='';const v=document.createElement('span');v.className='sn-ver';v.textContent='Version '+GAME_VER+' · ';sn.append(v,t);}
 {
   const pan=svEl('savePanel'),l=svEl('saveLocal');

@@ -448,7 +448,7 @@ function renderMap(){
  addEventListener('keydown',e=>{if(menuOpen&&curTab==='map'&&e.code==='KeyC'&&!e.repeat)mapRecentre();});
  addEventListener('resize',()=>{if(menuOpen&&curTab==='map')mapDraw();});
 }
-const TABS=[['game','Game'],['test','Test'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['options','Options'],['notes','Notes'],['dev','Dev']];let curTab='game';
+const TABS=[['game','Game'],['test','Test'],['map','Map'],['obit','Obit'],['custom','Custom'],['controls','Controls'],['perf','Perf'],['display','Display'],['multi','Multi'],['notes','Notes'],['dev','Dev']];let curTab='game';
 // (a tab whose button is hidden -- the Testing Environment's, outside it -- is passed over by next / previous tab)
 function showTab(which){
   if(typeof which==='number'){const d=which<tabIndex()?-1:1;for(let k=0;k<TABS.length;k++,which+=d){const T=TABS[(which%TABS.length+TABS.length)%TABS.length];if(!document.getElementById('tabBtn'+T[1]).hidden){which=T[0];break;}}}

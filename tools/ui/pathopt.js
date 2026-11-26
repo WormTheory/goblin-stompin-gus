@@ -11,7 +11,7 @@ const open=async ctx=>{const p=await ctx.newPage();p.on('pageerror',e=>errs.push
     Object.defineProperty(navigator,'getGamepads',{value:()=>[window.__pad]});});
   await p.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());
   await p.goto('file://'+process.cwd()+'/ui.html');await p.waitForTimeout(1500);
-  await p.evaluate(()=>document.getElementById('tabBtnOptions').click());await p.waitForTimeout(300);return p;};
+  await p.evaluate(()=>document.getElementById('tabBtnPerf').click());await p.waitForTimeout(300);return p;};
 const st=p=>p.evaluate(()=>{const c=[...document.querySelectorAll('#pathSeg [data-path]')].filter(b=>b.getAttribute('aria-checked')==='true').map(b=>b.textContent);
   return{on:c.join(),key:localStorage.getItem('goblin-stompin-gus-pathing'),txt:document.getElementById('pathTxt').textContent.slice(0,40)};});
 const ctx=await b.newContext({viewport:{width:1200,height:950}});
@@ -19,7 +19,7 @@ let p=await open(ctx),s=await st(p);
 check('default: Advanced',s.on==='Advanced'&&s.key===null&&s.txt.startsWith('Goblins climb'),s);
 await p.click('#pathSeg [data-path="1"]');s=await st(p);
 check('click Simple: picked and saved',s.on==='Simple'&&s.key==='1'&&s.txt.startsWith('The old chase'),s);
-await p.reload();await p.waitForTimeout(1500);await p.evaluate(()=>document.getElementById('tabBtnOptions').click());await p.waitForTimeout(300);s=await st(p);
+await p.reload();await p.waitForTimeout(1500);await p.evaluate(()=>document.getElementById('tabBtnPerf').click());await p.waitForTimeout(300);s=await st(p);
 check('kept over a reload',s.on==='Simple',s);
 const press=async i=>{await p.evaluate(i=>{window.__pad.buttons[i].pressed=true;window.__pad.buttons[i].value=1;},i);await p.waitForTimeout(120);await p.evaluate(i=>{window.__pad.buttons[i].pressed=false;window.__pad.buttons[i].value=0;},i);await p.waitForTimeout(120);};
 const cur=()=>p.evaluate(()=>{const a=document.activeElement;return a?(a.id||a.textContent):'';});

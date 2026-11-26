@@ -209,8 +209,8 @@ function svUi(){
 }
 // (the line under the menu and at the foot of the pause menu: the version, the city's seed and where it's saved)
 function seedLine(){const sn=svEl('seedNote');if(!sn)return;
-  const where=SV.mode==='local'&&SV.rec?(SV.perm==='granted'&&!SV.block?'saving to '+SV.rec.name:'saving in this browser until '+SV.rec.name+' can be reached'):'smashed blocks save in this browser';
-  const t=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`World seed ${seed}${worldCfgSent()?' · custom':''} · endless · ${where}`;
+  const where=SV.mode==='local'&&SV.rec?(SV.perm==='granted'&&!SV.block?' · saving to '+SV.rec.name:' · saving in this browser until '+SV.rec.name+' can be reached'):'';   // (a browser save goes without saying)
+  const t=TENV?`Testing Environment · ${TENV.boxes.length} structure${TENV.boxes.length===1?'':'s'} spawned · seed ${seed}`:`World seed ${seed}${worldCfgSent()?' · custom':''} · endless${where}`;
   sn.textContent='';const v=document.createElement('span');v.className='sn-ver';v.textContent='Version '+GAME_VER+' · ';sn.append(v,t);}
 {
   const pan=svEl('savePanel'),l=svEl('saveLocal');

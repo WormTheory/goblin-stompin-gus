@@ -71,14 +71,14 @@
       <button type="button" role="tab" class="ck on" id="tabBtnMap" aria-selected="false" aria-controls="tabMap">Map</button>
       <button type="button" role="tab" class="ck on" id="tabBtnObit" aria-selected="false" aria-controls="tabObit">Obituary<span class="cnt" id="obitCount">0</span></button>
       <button type="button" role="tab" class="ck set" id="tabBtnCustom" aria-selected="false" aria-controls="tabCustom">Character</button>
-      <button type="button" role="tab" class="ck set" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button>
-      <button type="button" role="tab" class="ck set" id="tabBtnOptions" aria-selected="false" aria-controls="tabOptions">Options</button>
+      <button type="button" class="ck set" id="setBtn">Settings</button>
       <button type="button" class="ck set" id="fullBtnP">Full screen</button>
       <button type="button" class="ck quit" id="quitBtn">Quit to title</button>
       <button type="button" role="tab" class="cornertag" id="tabBtnNotes" aria-selected="false" aria-controls="tabNotes">Patch notes</button>
       <button type="button" role="tab" class="cornertag" id="tabBtnDev" aria-selected="false" aria-controls="tabDev">Dev</button>
     </div>
     <div class="subhead" id="subHead" hidden><button type="button" class="ck set subback" id="subBack"><span aria-hidden="true">‹</span> Back</button><h2 class="px out2" id="subTitle"></h2><span class="subwho" id="subWho"></span></div>
+    <div class="settabs" id="setTabs" role="tablist" aria-label="Settings" hidden><button type="button" role="tab" id="tabBtnControls" aria-selected="false" aria-controls="tabControls">Controls</button><button type="button" role="tab" id="tabBtnPerf" aria-selected="false" aria-controls="tabPerf">Performance</button><button type="button" role="tab" id="tabBtnDisplay" aria-selected="false" aria-controls="tabDisplay">Display</button><button type="button" role="tab" id="tabBtnMulti" aria-selected="false" aria-controls="tabMulti">Multiplayer</button></div>
     <div class="tabpane gamepane" id="tabGame" role="tabpanel">
      <div class="gamemain">
       <h1 class="tlogo"><span class="tl1 px out">Goblin-Stompin'</span> <em class="tl2 px out">Gus</em></h1>
@@ -96,7 +96,7 @@
         <div class="note on-st" id="netStatus" role="status"></div>
         <button type="button" class="on-b on-leave" id="netLeave" hidden>Leave the online game</button>
       </div>
-        <div class="tm2"><button type="button" class="ck set" id="newWorld">New world</button><button type="button" class="ck set" id="optBtn">Options</button></div>
+        <div class="tm2"><button type="button" class="ck set" id="newWorld">New world</button><button type="button" class="ck set" id="optBtn">Settings</button></div>
         <button type="button" class="ck set tsave" id="saveNow">Save now</button>
         <div class="savesw" id="saveSw" role="radiogroup" aria-label="Where your game is saved"><button type="button" role="radio" class="sv" id="saveBrowser" aria-checked="true">Browser save</button><button type="button" role="radio" class="sv" id="saveLocal" aria-checked="false" aria-expanded="false" aria-controls="savePanel">Local save</button></div>
         <div class="online savepanel" id="savePanel" hidden>
@@ -166,6 +166,10 @@
         </div>
       </div>
       <div class="abil"><button type="button" class="tog" role="checkbox" id="camTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Camera auto-recenter</span></button></div>
+      <div class="opts ctlplane">
+      <div class="crow"><span class="clab" id="planeLab">PLANE CONTROLS</span><div class="seg" role="radiogroup" aria-labelledby="planeLab" id="planeSeg"><button type="button" role="radio" data-pctl="auto" aria-checked="true">Auto</button><button type="button" role="radio" data-pctl="aim" aria-checked="false">Mouse-aim</button><button type="button" role="radio" data-pctl="direct" aria-checked="false">Direct</button></div></div>
+      <p class="vnote" id="planeTxt"></p>
+      </div>
       <div class="custom seats" id="seats">
         <h2>PLAYERS <button type="button" class="pmenu seatauto" id="seatAuto" hidden>Auto</button></h2>
         <div id="seatRows"></div>
@@ -212,25 +216,8 @@
     </div>
     </div>
     </div>
-    <div class="tabpane" id="tabOptions" role="tabpanel" hidden>
+    <div class="tabpane" id="tabPerf" role="tabpanel" hidden>
     <div class="opts">
-      <div class="custom hostmain">
-      <div class="crow"><label class="clab" for="hostMain">ENEMY HOSTILITY</label><input type="range" id="hostMain" class="vrange" min="0" max="3" step="1" value="3" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
-      <p class="vnote" id="hostMainTxt"></p>
-      <div class="crow"><span class="clab" id="pathLab">GOBLIN PATHFINDING</span><div class="seg" role="radiogroup" aria-labelledby="pathLab" id="pathSeg"><button type="button" role="radio" data-path="0" aria-checked="true">Advanced</button><button type="button" role="radio" data-path="1" aria-checked="false">Simple</button></div></div>
-      <p class="vnote" id="pathTxt"></p>
-      <div class="crow"><span class="clab" id="planeLab">PLANE CONTROLS</span><div class="seg" role="radiogroup" aria-labelledby="planeLab" id="planeSeg"><button type="button" role="radio" data-pctl="auto" aria-checked="true">Auto</button><button type="button" role="radio" data-pctl="aim" aria-checked="false">Mouse-aim</button><button type="button" role="radio" data-pctl="direct" aria-checked="false">Direct</button></div></div>
-      <p class="vnote" id="planeTxt"></p>
-      <div class="crow"><span class="clab" id="pvpLab">PVP</span><div class="seg" role="radiogroup" aria-labelledby="pvpLab" id="pvpSeg"><button type="button" role="radio" data-pvp="0" aria-checked="true">Off</button><button type="button" role="radio" data-pvp="1" aria-checked="false">On</button></div></div>
-      <p class="vnote" id="pvpTxt"></p>
-    </div>
-    <div class="custom" id="avOpts">
-      <h2>SOUND &amp; PICTURE</h2>
-      <div class="crow"><label class="clab" for="sndVol">SOUND VOLUME</label><input type="range" id="sndVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="vval" id="sndVolVal">100%</span></div>
-      <p class="vnote">Voice chat volume is under Online.</p>
-      <div class="crow"><label class="clab" for="brightness">BRIGHTNESS</label><input type="range" id="brightness" class="vrange" min="20" max="250" step="5" value="100" aria-label="Brightness"><span class="vval" id="brightVal">100%</span></div>
-      <div class="abil"><button type="button" class="tog" role="checkbox" id="blkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Advanced lighting</span></button><button type="button" class="tog" role="checkbox" id="trkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Tracks in snow</span></button></div>
-    </div>
     <div class="custom">
       <h2>RENDER DISTANCE</h2>
       <div class="crow"><label class="clab" for="detailDist">DETAIL</label><input type="range" id="detailDist" class="vrange" min="48" max="1024" step="16" value="112" aria-label="Detail distance"><span class="vval" id="detailVal">112 blocks</span></div>
@@ -248,15 +235,30 @@
       <p class="vnote">Above 300% can be slow.</p>
     </div>
     <div class="custom">
-      <div class="crow"><label class="clab" for="daySpeed">DAY / NIGHT SPEED</label><input type="range" id="daySpeed" class="vrange" min="0" max="7" step="1" value="3" aria-label="Day and night speed"><span class="vval" id="daySpeedVal">Normal</span></div>
-      <p class="vnote" id="daySpeedNote">One full day and night takes 10 minutes.</p>
-    </div>
-    <div class="custom">
       <div class="crow"><label class="clab" for="fireDur">FIRE &amp; SMOKE DURATION</label><input type="range" id="fireDur" class="vrange" min="0" max="5" step="1" value="2" aria-label="How long fires and smoke last"><span class="vval" id="fireDurVal">Normal</span></div>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="fireCap">MAX FIRES &amp; SMOKE</label><input type="range" id="fireCap" class="vrange" min="0" max="9" step="1" value="5" aria-label="Most fires and smoke plumes at once"><span class="vval" id="fireCapVal">70</span></div>
       <p class="vnote">Lower if big fires stutter.</p>
+    </div>
+    <div class="custom">
+      <div class="crow"><span class="clab" id="pathLab">GOBLIN PATHFINDING</span><div class="seg" role="radiogroup" aria-labelledby="pathLab" id="pathSeg"><button type="button" role="radio" data-path="0" aria-checked="true">Advanced</button><button type="button" role="radio" data-path="1" aria-checked="false">Simple</button></div></div>
+      <p class="vnote" id="pathTxt"></p>
+      <div class="abil"><button type="button" class="tog" role="checkbox" id="blkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Advanced lighting</span></button><button type="button" class="tog" role="checkbox" id="trkTog" aria-checked="true"><span class="box" aria-hidden="true"></span><span class="tl">Tracks in snow</span></button></div>
+    </div>
+    <div class="custom">
+      <h2>DEBUG</h2>
+      <div class="abil" id="dbgMenuTog">
+        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>~ or Select to open</small></span></button>
+      </div>
+    </div>
+    </div>
+    </div>
+    <div class="tabpane" id="tabDisplay" role="tabpanel" hidden>
+    <div class="opts">
+    <div class="custom" id="avOpts">
+      <div class="crow"><label class="clab" for="sndVol">SOUND VOLUME</label><input type="range" id="sndVol" class="vrange" min="0" max="100" step="5" value="100" aria-label="Sound volume"><span class="vval" id="sndVolVal">100%</span></div>
+      <div class="crow"><label class="clab" for="brightness">BRIGHTNESS</label><input type="range" id="brightness" class="vrange" min="20" max="250" step="5" value="100" aria-label="Brightness"><span class="vval" id="brightVal">100%</span></div>
     </div>
     <div class="custom">
       <h2>ON SCREEN</h2>
@@ -269,6 +271,21 @@
         <button type="button" class="tog" role="checkbox" id="keysTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Hide controls</span></button>
         <button type="button" class="tog" role="checkbox" id="calmTog" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Reduced motion<small>Follows your system setting</small></span></button>
       </div>
+    </div>
+    <div class="custom hostmain">
+      <div class="crow"><label class="clab" for="hostMain">ENEMY HOSTILITY</label><input type="range" id="hostMain" class="vrange" min="0" max="3" step="1" value="3" aria-label="Enemy hostility"><span class="vval" id="hostMainVal">Normal</span></div>
+      <p class="vnote" id="hostMainTxt"></p>
+      <div class="crow"><label class="clab" for="daySpeed">DAY / NIGHT SPEED</label><input type="range" id="daySpeed" class="vrange" min="0" max="7" step="1" value="3" aria-label="Day and night speed"><span class="vval" id="daySpeedVal">Normal</span></div>
+      <p class="vnote" id="daySpeedNote">One full day and night takes 10 minutes.</p>
+    </div>
+    </div>
+    </div>
+    <div class="tabpane" id="tabMulti" role="tabpanel" hidden>
+    <div class="opts">
+    <div class="tmenu mpmenu" id="mpMenu"></div>
+    <div class="custom">
+      <div class="crow"><span class="clab" id="pvpLab">PVP</span><div class="seg" role="radiogroup" aria-labelledby="pvpLab" id="pvpSeg"><button type="button" role="radio" data-pvp="0" aria-checked="true">Off</button><button type="button" role="radio" data-pvp="1" aria-checked="false">On</button></div></div>
+      <p class="vnote" id="pvpTxt"></p>
     </div>
     <div class="custom" id="chatOpts">
       <h2>ONLINE CHAT &amp; VOICE</h2>
@@ -285,12 +302,6 @@
         <div class="abil" id="vcPeers"></div>
       </div>
       <p class="vnote" id="vcNote" role="status"></p>
-    </div>
-    <div class="custom">
-      <h2>DEBUG</h2>
-      <div class="abil" id="dbgMenuTog">
-        <button type="button" class="tog" role="checkbox" data-k="quick" aria-checked="false"><span class="box" aria-hidden="true"></span><span class="tl">Debug menu<small>~ or Select to open</small></span></button>
-      </div>
     </div>
     </div>
     </div>

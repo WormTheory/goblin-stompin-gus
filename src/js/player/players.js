@@ -104,7 +104,7 @@ function renderAbil(){
   const A=ABILS[abilSeat()],list=document.getElementById('abilList');if(!list)return;list.dataset.seat=String(abilSeat());
   for(const b of list.querySelectorAll('.tog')){const on=!!A[b.dataset.k],base=b.dataset.base,prev=b.dataset.prev,need=(base&&!A[base])?base:(prev&&!A[prev])?prev:null;
     b.setAttribute('aria-checked',String(on&&!need));b.classList.toggle('dim',!!need);
-    const t=b.querySelector('.st');if(t)t.textContent=need?'Needs '+(ABIL_SHORT[need]||need):on?'On':'Off';}
+    const t=b.querySelector('.st');if(t)t.textContent=need?'Needs '+(ABIL_SHORT[need]||need):'';}   // (on or off shows in the card's colour)
   const n=document.getElementById('abilNote');
   if(n){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}n.textContent=co?(abilSeat()?"Player two's":"Player one's")+' moves':'';n.hidden=!co;}
 }
