@@ -347,10 +347,19 @@ const wetFalling=u=>u===AIR||u!==WATER&&!!WET[u];
 // (water still on the move, or with water moving under it, waits: the flow freezes it once it's still, water-flow.js)
 const wfMoving=(cx,cz,i,y)=>wfAct.size>0&&(wfAct.has(bkey(cx*CS+i%CS,y,cz*CS+((i/CS)|0)))||wfAct.has(bkey(cx*CS+i%CS,y-1,cz*CS+((i/CS)|0))));
 // (frac under 1: only the blocks whose hash is under it, so winter can come on in steps, freezeTick; cx,cz place them)
-function freezeArr(a,on,cx=0,cz=0,frac=1){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)for(let i=0;i<L;i++){const j=y*L+i,b=a[j];
+function freezeArr(a,on,cx=null,cz=null,frac=1){let n=0;const L=CS*CS;for(let y=ICE_Y0;y<=ICE_Y1;y++)for(let i=0;i<L;i++){const j=y*L+i,b=a[j];
   if(frac<1&&(b===AIR||b===WATER&&a[j+L]===WATER||hash2(cx*CS+i%CS+y*131,cz*CS+((i/CS)|0)+y*17)>=frac))continue;
   if(on){if(a[j+L]===AIR){if(b===WATER){if(!wfMoving(cx,cz,i,y)){a[j]=ICE;n++;}}else if(WET[b]&&!wetFalling(a[j-L])&&!wfMoving(cx,cz,i,y)){a[j]=ICE_L[BLOCK[b].lvl];n++;}}}   // (shallow water too, as thin ice)
-  else if(b===ICE){a[j]=WATER;n++;}else if(ICE_LV[b]){a[j]=WATER_L[ICE_LV[b]];n++;}}return n;}
+  else if(b===ICE){a[j]=WATER;n++;}else if(ICE_LV[b]){a[j]=WATER_L[ICE_LV[b]];n++;}}
+  // (out of that band only the water a flood or a spill left -- a crater's floor, a hillside -- and only under open sky:
+  // it's in the chunk's edits as water, which the world's own ice never is)
+  const ce=cx===null?null:chunkEdits.get(ckey(cx,cz));
+  if(ce)for(const [j,e] of ce){if(!WET[e])continue;const y=(j/L)|0;if(y>=ICE_Y0&&y<=ICE_Y1||y<1||y>=H-1)continue;const i=j-y*L,b=a[j];
+    if(frac<1&&hash2(cx*CS+i%CS+y*131,cz*CS+((i/CS)|0)+y*17)>=frac)continue;
+    if(on){if(!WET[b]||a[j+L]!==AIR||wetFalling(a[j-L])||wfMoving(cx,cz,i,y))continue;let k=j+L;for(;k<a.length;k+=L){const v=a[k];if(v&&BLOCK[v].solid)break;}if(k<a.length)continue;
+      a[j]=b===WATER?ICE:ICE_L[BLOCK[b].lvl];n++;}
+    else if(b===ICE){a[j]=WATER;n++;}else if(ICE_LV[b]){a[j]=WATER_L[ICE_LV[b]];n++;}}
+  return n;}
 // (now: every chunk at once, as when a game's loaded in winter; otherwise the ice creeps over the water in FZ_STEPS steps
 // over about FZ_TIME seconds, or melts the same way, freezeTick, and the chunks it changes join the frame's budgeted rebuilds)
 const FZ_STEPS=5,FZ_TIME=40,FZ_WAIT=6,FZ_NEAR=56,FZ={on:false,step:0,keys:[],i:0,t:0};   // (FZ_WAIT: a few seconds of cold before the first ice)

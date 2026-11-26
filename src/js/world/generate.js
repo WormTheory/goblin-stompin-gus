@@ -277,7 +277,7 @@ function genChunk(cx,cz){
   bbGen(a,cx,cz);   // (big blasts' craters, before what's been smashed since: destruction/big-blast.js)
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [i,b] of ce)a[i]=b;
-  if(chunkFreeze(cx,cz))freezeArr(a,true);
+  if(chunkFreeze(cx,cz))freezeArr(a,true,cx,cz);
   return a;
 }
 // a chunk of a moved box: the same chunk of its source, as the plan makes it there (what's fallen down at the box
@@ -289,7 +289,7 @@ function trChunk(cx,cz,B){
   bbGen(a,cx,cz);
   const x0=cx*CS,z0=cz*CS,ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [i,b] of ce)a[i]=b;
-  if(chunkFreeze(cx,cz))freezeArr(a,true);
+  if(chunkFreeze(cx,cz))freezeArr(a,true,cx,cz);
   return a;
 }
 // the Testing Environment's empty ground: grass on top, the usual earth and bedrock under it (smashed blocks still apply)
@@ -299,7 +299,7 @@ function flatChunk(cx,cz){
   bbGen(a,cx,cz);
   const ce=chunkEdits.get(ckey(cx,cz));
   if(ce)for(const [i,b] of ce)a[i]=b;
-  if(chunkFreeze(cx,cz))freezeArr(a,true);
+  if(chunkFreeze(cx,cz))freezeArr(a,true,cx,cz);
   return a;
 }
 function chunkArr(cx,cz){const k=ckey(cx,cz);if(k===lastK)return lastA;let a=chunks.get(k);if(!a){a=genChunk(cx,cz);chunks.set(k,a);}lastK=k;lastA=a;return a;}

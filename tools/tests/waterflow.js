@@ -151,6 +151,15 @@ if(ex===null)console.log('edge: no sea found');else{
       hard=T.hardAt(ix-0.5,iy+0.05,iz+0.5)&&!T.hardAt(ix-0.5,iy+0.5,iz+0.5)&&T.bulletOdds(b)===1;console.log('a sheet of ice stops rounds and grenades at its top, and a round breaks it',hard);}}
     T.WX.frozen=false;T.freezeWorld(false,true);console.log('poured out in winter: frozen over',ice,'blocks, still water',wet,'| standing on',onIce?'a '+onIce[0]+'/8 sheet of ice, held up at '+onIce[1].toFixed(2)+' / '+onIce[2].toFixed(2):'(no sheet to stand on)');
     ok(ice>0&&wet===0,'freezes over when still');ok(hard!==false,'thin ice stops rounds');ok(!onIce||Math.abs(onIce[1]-onIce[0]*0.11)<0.01&&Math.abs(onIce[2]-onIce[0]*0.11)<0.01,'thin ice is walked on');}}
+// 10b. a flood's pool out of the band winter freezes (a crater's floor, well under the sea), open to the sky: it freezes
+// over in its turn; the same under a roof doesn't
+{const ox=sx+60,oz=sz+60,oy=G-30;
+  for(let x=ox-1;x<=ox+3;x++)for(let z=oz-1;z<=oz+3;z++){for(let y=oy-1;y<=G+30;y++)T.setRaw(x,y,z,AIR);put(x,oy-1,z,STONE);}
+  for(let x=ox;x<=ox+2;x++)for(let z=oz;z<=oz+2;z++)put(x,oy,z,T.WATER_L[4]);put(ox+1,oy+3,oz+1,STONE);   // (one block roofed over, 3 up)
+  T.WX.frozen=true;const ca=T.chunkFreeze(Math.floor(ox/16),Math.floor(oz/16));T.freezeWorld(true,true);
+  const open=T.get(ox,oy,oz),roofed=T.get(ox+1,oy,oz+1);T.WX.frozen=false;T.freezeWorld(false,true);const back=T.get(ox,oy,oz);
+  console.log('a pool',G-oy,'under sea level: winter here',ca,'| open to the sky froze',open===T.ICE_L[4],'| roofed over froze',roofed!==T.WATER_L[4],'| thawed',back===T.WATER_L[4]);
+  if(ca)ok(open===T.ICE_L[4]&&roofed===T.WATER_L[4]&&back===T.WATER_L[4],'deep pools freeze under open sky');}
 // 11. wading: how deep the water is at the feet
 {const bx=sx+140,by=G+40,bz=sz;for(let x=bx-3;x<=bx+3;x++)for(let z=bz-3;z<=bz+3;z++){T.setRaw(x,by-1,z,STONE);T.setRaw(x,by,z,T.WATER_L[4]);T.setRaw(x,by+1,z,AIR);T.setRaw(x,by+2,z,AIR);}
   A.pos.set(bx+0.5,by+0.5,bz+0.5);A.vy=0;run(1.5);const k6=A.wadeK;

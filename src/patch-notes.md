@@ -214,6 +214,7 @@
 - Spilled water freezes over in winter, even a thin puddle, and thaws again in spring. You can walk on the ice, thin sheets too.
 - When winter comes, the ice creeps over the water nearby over the best part of a minute instead of appearing all at once, and the game no longer stalls while it does. Spring melts it the same way.
 - Water that's still pouring down doesn't freeze where it hangs in the air: it lands first. Spilled water only freezes once it's settled, a little at a time over half a minute or so, and ice whose water drains away from under it melts and runs off rather than being left hanging.
+- Water left lying deep down or high up, like the floor of a crater or a flood up a hill, freezes in winter too, as long as it's open to the sky.
 - Bullets break ice, thin sheets too, and grenades bounce off it rather than dropping through.
 - No more long stall when winter arrives: the trees losing their leaves, and the ice, are redrawn a little at a time, and each redraw in autumn and winter is about twice as quick again.
 - A nuke's ring of rubble buries a thin sheet of water or ice on the ground instead of floating above it, and water beside its crater pours in.

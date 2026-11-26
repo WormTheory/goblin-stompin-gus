@@ -71,9 +71,14 @@ function wadeDepth(x,y,z){const xi=Math.floor(x),zi=Math.floor(z);let yy=Math.fl
   for(let k=0;k<4&&WET[peek(xi,yy+1,zi)];k++)yy++;const t=peek(xi,yy,zi);return Math.max(0,yy+(t===WATER?0.9:BLOCK[t].lvl/8)-y);}
 // (can this water freeze now? Out in the open, at rest, and resting on something: the ground, ice, or full water that isn't
 // draining away -- never left hanging as a sheet over water still running off underneath)
-function wfCanFreeze(x,y,z){const b=wfGet(x,y,z);if(!(b>0&&WET[b])||wfGet(x,y+1,z)!==AIR||wfAct.has(bkey(x,y,z)))return false;
-  const u=wfGet(x,y-1,z);if(u<0||wetFalling(u)||u===WATER&&wfAct.has(bkey(x,y-1,z)))return false;
-  return y>=ICE_Y0&&y<=ICE_Y1&&chunkFreeze(Math.floor(x/CS),Math.floor(z/CS));}
+// 2 now, 1 not yet (it or what's under it still moving), 0 never (gone, covered, somewhere warm, or out of the band
+// winter freezes with a roof over it). Out of that band (a crater's floor, a flood up a hill) it freezes under open sky
+function wfCanFreeze(x,y,z){const b=wfGet(x,y,z);if(!(b>0&&WET[b])||wfGet(x,y+1,z)!==AIR)return 0;
+  if(!chunkFreeze(Math.floor(x/CS),Math.floor(z/CS))||!(y>=ICE_Y0&&y<=ICE_Y1||skyOver(x,y,z)))return 0;
+  if(wfAct.has(bkey(x,y,z)))return 1;const u=wfGet(x,y-1,z);if(u<0||wetFalling(u)||u===WATER&&wfAct.has(bkey(x,y-1,z)))return 1;
+  return 2;}
+// (nothing solid between here and the sky)
+function skyOver(x,y,z){for(let yy=y+1;yy<H;yy++)if(solidAt(x,yy,z))return false;return true;}
 // (ice whose water's gone from under it melts back to water and goes on down: ice doesn't hang in the air)
 function wfUnderIce(x,y,z){const b=wfGet(x,y+1,z);if(b!==ICE&&!ICE_LV[b])return;const u=wfGet(x,y,z);if(u!==AIR&&!wetFalling(u))return;
   const cx=Math.floor(x/CS),cz=Math.floor(z/CS),A=chunkArr(cx,cz),i=li(x-cx*CS,y+1,z-cz*CS);A[i]=b===ICE?WATER:WATER_L[ICE_LV[b]];lastK=-1;
@@ -82,7 +87,7 @@ function wfFreezeTick(dt){
   wfColdClock+=dt;if(!wfCold.size)return;if(!WX.frozen){wfCold.clear();return;}
   wfColdT+=dt;if(wfColdT<WF_COLD_T)return;wfColdT=0;let n=0;
   for(const [k,c] of wfCold){if(++n>3000)break;if(wfAct.has(k)||wfColdClock-c[3]<WF_COLD_WAIT||Math.random()>=WF_COLD_P)continue;
-    const [x,y,z]=c,b0=wfGet(x,y,z);if(!(b0>0&&WET[b0])){wfCold.delete(k);continue;}if(!wfCanFreeze(x,y,z))continue;wfCold.delete(k);   // (gone: forget it; not yet: it waits on)
+    const [x,y,z]=c,b0=wfGet(x,y,z);if(!(b0>0&&WET[b0])){wfCold.delete(k);continue;}const f=wfCanFreeze(x,y,z);if(f===1)continue;wfCold.delete(k);if(!f)continue;   // (not yet: it waits on; never: forget it)
     const cx=Math.floor(x/CS),cz=Math.floor(z/CS),A=chunkArr(cx,cz),i=li(x-cx*CS,y,z-cz*CS),b=A[i];
     A[i]=b===WATER?ICE:ICE_L[BLOCK[b].lvl];lastK=-1;wfDirty.add(ckey(cx,cz));}}
 function updateWater(dt){
@@ -139,7 +144,7 @@ function updateWater(dt){
       wfWakeRound(x,y,z);}
     if(wait)wfPark.set(k,list[n]);
     // (come to rest in winter: it waits to freeze over, wfFreezeTick)
-    else if(!moved&&WX.frozen&&y>=ICE_Y0&&y<=ICE_Y1&&!chg.has(k)&&!wfCold.has(k))wfCold.set(k,[x,y,z,wfColdClock]);
+    else if(!moved&&WX.frozen&&!chg.has(k)&&!wfCold.has(k))wfCold.set(k,[x,y,z,wfColdClock]);
   }
   for(;n<list.length;n++){const [x,y,z]=list[n];wfAct.set(bkey(x,y,z),list[n]);}   // (what the budget didn't reach goes next time)
   // what changed, into the world: saved, sent to guests and redrawn
