@@ -39,11 +39,11 @@ function gloadSave(seat){try{localStorage.setItem(GLOAD_KEYS[seat],JSON.stringif
 function gwpnBuild(){
   const list=document.getElementById('gwpnList');if(!list||list.firstChild)return list;
   const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const card=k=>'<button type="button" class="tog ab-base" role="switch" data-k="'+k+'"><span class="tl"><b class="nm">'+esc(WEAPONS[k].name)+'</b><small>'+esc(WEAPONS[k].about||'')+'</small></span><span class="st" aria-hidden="true"></span></button>';
+  const card=k=>'<button type="button" class="tog ab-base" role="switch" data-k="'+k+'"><span class="tl"><b class="nm">'+esc(WEAPONS[k].name)+'</b></span><span class="st" aria-hidden="true"></span></button>';
   let h='<div class="ab-h" aria-hidden="true"><span class="px">Weapons</span></div>';
   for(let i=0;i<GOB_PICK.length;i+=2)h+='<div class="ab-row" role="group" aria-label="Weapons">'+GOB_PICK.slice(i,i+2).map(card).join('')+'</div>';
   for(const k of GOB_STACKS){const G=WEAPONS[k],lo=esc(G.name.toLowerCase());
-    h+='<div class="ab-h" aria-hidden="true"><span class="px">'+esc(G.name)+'</span></div><div class="ab-row" role="group" aria-label="'+esc(G.name)+'"><div class="tog ab-base gl-cnt" data-s="'+k+'"><span class="tl"><b class="nm">'+esc(G.name)+'</b><small>'+esc(G.about||'')+'</small></span>'
+    h+='<div class="ab-h" aria-hidden="true"><span class="px">'+esc(G.name)+'</span></div><div class="ab-row" role="group" aria-label="'+esc(G.name)+'"><div class="tog ab-base gl-cnt" data-s="'+k+'"><span class="tl"><b class="nm">'+esc(G.name)+'</b></span>'
       +'<button type="button" class="gl-b" data-d="-1" aria-label="Fewer '+lo+'">&minus;</button><span class="gl-n" aria-live="polite">0</span><button type="button" class="gl-b" data-d="1" aria-label="More '+lo+'">+</button></div></div>';}
   list.innerHTML=h;
   for(const b of list.querySelectorAll('.tog[data-k]'))b.addEventListener('click',()=>{
@@ -66,7 +66,7 @@ function renderGwpn(){
   for(const c of list.querySelectorAll('.gl-cnt')){const sk=c.dataset.s,v=L[stkField(sk)]||0,mx=stkMax(sk);c.setAttribute('aria-checked',String(v>0));const nm=c.querySelector('.gl-n');if(nm)nm.textContent=v+' / '+mx;
     const B=[...c.querySelectorAll('.gl-b')];if(B.length===2){B[0].setAttribute('aria-disabled',String(v<=0));B[1].setAttribute('aria-disabled',String(v>=mx));}}   // (not disabled: the controller's focus stays on it)
   const no=document.getElementById('gwpnNote');
-  if(no){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}no.textContent=(co?(seat?"Player two's":"Player one's")+' loadout. ':'')+'Always keeps at least one.';}
+  if(no){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}no.textContent=co?(seat?"Player two's":"Player one's")+' loadout':'';no.hidden=!co;}   // (as the abilities' note: only in split screen)
 }
 // which section the Character tab shows: the loadout for a goblin, the hippos' abilities for a hippo (the character
 // the menu's seat has picked)

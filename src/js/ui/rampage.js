@@ -29,5 +29,5 @@ function renderRampage(){
   try{where+=' · '+timeLabel();}catch(e){}
   $('rpWhere').textContent=where;
   $('rpNote').textContent=TENV?'Doesn\'t count here':
-    !begun?'':kills+RAMP.cars+RAMP.nB===0?'Nothing flattened yet. Off you go.':'';
+    '';
 }

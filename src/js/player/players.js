@@ -167,8 +167,9 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
   const showD=()=>{
     const m=DAY_SPEEDS[daySpd];ds.value=String(daySpd);
     dl.textContent=m===0?'Frozen':m===1?'Normal':'×'+m;
-    if(m===0)dn.textContent='The sun stays where it is.';
-    else{const mins=10/m;dn.textContent='One full day and night takes '+(mins>=1?(Math.round(mins*10)/10)+' minute'+(mins===1?'':'s'):Math.round(mins*60)+' seconds')+'.';}
+    // (how long a whole day and night takes: ∞ when frozen)
+    if(m===0)dn.textContent='∞';
+    else{const mins=10/m;dn.textContent=mins>=1?(Math.round(mins*10)/10)+' minute'+(mins===1?'':'s'):Math.round(mins*60)+' seconds';}
   };showD();
   const fs=document.getElementById('fireDur'),fl=document.getElementById('fireDurVal');
   const showF=()=>{fs.value=String(fireDurI);fl.textContent=FIRE_DURS[fireDurI].l;};showF();

@@ -13,7 +13,7 @@ const open=async ctx=>{const p=await ctx.newPage();p.on('pageerror',e=>errs.push
   await p.goto('file://'+process.cwd()+'/ui.html');await p.waitForTimeout(1500);
   await p.evaluate(()=>document.getElementById('tabBtnMulti').click());await p.waitForTimeout(300);return p;};
 const st=p=>p.evaluate(()=>{const c=[...document.querySelectorAll('#pvpSeg [data-pvp]')].filter(b=>b.getAttribute('aria-checked')==='true').map(b=>b.textContent);
-  return{on:c.join(),key:localStorage.getItem('goblin-stompin-gus-pvp'),txt:document.getElementById('pvpTxt').textContent.slice(0,40)};});
+  return{on:c.join(),key:localStorage.getItem('goblin-stompin-gus-pvp'),txt:(document.getElementById('pvpTxt')||{textContent:''}).textContent.slice(0,40)};});
 const ctx=await b.newContext({viewport:{width:1200,height:950}});
 let p=await open(ctx),s=await st(p);
 check('default: Off',s.on==='Off'&&s.key===null&&s.txt.startsWith('Players can\'t'),s);

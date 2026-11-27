@@ -271,7 +271,7 @@ function renderControls(){
   const view=ctlView==='auto'?inputKind:ctlView,ps=padStyle==='ps',body=document.getElementById('ctlBody');if(!body)return;
   document.querySelectorAll('.ctl-seg button').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.view===ctlView)));
   const now=document.getElementById('ctlNow');
-  now.textContent=(ctlView==='auto'?'Showing what you’re using: ':'Showing: ')+(view==='pad'?(ps?'PlayStation-style controller':'Xbox-style controller'):view==='touch'?'touch screen':'keyboard and mouse');
+  if(now)now.textContent=(ctlView==='auto'?'Showing what you’re using: ':'Showing: ')+(view==='pad'?(ps?'PlayStation-style controller':'Xbox-style controller'):view==='touch'?'touch screen':'keyboard and mouse');
   const gb=(t,c)=>`<span class="gb" style="background:${c}">${t}</span>`,gs=(t,c)=>`<span class="gs" style="${c?'background:'+c+';color:#0c0f14;border-color:#0a0d10':''}">${t}</span>`,gk=t=>`<span class="gk">${t}</span>`,or='<span class="or">or</span>';
   if(view==='pad'){
     const L=ps?{A:'✕',B:'○',X:'□',LB:'L1',RB:'R1',LT:'L2',RT:'R2',ST:'Options',L3:'L3'}:{A:'A',B:'B',X:'X',LB:'LB',RB:'RB',LT:'LT',RT:'RT',ST:'Start',L3:'L3'};

@@ -692,6 +692,10 @@
 - The Testing Environment and Dev links are only on the pause menu now, not the title screen.
 - Abilities and the loadout no longer say On or Off: the greyed-out cards already show it.
 - Shouts, Health bars and Reduced motion in the Display tab no longer have a description under them.
+- More menu text trimmed: the notes under the Performance tab's settings (all but the Debug menu's) and under PvP, the "Showing what you're using" line in Controls, and "Nothing flattened yet" in This rampage.
+- Day / night speed's note just says how long a whole day and night takes, such as 10 minutes or 38 seconds, or ∞ when it's frozen.
+- The Character screen is just the cards and the switches: no descriptions under the characters, abilities or weapons, no "Gus can" strip, and no notes about the loadout or player two.
+- The title screen no longer has the "Playing as" line: pick your character from the pause menu's Character screen once you're playing.
 - The pause menu's seed line no longer says that smashed blocks save in the browser.
 
 ### Fixes

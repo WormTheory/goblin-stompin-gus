@@ -24,7 +24,7 @@ const st=()=>p.evaluate(()=>{const vis=id=>{const e=document.getElementById(id);
     names:[...document.querySelectorAll('.view .who')].reverse().map(e=>e.textContent).join(' + ')};});
 console.log('title screen',JSON.stringify(await st()));
 await p.screenshot({path:out+'/coop-title.png'});
-await p.click('#charLink');await p.waitForTimeout(200);await p.screenshot({path:out+'/coop-character-tab.png'});
+await p.evaluate(()=>document.getElementById('tabBtnCustom').click());await p.waitForTimeout(200);await p.screenshot({path:out+'/coop-character-tab.png'});
 await p.click('#subBack');
 await p.click('#playCoop');await p.waitForTimeout(500);console.log('playing co-op',JSON.stringify(await st()));
 await tap(1,9);await p.waitForTimeout(200);console.log('player two pressed Start',JSON.stringify(await st()));

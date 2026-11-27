@@ -23,7 +23,7 @@ const shown=()=>p.evaluate(()=>{const L=document.getElementById('abilList');retu
 const toAbil=()=>p.evaluate(()=>{const a=document.activeElement;if(a&&a.blur)a.blur();for(const e of document.querySelectorAll('.padfocus'))e.classList.remove('padfocus');
   document.querySelector('#abilList .tog[data-k="stomp"]').closest('.ab-row').scrollIntoView({block:'start'});});
 console.log('saved at first',await saved());
-await p.click('#charLink');await p.waitForTimeout(300);
+await p.evaluate(()=>document.getElementById('tabBtnCustom').click());await p.waitForTimeout(300);
 // (a basic move switched off greys out its upgrades: Ground Pound off)
 await p.click('#abilList .tog[data-k="pound"]');await p.waitForTimeout(150);
 console.log('solo',await shown());
@@ -56,5 +56,5 @@ await tap(0,9);await p.waitForTimeout(200);await tap(0,3);await p.waitForTimeout
 await p.click('#tabBtnCustom',{force:true});await p.waitForTimeout(300);
 console.log('player one\'s menu',await shown());
 await toAbil();await p.waitForTimeout(250);await p.screenshot({path:out+'/character-p1.png'});
-await p.reload();await p.waitForTimeout(1500);await p.click('#charLink');await p.waitForTimeout(300);console.log('after a reload',await shown());
+await p.reload();await p.waitForTimeout(1500);await p.evaluate(()=>document.getElementById('tabBtnCustom').click());await p.waitForTimeout(300);console.log('after a reload',await shown());
 console.log(errs.join('\n')||'no errors');await b.close();})();

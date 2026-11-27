@@ -16,29 +16,11 @@ const pick2=()=>CHAR2&&CHAR2!==CHAR?CHAR2:CHAR_TWIN[CHAR];
 const p2Kind=()=>charGob(pick2())?'goblin':'hippo';
 const CHAR_NAMES={gus:'Gus',gertie:'Gertie',gnash:'Gnash',grizzle:'Grizzle'};
 function charNote(){let co=false;try{co=inCoop()&&!P2.net;}catch(e){}
-  return co?'Pick the one the other player has and you swap over.':'In split-screen co-op, player two picks their own from their pause menu.';}
+  return co?'Pick the one the other player has and you swap over.':'';}
 // Which player the cards pick for (0 or 1): whoever's menu it is. In split screen each player picks their own, from
 // their own pause menu (menuBy); playing alone it's just player one. In co-op the 1P tag sits on player one's pick and
 // the 2P tag on player two's, so you can see who the other player is (picking theirs swaps you over).
 const csSeat=()=>{let two=false;try{two=menuP2();}catch(e){}return two?1:0;};
-// what each character can do, for the strip under the cards (a hippo's from the ability switches as they are now)
-function csMoves(c){
-  if(charGob(c)){const L=GOB_LOADS[csSeat()];   // (a goblin's: the weapons chosen for him, then what every goblin can do)
-    return[...GOB_PICK.filter(k=>L.w[k]).map(k=>WEAPONS[k].name),...GOB_STACKS.filter(k=>L[stkField(k)]).map(k=>L[stkField(k)]+' '+WEAPONS[k].name.toLowerCase()),'Dash','Drive anything'];}
-  const A=ABILS[csSeat()],L=[];   // (the switches of whoever's menu it is)
-  if(A.bite)L.push(A.biteCombo?'Bite combo':'Bite');
-  if(A.stomp)L.push(A.fullStomp?'Full charge stomp':A.chargeStomp?'Charge stomp':'Stomp');
-  if(A.groundSpike&&A.stomp)L.push('Ground spike');
-  if(A.pound)L.push('Ground pound');
-  if(A.sprint)L.push(A.trample?'Trample':'Sprint');
-  if(A.dash)L.push(A.roll?'Roll':A.blastDash?'Blast dash':'Dash');
-  if(A.jump)L.push(A.triple?'Triple jump':A.double?'Double jump':'Jump');
-  if(A.longJump)L.push(A.blastJump?'Blast long jump':'Long jump');
-  if(A.airDash)L.push(A.blastAirDash?'Blast air dash':'Air dash');
-  if(A.rocket&&A.jump)L.push('Rocket boost');
-  if(A.climb)L.push('Spider climb');
-  return L;
-}
 function renderChar(){
   const c2=pick2(),seat=csSeat();
   const row=document.getElementById('charRow');
@@ -49,12 +31,7 @@ function renderChar(){
       const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
   const n=document.getElementById('charNote');if(n)n.textContent=charNote();
   renderAbil();renderGwpn();charSecs();   // (the ability switches or goblin weapons shown are this menu's player's)
-  // (the moves strip: whoever's highlighted, or the seat's pick)
-  {const f=document.activeElement,fc=f&&f.closest&&f.closest('#charRow .cs-card'),c=fc?fc.dataset.c:seat?c2:CHAR;
-   const h=document.getElementById('csCanH'),m=document.getElementById('csMoves');
-   if(h)h.textContent=CHAR_NAMES[c].toUpperCase()+' CAN:';
-   if(m){const html=csMoves(c).map(t=>'<span class="sticker px">'+t+'</span>').join('');if(m._h!==html){m._h=html;m.innerHTML=html;}}}
-  // (the title menu's line naming who you are: both of you in split screen. renderChar runs again as the menu opens)
+  // (the 2P menu tag; the title menu's "Playing as" line, charLinkName, is gone: the character's picked in game)
   let two=false;try{two=begun&&P2.active&&!P2.net;menuWhoShow();}catch(e){}   // (not yet while the page loads: begun is declared later on)
   const l=document.getElementById('charLinkName');if(l)l.textContent=CHAR_NAMES[CHAR]+(two?' and '+CHAR_NAMES[c2]:'');
 }
