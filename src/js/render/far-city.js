@@ -749,7 +749,7 @@ const farLag=(L,p)=>L.ring.value.y<=0?0:L.bm<0?9:Math.hypot(p.x-L.bx,p.z-L.bz)/M
 const farBackOK=()=>{const B=LODS[3],a=players.find(q=>q.active);return !a||B.ring.value.y<=0||farLag(B,a.pos)<=1;};
 let farDirty=true,farT=0,farClk=0;
 const FAR_BUDGET=4,FAR_BUDGET_FAST=6,FAR_FAST=120;   // milliseconds a frame for building the far rings (out of the frame's one allowance, fbTake in core/setup.js: at least a millisecond and a half); and for a player going faster than FAR_FAST blocks a second (a jet flat out), who is over new country faster than 4 ms a frame can draw it
-const FAR_BACK_MS=12; // (and for the backdrop while it doesn't reach the horizon: bare sky there is worse than a slow frame or two)
+const FAR_BACK_MS=12; // (and for the backdrop while it doesn't reach the horizon, all of it whatever the frame's other jobs have taken: bare sky there is worse than a slow frame or two)
 // (each player's speed over the ground, smoothed, from where they were last frame: a jump of a frame, being put somewhere, isn't speed)
 const farVel=[];
 function updateFar(dt){
@@ -815,7 +815,7 @@ function updateFar(dt){
   // rings nearest first, each with a share of the time so that none waits on another (the near ring, building one after
   // another for a fast player, would take it all), and what's left over to whichever still has work
   const t0=performance.now(),p0=act[0].pos,BUD=fbTake(spd>FAR_FAST?FAR_BUDGET_FAST:FAR_BUDGET,1.5,true),run=(L,ms)=>{while(L.job&&performance.now()-t0<ms){const r=L.job.next();if(r.done){L.job=null;L.dur=L.dur*0.5+(farClk-L.t0)*0.5;farCommit(L);}}};
-  run(LODS[3],farLag(LODS[3],p0)>0.8?Math.max(BUD,fbTake(FAR_BACK_MS,6,true)):BUD);
+  run(LODS[3],farLag(LODS[3],p0)>0.8?Math.max(BUD,fbTake(FAR_BACK_MS,FAR_BACK_MS,true)):BUD);
   {const tb=Math.min(BUD,performance.now()-t0),sw=farLag(LODS[1],p0)>1&&farLag(LODS[1],p0)>farLag(LODS[0],p0),A=LODS[sw?1:0],B=LODS[sw?0:1],hot=farLag(A,p0)>1;
    // (of the two nearer, the one further behind first; and while it no longer covers its band, the far ring, which the
    // backdrop stands in for best, gets less)
