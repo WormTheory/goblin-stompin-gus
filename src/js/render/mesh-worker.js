@@ -8,8 +8,8 @@
 // subways, it's all done there and then as before (buildChunk), and the picture comes out the same either way.
 const MW_FNS=[meshKernel,blkFlood,blkAt,blkKeep,emitBox,emitFence,emitRamp].map(f=>f.toString()).join('\n')+'\n'+MBuf.toString()+'\nconst FENCEISH='+FENCEISH.toString()+',mkBufs='+mkBufs.toString()+';\n';
 // (at most this many waiting for a worker at once, so a crater's worth of rebuilds can't queue up seconds of work behind
-// the chunks that come into view)
-const MW_LIM=8;
+// the chunks that come into view: four for each worker there is, mwUp)
+let MW_LIM=8;
 const MW={ws:[],off:false,pend:new Map(),done:[],id:0,why:''};
 // the worker's script: the tables it reads, its own working arrays, and the functions
 function mwBody(){
@@ -27,12 +27,15 @@ function mwBody(){
      '  postMessage({id:J.id,k:J.k,R},t);};\n';
   return s;
 }
-// the workers, made the first time they're wanted: two, or one on a machine with only two cores
+// the workers, made the first time they're wanted: one for each core but two (the game's own thread and the browser's
+// drawing keep those), four at most and one at least. (There were never more than two, and they sat idle while the
+// world came in a chunk a frame; with chunks asked for by the clock, updateChunksT, they're what sets the pace.)
 function mwUp(){
   if(MW.ws.length)return true;if(MW.off)return false;
   if(typeof Worker==='undefined'||typeof Blob==='undefined'||typeof URL==='undefined'||!URL.createObjectURL){MW.off=true;MW.why='no workers here';return false;}
-  try{const u=URL.createObjectURL(new Blob([mwBody()],{type:'text/javascript'})),n=Math.max(1,Math.min(2,(navigator.hardwareConcurrency||2)-1));
-    for(let i=0;i<n;i++){const w=new Worker(u);w.n=0;w.onmessage=mwGot;w.onerror=e=>mwFail('worker: '+(e&&e.message));MW.ws.push(w);}}
+  try{const u=URL.createObjectURL(new Blob([mwBody()],{type:'text/javascript'})),n=Math.max(1,Math.min(4,(navigator.hardwareConcurrency||3)-2));
+    for(let i=0;i<n;i++){const w=new Worker(u);w.n=0;w.onmessage=mwGot;w.onerror=e=>mwFail('worker: '+(e&&e.message));MW.ws.push(w);}
+    MW_LIM=Math.max(8,MW.ws.length*4);}
   catch(e){mwFail(e);return false;}
   return true;
 }

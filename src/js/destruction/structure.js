@@ -78,6 +78,7 @@ function flushNotes(ms){
   if(!noteQ.length)return;const t0=performance.now();let i=0;
   while(i<noteQ.length){noteBlock(noteQ[i],noteQ[i+1],noteQ[i+2],noteQ[i+3],noteQ[i+4]);i+=5;if(!(i%500)&&performance.now()-t0>ms)break;}
   if(i>=noteQ.length)noteQ.length=0;else noteQ.splice(0,i);
+  fbUsed(performance.now()-t0);
 }
 function colTop(b,rx,rz){const tierOn=b.tier>0&&(b.x1-b.x0)>=8,inner=rx>=b.x0+2&&rx<b.x1-2&&rz>=b.z0+2&&rz<b.z1-2;return ((tierOn&&!inner)?b.tier:b.top)+(b.roof||0);}
 // a building's original block count, every block of it counted. (It used to be estimated from up to 72 of its columns, and
@@ -121,8 +122,8 @@ function setBuildings(S){
 // walking into a big city never stalls the game). A building that's been destroyed counts as entirely gone, whatever
 // is left of it; one still standing counts the blocks actually knocked out of it. No building left standing: 100%.
 // (destMs: how long a frame it may count for. 3 ms, or 1 when you're travelling fast or the frames are already long,
-// set each frame by the tick in render/daynight.js, which also waits until a second's been spent in a place: destIn,
-// the place you're in and for how long)
+// set each frame by the tick in render/daynight.js, out of the frame's one allowance (fbTake, core/setup.js), which also
+// waits until a second's been spent in a place: destIn, the place you're in and for how long)
 const destJob={S:null,list:null,i:0,tot:0},setDCache=new Map(),destIn={S:null,t:0};let setDVer=0,destMs=3;   // (bumped when a place's figure changes)
 function setDestroyed(S){
   const k=S.rx+','+S.rz;let L=setListC.get(k);
@@ -130,6 +131,7 @@ function setDestroyed(S){
     if(destJob.S!==S){destJob.S=S;destJob.list=setBuildings(S);destJob.i=0;destJob.tot=0;}
     const t0=performance.now();
     while(destJob.i<destJob.list.length&&performance.now()-t0<destMs){const E=destJob.list[destJob.i],n=bldgSolidPart(E.b,E.px,E.pz,E.key,t0+destMs);if(n===undefined)break;destJob.tot+=n;destJob.i++;}
+    fbUsed(performance.now()-t0);
     if(destJob.i<destJob.list.length)return null;
     L=destJob.list;setListC.set(k,L);setTotC.set(k,destJob.tot);destJob.S=null;}
   if(!L.length)return 0;

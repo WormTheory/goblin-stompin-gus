@@ -47,6 +47,9 @@
 - Standing in town no longer hitches every second or so: shop signs and far-off vehicles (a fire engine on its way, a crew's truck at its camp) kept having ground far past your detail distance made again and again.
 - Starting a game brings in the world right round you at once rather than a piece a frame.
 - The distant view no longer works out land that's over the horizon. With the world curved, most of the Far view is out of sight from the street, and it was all being built anyway. Now it arrives in under half the time when you start a game or land somewhere new, and costs less as you move. What you see is the same.
+- The detailed world keeps up with you now. It used to come in one piece a frame however fast you went, which was enough for a sports car and no more: in an airliner about two fifths of the detail distance was missing, in a jet nearly three quarters. Now the game loads as much as each frame has time for, what's ahead of you first, and uses up to four of your computer's cores to draw it. On a slower computer it no longer loads at half speed.
+- LOADING SPEED, a new slider under Performance: how much of each frame goes on bringing the world in. Higher fills the world in faster at the cost of frame rate while it does.
+- The game's background jobs (new ground, the far view, redrawing what's been smashed, planning towns ahead) now share one allowance of time a frame, so together they can't take a whole frame as they sometimes did in a rampage.
 - A highway's billboards are worked out as you come to them, not all at once to the far end of the road, which could freeze the game for a moment out in open country.
 - Far-off land fades into haze toward the horizon, so distant towers lift out of it rather than popping up sharp over the edge of the world.
 

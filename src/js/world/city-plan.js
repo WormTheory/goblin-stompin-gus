@@ -160,8 +160,11 @@ function planAsk(S,i,j){
   if(a||settlementAt(i,j-1)===S||gRow(j,i*CELL+RC))segBase(i,j,1);
 }
 const planJob={S:null,i:0,j:0,x1:0,z0:0,z1:0,w:undefined};
+// (its millisecond and a half comes out of the frame's one allowance: fbTake, core/setup.js)
 function planAhead(){
-  if(TENV)return;const t0=performance.now();
+  if(TENV)return;const t0=performance.now();try{planAhead0(t0,fbTake(1.5,0.5));}finally{fbUsed(performance.now()-t0);}
+}
+function planAhead0(t0,ms){
   if(!planJob.S){
     for(const p of players){if(!p.active)continue;const r0=Math.round(p.pos.x/CELL/SET_SP),q0=Math.round(p.pos.z/CELL/SET_SP);
       for(let a=-2;a<=2&&!planJob.S;a++)for(let b=-2;b<=2&&!planJob.S;b++){const S=settlementLat(r0+a,q0+b);if(S.conns)continue;
@@ -172,12 +175,12 @@ function planAhead(){
   if(!J.S.planned){
     // (the airports its blocks will ask about first: each one's search a slice at a time, world/airfields.js)
     if(J.w===undefined)J.w=apAhead(J.i,J.z0,J.x1,J.z1);
-    while(J.w){if(J.w.next().done)J.w=null;else if(performance.now()-t0>1.5)return;}
+    while(J.w){if(J.w.next().done)J.w=null;else if(performance.now()-t0>ms)return;}
     for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++)planAsk(J.S,J.i,J.j);
-      if(performance.now()-t0>1.5){J.i++;J.j=J.z0;return;}}
+      if(performance.now()-t0>ms){J.i++;J.j=J.z0;return;}}
     J.S.planned=true;}
   // (and then its streets themselves, a slice a frame: left for whoever asked first, they came all at once, 10 ms for a city)
-  while(!setConnsStep(J.S))if(performance.now()-t0>1.5)return;
+  while(!setConnsStep(J.S))if(performance.now()-t0>ms)return;
   J.S=null;
 }
 // worked out once per place: which stretches of new road it needs to hold together

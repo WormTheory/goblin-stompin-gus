@@ -60,6 +60,34 @@ const FIRE_DURS=[{m:1,l:'Brief'},{m:2,l:'Short'},{m:4,l:'Normal'},{m:8,l:'Long'}
 const FIRE_CAPS=[5,10,20,35,50,70,100,140,200,Infinity],FIRECAP_KEY='goblin-stompin-gus-firecap';
 let fireCapI=5;try{const v=parseInt(localStorage.getItem(FIRECAP_KEY));if(v>=0&&v<FIRE_CAPS.length)fireCapI=v;}catch(e){}
 let fireDurI=2;try{const v=parseInt(localStorage.getItem(FIREDUR_KEY));if(v>=0&&v<FIRE_DURS.length)fireDurI=v;}catch(e){}
+// how much of each frame goes on bringing the world in (Settings' LOADING SPEED): a multiple of the usual allowance
+const LOAD_SPEEDS=[{m:0.5,l:'Low'},{m:1,l:'Normal'},{m:2,l:'High'},{m:4,l:'Max'}],LOADSPD_KEY='goblin-stompin-gus-loadspeed';
+let loadSpdI=1;try{const v=parseInt(localStorage.getItem(LOADSPD_KEY));if(v>=0&&v<LOAD_SPEEDS.length)loadSpdI=v;}catch(e){}
+// ---- One allowance a frame for the work that can wait ----
+// The world is brought in a little a frame by several jobs, and each used to have an allowance of its own in a unit of
+// its own: new chunks (one a frame, whatever the frame had to spare), the far rings (4 to 12 ms), meshes made again
+// (5 ms), smashed blocks counted (2 ms), streets planned ahead (1.5 ms), ruins shared out (3 ms). Together they could
+// take more than a whole frame. Now there's one allowance (FB.ms, set each frame by fbBegin in core/loop.js) and each
+// job asks for its share: fbTake(want,least) gives what it wants or what's left, never under `least`, so nothing is
+// starved; the job says what it spent (fbUsed). First come first served, in the order the frame runs them: meshes made
+// again (what's being smashed in front of you), new chunks, the far view, then the plans and the counting.
+// The allowance is the usual FB_MS, half as much again for anyone going fast, times LOADING SPEED, and more on a slow
+// machine: a frame that takes twice as long gets twice the milliseconds, so the world comes in as fast by the clock
+// (it used to come in a chunk a frame, half as fast at 30 frames a second as at 60), up to four times the usual in all.
+// What brings the world in, new chunks and the far view, asks for that many times its usual share too (fbTake's third
+// argument); the counting and the planning want what they always did.
+// LOAD_FIXED: where there are no worker threads (the tests, in Node) the jobs keep the allowances they always had and
+// chunks come one a frame, so a suite's world arrives the same way on every run whatever the machine. loadFixed is
+// that, for a suite to switch off (chunkspeed.js).
+const LOAD_FIXED=typeof Worker==='undefined',FB_MS=10,FB_FAST=40;let loadFixed=LOAD_FIXED;
+const FB={ms:FB_MS,used:0,k:1,fast:false};
+function fbBegin(spd){
+  FB.fast=spd>FB_FAST;FB.used=0;
+  FB.k=loadFixed?1:Math.min(4,LOAD_SPEEDS[loadSpdI].m*Math.max(1,Math.min(2,frameMs/16.7)));
+  FB.ms=FB_MS*(FB.fast?1.5:1)*FB.k;
+}
+const fbTake=(want,least,load)=>loadFixed?want:Math.max(least,Math.min(load?want*FB.k:want,FB.ms-FB.used));
+const fbUsed=ms=>{FB.used+=ms;};
 const VIEW_KEY='goblin-stompin-gus-view';let viewSetting=112;
 const VIEW_MIN=48,VIEW_MAX=8000,VOXEL_MAX=64;
 // the full-detail distance (the smashable voxel city, and the traffic, goblins and props that live in it), in blocks

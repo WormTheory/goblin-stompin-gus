@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:0d7d81281f20ce653a4d7da409cfc50ca8555f4a66b5a017769f942dd52c271e -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:56f4e11b3276370c64c1da6dc3f09f4a324d83dfca20132a1b65fa2ff68c08f2 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1580,6 +1580,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
       <div class="crow"><label class="clab" for="detailDist">DETAIL</label><input type="range" id="detailDist" class="vrange" min="48" max="1024" step="16" value="112" aria-label="Detail distance"><span class="vval" id="detailVal">112 blocks</span></div>
       <div class="crow"><label class="clab" for="viewDist">FAR VIEW</label><input type="range" id="viewDist" class="vrange" min="48" max="8000" step="16" value="112" aria-label="Far view distance"><span class="vval" id="viewVal">112 blocks</span></div>
       <div class="crow"><label class="clab" for="propDist">PROPS</label><input type="range" id="propDist" class="vrange" min="32" max="192" step="8" value="64" aria-label="Prop distance"><span class="vval" id="propVal">64 blocks</span></div>
+      <div class="crow"><label class="clab" for="loadSpd">LOADING SPEED</label><input type="range" id="loadSpd" class="vrange" min="0" max="3" step="1" value="1" aria-label="How much of each frame goes on loading the world"><span class="vval" id="loadSpdVal">Normal</span></div>
     </div>
     <div class="custom">
       <div class="crow"><label class="clab" for="crowdDist">CROWD DENSITY</label><input type="range" id="crowdDist" class="vrange" min="0" max="30" step="0.25" value="1" aria-label="Goblin and civilian density"><span class="vval" id="crowdVal">100%</span></div>
@@ -1669,7 +1670,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Biomes, polished</h3>
 <ul><li>Waterfalls drop into a proper plunge pool now, about six blocks deep under the fall and shallower toward the rim, deep enough to dive into.</li><li>Where a river meets a lake it runs down to the lake's level in a steady slope, with no more steps like little weirs.</li><li>The land behind a rocky headland rises into the hills inland, instead of lying flat behind it.</li><li>The pause map marks stone arches, waterfalls and landmarks you've explored, and colours natural shores by kind: sandy shores, shingle, ice shelves, mangroves, red sand, cliffs and headlands, and fjords. Each has an entry in the key. The World Generator's Map has the same, as its Wonders and Coasts layers.</li><li>Out in the far view, the oil fields, peat diggings, research stations, safari lodges, stilt villages and ski slopes look like themselves (the rigs and tanks, the trenches, the radar dome and mast, the tents and waterhole, the huts over the water, the piste and its lift) rather than plain patches of ground.</li><li>Biomes blend into each other now: where two meet, patches of each mix across a wide band instead of meeting at a sharp line or in a speckle of single blocks, and the grass and leaves change colour gradually across it, in the far view too.</li><li>Farms, compounds, bases and other sites out in the country no longer sit in a pit below the hills with cliffs all round them: they're only built where the land round them is low enough to meet them gently.</li><li>Where one kind of ground meets another (grass and sand, sand and red sand, dirt and snow), their colours fade into each other over some fifty blocks instead of stopping at a block's edge.</li><li>Towns, farms and roads cut into hills more gently: the terraces beside a town's edge are lower and climb all the way up instead of ending in a cliff, and roads and railways run through wider cuttings with gentler sides.</li><li>Coasts change gradually as well: a sandy beach gives way to a rocky headland as the land gets rougher, and one kind of shore turns into the next in stretches rather than block by block.</li><li>Dust devils are easy to see now: tall, swirling funnels of dust that lean with the wind.</li><li>A dust devil behind smoke now stays behind it, rather than showing through.</li><li>Towns are built a little more their biome's way: in the desert and the badlands, small shops and eateries are adobe with parapets and log beam ends, squares are more often paved plazas, and there are more rows of shops; in forests, swamps and the cold they're log and plank with false fronts or steep roofs, and the squares are left green; on the moor they're stone.</li><li>This changes how the world is made, so a saved city starts afresh.</li></ul>
 <h3>The far view at speed</h3>
-<ul><li>Flying fast no longer outruns the distant view. The far rings of the world used to start over every time you'd moved a little, so at a plane's speed they never finished and the land ahead was bare; now each one finishes, is drawn ahead of where you're going, and only works out the land that's new.</li><li>There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.</li><li>Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.</li><li>After a long flight the game no longer hitches every second or so, even once you've landed: vehicles passed on the way, and fires left burning behind, kept having the far-off ground under them made again, only for it to be put away again.</li><li>Flying fast is smoother: working out a far-off town's streets, and whether a city has room for an airport, used to freeze the game for up to a sixth of a second each time. Both are now spread over many frames.</li><li>Standing in town no longer hitches every second or so: shop signs and far-off vehicles (a fire engine on its way, a crew's truck at its camp) kept having ground far past your detail distance made again and again.</li><li>Starting a game brings in the world right round you at once rather than a piece a frame.</li><li>The distant view no longer works out land that's over the horizon. With the world curved, most of the Far view is out of sight from the street, and it was all being built anyway. Now it arrives in under half the time when you start a game or land somewhere new, and costs less as you move. What you see is the same.</li><li>A highway's billboards are worked out as you come to them, not all at once to the far end of the road, which could freeze the game for a moment out in open country.</li><li>Far-off land fades into haze toward the horizon, so distant towers lift out of it rather than popping up sharp over the edge of the world.</li></ul>
+<ul><li>Flying fast no longer outruns the distant view. The far rings of the world used to start over every time you'd moved a little, so at a plane's speed they never finished and the land ahead was bare; now each one finishes, is drawn ahead of where you're going, and only works out the land that's new.</li><li>There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.</li><li>Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.</li><li>After a long flight the game no longer hitches every second or so, even once you've landed: vehicles passed on the way, and fires left burning behind, kept having the far-off ground under them made again, only for it to be put away again.</li><li>Flying fast is smoother: working out a far-off town's streets, and whether a city has room for an airport, used to freeze the game for up to a sixth of a second each time. Both are now spread over many frames.</li><li>Standing in town no longer hitches every second or so: shop signs and far-off vehicles (a fire engine on its way, a crew's truck at its camp) kept having ground far past your detail distance made again and again.</li><li>Starting a game brings in the world right round you at once rather than a piece a frame.</li><li>The distant view no longer works out land that's over the horizon. With the world curved, most of the Far view is out of sight from the street, and it was all being built anyway. Now it arrives in under half the time when you start a game or land somewhere new, and costs less as you move. What you see is the same.</li><li>The detailed world keeps up with you now. It used to come in one piece a frame however fast you went, which was enough for a sports car and no more: in an airliner about two fifths of the detail distance was missing, in a jet nearly three quarters. Now the game loads as much as each frame has time for, what's ahead of you first, and uses up to four of your computer's cores to draw it. On a slower computer it no longer loads at half speed.</li><li>LOADING SPEED, a new slider under Performance: how much of each frame goes on bringing the world in. Higher fills the world in faster at the cost of frame rate while it does.</li><li>The game's background jobs (new ground, the far view, redrawing what's been smashed, planning towns ahead) now share one allowance of time a frame, so together they can't take a whole frame as they sometimes did in a rampage.</li><li>A highway's billboards are worked out as you come to them, not all at once to the far end of the road, which could freeze the game for a moment out in open country.</li><li>Far-off land fades into haze toward the horizon, so distant towers lift out of it rather than popping up sharp over the edge of the world.</li></ul>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Biomes</h3>
@@ -2425,7 +2426,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='a44fc4fda33e';
+const GAME_VER='0.5.1',GAME_BUILD='f2b7be5680ed';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -2446,6 +2447,34 @@ const FIRE_DURS=[{m:1,l:'Brief'},{m:2,l:'Short'},{m:4,l:'Normal'},{m:8,l:'Long'}
 const FIRE_CAPS=[5,10,20,35,50,70,100,140,200,Infinity],FIRECAP_KEY='goblin-stompin-gus-firecap';
 let fireCapI=5;try{const v=parseInt(localStorage.getItem(FIRECAP_KEY));if(v>=0&&v<FIRE_CAPS.length)fireCapI=v;}catch(e){}
 let fireDurI=2;try{const v=parseInt(localStorage.getItem(FIREDUR_KEY));if(v>=0&&v<FIRE_DURS.length)fireDurI=v;}catch(e){}
+// how much of each frame goes on bringing the world in (Settings' LOADING SPEED): a multiple of the usual allowance
+const LOAD_SPEEDS=[{m:0.5,l:'Low'},{m:1,l:'Normal'},{m:2,l:'High'},{m:4,l:'Max'}],LOADSPD_KEY='goblin-stompin-gus-loadspeed';
+let loadSpdI=1;try{const v=parseInt(localStorage.getItem(LOADSPD_KEY));if(v>=0&&v<LOAD_SPEEDS.length)loadSpdI=v;}catch(e){}
+// ---- One allowance a frame for the work that can wait ----
+// The world is brought in a little a frame by several jobs, and each used to have an allowance of its own in a unit of
+// its own: new chunks (one a frame, whatever the frame had to spare), the far rings (4 to 12 ms), meshes made again
+// (5 ms), smashed blocks counted (2 ms), streets planned ahead (1.5 ms), ruins shared out (3 ms). Together they could
+// take more than a whole frame. Now there's one allowance (FB.ms, set each frame by fbBegin in core/loop.js) and each
+// job asks for its share: fbTake(want,least) gives what it wants or what's left, never under `least`, so nothing is
+// starved; the job says what it spent (fbUsed). First come first served, in the order the frame runs them: meshes made
+// again (what's being smashed in front of you), new chunks, the far view, then the plans and the counting.
+// The allowance is the usual FB_MS, half as much again for anyone going fast, times LOADING SPEED, and more on a slow
+// machine: a frame that takes twice as long gets twice the milliseconds, so the world comes in as fast by the clock
+// (it used to come in a chunk a frame, half as fast at 30 frames a second as at 60), up to four times the usual in all.
+// What brings the world in, new chunks and the far view, asks for that many times its usual share too (fbTake's third
+// argument); the counting and the planning want what they always did.
+// LOAD_FIXED: where there are no worker threads (the tests, in Node) the jobs keep the allowances they always had and
+// chunks come one a frame, so a suite's world arrives the same way on every run whatever the machine. loadFixed is
+// that, for a suite to switch off (chunkspeed.js).
+const LOAD_FIXED=typeof Worker==='undefined',FB_MS=10,FB_FAST=40;let loadFixed=LOAD_FIXED;
+const FB={ms:FB_MS,used:0,k:1,fast:false};
+function fbBegin(spd){
+  FB.fast=spd>FB_FAST;FB.used=0;
+  FB.k=loadFixed?1:Math.min(4,LOAD_SPEEDS[loadSpdI].m*Math.max(1,Math.min(2,frameMs/16.7)));
+  FB.ms=FB_MS*(FB.fast?1.5:1)*FB.k;
+}
+const fbTake=(want,least,load)=>loadFixed?want:Math.max(least,Math.min(load?want*FB.k:want,FB.ms-FB.used));
+const fbUsed=ms=>{FB.used+=ms;};
 const VIEW_KEY='goblin-stompin-gus-view';let viewSetting=112;
 const VIEW_MIN=48,VIEW_MAX=8000,VOXEL_MAX=64;
 // the full-detail distance (the smashable voxel city, and the traffic, goblins and props that live in it), in blocks
@@ -7206,8 +7235,11 @@ function planAsk(S,i,j){
   if(a||settlementAt(i,j-1)===S||gRow(j,i*CELL+RC))segBase(i,j,1);
 }
 const planJob={S:null,i:0,j:0,x1:0,z0:0,z1:0,w:undefined};
+// (its millisecond and a half comes out of the frame's one allowance: fbTake, core/setup.js)
 function planAhead(){
-  if(TENV)return;const t0=performance.now();
+  if(TENV)return;const t0=performance.now();try{planAhead0(t0,fbTake(1.5,0.5));}finally{fbUsed(performance.now()-t0);}
+}
+function planAhead0(t0,ms){
   if(!planJob.S){
     for(const p of players){if(!p.active)continue;const r0=Math.round(p.pos.x/CELL/SET_SP),q0=Math.round(p.pos.z/CELL/SET_SP);
       for(let a=-2;a<=2&&!planJob.S;a++)for(let b=-2;b<=2&&!planJob.S;b++){const S=settlementLat(r0+a,q0+b);if(S.conns)continue;
@@ -7218,12 +7250,12 @@ function planAhead(){
   if(!J.S.planned){
     // (the airports its blocks will ask about first: each one's search a slice at a time, world/airfields.js)
     if(J.w===undefined)J.w=apAhead(J.i,J.z0,J.x1,J.z1);
-    while(J.w){if(J.w.next().done)J.w=null;else if(performance.now()-t0>1.5)return;}
+    while(J.w){if(J.w.next().done)J.w=null;else if(performance.now()-t0>ms)return;}
     for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++)planAsk(J.S,J.i,J.j);
-      if(performance.now()-t0>1.5){J.i++;J.j=J.z0;return;}}
+      if(performance.now()-t0>ms){J.i++;J.j=J.z0;return;}}
     J.S.planned=true;}
   // (and then its streets themselves, a slice a frame: left for whoever asked first, they came all at once, 10 ms for a city)
-  while(!setConnsStep(J.S))if(performance.now()-t0>1.5)return;
+  while(!setConnsStep(J.S))if(performance.now()-t0>ms)return;
   J.S=null;
 }
 // worked out once per place: which stretches of new road it needs to hold together
@@ -11643,11 +11675,12 @@ function meshPrep(cx,cz,copy){
   // the graphics card, and the deck shakes as it moves. See ships.js)
   const pk=cx>=SHIP_CX0,pkS=pk?shipPg(cz):null,mx0=pkS?x0-pkS.ox:x0,mz0=pkS?z0-pkS.oz:z0;
   // the nine chunks as the mesh sees them (hidden features filled in, fallen leaves gone; the eight round about in the
-  // hidden-features view keep their leaves, as they always did), and as the light sees them (as they are)
-  const nineM=[],nineL=[];
+  // hidden-features view keep their leaves, as they always did), and as the light sees them (as they are). The game's
+  // own arrays for now: what a thread is sent of them is settled below, once it's known whether anything's lit
+  const nineM=[],nineL=[];let sendM=nineM,sendL=nineL;
   for(let j=0;j<3;j++)for(let i=0;i<3;i++){const qx=cx+i-1,qz=cz+j-1,raw=chunkArr(qx,qz);
-    if(i===1&&j===1){nineM.push(a);nineL.push(gfx||lf?(copy?raw.slice():raw):a);continue;}
-    const L=copy?raw.slice():raw;nineL.push(L);nineM.push(gfx?gfxArr(qx,qz):lf?leafed(L,qx,qz):L);}
+    if(i===1&&j===1){nineM.push(a);nineL.push(gfx||lf?raw:a);continue;}
+    nineL.push(raw);nineM.push(gfx?gfxArr(qx,qz):lf?leafed(raw,qx,qz):raw);}
   const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
     const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2;return nineM[nj*3+ni][lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];};
   const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
@@ -11665,6 +11698,21 @@ function meshPrep(cx,cz,copy){
   // the lights round about, where they start (none, and nothing to do, with Block lighting off)
   // (by day, none: blkDay)
   const BL=BL_ON,day=BL&&blkDay,seeds=BL?(day?new Int16Array(0):blkSeeds(cx,cz,yLo,yTop)):null;
+  // What the kernel is given of the chunks round about. With something lit in reach the light spreads through all nine,
+  // so it has them whole (copies, for a thread: 460 KB a job). With nothing lit, by day and wherever no lamp's near, the
+  // mesh only ever looks one block past its own edges and one layer over and under what it draws: those blocks alone
+  // are gathered into one small array (pad: CS+2 across, from layer py0), a seventh the size or less, and the nine
+  // aren't sent at all. (The same either way on the main thread, so the suites' meshes come through the same path.)
+  let pad=null,py0=0;
+  if(!gfx&&(!BL||!seeds.length)){
+    const PW=CS+2,PA=PW*PW,py1=Math.min(H-1,yTop+1);py0=Math.max(0,yLo-1);pad=new Uint8Array(PA*(py1-py0+1));
+    for(let y=py0;y<=py1;y++){const o=(y-py0)*PA,s=y*A2;
+      for(let lz=-1;lz<=CS;lz++){const nj=lz<0?0:lz<CS?1:2,src=(lz-(nj-1)*CS)*CS+s,M=nineM[nj*3+1];let r=o+(lz+1)*PW;
+        pad[r++]=nineM[nj*3][src+CS-1];for(let lx=0;lx<CS;lx++)pad[r++]=M[src+lx];pad[r]=nineM[nj*3+2][src];}}
+    sendM=sendL=null;}
+  else if(copy)for(let n=0;n<9;n++){
+    if(n===4){if(nineL[4]!==a)nineL[4]=nineL[4].slice();continue;}   // (a is the thread's own already)
+    const L=nineL[n],C=L.slice();nineL[n]=C;if(nineM[n]===L)nineM[n]=C;}   // (one with fallen leaves taken out is a copy of its own)
   // (the biome's tint on grass and leaves, world/climate.js: g 0 grass, 1 leaves, for each column with any; (column*2+g)*3)
   const tint=new Float32Array(A2*6),tf=new Uint8Array(A2*2);
   for(let y=yLo;y<=yTop;y++){const o=y*A2;for(let i=0;i<A2;i++){const b=a[o+i];if(b===GRASS)tf[i*2]=1;else if(b===LEAVES||b===PINE)tf[i*2+1]=1;}}
@@ -11700,17 +11748,18 @@ function meshPrep(cx,cz,copy){
   const snow=new Float64Array(A2);for(let i=0;i<A2;i++)if(tops[i]>=0)snow[i]=1+(snowBorn.get(colKey(x0+i%CS,z0+Math.floor(i/CS)))||0);
   // (the paint and rails laid on the roads, worked out here; only the light on them is left to meshKernel)
   const rm=pk?null:routeMarks(cx,cz);
-  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM,nineL,rdY,rdOut,sr,BL,day,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
+  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM:sendM,nineL:sendL,pad,py0,rdY,rdOut,sr,BL,day,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
 }
 // the arrays a job hands over to a thread with it, each once (the job's own copies: nothing the game goes on using)
 function meshXfer(J){
-  const s=new Set([J.a.buffer,J.tops.buffer,J.tint.buffer,J.snow.buffer]);for(const N of J.nineM)s.add(N.buffer);for(const N of J.nineL)s.add(N.buffer);
+  const s=new Set([J.a.buffer,J.tops.buffer,J.tint.buffer,J.snow.buffer]);if(J.pad)s.add(J.pad.buffer);else{for(const N of J.nineM)s.add(N.buffer);for(const N of J.nineL)s.add(N.buffer);}
   for(const O of J.rdOut)s.add(O.buffer);for(const A of [J.seeds,J.gS,J.dark,J.rmS])if(A)s.add(A.buffer);return [...s];}
 // the mesh's arrays from what meshPrep gathered: L, [opaque, water] each {p,u,c,k,b,i} or null; light, how lit the chunk's
 // own blocks are (for blkEdit), and rmB, the light on the paint on the roads
 function meshKernel(J){
-  const {x0,z0,mx0,mz0,yLo,yTop,a,tops,nineM,BL,tint,gS,dark,snow}=J,A2=CS*CS,gmOn=!!gS;
-  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
+  const {x0,z0,mx0,mz0,yLo,yTop,a,tops,nineM,pad,py0,BL,tint,gS,dark,snow}=J,A2=CS*CS,gmOn=!!gS,PW=CS+2,PA=PW*PW;
+  // (a block of this chunk or one past its edge: from the small array where that's what was sent, meshPrep, or the nine)
+  const at=pad?(lx,y,lz)=>y<0?STONE:y>=H?AIR:pad[lx+1+(lz+1)*PW+(y-py0)*PA]:(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
     const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2;return nineM[nj*3+ni][lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];};
   const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
   const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=d.b.length=0;}
@@ -11968,7 +12017,7 @@ function regionTick(){
   }
   if(regClock%2===0&&regionQ.length){const [rk,keys]=regionQ.pop();if(!REGIONS.has(rk)&&regClock-(regionChanged.get(rk)??-1e9)>=REG_SETTLE)regionMerge(rk,keys);}
 }
-let unloadT=0,chunkScan={key:'',size:-1,full:false};
+let unloadT=0,chunkScan={key:'',size:-1,full:false,i0:0};
 // where to look for a chunk to make next, nearest first: worked out once for a view distance, not every frame
 let chunkOrd=null,chunkOrdR=-1;
 function chunkOrder(R){
@@ -11976,24 +12025,78 @@ function chunkOrder(R){
   const L=[];for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const d=dx*dx+dz*dz;if(d<=(R+0.6)*(R+0.6))L.push([dx,dz,d]);}
   L.sort((a,b)=>a[2]-b[2]);chunkOrd=L;chunkOrdR=R;return L;
 }
-// (budget: how many meshes it may ask for this call. 999 is "what's near, now", from a new game, the Testing Environment
-// or the sea redrawn: that used to stop after making three chunks like any other frame, so the world still came in one
-// a frame after it. Now it carries on, nearest first, until it's made 96: about a quarter of a second.)
+// (budget: 999 is "what's near, now", from a new game, the Testing Environment or the sea redrawn: that used to stop
+// after making three chunks like any other frame, so the world still came in one a frame after it. Now it carries on,
+// nearest first, until it's made 96: about a quarter of a second. Anything less is how many meshes it may ask for where
+// chunks still come by the count, one a frame: the tests, loadFixed in core/setup.js. In the game itself they come by
+// the clock, updateChunksT below.)
 function updateChunks(budget,dt){
   byLoader++;try{updateChunks0(budget,dt);}finally{byLoader--;}
+}
+// ---- New chunks by the clock ----
+// A chunk a frame was all the world ever came in at, whatever the frame had to spare: 60 a second at best, and half that
+// on a machine running at 30. An airliner needs 80 a second at the least detail distance, so the detail never caught up
+// with anything faster than a sports car. Now chunks are asked for until the frame's share of time is spent (3 ms; 6 for
+// anyone going fast, or while what's missing is in the nearer half of what should be there, a new place or a longer
+// detail distance; times LOADING SPEED: fbTake, core/setup.js). However little time that is, a frame still makes what
+// it always did, a mesh or three chunks' blocks, so a machine too slow for the clock is no worse off than it was.
+//  - Which first: nearest first as ever, but what's behind you waits until what's ahead and to the sides is in: behind
+//    the way you're going at any speed, or behind the camera standing still (each player by their own; within three
+//    chunks nothing waits).
+//  - What a mesh needs is made first, inside the same share: the blocks of the chunks round it out to two away (its
+//    edges, and the ground colours that blend across it, gmCols). meshPrep used to make those itself, unseen and
+//    uncounted, up to sixteen at a stroke.
+//  - No more meshes are asked for than the mesh threads will take (MW_LIM): with them busy, the time goes on making the
+//    blocks of the next ones, so they're ready when a thread is.
+//  - Two players apart each get a share: twice the time, and the turns go round the players.
+// (scan.i0: every place before it in nearest-first order was drawn or on its way last time, so the look starts there)
+const LOAD_MS=3,LOAD_MS_FAST=6;
+function updateChunksT(R,centers,key){
+  const O=chunkOrder(R),nC=centers.length,same=key===chunkScan.key;
+  // (each player's heading, in chunks: the way they're going, or the way they're looking)
+  const hd=centers.map((c,n)=>{const p=c[2],V=p&&farVel[c[3]];let hx=0,hz=0;
+    if(V&&V.x*V.x+V.z*V.z>64){const l=Math.hypot(V.x,V.z);hx=V.x/l;hz=V.z/l;}
+    else if(p&&p.cam){hx=-Math.sin(p.cam.yaw);hz=-Math.cos(p.cam.yaw);}
+    return [hx,hz];});
+  let apart=1;for(let n=1;n<nC;n++){let far=true;for(let m=0;m<n;m++)if(Math.max(Math.abs(centers[n][0]-centers[m][0]),Math.abs(centers[n][1]-centers[m][1]))<=R)far=false;if(far)apart++;}
+  const near=!same||chunkScan.i0<O.length>>1;
+  let made=0,gens=0,first=-1,stop=false;
+  const ms=fbTake((FB.fast||near?LOAD_MS_FAST:LOAD_MS)*apart,0,true),t0=performance.now(),over=()=>(made>0||gens>=3)&&performance.now()-t0>=ms;
+  const full=()=>MW.ws.length>0&&MW.pend.size>=MW_LIM;
+  const done=()=>{fbUsed(performance.now()-t0);chunkScan.key=key;chunkScan.full=first<0&&!made;chunkScan.size=meshes.size;chunkScan.i0=first<0?O.length:first;};
+  for(let pass=0;pass<2&&!stop;pass++){
+    for(let i=same?chunkScan.i0:0;i<O.length&&!stop;i++){const dx=O[i][0],dz=O[i][1],d2=O[i][2];
+      for(let n=0;n<nC;n++){const X=centers[n][0]+dx,Z=centers[n][1]+dz,k=ckey(X,Z);
+        if(meshes.has(k)||meshWaiting(k))continue;
+        if(first<0||i<first)first=i;
+        const back=d2>9&&dx*hd[n][0]+dz*hd[n][1]<-0.25*Math.sqrt(d2);
+        if(back!==(pass===1))continue;
+        // (the blocks it and its ground colours need: all there before the mesh is asked for)
+        let ready=true;
+        for(let a=-2;a<=2&&ready;a++)for(let b=-2;b<=2;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);gens++;if(over()){ready=false;stop=true;break;}}
+        if(!ready)break;
+        if(full())continue;   // (the threads have all they'll take: on to the next one's blocks)
+        meshAsk(X,Z);made++;
+        if(over()){stop=true;break;}
+      }
+    }
+    if(first<0)break;   // (nothing left to draw)
+  }
+  done();
 }
 function updateChunks0(budget,dt){
   const R=viewR,genMax=budget>=999?96:3;
   shipChunks();   // (each ship's own blocks, all of them, kept for as long as it's there)
-  const centers=players.filter(p=>p.active).map(p=>[Math.floor(pwx(p)/CS),Math.floor(pwz(p)/CS)]);   // (aboard a ship: where the ship really is)
-  if(DT.freecam)centers.push([Math.floor(FC.pos.x/CS),Math.floor(FC.pos.z/CS)]);
+  const centers=[];for(const p of players)if(p.active)centers.push([Math.floor(pwx(p)/CS),Math.floor(pwz(p)/CS),p,centers.length]);   // (aboard a ship: where the ship really is; then the player, and which of those playing, as farVel counts them)
+  if(DT.freecam)centers.push([Math.floor(FC.pos.x/CS),Math.floor(FC.pos.z/CS),null,-1]);
   const cheb=(cx,cz)=>{let m=1e9;for(const [a,b] of centers)m=Math.min(m,Math.max(Math.abs(cx-a),Math.abs(cz-b)));return m;};
   // (standing in the same chunk with everything in sight already made, there's nothing to go through)
-  const key=R+'|'+centers.join('|'),same=key===chunkScan.key;
+  const key=R+'|'+centers.map(c=>c[0]+','+c[1]).join('|'),same=key===chunkScan.key;
   if(!same)for(const [k,e] of meshes){if(e.cx<SHIP_CX0&&cheb(e.cx,e.cz)>R+1){regionTouch(e.cx,e.cz);for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
   unloadT-=dt;
   if(unloadT<=0){unloadT=2;for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cx<SHIP_CX0&&cheb(cx,cz)>R+4)chunks.delete(k);}lastK=-1;if(plotCache.size>30000){plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();joinCache.clear();icCache.clear();ctlCache.clear();}}
   if(same&&chunkScan.full&&chunkScan.size===meshes.size)return;
+  if(budget<999&&!loadFixed){updateChunksT(R,centers,key);return;}
   let made=0,gens=0;
   scan:for(const [dx,dz] of chunkOrder(R))for(const [pcx,pcz] of centers){
     {const k=ckey(pcx+dx,pcz+dz);if(meshes.has(k)||meshWaiting(k))continue;}
@@ -12014,15 +12117,16 @@ function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
 // At most 5 ms a frame (it was 9): in a rampage there's nearly always a queue, and a chunk takes 1 to 2.5 ms, so the
 // difference was most of what pushed those frames past 16.7 ms. The cost is that a far hole may show a few frames late, so
 // the chunk nearest a player goes first, as that's where the smashing being looked at is.
+// (Its time comes out of the frame's one allowance, fbTake in core/setup.js, and it's first to ask.)
 const REBUILD_MS=5;
 function flushRebuilds(){
-  byLoader++;try{flushRebuilds0();}finally{byLoader--;}
+  const t0=performance.now();byLoader++;try{flushRebuilds0();}finally{byLoader--;fbUsed(performance.now()-t0);}   // (the meshes back from the threads, meshTick, are in its time too)
 }
 function flushRebuilds0(){
   meshTick();
   if(!rebuildQ.size)return;
   const full=()=>MW.ws.length&&MW.pend.size>=MW_LIM;if(full())return;
-  const t0=performance.now(),ms=Math.min(REBUILD_MS,3+rebuildQ.size*0.5);   // (more waiting: a bit more time, so it can't fall far behind; at least one a frame, however long it takes)
+  const t0=performance.now(),ms=fbTake(Math.min(REBUILD_MS,3+rebuildQ.size*0.5),0);   // (more waiting: a bit more time, so it can't fall far behind; at least one a frame, however long it takes)
   if(rebuildQ.size>2){let best=-1,bd=1e9;
     for(const p of players){if(!p.active)continue;const x=pwx(p)/CS-.5,z=pwz(p)/CS-.5;
       for(const k of rebuildQ){if(collHold.has(k))continue;const e=meshes.get(k);if(!e)continue;const d=Math.abs(e.cx-x)+Math.abs(e.cz-z);if(d<bd){bd=d;best=k;}}}
@@ -12040,8 +12144,8 @@ function flushRebuilds0(){
 // subways, it's all done there and then as before (buildChunk), and the picture comes out the same either way.
 const MW_FNS=[meshKernel,blkFlood,blkAt,blkKeep,emitBox,emitFence,emitRamp].map(f=>f.toString()).join('\n')+'\n'+MBuf.toString()+'\nconst FENCEISH='+FENCEISH.toString()+',mkBufs='+mkBufs.toString()+';\n';
 // (at most this many waiting for a worker at once, so a crater's worth of rebuilds can't queue up seconds of work behind
-// the chunks that come into view)
-const MW_LIM=8;
+// the chunks that come into view: four for each worker there is, mwUp)
+let MW_LIM=8;
 const MW={ws:[],off:false,pend:new Map(),done:[],id:0,why:''};
 // the worker's script: the tables it reads, its own working arrays, and the functions
 function mwBody(){
@@ -12059,12 +12163,15 @@ function mwBody(){
      '  postMessage({id:J.id,k:J.k,R},t);};\n';
   return s;
 }
-// the workers, made the first time they're wanted: two, or one on a machine with only two cores
+// the workers, made the first time they're wanted: one for each core but two (the game's own thread and the browser's
+// drawing keep those), four at most and one at least. (There were never more than two, and they sat idle while the
+// world came in a chunk a frame; with chunks asked for by the clock, updateChunksT, they're what sets the pace.)
 function mwUp(){
   if(MW.ws.length)return true;if(MW.off)return false;
   if(typeof Worker==='undefined'||typeof Blob==='undefined'||typeof URL==='undefined'||!URL.createObjectURL){MW.off=true;MW.why='no workers here';return false;}
-  try{const u=URL.createObjectURL(new Blob([mwBody()],{type:'text/javascript'})),n=Math.max(1,Math.min(2,(navigator.hardwareConcurrency||2)-1));
-    for(let i=0;i<n;i++){const w=new Worker(u);w.n=0;w.onmessage=mwGot;w.onerror=e=>mwFail('worker: '+(e&&e.message));MW.ws.push(w);}}
+  try{const u=URL.createObjectURL(new Blob([mwBody()],{type:'text/javascript'})),n=Math.max(1,Math.min(4,(navigator.hardwareConcurrency||3)-2));
+    for(let i=0;i<n;i++){const w=new Worker(u);w.n=0;w.onmessage=mwGot;w.onerror=e=>mwFail('worker: '+(e&&e.message));MW.ws.push(w);}
+    MW_LIM=Math.max(8,MW.ws.length*4);}
   catch(e){mwFail(e);return false;}
   return true;
 }
@@ -13406,6 +13513,7 @@ function flushNotes(ms){
   if(!noteQ.length)return;const t0=performance.now();let i=0;
   while(i<noteQ.length){noteBlock(noteQ[i],noteQ[i+1],noteQ[i+2],noteQ[i+3],noteQ[i+4]);i+=5;if(!(i%500)&&performance.now()-t0>ms)break;}
   if(i>=noteQ.length)noteQ.length=0;else noteQ.splice(0,i);
+  fbUsed(performance.now()-t0);
 }
 function colTop(b,rx,rz){const tierOn=b.tier>0&&(b.x1-b.x0)>=8,inner=rx>=b.x0+2&&rx<b.x1-2&&rz>=b.z0+2&&rz<b.z1-2;return ((tierOn&&!inner)?b.tier:b.top)+(b.roof||0);}
 // a building's original block count, every block of it counted. (It used to be estimated from up to 72 of its columns, and
@@ -13449,8 +13557,8 @@ function setBuildings(S){
 // walking into a big city never stalls the game). A building that's been destroyed counts as entirely gone, whatever
 // is left of it; one still standing counts the blocks actually knocked out of it. No building left standing: 100%.
 // (destMs: how long a frame it may count for. 3 ms, or 1 when you're travelling fast or the frames are already long,
-// set each frame by the tick in render/daynight.js, which also waits until a second's been spent in a place: destIn,
-// the place you're in and for how long)
+// set each frame by the tick in render/daynight.js, out of the frame's one allowance (fbTake, core/setup.js), which also
+// waits until a second's been spent in a place: destIn, the place you're in and for how long)
 const destJob={S:null,list:null,i:0,tot:0},setDCache=new Map(),destIn={S:null,t:0};let setDVer=0,destMs=3;   // (bumped when a place's figure changes)
 function setDestroyed(S){
   const k=S.rx+','+S.rz;let L=setListC.get(k);
@@ -13458,6 +13566,7 @@ function setDestroyed(S){
     if(destJob.S!==S){destJob.S=S;destJob.list=setBuildings(S);destJob.i=0;destJob.tot=0;}
     const t0=performance.now();
     while(destJob.i<destJob.list.length&&performance.now()-t0<destMs){const E=destJob.list[destJob.i],n=bldgSolidPart(E.b,E.px,E.pz,E.key,t0+destMs);if(n===undefined)break;destJob.tot+=n;destJob.i++;}
+    fbUsed(performance.now()-t0);
     if(destJob.i<destJob.list.length)return null;
     L=destJob.list;setListC.set(k,L);setTotC.set(k,destJob.tot);destJob.S=null;}
   if(!L.length)return 0;
@@ -14293,6 +14402,10 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
   const fs=document.getElementById('fireDur'),fl=document.getElementById('fireDurVal');
   const showF=()=>{fs.value=String(fireDurI);fl.textContent=FIRE_DURS[fireDurI].l;};showF();
   fs.addEventListener('input',()=>{fireDurI=Math.max(0,Math.min(FIRE_DURS.length-1,Math.round(+fs.value)||0));showF();try{localStorage.setItem(FIREDUR_KEY,String(fireDurI));}catch(e){}if(typeof refireDur==='function')refireDur();});
+  // (LOADING SPEED: how much of each frame goes on bringing the world in, fbBegin in core/setup.js)
+  const lss=document.getElementById('loadSpd'),lsl=document.getElementById('loadSpdVal');
+  const showLS=()=>{lss.value=String(loadSpdI);lsl.textContent=LOAD_SPEEDS[loadSpdI].l;};showLS();
+  lss.addEventListener('input',()=>{loadSpdI=Math.max(0,Math.min(LOAD_SPEEDS.length-1,Math.round(+lss.value)||0));showLS();try{localStorage.setItem(LOADSPD_KEY,String(loadSpdI));}catch(e){}});
   const cps=document.getElementById('fireCap'),cpl=document.getElementById('fireCapVal');
   const showCap=()=>{cps.value=String(fireCapI);cpl.textContent=FIRE_CAPS[fireCapI]===Infinity?'No limit':String(FIRE_CAPS[fireCapI]);};showCap();
   cps.addEventListener('input',()=>{fireCapI=Math.max(0,Math.min(FIRE_CAPS.length-1,Math.round(+cps.value)||0));showCap();try{localStorage.setItem(FIRECAP_KEY,String(fireCapI));}catch(e){}if(typeof trimFires==='function')trimFires(0);});
@@ -31884,7 +31997,7 @@ document.getElementById('setBtn').addEventListener('click',()=>openSub(setFirst(
 const SET_DEFS={
   tabControls:[['b','.ctl-seg [data-view="auto"]'],['t','#camTog',false],['b','#planeSeg [data-pctl="auto"]'],['f',()=>{const r=document.getElementById('rbReset');if(r)r.click();}]],
   tabGameplay:[['r','#hostMain',3],['r','#daySpeed',3]],
-  tabPerf:[['r','#viewDist',112],['r','#detailDist',112],['r','#propDist',64],['r','#crowdDist',1],['r','#trafficDist',1],['r','#fireDur',2],['r','#fireCap',5],
+  tabPerf:[['r','#viewDist',112],['r','#detailDist',112],['r','#propDist',64],['r','#loadSpd',1],['r','#crowdDist',1],['r','#trafficDist',1],['r','#fireDur',2],['r','#fireCap',5],
     ['b','#pathSeg [data-path="0"]'],['t','#blkTog',true],['t','#trkTog',true],['t','#dbgMenuTog .tog',false]],
   tabDisplay:[['r','#sndVol',100],['r','#brightness',100],['t','#scorePopTog',false],['t','#dmgPopTog',false],['t','#shoutTog',false],['t','#hpBarTog',false],
     ['t','#bloodTog',false],['t','#keysTog',false],['t','#calmTog',false]],
@@ -32591,6 +32704,7 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
   madeNow=0;profBegin(now);
   fpsTick((now-last)/1000);safe('sound list',sndTick);
   frameMs+=(Math.min(100,Math.max(0,now-last))-frameMs)*0.05;   // (how long frames have been taking lately)
+  {let v=0;for(const V of farVel)if(V)v=Math.max(v,Math.hypot(V.x,V.z));fbBegin(v);}   // (this frame's allowance for the work that can wait, by how fast anyone's going: core/setup.js)
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
   if(menuOpen)obitPreviewTick(dt);
   if(menuOpen&&curTab==='dev'){safe('devfo',()=>devFoTick(dt));safe('devst',()=>stTick(dt));}
@@ -32621,8 +32735,16 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
     safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>{collapseTick();updateTopples(sdt);});safe('water',()=>updateWater(sdt));
     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   }
-  safe('far',()=>shipView(()=>updateFar(dt)));safe('debug',()=>updateDebug(gdt));safe('explore',()=>shipView(()=>updateExplore(dt)));   // (aboard a ship, the world round about is round where the ship is)
-  safe('blast',()=>{bbTick(gdt);bldgDarkTick(gdt);});safe('tracks',()=>{rdDeadTick(gdt);trkTick(gdt);});safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);planAhead();regionTick();});
+  // The work that can wait shares one allowance a frame (fbBegin above, fbTake: core/setup.js), first come first served:
+  // the meshes being made again, new chunks, the far view, then the plans and the counting. (Where chunks still come one
+  // a frame, the tests, loadFixed, the order's as it always was: the far view, new chunks, then the meshes made again.)
+  const far=()=>safe('far',()=>shipView(()=>updateFar(dt)));   // (aboard a ship, the world round about is round where the ship is)
+  if(loadFixed)far();
+  safe('debug',()=>updateDebug(gdt));safe('explore',()=>shipView(()=>updateExplore(dt)));
+  safe('blast',()=>{bbTick(gdt);bldgDarkTick(gdt);});safe('tracks',()=>{rdDeadTick(gdt);trkTick(gdt);});
+  safe('chunks',()=>{if(loadFixed){updateChunks(P2.active?2:1,dt);flushRebuilds();}else{flushRebuilds();updateChunks(1,dt);}});
+  if(!loadFixed)far();
+  safe('chunks',()=>{flushNotes(fbTake(2,0.5));planAhead();regionTick();});
   camClock+=dt;
   // (a guest online is shown players it doesn't run itself: anything amiss with one mustn't stop the whole game)
   for(const p of players){try{poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);shipCam(p);drvHud(p);updateSpeedo(p,dt);shipView(()=>updateMinimap(p,dt));p.shake*=Math.exp(-gdt*7);}catch(e){if(!netGuest())throw e;safe('view',()=>{throw e;});}}
@@ -33817,7 +33939,7 @@ function farCommit(L){
 const farLag=(L,p)=>L.ring.value.y<=0?0:L.bm<0?9:Math.hypot(p.x-L.bx,p.z-L.bz)/Math.max(1,L.bm);   // (a ring with no band, the far one when the horizon's nearer than it starts, isn't behind)
 const farBackOK=()=>{const B=LODS[3],a=players.find(q=>q.active);return !a||B.ring.value.y<=0||farLag(B,a.pos)<=1;};
 let farDirty=true,farT=0,farClk=0;
-const FAR_BUDGET=4,FAR_BUDGET_FAST=6,FAR_FAST=120;   // milliseconds a frame for building the far rings; and for a player going faster than FAR_FAST blocks a second (a jet flat out), who is over new country faster than 4 ms a frame can draw it
+const FAR_BUDGET=4,FAR_BUDGET_FAST=6,FAR_FAST=120;   // milliseconds a frame for building the far rings (out of the frame's one allowance, fbTake in core/setup.js: at least a millisecond and a half); and for a player going faster than FAR_FAST blocks a second (a jet flat out), who is over new country faster than 4 ms a frame can draw it
 const FAR_BACK_MS=12; // (and for the backdrop while it doesn't reach the horizon: bare sky there is worse than a slow frame or two)
 // (each player's speed over the ground, smoothed, from where they were last frame: a jump of a frame, being put somewhere, isn't speed)
 const farVel=[];
@@ -33882,12 +34004,13 @@ function updateFar(dt){
   // run the builds for a few milliseconds: the backdrop's first (it's quick, and the others are drawn over it), then the
   // rings nearest first, each with a share of the time so that none waits on another (the near ring, building one after
   // another for a fast player, would take it all), and what's left over to whichever still has work
-  const t0=performance.now(),p0=act[0].pos,BUD=spd>FAR_FAST?FAR_BUDGET_FAST:FAR_BUDGET,run=(L,ms)=>{while(L.job&&performance.now()-t0<ms){const r=L.job.next();if(r.done){L.job=null;L.dur=L.dur*0.5+(farClk-L.t0)*0.5;farCommit(L);}}};
-  run(LODS[3],farLag(LODS[3],p0)>0.8?FAR_BACK_MS:BUD);
+  const t0=performance.now(),p0=act[0].pos,BUD=fbTake(spd>FAR_FAST?FAR_BUDGET_FAST:FAR_BUDGET,1.5,true),run=(L,ms)=>{while(L.job&&performance.now()-t0<ms){const r=L.job.next();if(r.done){L.job=null;L.dur=L.dur*0.5+(farClk-L.t0)*0.5;farCommit(L);}}};
+  run(LODS[3],farLag(LODS[3],p0)>0.8?Math.max(BUD,fbTake(FAR_BACK_MS,6,true)):BUD);
   {const tb=Math.min(BUD,performance.now()-t0),sw=farLag(LODS[1],p0)>1&&farLag(LODS[1],p0)>farLag(LODS[0],p0),A=LODS[sw?1:0],B=LODS[sw?0:1],hot=farLag(A,p0)>1;
    // (of the two nearer, the one further behind first; and while it no longer covers its band, the far ring, which the
    // backdrop stands in for best, gets less)
    run(A,tb+(BUD-tb)*(hot?0.55:0.45));run(B,tb+(BUD-tb)*(hot?0.82:0.75));run(LODS[2],BUD);run(A,BUD);run(B,BUD);}
+  fbUsed(performance.now()-t0);
   // stretch the cloud deck to cover the whole view
   // (bent down, the decks must reach on round past the horizon, down to where the world's edge drops out of sight)
   {const s=Math.max(1,(lodFar()+120)/300),k=CURVE_U.value,act=players.filter(p=>p.active),cy=act.length?Math.max(...act.map(p=>p.camera.position.y)):G+8;
@@ -33962,7 +34085,7 @@ function destLabel(){
     // more than a millisecond of every frame, each town below begun and dropped for the next. So it's 1 ms while you're
     // travelling fast (faster than 40 blocks a second, by the far view's reckoning) or the frames are already long, and
     // a place not yet counted isn't begun until you've been in it a second.)
-    {const V=farVel[0];destMs=frameMs>20||V&&V.x*V.x+V.z*V.z>1600?1:3;}
+    {const V=farVel[0];destMs=fbTake(frameMs>20||V&&V.x*V.x+V.z*V.z>1600?1:3,0.5);}
     if(S!==destIn.S){destIn.S=S;destIn.t=0;}else destIn.t+=dt;
     if(S&&(destIn.t>=1||setListC.has(S.rx+','+S.rz))){setDestroyed(S);rampRazeTick(S);}
     // (otherwise, a little at a time, work out the totals for the places you've found but not been into, for the map)

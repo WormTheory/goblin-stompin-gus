@@ -115,6 +115,7 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
   madeNow=0;profBegin(now);
   fpsTick((now-last)/1000);safe('sound list',sndTick);
   frameMs+=(Math.min(100,Math.max(0,now-last))-frameMs)*0.05;   // (how long frames have been taking lately)
+  {let v=0;for(const V of farVel)if(V)v=Math.max(v,Math.hypot(V.x,V.z));fbBegin(v);}   // (this frame's allowance for the work that can wait, by how fast anyone's going: core/setup.js)
   const dt=Math.max(0,Math.min(0.06,(now-last)/1000));last=now;   // (never below 0: a long boot can hand the first frame a timestamp older than last, and negative time winds timers up, which queued a stomp nobody pressed)
   if(menuOpen)obitPreviewTick(dt);
   if(menuOpen&&curTab==='dev'){safe('devfo',()=>devFoTick(dt));safe('devst',()=>stTick(dt));}
@@ -145,8 +146,16 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
     safe('parts',()=>updateParts(sdt));safe('rubble',()=>updateRubble(sdt));safe('shocks',()=>{updateShocks(sdt);updateCones(sdt);});safe('bodies',()=>updateBodies(sdt));safe('topples',()=>{collapseTick();updateTopples(sdt);});safe('water',()=>updateWater(sdt));
     safe('booms',()=>updateBooms(sdt));safe('fires',()=>updateFires(sdt));safe('flecks',()=>updateFlecks(sdt));
   }
-  safe('far',()=>shipView(()=>updateFar(dt)));safe('debug',()=>updateDebug(gdt));safe('explore',()=>shipView(()=>updateExplore(dt)));   // (aboard a ship, the world round about is round where the ship is)
-  safe('blast',()=>{bbTick(gdt);bldgDarkTick(gdt);});safe('tracks',()=>{rdDeadTick(gdt);trkTick(gdt);});safe('chunks',()=>{updateChunks(P2.active?2:1,dt);flushRebuilds();flushNotes(2);planAhead();regionTick();});
+  // The work that can wait shares one allowance a frame (fbBegin above, fbTake: core/setup.js), first come first served:
+  // the meshes being made again, new chunks, the far view, then the plans and the counting. (Where chunks still come one
+  // a frame, the tests, loadFixed, the order's as it always was: the far view, new chunks, then the meshes made again.)
+  const far=()=>safe('far',()=>shipView(()=>updateFar(dt)));   // (aboard a ship, the world round about is round where the ship is)
+  if(loadFixed)far();
+  safe('debug',()=>updateDebug(gdt));safe('explore',()=>shipView(()=>updateExplore(dt)));
+  safe('blast',()=>{bbTick(gdt);bldgDarkTick(gdt);});safe('tracks',()=>{rdDeadTick(gdt);trkTick(gdt);});
+  safe('chunks',()=>{if(loadFixed){updateChunks(P2.active?2:1,dt);flushRebuilds();}else{flushRebuilds();updateChunks(1,dt);}});
+  if(!loadFixed)far();
+  safe('chunks',()=>{flushNotes(fbTake(2,0.5));planAhead();regionTick();});
   camClock+=dt;
   // (a guest online is shown players it doesn't run itself: anything amiss with one mustn't stop the whole game)
   for(const p of players){try{poundWoosh(p);runWoosh(p);bodyStreaks(p,gdt);if(!p.active)continue;updateSpeedFx(p,gdt);placeCamera(p);shipCam(p);drvHud(p);updateSpeedo(p,dt);shipView(()=>updateMinimap(p,dt));p.shake*=Math.exp(-gdt*7);}catch(e){if(!netGuest())throw e;safe('view',()=>{throw e;});}}

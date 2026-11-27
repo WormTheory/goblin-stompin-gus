@@ -151,7 +151,7 @@ document.getElementById('setBtn').addEventListener('click',()=>openSub(setFirst(
 const SET_DEFS={
   tabControls:[['b','.ctl-seg [data-view="auto"]'],['t','#camTog',false],['b','#planeSeg [data-pctl="auto"]'],['f',()=>{const r=document.getElementById('rbReset');if(r)r.click();}]],
   tabGameplay:[['r','#hostMain',3],['r','#daySpeed',3]],
-  tabPerf:[['r','#viewDist',112],['r','#detailDist',112],['r','#propDist',64],['r','#crowdDist',1],['r','#trafficDist',1],['r','#fireDur',2],['r','#fireCap',5],
+  tabPerf:[['r','#viewDist',112],['r','#detailDist',112],['r','#propDist',64],['r','#loadSpd',1],['r','#crowdDist',1],['r','#trafficDist',1],['r','#fireDur',2],['r','#fireCap',5],
     ['b','#pathSeg [data-path="0"]'],['t','#blkTog',true],['t','#trkTog',true],['t','#dbgMenuTog .tog',false]],
   tabDisplay:[['r','#sndVol',100],['r','#brightness',100],['t','#scorePopTog',false],['t','#dmgPopTog',false],['t','#shoutTog',false],['t','#hpBarTog',false],
     ['t','#bloodTog',false],['t','#keysTog',false],['t','#calmTog',false]],

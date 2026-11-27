@@ -174,6 +174,10 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
   const fs=document.getElementById('fireDur'),fl=document.getElementById('fireDurVal');
   const showF=()=>{fs.value=String(fireDurI);fl.textContent=FIRE_DURS[fireDurI].l;};showF();
   fs.addEventListener('input',()=>{fireDurI=Math.max(0,Math.min(FIRE_DURS.length-1,Math.round(+fs.value)||0));showF();try{localStorage.setItem(FIREDUR_KEY,String(fireDurI));}catch(e){}if(typeof refireDur==='function')refireDur();});
+  // (LOADING SPEED: how much of each frame goes on bringing the world in, fbBegin in core/setup.js)
+  const lss=document.getElementById('loadSpd'),lsl=document.getElementById('loadSpdVal');
+  const showLS=()=>{lss.value=String(loadSpdI);lsl.textContent=LOAD_SPEEDS[loadSpdI].l;};showLS();
+  lss.addEventListener('input',()=>{loadSpdI=Math.max(0,Math.min(LOAD_SPEEDS.length-1,Math.round(+lss.value)||0));showLS();try{localStorage.setItem(LOADSPD_KEY,String(loadSpdI));}catch(e){}});
   const cps=document.getElementById('fireCap'),cpl=document.getElementById('fireCapVal');
   const showCap=()=>{cps.value=String(fireCapI);cpl.textContent=FIRE_CAPS[fireCapI]===Infinity?'No limit':String(FIRE_CAPS[fireCapI]);};showCap();
   cps.addEventListener('input',()=>{fireCapI=Math.max(0,Math.min(FIRE_CAPS.length-1,Math.round(+cps.value)||0));showCap();try{localStorage.setItem(FIRECAP_KEY,String(fireCapI));}catch(e){}if(typeof trimFires==='function')trimFires(0);});

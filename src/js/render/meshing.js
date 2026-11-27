@@ -351,11 +351,12 @@ function meshPrep(cx,cz,copy){
   // the graphics card, and the deck shakes as it moves. See ships.js)
   const pk=cx>=SHIP_CX0,pkS=pk?shipPg(cz):null,mx0=pkS?x0-pkS.ox:x0,mz0=pkS?z0-pkS.oz:z0;
   // the nine chunks as the mesh sees them (hidden features filled in, fallen leaves gone; the eight round about in the
-  // hidden-features view keep their leaves, as they always did), and as the light sees them (as they are)
-  const nineM=[],nineL=[];
+  // hidden-features view keep their leaves, as they always did), and as the light sees them (as they are). The game's
+  // own arrays for now: what a thread is sent of them is settled below, once it's known whether anything's lit
+  const nineM=[],nineL=[];let sendM=nineM,sendL=nineL;
   for(let j=0;j<3;j++)for(let i=0;i<3;i++){const qx=cx+i-1,qz=cz+j-1,raw=chunkArr(qx,qz);
-    if(i===1&&j===1){nineM.push(a);nineL.push(gfx||lf?(copy?raw.slice():raw):a);continue;}
-    const L=copy?raw.slice():raw;nineL.push(L);nineM.push(gfx?gfxArr(qx,qz):lf?leafed(L,qx,qz):L);}
+    if(i===1&&j===1){nineM.push(a);nineL.push(gfx||lf?raw:a);continue;}
+    nineL.push(raw);nineM.push(gfx?gfxArr(qx,qz):lf?leafed(raw,qx,qz):raw);}
   const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
     const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2;return nineM[nj*3+ni][lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];};
   const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
@@ -373,6 +374,21 @@ function meshPrep(cx,cz,copy){
   // the lights round about, where they start (none, and nothing to do, with Block lighting off)
   // (by day, none: blkDay)
   const BL=BL_ON,day=BL&&blkDay,seeds=BL?(day?new Int16Array(0):blkSeeds(cx,cz,yLo,yTop)):null;
+  // What the kernel is given of the chunks round about. With something lit in reach the light spreads through all nine,
+  // so it has them whole (copies, for a thread: 460 KB a job). With nothing lit, by day and wherever no lamp's near, the
+  // mesh only ever looks one block past its own edges and one layer over and under what it draws: those blocks alone
+  // are gathered into one small array (pad: CS+2 across, from layer py0), a seventh the size or less, and the nine
+  // aren't sent at all. (The same either way on the main thread, so the suites' meshes come through the same path.)
+  let pad=null,py0=0;
+  if(!gfx&&(!BL||!seeds.length)){
+    const PW=CS+2,PA=PW*PW,py1=Math.min(H-1,yTop+1);py0=Math.max(0,yLo-1);pad=new Uint8Array(PA*(py1-py0+1));
+    for(let y=py0;y<=py1;y++){const o=(y-py0)*PA,s=y*A2;
+      for(let lz=-1;lz<=CS;lz++){const nj=lz<0?0:lz<CS?1:2,src=(lz-(nj-1)*CS)*CS+s,M=nineM[nj*3+1];let r=o+(lz+1)*PW;
+        pad[r++]=nineM[nj*3][src+CS-1];for(let lx=0;lx<CS;lx++)pad[r++]=M[src+lx];pad[r]=nineM[nj*3+2][src];}}
+    sendM=sendL=null;}
+  else if(copy)for(let n=0;n<9;n++){
+    if(n===4){if(nineL[4]!==a)nineL[4]=nineL[4].slice();continue;}   // (a is the thread's own already)
+    const L=nineL[n],C=L.slice();nineL[n]=C;if(nineM[n]===L)nineM[n]=C;}   // (one with fallen leaves taken out is a copy of its own)
   // (the biome's tint on grass and leaves, world/climate.js: g 0 grass, 1 leaves, for each column with any; (column*2+g)*3)
   const tint=new Float32Array(A2*6),tf=new Uint8Array(A2*2);
   for(let y=yLo;y<=yTop;y++){const o=y*A2;for(let i=0;i<A2;i++){const b=a[o+i];if(b===GRASS)tf[i*2]=1;else if(b===LEAVES||b===PINE)tf[i*2+1]=1;}}
@@ -408,17 +424,18 @@ function meshPrep(cx,cz,copy){
   const snow=new Float64Array(A2);for(let i=0;i<A2;i++)if(tops[i]>=0)snow[i]=1+(snowBorn.get(colKey(x0+i%CS,z0+Math.floor(i/CS)))||0);
   // (the paint and rails laid on the roads, worked out here; only the light on them is left to meshKernel)
   const rm=pk?null:routeMarks(cx,cz);
-  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM,nineL,rdY,rdOut,sr,BL,day,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
+  return {cx,cz,x0,z0,mx0,mz0,pk,yLo,yTop,a,tops,nineM:sendM,nineL:sendL,pad,py0,rdY,rdOut,sr,BL,day,seeds,tint,gS,dark,snow,rm,rmS:rm&&BL?Float64Array.from(rm.S):null};
 }
 // the arrays a job hands over to a thread with it, each once (the job's own copies: nothing the game goes on using)
 function meshXfer(J){
-  const s=new Set([J.a.buffer,J.tops.buffer,J.tint.buffer,J.snow.buffer]);for(const N of J.nineM)s.add(N.buffer);for(const N of J.nineL)s.add(N.buffer);
+  const s=new Set([J.a.buffer,J.tops.buffer,J.tint.buffer,J.snow.buffer]);if(J.pad)s.add(J.pad.buffer);else{for(const N of J.nineM)s.add(N.buffer);for(const N of J.nineL)s.add(N.buffer);}
   for(const O of J.rdOut)s.add(O.buffer);for(const A of [J.seeds,J.gS,J.dark,J.rmS])if(A)s.add(A.buffer);return [...s];}
 // the mesh's arrays from what meshPrep gathered: L, [opaque, water] each {p,u,c,k,b,i} or null; light, how lit the chunk's
 // own blocks are (for blkEdit), and rmB, the light on the paint on the roads
 function meshKernel(J){
-  const {x0,z0,mx0,mz0,yLo,yTop,a,tops,nineM,BL,tint,gS,dark,snow}=J,A2=CS*CS,gmOn=!!gS;
-  const at=(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
+  const {x0,z0,mx0,mz0,yLo,yTop,a,tops,nineM,pad,py0,BL,tint,gS,dark,snow}=J,A2=CS*CS,gmOn=!!gS,PW=CS+2,PA=PW*PW;
+  // (a block of this chunk or one past its edge: from the small array where that's what was sent, meshPrep, or the nine)
+  const at=pad?(lx,y,lz)=>y<0?STONE:y>=H?AIR:pad[lx+1+(lz+1)*PW+(y-py0)*PA]:(lx,y,lz)=>{if(y<0)return STONE;if(y>=H)return AIR;
     const ni=lx<0?0:lx<CS?1:2,nj=lz<0?0:lz<CS?1:2;return nineM[nj*3+ni][lx-(ni-1)*CS+(lz-(nj-1)*CS)*CS+y*A2];};
   const opq=(lx,y,lz)=>B_OPQ[at(lx,y,lz)]===1;
   const bufs=MB;for(const d of bufs){d.p.length=d.u.length=d.c.length=d.i.length=d.k.length=d.b.length=0;}
@@ -676,7 +693,7 @@ function regionTick(){
   }
   if(regClock%2===0&&regionQ.length){const [rk,keys]=regionQ.pop();if(!REGIONS.has(rk)&&regClock-(regionChanged.get(rk)??-1e9)>=REG_SETTLE)regionMerge(rk,keys);}
 }
-let unloadT=0,chunkScan={key:'',size:-1,full:false};
+let unloadT=0,chunkScan={key:'',size:-1,full:false,i0:0};
 // where to look for a chunk to make next, nearest first: worked out once for a view distance, not every frame
 let chunkOrd=null,chunkOrdR=-1;
 function chunkOrder(R){
@@ -684,24 +701,78 @@ function chunkOrder(R){
   const L=[];for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const d=dx*dx+dz*dz;if(d<=(R+0.6)*(R+0.6))L.push([dx,dz,d]);}
   L.sort((a,b)=>a[2]-b[2]);chunkOrd=L;chunkOrdR=R;return L;
 }
-// (budget: how many meshes it may ask for this call. 999 is "what's near, now", from a new game, the Testing Environment
-// or the sea redrawn: that used to stop after making three chunks like any other frame, so the world still came in one
-// a frame after it. Now it carries on, nearest first, until it's made 96: about a quarter of a second.)
+// (budget: 999 is "what's near, now", from a new game, the Testing Environment or the sea redrawn: that used to stop
+// after making three chunks like any other frame, so the world still came in one a frame after it. Now it carries on,
+// nearest first, until it's made 96: about a quarter of a second. Anything less is how many meshes it may ask for where
+// chunks still come by the count, one a frame: the tests, loadFixed in core/setup.js. In the game itself they come by
+// the clock, updateChunksT below.)
 function updateChunks(budget,dt){
   byLoader++;try{updateChunks0(budget,dt);}finally{byLoader--;}
+}
+// ---- New chunks by the clock ----
+// A chunk a frame was all the world ever came in at, whatever the frame had to spare: 60 a second at best, and half that
+// on a machine running at 30. An airliner needs 80 a second at the least detail distance, so the detail never caught up
+// with anything faster than a sports car. Now chunks are asked for until the frame's share of time is spent (3 ms; 6 for
+// anyone going fast, or while what's missing is in the nearer half of what should be there, a new place or a longer
+// detail distance; times LOADING SPEED: fbTake, core/setup.js). However little time that is, a frame still makes what
+// it always did, a mesh or three chunks' blocks, so a machine too slow for the clock is no worse off than it was.
+//  - Which first: nearest first as ever, but what's behind you waits until what's ahead and to the sides is in: behind
+//    the way you're going at any speed, or behind the camera standing still (each player by their own; within three
+//    chunks nothing waits).
+//  - What a mesh needs is made first, inside the same share: the blocks of the chunks round it out to two away (its
+//    edges, and the ground colours that blend across it, gmCols). meshPrep used to make those itself, unseen and
+//    uncounted, up to sixteen at a stroke.
+//  - No more meshes are asked for than the mesh threads will take (MW_LIM): with them busy, the time goes on making the
+//    blocks of the next ones, so they're ready when a thread is.
+//  - Two players apart each get a share: twice the time, and the turns go round the players.
+// (scan.i0: every place before it in nearest-first order was drawn or on its way last time, so the look starts there)
+const LOAD_MS=3,LOAD_MS_FAST=6;
+function updateChunksT(R,centers,key){
+  const O=chunkOrder(R),nC=centers.length,same=key===chunkScan.key;
+  // (each player's heading, in chunks: the way they're going, or the way they're looking)
+  const hd=centers.map((c,n)=>{const p=c[2],V=p&&farVel[c[3]];let hx=0,hz=0;
+    if(V&&V.x*V.x+V.z*V.z>64){const l=Math.hypot(V.x,V.z);hx=V.x/l;hz=V.z/l;}
+    else if(p&&p.cam){hx=-Math.sin(p.cam.yaw);hz=-Math.cos(p.cam.yaw);}
+    return [hx,hz];});
+  let apart=1;for(let n=1;n<nC;n++){let far=true;for(let m=0;m<n;m++)if(Math.max(Math.abs(centers[n][0]-centers[m][0]),Math.abs(centers[n][1]-centers[m][1]))<=R)far=false;if(far)apart++;}
+  const near=!same||chunkScan.i0<O.length>>1;
+  let made=0,gens=0,first=-1,stop=false;
+  const ms=fbTake((FB.fast||near?LOAD_MS_FAST:LOAD_MS)*apart,0,true),t0=performance.now(),over=()=>(made>0||gens>=3)&&performance.now()-t0>=ms;
+  const full=()=>MW.ws.length>0&&MW.pend.size>=MW_LIM;
+  const done=()=>{fbUsed(performance.now()-t0);chunkScan.key=key;chunkScan.full=first<0&&!made;chunkScan.size=meshes.size;chunkScan.i0=first<0?O.length:first;};
+  for(let pass=0;pass<2&&!stop;pass++){
+    for(let i=same?chunkScan.i0:0;i<O.length&&!stop;i++){const dx=O[i][0],dz=O[i][1],d2=O[i][2];
+      for(let n=0;n<nC;n++){const X=centers[n][0]+dx,Z=centers[n][1]+dz,k=ckey(X,Z);
+        if(meshes.has(k)||meshWaiting(k))continue;
+        if(first<0||i<first)first=i;
+        const back=d2>9&&dx*hd[n][0]+dz*hd[n][1]<-0.25*Math.sqrt(d2);
+        if(back!==(pass===1))continue;
+        // (the blocks it and its ground colours need: all there before the mesh is asked for)
+        let ready=true;
+        for(let a=-2;a<=2&&ready;a++)for(let b=-2;b<=2;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);gens++;if(over()){ready=false;stop=true;break;}}
+        if(!ready)break;
+        if(full())continue;   // (the threads have all they'll take: on to the next one's blocks)
+        meshAsk(X,Z);made++;
+        if(over()){stop=true;break;}
+      }
+    }
+    if(first<0)break;   // (nothing left to draw)
+  }
+  done();
 }
 function updateChunks0(budget,dt){
   const R=viewR,genMax=budget>=999?96:3;
   shipChunks();   // (each ship's own blocks, all of them, kept for as long as it's there)
-  const centers=players.filter(p=>p.active).map(p=>[Math.floor(pwx(p)/CS),Math.floor(pwz(p)/CS)]);   // (aboard a ship: where the ship really is)
-  if(DT.freecam)centers.push([Math.floor(FC.pos.x/CS),Math.floor(FC.pos.z/CS)]);
+  const centers=[];for(const p of players)if(p.active)centers.push([Math.floor(pwx(p)/CS),Math.floor(pwz(p)/CS),p,centers.length]);   // (aboard a ship: where the ship really is; then the player, and which of those playing, as farVel counts them)
+  if(DT.freecam)centers.push([Math.floor(FC.pos.x/CS),Math.floor(FC.pos.z/CS),null,-1]);
   const cheb=(cx,cz)=>{let m=1e9;for(const [a,b] of centers)m=Math.min(m,Math.max(Math.abs(cx-a),Math.abs(cz-b)));return m;};
   // (standing in the same chunk with everything in sight already made, there's nothing to go through)
-  const key=R+'|'+centers.join('|'),same=key===chunkScan.key;
+  const key=R+'|'+centers.map(c=>c[0]+','+c[1]).join('|'),same=key===chunkScan.key;
   if(!same)for(const [k,e] of meshes){if(e.cx<SHIP_CX0&&cheb(e.cx,e.cz)>R+1){regionTouch(e.cx,e.cz);for(const m of e.m){if(m.parent)m.parent.remove(m);m.geometry.dispose();}meshes.delete(k);markMeshed(e.cx,e.cz,false);}}
   unloadT-=dt;
   if(unloadT<=0){unloadT=2;for(const k of chunks.keys()){const cx=Math.floor(k/65536)-32768,cz=(k%65536)-32768;if(cx<SHIP_CX0&&cheb(cx,cz)>R+4)chunks.delete(k);}lastK=-1;if(plotCache.size>30000){plotCache.clear();plotTypeC.clear();lampSpotC.clear();bridgeCache.clear();superCache.clear();joinCache.clear();icCache.clear();ctlCache.clear();}}
   if(same&&chunkScan.full&&chunkScan.size===meshes.size)return;
+  if(budget<999&&!loadFixed){updateChunksT(R,centers,key);return;}
   let made=0,gens=0;
   scan:for(const [dx,dz] of chunkOrder(R))for(const [pcx,pcz] of centers){
     {const k=ckey(pcx+dx,pcz+dz);if(meshes.has(k)||meshWaiting(k))continue;}
@@ -722,15 +793,16 @@ function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
 // At most 5 ms a frame (it was 9): in a rampage there's nearly always a queue, and a chunk takes 1 to 2.5 ms, so the
 // difference was most of what pushed those frames past 16.7 ms. The cost is that a far hole may show a few frames late, so
 // the chunk nearest a player goes first, as that's where the smashing being looked at is.
+// (Its time comes out of the frame's one allowance, fbTake in core/setup.js, and it's first to ask.)
 const REBUILD_MS=5;
 function flushRebuilds(){
-  byLoader++;try{flushRebuilds0();}finally{byLoader--;}
+  const t0=performance.now();byLoader++;try{flushRebuilds0();}finally{byLoader--;fbUsed(performance.now()-t0);}   // (the meshes back from the threads, meshTick, are in its time too)
 }
 function flushRebuilds0(){
   meshTick();
   if(!rebuildQ.size)return;
   const full=()=>MW.ws.length&&MW.pend.size>=MW_LIM;if(full())return;
-  const t0=performance.now(),ms=Math.min(REBUILD_MS,3+rebuildQ.size*0.5);   // (more waiting: a bit more time, so it can't fall far behind; at least one a frame, however long it takes)
+  const t0=performance.now(),ms=fbTake(Math.min(REBUILD_MS,3+rebuildQ.size*0.5),0);   // (more waiting: a bit more time, so it can't fall far behind; at least one a frame, however long it takes)
   if(rebuildQ.size>2){let best=-1,bd=1e9;
     for(const p of players){if(!p.active)continue;const x=pwx(p)/CS-.5,z=pwz(p)/CS-.5;
       for(const k of rebuildQ){if(collHold.has(k))continue;const e=meshes.get(k);if(!e)continue;const d=Math.abs(e.cx-x)+Math.abs(e.cz-z);if(d<bd){bd=d;best=k;}}}
