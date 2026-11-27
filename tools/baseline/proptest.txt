@@ -12,4 +12,4 @@ police goblin out of the bathroom in 13.3s
 police size 35 x 48 props near 393 goblin FAILED at -26.0,-259.2 checks inside a prop 0 of 400 knocked by Gus 4
 ikea goblin out of the bathroom in 6.1s
 ikea goblin out of the bathroom in 1.6s
-ikea size 112 x 66 props near 108 goblin reached in 22s checks inside a prop 0 of 219 knocked by Gus 14
+ikea size 112 x 66 props near 108 goblin reached in 21s checks inside a prop 0 of 206 knocked by Gus 14

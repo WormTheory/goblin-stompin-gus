@@ -1,0 +1,24 @@
+  plain differing 0
+  smashed differing 0
+  leaves fallen differing 0
+chunks 153 | with lamplight 120 | with water 111 | with paint on the roads 18
+the worker makes the same arrays ok
+workers 1 | jobs answered 799 | most waiting at once 2 | buildings brought down 6
+meshes were made on the workers ok
+none left waiting ok
+every chunk drawn as it would be made now (179) ok
+chunk meshes made on the main thread from now on: TypeError: Cannot read properties of null (reading '3')
+    at at (evalmachine.<anonymous>:43:63)
+    at meshKernel (evalmachine.<anonymous>:81:47)
+    at Object.onmessage (evalmachine.<anonymous>:246:68)
+    at pump (C:\Claude\Goblin-Stompin-Gus\tools\tests\meshworker.js:49:54)
+    at go (C:\Claude\Goblin-Stompin-Gus\tools\tests\meshworker.js:51:43)
+    at Object.<anonymous> (C:\Claude\Goblin-Stompin-Gus\tools\tests\meshworker.js:68:83)
+    at Module._compile (node:internal/modules/cjs/loader:1968:14)
+    at Object..js (node:internal/modules/cjs/loader:2108:10)
+    at Module.load (node:internal/modules/cjs/loader:1690:32)
+    at Module._load (node:internal/modules/cjs/loader:1480:12)
+a failing worker hands back to the main thread ok
+gave up on the workers: TypeError: Cannot read properties of null (reading '3')
+errors 0 
+all ok

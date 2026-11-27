@@ -12,4 +12,4 @@ Infinite ammo: fired and still loaded 1 , spare 0
 dropped by an enemy: 1 , picked up true , loaded 1 , spare 2
 Nuke strength: one step down 44 , the most 320 , the least 12 | set to 24, the next blast 24
 fired at a wall 5 ahead: Gnash dead , hp 0
-an enemy carrying one: fired a warhead false , with a big blast 0
+an enemy carrying one: fired a warhead true , with a big blast 48

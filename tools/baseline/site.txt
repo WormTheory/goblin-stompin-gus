@@ -20,7 +20,7 @@ stand-ins in TRAIN_BOXES 19
 5 s outside: alert false
 gus in the base: alert true
 base first 4 s | bullets 0 | thrown/fired {"shell":4} | hits on gus 3 lowest hp 14 | hunting tanks 4 moved 4 | helis hunt up 0.0 from gus 58, man up 0.0 from gus 57
-base next 10 s | bullets 12 | thrown/fired {"shell":7} | hits on gus 7 lowest hp 7 | hunting tanks 4 moved 4 | helis hunt up 14.0 from gus 18, man up 0.0 from gus 67
+base next 10 s | bullets 12 | thrown/fired {"shell":8} | hits on gus 7 lowest hp 6 | hunting tanks 4 moved 4 | helis hunt up 14.0 from gus 18, man up 0.0 from gus 67
 6 s more: frames with two of them overlapping 0
 goblin put in front of a driving tank (speed 0.0): hp 3 -> 3 state chase
 car parked in front of it: hp 30 -> 30 | inside the tank false
@@ -28,9 +28,9 @@ destroyed: tank true helicopter true it fell 12.9 to 0.0 | saved wrecked true | 
 gone 500 off for 40 s: venue false (dropped)
 back at the fence: alert false wrecks still wrecked 2 parked 17
 foe thief Spawned 3 thieves ahead of Gus.
-   thief button, 5 s | bullets 0 | thrown/fired {} | hits on gus 2 lowest hp 16 | at 2.4 2.0 2.1
+   thief button, 5 s | bullets 0 | thrown/fired {} | hits on gus 2 lowest hp 16 | at 3.0 2.5 2.3
 foe prepper Spawned 3 preppers ahead of Gus.
-   prepper button, 5 s | bullets 9 | thrown/fired {} | hits on gus 5 lowest hp 10 | at 18.9 22.7 16.6
+   prepper button, 5 s | bullets 10 | thrown/fired {} | hits on gus 7 lowest hp 6 | at 23.3 19.5 20.4
 foe militia Spawned 3 militiamen ahead of Gus.
-   militia button, 5 s | bullets 9 | thrown/fired {"grenade":2} | hits on gus 8 lowest hp 6 | at 25.6 25.1 23.9
+   militia button, 5 s | bullets 9 | thrown/fired {"grenade":2} | hits on gus 5 lowest hp 8 | at 19.5 21.9 19.4
 errors 0 []

@@ -1,0 +1,8 @@
+near: lamps 358 benches and bins 118 fixtures 638 props 265
+some to knock over ok
+every frame as a full refresh would draw it (80 frames, 56 with only the falling redrawn) ok
+and the boxes really move as they fall ok
+all landed ok
+time: only the falling N ms, a full refresh N ms (5)
+errors 0 
+all ok

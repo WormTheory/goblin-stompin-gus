@@ -1,0 +1,11 @@
+buildings 5 | blocks in their pieces 30101 30665 29640 26181 12498
+the same pieces fall ok
+the same stumps are left ok
+all at once outside a frame ok
+frames to come down, one at a time: 7 6 3 3 2 | its longest frame of collapsing N ms
+spread over frames ok
+nothing falls, nor its chunks redrawn, till it is all out ok
+eight at once: finished on frames 0 4 6 8 9 11 12 15
+eight at once, one finished a frame ok
+errors 0
+all ok

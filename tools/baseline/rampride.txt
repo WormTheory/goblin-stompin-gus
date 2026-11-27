@@ -1,10 +1,9 @@
-down  truck speed 19 height changed 20.0 stayed on
-down  car speed 19 height changed 14.0 stayed on
-down  semi speed 16 height changed 0.0 FELL OFF after 0.0s
-down  semi speed 19 height changed 0.0 stayed on
-down  pickup speed 18 height changed 20.0 stayed on
+down  car speed 4 height changed 20.0 stayed on
 down  truck speed 18 height changed 14.0 stayed on
-down  car speed 19 height changed 0.0 stayed on
-down  semi speed 18 height changed 20.0 stayed on
-down  car speed 4 height changed 0.0 stayed on
-spots 60 {"down":{"n":9,"off":1,"drop":88.0066950791173},"up":{"n":0,"off":0,"drop":0}}
+down  truck speed 7 height changed 6.0 stayed on
+down  car speed 19 height changed 6.0 stayed on
+down  van speed 18 height changed 20.0 stayed on
+down  car speed 18 height changed 14.0 stayed on
+down  car speed 18 height changed 20.0 stayed on
+down  truck speed 17 height changed 20.0 stayed on
+spots 60 {"down":{"n":8,"off":0,"drop":119.9999999999999},"up":{"n":0,"off":0,"drop":0}}

@@ -1,0 +1,4 @@
+spring | frozen false | mean frame N ms (by 5s: 3.0/2118/217 2.7/2127/256 2.8/1682/306 2.8/1166/277 2.8/1121/289) worst 40.5 | water sim N ms | chunk rebuilds asked 613 built 663 in N ms | water moving 289
+winter | frozen true | mean frame N ms (by 5s: 4.1/2983/416 3.9/2344/394 3.7/1862/368 3.5/2063/345 3.6/1636/314) worst 22.5 | water sim N ms | chunk rebuilds asked 892 built 927 in N ms | water moving 314
+winter comes over the spring flood: ice/water on its floor every 3s 213/448 213/473 213/495 291/514 297/530 329/543 359/553 374/557 433/558 436/558 | mean frame 3.67 worst N ms
+errors 0 []

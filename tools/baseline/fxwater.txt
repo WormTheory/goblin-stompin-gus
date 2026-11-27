@@ -1,0 +1,9 @@
+water found near the start ok
+camera above the water: the cube in it drawn before the water, the one above after it ok
+camera in the water: the other way about ok
+dust settles on shallow water, not on its bed ok
+in a shallow block: under its surface wet, over it not ok
+a dust devil drawn sorted in with the dust, far to near -15.0 0.0 12.0 ok
+the devils' own mesh isn't drawn ok
+errors 0 []
+all ok

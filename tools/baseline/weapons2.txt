@@ -34,10 +34,10 @@ sniper bolt drawn back 0.12 after a shot
 handgun slide back 0.04 as it fires
 == SCOPE AND FIXES
 sniper, right click held: scope up 1.00 view 15 degrees (from 72)  grenades 3 -> 3  the look 0.21 as fast
-  through the scope, off the middle 0.0000 0.0000 0.0000  | off it 0.006 0.031 0.023 0.032 0.026 0.032 (most 0.035)
+  through the scope, off the middle 0.0000 0.0000 0.0000  | off it 0.026 0.004 0.032 0.029 0.015 0.010 (most 0.035)
   let go: scope 0.00  view normal  stomp with the shotgun in hand throws again:
     grenades 3 -> 3
-shotgun aimed 69 degrees up: pellets 8  spread across 0.028  up and down 0.037
+shotgun aimed 69 degrees up: pellets 8  spread across 0.035  up and down 0.043
 large club: shockwaves on the ground 1  in the air 0 | landmines 2 -> jumping 2 -> on the ground 1
 landmine under a tank true  a soft box false  a wreck false  a helicopter 10 up false  beside it false
 loadout changed with 2 rounds in the rifle: in hand rifle  rounds 2
@@ -46,9 +46,9 @@ an old save with X on Jump: Reload keys []  pad [13]  Jump keeps ["Space","KeyX"
 == ENEMIES
 made-up bigclub   12 s at 1.4 blocks: hit me 6 times for 24 | a blow is 4
 made-up katana    12 s at 1.4 blocks: hit me 15 times for 45 | a blow is 3
-made-up shotgun   12 s at 14 blocks: hit me 1 times for 0.75 | shots 8, reloads 1
+made-up shotgun   12 s at 14 blocks: hit me 4 times for 3 | shots 7, reloads 1
 made-up arifle    12 s at 14 blocks: hit me 28 times for 28 | shots 36, reloads 1, bursts 10
-made-up sniper    12 s at 14 blocks: hit me 5 times for 34 | shots 4, reloads 1
+made-up sniper    12 s at 14 blocks: hit me 3 times for 20 | shots 4, reloads 1
 made-up launcher  12 s at 14 blocks: hit me 3 times for 12 | shots 2, reloads 3, rockets 3
 made-up landmine  12 s at 14 blocks: hit me 1 times for 4 | mines planted 1, gone off under me 1
 Dev tab:

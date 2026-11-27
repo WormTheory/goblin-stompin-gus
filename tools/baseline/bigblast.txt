@@ -1,15 +1,15 @@
 old crushBall R 160 blocks 459026 one frame of N ms
-whole frame with no blast: median 37.7 95th 104.6
-bigBlast R 160 done ok in 214 frames (3.6 s), chunks 408 vaporised buildings 19 buildings checked for collapse all
-blast work a frame (carving, hits, effects): worst N ms ok average 2.93 total N ms
+whole frame with no blast: median 17.2 95th 51.0
+bigBlast R 160 done ok in 188 frames (3.1 s), chunks 408 vaporised buildings 19 buildings checked for collapse all
+blast work a frame (carving, hits, effects): worst N ms ok average 2.17 total N ms
 buildings brought down round the edge (one every few frames, each an ordinary collapse): worst N ms, total N ms
-whole frame while it ran: worst N ms, 95th 133.4 median 60.6
+whole frame while it ran: worst N ms, 95th 79.1 median 44.4
 two craters overlapping: rim blocks 13281 over air 0 ok
 buildings gone dark 32 of 36 knocked about ok
-after: craters 2 collapses + 33 edits 0 -> 15820 save 2 KB, crater record {"x":40.5,"y":45,"z":10.5,"R":160,"s":468865,"n":1} rampage buildings 33
+after: craters 2 collapses + 33 edits 0 -> 15809 save 2 KB, crater record {"x":40.5,"y":45,"z":10.5,"R":160,"s":468865,"n":1} rampage buildings 33
 guest joined ok
-guest heard of it ok both done in 158 frames; sent meanwhile 1546 KB in 161 messages, largest 70 KB
-host against guest: chunks compared 267 blocks 13670400 different 0 ok 
-gone dark: host 30 guest 30 reloaded 30 ok
+guest heard of it ok both done in 168 frames; sent meanwhile 1674 KB in 172 messages, largest 68 KB
+host against guest: chunks compared 294 blocks 15052800 different 0 ok 
+gone dark: host 32 guest 32 reloaded 32 ok
 reloaded: same seed ok craters 1 ok
-host against the save made again: chunks compared 275 blocks 14080000 different 0 ok 
+host against the save made again: chunks compared 294 blocks 15052800 different 0 ok 

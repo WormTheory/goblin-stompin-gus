@@ -1,0 +1,9 @@
+flying             avg N ms p90 30.3 p99 55.1 worst 85.8
+    gen 6.05, far 5.01, blast 3.30, meshing 1.97, fires 1.27, weather 0.33, dest 0.30, cars 0.26
+still, first 10 s  avg N ms p90 13.1 p99 22.0 worst 51.3
+    blast 4.54, fires 1.04, far 0.66, goblins 0.38, meshing 0.37, gen 0.24, weather 0.11, player 0.07
+still, last 10 s   avg N ms p90 8.6 p99 13.0 worst 15.1
+    blast 4.00, fires 0.98, goblins 0.38, player 0.06, cars 0.06, venues 0.04, weather 0.03, traffic 0.02
+chunks made in 30 s standing still: 0 (0 different)
+errors 0
+flyhitch ok

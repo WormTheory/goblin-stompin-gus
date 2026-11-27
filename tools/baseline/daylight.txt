@@ -1,0 +1,14 @@
+midday: light 1.000 skipping true
+by day in clear weather the light is skipped ok
+those chunks are marked and unlit ok
+per chunk: by day N ms, with the light N ms | chunks with lamplight when lit 49 of 49
+quicker by day ok
+relit after 1051 frames, the light then 1.000 | frames run 2288
+every chunk relit before the light drops to where it shows ok
+each drawn as it would be meshed now (221) ok
+by night nothing is skipped ok
+storm coming: skipping before true after false | still to relight 0
+a storm by day relights ok
+and every chunk is relit ok
+errors 0 
+all ok

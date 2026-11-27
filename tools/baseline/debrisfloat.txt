@@ -7,4 +7,4 @@
     -5,-4,0 roof block at y 74: live gone, made again gone, under it air
     -5,-3,0 roof block at y 70: live gone, made again gone, under it air
 buildings tried 8 debris left floating 0
-buildings brought down 14 saved blocks 20188 made again with nothing touching them 0 
+buildings brought down 14 saved blocks 20316 made again with nothing touching them 0 

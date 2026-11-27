@@ -1,0 +1,26 @@
+speed   20 blocks/s | updateFar avg N ms worst 8.2 | streets asked for unfinished 0 times, longest N ms
+    near uncovered   0% of the time | furthest from its build    28 (margin 88 ) | builds  15 | longest wait 1.4 s | boxes 26940
+    mid  uncovered   0% of the time | furthest from its build   196 (margin 256 ) | builds   2 | longest wait 9.5 s | boxes 17046
+    far  uncovered   0% of the time | furthest from its build     0 (margin -1 ) | builds   0 | longest wait 0.0 s | boxes 0
+    back uncovered   0% of the time | furthest from its build   412 (margin 2048 ) | builds   0 | longest wait 0.0 s | boxes 9358
+    backdrop uncovered 0% of the time
+speed   90 blocks/s | updateFar avg N ms worst 28.5 | streets asked for unfinished 0 times, longest N ms
+    near uncovered   0% of the time | furthest from its build    39 (margin 89.50183994276111 ) | builds  58 | longest wait 20.0 s | boxes 24976
+    mid  uncovered   0% of the time | furthest from its build   235 (margin 281.1615075095424 ) | builds  10 | longest wait 20.0 s | boxes 16160
+    far  uncovered   0% of the time | furthest from its build     0 (margin -1 ) | builds   0 | longest wait 0.0 s | boxes 0
+    back uncovered   0% of the time | furthest from its build   521 (margin 2054.8852642771544 ) | builds   4 | longest wait 20.0 s | boxes 9876
+    backdrop uncovered 0% of the time
+speed  213 blocks/s | updateFar avg N ms worst 13.5 | streets asked for unfinished 0 times, longest N ms
+    near uncovered   0% of the time | furthest from its build    40 (margin 91.86372645696898 ) | builds 171 | longest wait 20.0 s | boxes 18657
+    mid  uncovered   1% of the time | furthest from its build   295 (margin 289.6208244444821 ) | builds  21 | longest wait 20.0 s | boxes 20004
+    far  uncovered   0% of the time | furthest from its build     0 (margin -1 ) | builds   0 | longest wait 0.0 s | boxes 0
+    back uncovered   0% of the time | furthest from its build   512 (margin 2052.9150038150487 ) | builds   9 | longest wait 20.0 s | boxes 10212
+    backdrop uncovered 0% of the time
+speed  600 blocks/s | updateFar avg N ms worst 134.0 | streets asked for unfinished 9 times, longest N ms
+    near uncovered  65% of the time | furthest from its build  5381 (margin 408 ) | builds  65 | longest wait 20.0 s | boxes 41544
+    mid  uncovered  64% of the time | furthest from its build  5943 (margin 649.9188737204051 ) | builds  23 | longest wait 20.0 s | boxes 41398
+    far  uncovered   0% of the time | furthest from its build     0 (margin -1 ) | builds   0 | longest wait 0.0 s | boxes 0
+    back uncovered   0% of the time | furthest from its build   587 (margin 2092.1936701509844 ) | builds  22 | longest wait 20.0 s | boxes 9814
+    backdrop uncovered 0% of the time
+errors 0
+farspeed ok

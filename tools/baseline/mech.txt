@@ -65,12 +65,12 @@ hard lock (middle click) on the one 0.67 off: locked true  1 s later 0.09 off  h
   leading a goblin crossing at 8/s, 100/s shot: aims 2.28 ahead of it (expected about 2.28)
   40 rounds gone in 2.4 s; reloaded in 2.5 s, back to 40
 Heat Cleaver at a locked goblin 18 ahead: lunged 8.7  goblin dead  blade shown true  cooling true  arm swept from -1.15 to 1.74 (right to left: true )
-  the swing, frame by frame (60 a second): blade appears at 12 full at 18  body turned -0.45 to 0.41  blade back in the hand by frame 37
+  the swing, frame by frame (60 a second): blade appears at 12 full at 18  body turned -0.45 to 0.40  blade back in the hand by frame 37
   pressed again mid-swing: a new swing false
   goblins 10 to its right, left, ahead, and behind either side: cut down yes yes yes no no
   slashing at a wall 12 ahead, nothing locked: lunged 2.0  cut 63 blocks, 18 of them more than 5 off to one side and 18 to the other
   a goblin locked in a pit 6.0 down: swing tilted -0.66  bent at the hips 0.53  goblin dead
-  nothing locked, looking down: swing tilted -0.42  ground cut 146 blocks
+  nothing locked, looking down: swing tilted -0.42  ground cut 147 blocks
 Heat Cleaver on the move, walking at 0.0: its own speed during the swing 0.0 to 0.0, after 0.0; covered 0.0 in 0.8 s (0.0 of it its own);  boosting at 0.0: its own speed during the swing 0.0 to 0.0, after 0.0; covered 0.0 in 0.8 s (0.0 of it its own)
 Rivet Rifle into a wall: rounds 20  blocks broken 7 (about half)
 Infinite ammo: rifle held 5 s, rounds 20 -> 20  reloading false  cannon after a shot 3  blade cooling still true
@@ -85,14 +85,14 @@ assault boost: charging true at 0.0  then going true at 65.0  covered 65.1 in 1 
   aimed up: climbed 17.0 in 0.6 s;  pulled back: over true
   level, Space held 0.6 s: up 14.8 ;  then C held 0.5 s: down 11.3  boost switch untouched true  hint true
   stopped: speed 60.9 , 0.5 s later 31.5 , 1.2 s later 12.0 (carried on, easing off)
-  into a wall 30 ahead: through it true  blocks broken 32  still going true at 65.0
+  into a wall 30 ahead: through it true  blocks broken 30  still going true at 65.0
   kick at a tank: kicking true  landed true  damage 30.0  its impact meter 0.0 of 120  staggered true  bounced back to 10.1
 impact: a tank hit for 60 not staggered  then 70 more staggered  hit for 10 while staggered: takes 15.0  2.2 s later still staggered false
   meter after a hit 50.0  1 s later 50.0  3 s later 0.0 (drains once it stops being hit)
   the Mobile Gear hit for 265 : staggered false  (STAGGERED shown false)  pushing forward: 1.4  rounds fired 3  2.5 s later moving again 0.0
 repair kits: 3  (the controls say 3 left)  at full health a press does nothing true  from 200: 410.0  after using them all 0 left, hp 100.0 (the last press did nothing)
 walked at a boat 22 ahead: stopped 2.8 from its middle (it is 2.8 to touching)  inside it false
-  dropped on its deck (top 47.1): stands at 47.1  the boat moved 5: carried 5.0
+  dropped on its deck (top 47.1): stands at 47.2  the boat moved 5: carried 5.0
 debug menu vehicles: 41 kinds, rows Vehicle, Spawn vehicle  Infinite ammo row true
   spawn car: Spawned 1 parked car ahead of Gus.
   spawn tank: Spawned 1 parked tank ahead of Gus.

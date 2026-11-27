@@ -1,1 +1,1 @@
-moving at 20 blocks/s, frames 1800 avg N ms  p50 1.3 p90 9.8 p99 25.9 worst 72.5
+moving at 20 blocks/s, frames 1800 avg N ms  p50 1.1 p90 7.0 p99 17.4 worst 48.6

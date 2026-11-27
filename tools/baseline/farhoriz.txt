@@ -1,0 +1,12 @@
+at 300,300, street level:        7466 boxes in sight of 123724 worked out in full; with the horizon rule 48816 are built (61% fewer), 0 missing, 0 that should not show
+at 300,300, 120 up:             31744 boxes in sight of 123724 worked out in full; with the horizon rule 62803 are built (49% fewer), 0 missing, 0 that should not show
+at 300,300, the ceiling:        33566 boxes in sight of 123724 worked out in full; with the horizon rule 66509 are built (46% fewer), 0 missing, 0 that should not show
+at 2500,-1800, street level:     4216 boxes in sight of 139654 worked out in full; with the horizon rule 47212 are built (66% fewer), 0 missing, 0 that should not show
+at 2500,-1800, 120 up:          36080 boxes in sight of 139654 worked out in full; with the horizon rule 69509 are built (50% fewer), 0 missing, 0 that should not show
+at 2500,-1800, the ceiling:     38179 boxes in sight of 139654 worked out in full; with the horizon rule 73781 are built (47% fewer), 0 missing, 0 that should not show
+level at 213 blocks a second, 120 up:           no stand-in in sight (a ring was left behind for N ms of it, not counted)
+a helicopter climbing 8 a second at 16:         no stand-in in sight
+a jet at 213 pulled up to climb 150 a second:   no stand-in in sight (a ring was left behind for N ms of it, not counted)
+thrown up at 40 a second for a second:          no stand-in in sight
+shot up at 120 a second on foot:                no stand-in in sight
+PASS: the far rings show the same boxes with the horizon rule as without (151251 in sight compared), and no stand-in shows in flight

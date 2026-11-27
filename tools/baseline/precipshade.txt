@@ -1,0 +1,32 @@
+no wind: the same as straight up ok 
+the roof still covers straight under it ok 
+past the roof's downwind edge, in its shadow ok [ 12, 11, 10 ]
+upwind of the roof, open ok 
+in the wall's lee, the wall's height down the slant ok [ 15, 11, 10 ]
+wind the other way: the lee's the other side ok 
+a roofed room is covered ok 
+steep slant capped at 2 ok [ 11, 10 ]
+cached ok 
+through the gap, the slanted stream reaches under the roof downwind ok [ false, false, false ]
+beside that stream, under the roof, dry ok [ true, true, true, true ]
+straight down under the gap, upwind of the stream, dry ok true
+above the roof, open ok 
+inside a block, hidden ok 
+no wind: straight down through the gap only ok 
+sand: none in a closed room ok 
+sand: shows outside, upwind and in the lee ok 
+sand: in through a hole in the windward wall, level with it ok [ false, false ]
+sand: not beside or above the hole ok [ true, true ]
+water: hidden in it and under the surface, shown above it and beside it ok [ true, true, false, false, false ]
+water: sand in it is hidden ok 
+the cover map marks every water block ok [ 432, 432 ]
+the cover map covers the drops ok [ 64, 24 ]
+a camera moved 3.9 keeps its drops on the map ok 
+climbing 5 makes the map again ok 
+coverMap on a real map: N ms
+shadeMap on a real map, blizzard slant: N ms
+shadeMap on a real map, rain slant: N ms
+placePrecip, storm rain: N ms
+placePrecip, blizzard snow: N ms
+errors 0 []
+all ok

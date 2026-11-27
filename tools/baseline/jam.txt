@@ -1,10 +1,10 @@
 t 5 s: on route 9 into town 5 stopped on route 0
-t 10 s: on route 5 into town 8 stopped on route 0
-t 15 s: on route 3 into town 10 stopped on route 3
-t 20 s: on route 2 into town 10 stopped on route 1
-t 25 s: on route 0 into town 12 stopped on route 0
+t 10 s: on route 5 into town 9 stopped on route 2
+t 15 s: on route 4 into town 9 stopped on route 3
+t 20 s: on route 3 into town 8 stopped on route 0
+t 25 s: on route 0 into town 11 stopped on route 0
 t 30 s: on route 0 into town 9 stopped on route 0
-t 35 s: on route 0 into town 10 stopped on route 0
-t 40 s: on route 0 into town 10 stopped on route 0
-t 45 s: on route 0 into town 10 stopped on route 0
+t 35 s: on route 0 into town 11 stopped on route 0
+t 40 s: on route 0 into town 11 stopped on route 0
+t 45 s: on route 0 into town 12 stopped on route 0
 errors 0 []

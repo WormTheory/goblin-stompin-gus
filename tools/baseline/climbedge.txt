@@ -226,24 +226,24 @@
 -- a slot too narrow to stand in: on up the wall at the back of it
      slot in a wall, 8 up                 4/4 
 -- things that are really in the world
-tried 153
+tried 157
      block 11 drop behind         1 ok 0 failed 
      block 131 drop behind        8 ok 0 failed 
      block 131 wall behind        1 ok 0 failed 
      block 16 drop behind         10 ok 0 failed 
-     block 18 drop behind         21 ok 0 failed 
-     block 19 drop behind         5 ok 0 failed 
+     block 18 drop behind         18 ok 0 failed 
+     block 19 drop behind         4 ok 0 failed 
      block 19 wall behind         5 ok 0 failed 
      block 25 drop behind         2 ok 0 failed 
-     block 27 drop behind         4 ok 0 failed 
-     block 3 drop behind          5 ok 0 failed 
+     block 27 drop behind         3 ok 0 failed 
+     block 3 drop behind          7 ok 0 failed 
      block 3 wall behind          2 ok 0 failed 
      block 31 drop behind         1 ok 0 failed 
-     block 35 drop behind         28 ok 0 failed 
-     block 5 drop behind          25 ok 0 failed 
-     block 5 wall behind          24 ok 0 failed 
+     block 35 drop behind         27 ok 0 failed 
+     block 5 drop behind          35 ok 0 failed 
+     block 5 wall behind          22 ok 0 failed 
      block 77 drop behind         3 ok 0 failed 
-     block 79 drop behind         2 ok 0 failed 
-     block 80 drop behind         3 ok 0 failed 
+     block 79 drop behind         1 ok 0 failed 
+     block 80 drop behind         4 ok 0 failed 
      block 81 drop behind         3 ok 0 failed 
 fine 238 of 238 lines

@@ -1,0 +1,13 @@
+topple  frames 1200 avg N ms  p50 4.1 p90 12.1 p99 20.5 worst 47.8 | over N ms: 44 over 33: 3
+        the calls N ms | chunks 1563, cars 1401, goblins 998, topples 980, fires 887, batDraw 263, traffic 237
+trees   frames 600 avg N ms  p50 2.2 p90 4.5 p99 11.3 worst 27.2 | over N ms: 2 over 33: 0
+        the calls N ms | fires 643, cars 291, goblins 204, fxDraw 112, chunks 96, traffic 92, batDraw 56
+dash    frames 480 avg N ms  p50 7.8 p90 14.0 p99 22.4 worst 37.6 | over N ms: 23 over 33: 1
+        the calls N ms | goblins 1280, chunks 1089, fires 582, cars 356, traffic 294, weather 152, fxDraw 135
+woods   frames 360 avg N ms  p50 8.0 p90 15.3 p99 27.1 worst 46.8 | over N ms: 32 over 33: 1
+        the calls N ms | chunks 1535, goblins 731, fires 378, cars 153, weather 128, fxDraw 64, traffic 47
+land    frames 480 avg N ms  p50 3.4 p90 8.6 p99 18.0 worst 23.3 | over N ms: 7 over 33: 0
+        the calls N ms | goblins 679, chunks 508, fires 400, cars 252, fxDraw 89, traffic 67, batDraw 57
+nuke    frames 1500 avg N ms  p50 3.5 p90 7.2 p99 16.2 worst 25.0 | over N ms: 13 over 33: 0
+        the calls N ms | blast 1696, cars 1499, fires 1206, goblins 723, chunks 405, traffic 319, batDraw 290
+errors 0 

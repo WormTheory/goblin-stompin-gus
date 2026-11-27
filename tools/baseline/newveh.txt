@@ -19,13 +19,13 @@ Tractor: car, W 4 s: top speed 11.0, 20 a second after never, went 35.5, hp 30.0
 Supercar: car, W 1 s: top speed 18.3, 20 a second after never, went 6.4, hp 30.0
   display says Supercar  ·  30 / 30
 flat floor: ground at 45.0  sea level block 44
-Car: driven 4 s into a pool, frames over the water 26  lowest there -5.0  (start 0), now -5.0  speed 24.0  went 45.3
+Car: driven 4 s into a pool, frames over the water 26  lowest there -0.9  (start 0), now -0.6  speed 0.0  went 38.3
 Hovercraft: driven 4 s into a pool, frames over the water 22  lowest there 0.0  (start 0), now 0.0  speed 27.0  went 47.0
   hard turn on the water: slides up to 40.9 degrees off the way it points; still afloat true
   got out over the water: hovercraft still at 1.0 over sea level, alive true
 airliner: off the ground after 3.9 s  speed after 12 s more at full throttle 81.3  height 90.1  bank after half a second of A 0.20  dead false
   controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] roll | [KEY:Left Shift]/[KEY:C] throttle | [KEY:Q]/[KEY:E] rudder | [KEY:Space] brakes | [RMB] autopilot on | [KEY:R] gear up | [KEY:F] get out
-fighter jet: off the ground after 1.5 s  speed after 12 s more at full throttle 166.7  height 235.0  bank after half a second of A 2.14  dead false
+fighter jet: off the ground after 1.5 s  speed after 12 s more at full throttle 167.1  height 235.0  bank after half a second of A 1.97  dead false
   controls: [KEY:W]/[KEY:S] nose down/up | [KEY:A]/[KEY:D] roll (twice: barrel roll) | [KEY:Left Shift] throttle (full: afterburner) | [KEY:C] throttle down | [KEY:Q]/[KEY:E] rudder | [KEY:Space] brakes | [LMB] cannon | [RMB] missiles | [KEY:R] hook down
 jet cannon held 1 s: 120 -> 100 rounds
   locked on the tank true  tank 26.0 off

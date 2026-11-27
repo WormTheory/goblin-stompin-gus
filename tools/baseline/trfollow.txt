@@ -1,0 +1,16 @@
+rifle: fired, tracer kept on him ok n 1
+rifle: starts from where the eye is now, not last frame's ok 0.580
+rifle: start stays on the muzzle while he runs ok off 0.000
+rifle: far end stays where the round went ok 
+handgun: fired, tracer kept on him ok n 1
+handgun: starts from where the eye is now, not last frame's ok 0.580
+handgun: start stays on the muzzle while he runs ok off 0.000
+handgun: far end stays where the round went ok 
+shotgun: fired, tracer kept on him ok n 8
+shotgun: starts from where the eye is now, not last frame's ok 0.580
+shotgun: start stays on the muzzle while he runs ok off 0.000
+shotgun: far end stays where the round went ok 
+vehicle gun: start moves with the vehicle ok 
+enemy round: not moved ok 
+errors 0 []
+all ok

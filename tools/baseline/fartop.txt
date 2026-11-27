@@ -1,0 +1,13 @@
+plots from -120,-120 (land up to 7 over the plain):
+   near ring                 3062 checked, the nearest to the rule: 2.1 under it
+   middle ring               3062 checked, the nearest to the rule: 2.1 under it
+   stand-in, a plot          3062 checked, the nearest to the rule: 2.1 under it
+   far ring                  2188 checked, the nearest to the rule: 2.1 under it
+   stand-in, 4 x 4 plots     2188 checked, the nearest to the rule: 2.1 under it
+plots from -2600,1700 (land up to 67 over the plain):
+   near ring                 3204 checked, the nearest to the rule: 4.6 under it
+   middle ring               3204 checked, the nearest to the rule: 4.4 under it
+   stand-in, a plot          3204 checked, the nearest to the rule: 22.4 under it
+   far ring                  2357 checked, the nearest to the rule: 4.1 under it
+   stand-in, 4 x 4 plots     2357 checked, the nearest to the rule: 22.4 under it
+PASS: nothing the far rings draw on open country or open sea stands over the rule that hides it (27888 checked)

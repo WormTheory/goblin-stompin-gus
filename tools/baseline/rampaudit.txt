@@ -43,11 +43,11 @@ spot slip -10578 3276 cars 66
 spot slip -9610 10254 cars 20
 spot townEnd -998 3 cars 23
 spot route -844 3 cars 22
-spot route 1100 3 cars 27
-hw      frames 42070 moving vertically 688 airborne 180 stopped 2873 steps 124 teleports 0 maxDy/frame 0.418 maxJerk 0.189 maxPitch/frame 0.074 maxRoll/frame 0.058
+spot route 1100 3 cars 28
+hw      frames 40450 moving vertically 654 airborne 180 stopped 2873 steps 124 teleports 0 maxDy/frame 0.418 maxJerk 0.189 maxPitch/frame 0.074 maxRoll/frame 0.058
 path    frames 22410 moving vertically 8825 airborne 11 stopped 7732 steps 2 teleports 0 maxDy/frame 0.121 maxJerk 0.182 maxPitch/frame 0.131 maxRoll/frame 0.071
-route   frames 13019 moving vertically 9068 airborne 864 stopped 5006 steps 557 teleports 0 maxDy/frame 3.050 maxJerk 3.235 maxPitch/frame 0.113 maxRoll/frame 0.085
-street  frames 359 moving vertically 356 airborne 301 stopped 100 steps 97 teleports 1 maxDy/frame 1.096 maxJerk 1.096 maxPitch/frame 0.086 maxRoll/frame 0.147
+route   frames 12627 moving vertically 8676 airborne 864 stopped 5006 steps 557 teleports 0 maxDy/frame 3.050 maxJerk 3.235 maxPitch/frame 0.113 maxRoll/frame 0.085
+street  frames 380 moving vertically 376 airborne 322 stopped 100 steps 97 teleports 1 maxDy/frame 1.096 maxJerk 1.096 maxPitch/frame 0.086 maxRoll/frame 0.147
 where [["pitch route -858,56,0",41],["step route -858,56,0",40],["step route -858,55,0",29],["step route -858,54,0",22],["pitch route -858,55,6",22],["pitch route -858,57,6",20],["step route -858,53,0",19],["step route -864,45,0",19],["pitch street -864,45,-6",19],["step route -852,53,-6",18],["step route -858,58,0",18],["step route -858,52,0",16],["step route -858,50,0",15],["pitch route -864,57,0",13]]
 pitch path 9
    {"why":"pitch","mode":"path","x":-10579,"y":64.85,"z":3256,"dp":0.131,"p":-0.181}
@@ -58,7 +58,7 @@ pitch path 9
 step path 2
    {"why":"step","mode":"path","x":-10578,"y":60.02,"z":3266,"dy":0.065,"v":0.031,"gr":true,"veh":"car","h":-3.14,"sp":2.9,"blk":0,"cl":5}
    {"why":"step","mode":"path","x":-10578,"y":58.52,"z":3269,"dy":0.065,"v":0.03,"gr":true,"veh":"car","h":-3.14,"sp":2.9,"blk":0,"cl":5}
-pitch hw 16
+pitch hw 13
    {"why":"pitch","mode":"hw","x":-9663,"y":59,"z":10246,"dp":0.051,"p":-0.333}
    {"why":"pitch","mode":"hw","x":-864,"y":58.94,"z":-1,"dp":0.051,"p":0.096}
    {"why":"pitch","mode":"hw","x":-863,"y":56.8,"z":3,"dp":0.052,"p":-0.217}

@@ -1,26 +1,26 @@
 TENV false
     yaw 0.13 pitch 0  went 202.3  slow N
     yaw 0.39 pitch 0.06  went 201.5  slow N
-    yaw 0.65 pitch -0.05  went 200.0  slow N
-    yaw 0.92 pitch 0  went 201.7  slow N
-    yaw 1.18 pitch 0.06  went 201.6  slow N
+    yaw 0.65 pitch -0.05  went 198.9  slow N
+    yaw 0.92 pitch 0  went 201.8  slow N
+    yaw 1.18 pitch 0.06  went 201.5  slow N
 BAD yaw 1.44 pitch -0.05  went 196.9  slow N
     yaw 1.70 pitch 0  went 200.9  slow N
     yaw 1.96 pitch 0.06  went 183.6  slow N
     yaw 2.22 pitch -0.05  went 202.7  slow N
-    yaw 2.49 pitch 0  went 202.5  slow N
+    yaw 2.49 pitch 0  went 199.6  slow N
     yaw 2.75 pitch 0.06  went 199.4  slow N
 BAD yaw 3.01 pitch -0.05  went 199.2  slow N
     yaw 3.27 pitch 0  went 200.8  slow N
-    yaw 3.53 pitch 0.06  went 202.5  slow N
-    yaw 3.80 pitch -0.05  went 199.6  slow N
+    yaw 3.53 pitch 0.06  went 201.7  slow N
+    yaw 3.80 pitch -0.05  went 201.6  slow N
     yaw 4.06 pitch 0  went 199.4  slow N
-    yaw 4.32 pitch 0.06  went 201.1  slow N
+    yaw 4.32 pitch 0.06  went 202.0  slow N
     yaw 4.58 pitch -0.05  went 195.3  slow N
-    yaw 4.84 pitch 0  went 202.1  slow N
+    yaw 4.84 pitch 0  went 201.9  slow N
     yaw 5.10 pitch 0.06  went 200.0  slow N
-    yaw 5.37 pitch -0.05  went 189.1  slow N
-    yaw 5.63 pitch 0  went 195.6  slow N
+BAD yaw 5.37 pitch -0.05  went 181.7  slow N
+    yaw 5.63 pitch 0  went 197.8  slow N
     yaw 5.89 pitch 0.06  went 201.6  slow N
-    yaw 6.15 pitch -0.05  went 202.2  slow N
-bad 2 of 24
+    yaw 6.15 pitch -0.05  went 202.9  slow N
+bad 3 of 24

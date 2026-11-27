@@ -1,0 +1,3 @@
+ten seconds of snow under a roof with a gap: flakes shown and hidden more than 4 times 0 | changes in all 4902
+errors 0 []
+all ok

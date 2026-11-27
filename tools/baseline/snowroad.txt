@@ -1,0 +1,16 @@
+found a street off a crossroads ok [ 0, 0 ]
+across a street: 0 at each kerb up to 4 in the middle ok 0 1 2 3 4 3 2 1
+the pavement beside it is ordinary ground ok 1
+the middle of the crossroads is churned ok -3.4000000953674316
+a column smashed open since the snow came is left as it was ok 6
+one side destroyed, the other standing: still driven, ruts as before ok -4
+both sides destroyed: ordinary ground, its snow from the later of the two ok [ 10, 10 ]
+noticed once a second, with the snow clock, and its road meshed again ok [ [ 12.15, 12.15 ], true ]
+switched off, no road says anything ok 0
+a street chunk rebuilt: N ms with, N ms without
+under half a millisecond a chunk ok 
+found a country highway ok 
+its middle goes by the distance from the line ok [ -1.4882646799087524, '0.49' ]
+all of it in lanes, none of it open tarmac ok [ 576, 0 ]
+errors 0 []
+all ok

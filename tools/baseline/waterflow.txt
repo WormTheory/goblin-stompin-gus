@@ -1,10 +1,25 @@
-sea shaft: filled 3 of 3 in 0.75s | saved as edits true
-sea room 48: dry before 0 after 48 | shaft 4 of 4
-sea cavern 500: filled 500 + shaft 8 of 8 | safety cap 20000
-tank of 4 holed underneath: water below it 4 (at most 4) | tank still 4
-walled pool broken at its surface: beside it 35 above the surface 0 (0) | gap 1
+sea shaft: full 3 of 3 in 0.1s | sea round it still 14144 of 14144
+sea room 48: dry before 0 after 48 full in 4.7s | shaft 4 of 4
+sea cavern 500: full 500 in 17.0s + shaft 8 of 8
+tank of 4 holed underneath: eighths before 256 after 256 | tank now 0 | spread over 28 blocks of the floor
+walled pool broken at its surface: pool 1850 + beside 454 + gap 0 = 2304 of 2304 | above the surface 0
+aquarium tank holed 3 up: tank 34560 -> 20230 64ths | all of it 34560 | on the hall floor over 520 blocks, deepest 8/8, any higher than the floor 0 | settled in 77.6s, worst step N ms
+through a door: behind it 2209 + beyond it 2399 = 4608 of 4608 | the door still there true
 dry hole stays dry true
-sent to a guest -702,35,-703,0 -702,35,-703,9 | water true
+sent to a guest 181 blocks, shallow water among them true
 edge: tunnel 8 of 8 | waiting at the edge 1 | next chunk still unmade true
 edge: once made, the tunnel on in it 4 of 4 | still waiting 0
-jobs left 0 queued 0 seen 0
+car into the sea, height over sea level each second: -0.3 0.4 0.3 0.4 0.2 -0.7 -1.8 -2.9 -4.0 -5.1 -6.2 -7.3 -8.0 -8.0
+car driven through 3/8 water: top speed 5.9 | into 8/8: 0.0 | got 20.9 along
+swimming: in a pool with a 6/8 top true floating 1.95 over its floor (surface 2.75) | in a 2/8 puddle false
+winter here true | 5/8 water froze to 5/8 ice true full to ice true | thawed back true true | falling water left to fall true
+a sheet of ice stops rounds and grenades at its top, and a round breaks it true
+poured out in winter: frozen over 33 blocks, still water 0 | standing on a 2/8 sheet of ice, held up at 0.22 / 0.22
+a pool 30 under sea level: winter here true | open to the sky froze true | roofed over froze false | thawed true
+wading in 4/8 water: walking speed x 0.75 | dry x 1.00 | depth there 0.00
+leak from 8 up: most of the drop with water in it at once 3 of 7 (the mesh draws each on down to where it lands)
+hippo on the floor of a flood, depth:state@feet 0.75:swim@0.00 1:swim@0.20 1.25:swim@0.45 1.5:swim@0.70 1.75:swim@0.95 2:swim@1.20 2.5:swim@1.69
+goblin in a 1.75 deep flood: swimming true feet 0.85 over the floor (surface 1.75) | in 4/8: swimming false walking speed x 0.61
+a fire: burning true | still burning dry after 1s true | still burning a second and a half after water came over it false
+left moving 0 queued 0 waiting 0
+waterflow: passed
