@@ -691,7 +691,7 @@
 - On the pause menu, Play solo / Split screen and Play online have moved into Settings' Multiplayer tab. The title screen keeps them where they were.
 - The Testing Environment and Dev links are only on the pause menu now, not the title screen.
 - Abilities and the loadout no longer say On or Off: the greyed-out cards already show it.
-- Shouts and Health bars in the Display tab no longer have a description under them.
+- Shouts, Health bars and Reduced motion in the Display tab no longer have a description under them.
 - The pause menu's seed line no longer says that smashed blocks save in the browser.
 
 ### Fixes
