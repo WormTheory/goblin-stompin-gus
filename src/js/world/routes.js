@@ -446,31 +446,51 @@ function streetFurn(px,pz){
   furnC.set(k,v);return v;
 }
 // ---- billboards beside the highways out on the plains: now and then one stands back off the road, facing it ----
+// (One may stand every 150 blocks or so along a route, each on its own account, so each is worked out by itself the
+// first time it's asked about (boardK, kept in R.bk). A tree asking whether a billboard's beside it used to have every
+// billboard of its highway worked out there and then, to the far end thousands of blocks off, and with them the streets
+// of every town on the way: 100 ms and more at a stroke, in the far view most of all.)
+const boardN=R=>TEST_OFF.has('billboards')||R.L<320?0:Math.max(0,Math.ceil((R.L-300)/150));   // (how many places along it)
+function boardK(R,k){
+  const B=R.bk||(R.bk=[]);if(B[k]!==undefined)return B[k];B[k]=null;   // (null: none stands there)
+  const sx=Math.round(R.pts[0][0]),sz=Math.round(R.pts[0][1]),s0=150+150*k;
+  const h=hash2(sx*31+k*7+11,sz*17+k*13+5);if(h>0.75)return null;
+  const s=s0+(hash2(sx+k*5,sz-k*3)-0.5)*90,e=Math.min(s,R.L-s);if(e<90)return null;
+  const P=rtPointL(R,s);let side=hash2(sx*3+k,sz*5+k*11)<0.5?1:-1;{const RL=railOf(R);if(RL&&RL.side===side)side=-side;}const nx=-P.tz*side,nz=P.tx*side,off=18;
+  const x=P.x+nx*off,z=P.z+nz*off;
+  // standing across the road's line rather than along it, its ad facing the traffic coming one way, toed in a
+  // little toward the road
+  const fw=hash2(sx*9+k,sz*3+k*7)<0.5?1:-1,fx0=P.tx*fw-nx*0.36,fz0=P.tz*fw-nz*0.36,fl=Math.hypot(fx0,fz0),yaw=Math.atan2(fx0/fl,fz0/fl);
+  const ux=Math.cos(yaw),uz=-Math.sin(yaw),wx=Math.sin(yaw),wz=Math.cos(yaw);
+  // on dry, level ground (not in a pond, not half up a hillock), clear of everything
+  let ok=true,h0=null;for(const a of [-4.5,-2,0,2,4.5])for(const b of [-1.5,1.5]){const qx=x+ux*a+wx*b,qz=z+uz*a+wz*b,px=Math.floor(qx/CELL),pz=Math.floor(qz/CELL);
+    if(settlementAt(px,pz)||!PLAINS_OPEN(px,pz)||railNear(qx,qz)<5||roadNear(qx,qz,0)<3||farmLaneCol(Math.floor(qx),Math.floor(qz))){ok=false;break;}
+    const h=plainsH(Math.floor(qx),Math.floor(qz));if(h<0||h0!==null&&h!==h0){ok=false;break;}h0=h;}
+  if(!ok)return null;
+  const n=AD_N,a1=Math.floor(hash2(sx*7+k*3,sz*11+k)*n);let a2=Math.floor(hash2(sx*13+k*5,sz*3+k*7)*n);if(a2===a1)a2=(a2+1)%n;
+  return B[k]={type:'board',key:'bb'+Math.round(x)+','+Math.round(z),x,z,y0:G+1+h0,yaw,ad:a1,ad2:a2,rad:3.6};
+}
+// (all of a route's: the developer's list. The game asks for those along a piece of road, below)
 function boardsOf(R){
-  if(R.boards)return R.boards;const out=[];R.boards=out;if(TEST_OFF.has('billboards'))return out;
-  if(R.L<320)return out;
-  const sx=Math.round(R.pts[0][0]),sz=Math.round(R.pts[0][1]);
-  for(let k=0,s0=150;s0<R.L-150;k++,s0+=150){
-    const h=hash2(sx*31+k*7+11,sz*17+k*13+5);if(h>0.75)continue;
-    const s=s0+(hash2(sx+k*5,sz-k*3)-0.5)*90,e=Math.min(s,R.L-s);if(e<90)continue;
-    const P=rtPointL(R,s);let side=hash2(sx*3+k,sz*5+k*11)<0.5?1:-1;{const RL=railOf(R);if(RL&&RL.side===side)side=-side;}const nx=-P.tz*side,nz=P.tx*side,off=18;
-    const x=P.x+nx*off,z=P.z+nz*off;
-    // standing across the road's line rather than along it, its ad facing the traffic coming one way, toed in a
-    // little toward the road
-    const fw=hash2(sx*9+k,sz*3+k*7)<0.5?1:-1,fx0=P.tx*fw-nx*0.36,fz0=P.tz*fw-nz*0.36,fl=Math.hypot(fx0,fz0),yaw=Math.atan2(fx0/fl,fz0/fl);
-    const ux=Math.cos(yaw),uz=-Math.sin(yaw),wx=Math.sin(yaw),wz=Math.cos(yaw);
-    // on dry, level ground (not in a pond, not half up a hillock), clear of everything
-    let ok=true,h0=null;for(const a of [-4.5,-2,0,2,4.5])for(const b of [-1.5,1.5]){const qx=x+ux*a+wx*b,qz=z+uz*a+wz*b,px=Math.floor(qx/CELL),pz=Math.floor(qz/CELL);
-      if(settlementAt(px,pz)||!PLAINS_OPEN(px,pz)||railNear(qx,qz)<5||roadNear(qx,qz,0)<3||farmLaneCol(Math.floor(qx),Math.floor(qz))){ok=false;break;}
-      const h=plainsH(Math.floor(qx),Math.floor(qz));if(h<0||h0!==null&&h!==h0){ok=false;break;}h0=h;}
-    if(!ok)continue;
-    const n=AD_N,a1=Math.floor(hash2(sx*7+k*3,sz*11+k)*n);let a2=Math.floor(hash2(sx*13+k*5,sz*3+k*7)*n);if(a2===a1)a2=(a2+1)%n;
-    out.push({type:'board',key:'bb'+Math.round(x)+','+Math.round(z),x,z,y0:G+1+h0,yaw,ad:a1,ad2:a2,rad:3.6});
-  }
+  if(R.boards)return R.boards;const out=[];for(let k=0,n=boardN(R);k<n;k++){const b=boardK(R,k);if(b)out.push(b);}
+  return R.boards=out;
+}
+// (which places lie along piece i of route R: one's at 150 + 150k along the road, give or take 45, and 18 off to the side)
+const boardK0=(R,i)=>Math.max(0,Math.ceil((R.cum[i]-195)/150)),boardK1=(R,i,n)=>Math.min(n-1,Math.floor((R.cum[i+1]-105)/150));
+// the billboards along the pieces of road in a list from routesNearBox, each once
+function boardsBy(L){
+  const out=[],seen=new Set();
+  for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],n=boardN(R);if(!n)continue;
+    for(let k=boardK0(R,i),k1=boardK1(R,i,n);k<=k1;k++){const key=R.id*4096+k;if(seen.has(key))continue;seen.add(key);const f=boardK(R,k);if(f)out.push(f);}}
   return out;
 }
 // is there a billboard right here (the plains trees keep off them)?
-function boardNear(x,z,r){const L=routesNearBox(x-30,z-30,x+30,z+30);for(let q=0;q<L.length;q+=2)for(const f of boardsOf(L[q]))if(Math.abs(f.x-x)<r&&Math.abs(f.z-z)<r)return true;return false;}
+function boardNear(x,z,r){
+  const L=routesNearBox(x-30,z-30,x+30,z+30);
+  for(let q=0;q<L.length;q+=2){const R=L[q],i=L[q+1],n=boardN(R);if(!n)continue;
+    for(let k=boardK0(R,i),k1=boardK1(R,i,n);k<=k1;k++){const f=boardK(R,k);if(f&&Math.abs(f.x-x)<r&&Math.abs(f.z-z)<r)return true;}}
+  return false;
+}
 // the way in: an opening in the road's barrier along the front of the grounds
 function tsApron(x,z){const t=tsAt(x,z);return!!t&&Math.abs(t.u)<=40;}
 // the block the store stands on

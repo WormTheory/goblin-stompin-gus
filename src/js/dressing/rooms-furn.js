@@ -354,9 +354,12 @@ function refreshFixtures0(){
          if(get(A.x,G+A.h0+17,A.z)!==METAL||get(B.x,G+B.h0+17,B.z)!==METAL)continue;   // (a pylon knocked down drops its cables)
          const at=(P,o)=>o===0?[P.x+0.5,G+P.h0+19.5,P.z+0.5]:P.ax==='x'?[P.x+0.5+o*3,G+P.h0+16.4,P.z+0.5]:[P.x+0.5,G+P.h0+16.4,P.z+0.5+o*3];
          for(const o of [-1,0,1]){const a=at(A,o),b=at(B,o);let prev=a;for(let k=1;k<=8;k++){const t=k/8,q2=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t-2.6*4*t*(1-t),a[2]+(b[2]-a[2])*t];pushSeg(prev,q2,0.07);prev=q2;}}}}
-      for(const f of boardsOf(Rt)){if(bseen.has(f.key))continue;const d=Math.hypot(f.x-p.pos.x,f.z-p.pos.z);if(d>RB)continue;
-        if(get(Math.floor(f.x),f.y0,Math.floor(f.z))!==AIR||get(Math.floor(f.x),f.y0-1,Math.floor(f.z))===AIR)continue;   // (its ground built, and still there)
-        bseen.add(f.key);activeFix.push(f);drawFix(f,true);}}}
+    }
+    // (the billboards along those pieces of road only, not each highway's to its far end: boardsBy, world/routes.js. A
+    // board stands 18 off its road, so the roads are looked for that much further out)
+    for(const f of boardsBy(routesNearBox(p.pos.x-RB-20,p.pos.z-RB-20,p.pos.x+RB+20,p.pos.z+RB+20))){if(bseen.has(f.key))continue;const d=Math.hypot(f.x-p.pos.x,f.z-p.pos.z);if(d>RB)continue;
+      if(get(Math.floor(f.x),f.y0,Math.floor(f.z))!==AIR||get(Math.floor(f.x),f.y0-1,Math.floor(f.z))===AIR)continue;   // (its ground built, and still there)
+      bseen.add(f.key);activeFix.push(f);drawFix(f,true);}}
   fxSent(FIX_BAR,nBar);fxSent(FIX_GLOW,nGlow);fxSent(FIX_COL,nCol);
   for(let i=nBoard;i<boards.length;i++)boards[i].g.visible=false;
   for(let i=nHead;i<heads.length;i++)heads[i].g.visible=false;

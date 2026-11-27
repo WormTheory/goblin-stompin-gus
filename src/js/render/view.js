@@ -6,16 +6,23 @@ function renderView0(p,x,y,w,h,R){
   const c=p.camera.position,cb=peek(c.x,c.y,c.z),cf=c.y-Math.floor(c.y),
     under=!!WET[cb]&&(BLOCK[peek(c.x,c.y+1,c.z)].liquid||cf<(cb===WATER?0.88:BLOCK[cb].lvl*0.11));
   p.ui.tint.hidden=!under;
-  const far=lodFar();
+  const far=lodFar();let wfog=false;   // (wfog: the weather's fog ends short of the Far view)
   if(under){scene.fog.color.copy(DEEP);scene.background.copy(DEEP);scene.fog.near=1;scene.fog.far=18;FOG_GLOW.value=0;skyU.uFog.value=0;}
-  else{const fk=Math.max(0.2,WXK.fog),ff=Math.min(far,wxFogFar(fk));scene.fog.color.copy(SKY);
+  else{
+    // (with the world bent down the land goes over the horizon well short of the Far view, so haze that ended at the
+    // Far view never reached anything you could see and far towers came up over the edge crisp. The haze ends instead
+    // where the tallest thing there could be goes under, as far-city.js works it out: the ground is in sight to
+    // sqrt(h/k) from a camera h up, and a top t up shows for sqrt(t/k) past that)
+    const fk=Math.max(0.2,WXK.fog),wf=wxFogFar(fk),k=CURVE_U.value,
+      hz=k>0?Math.sqrt(Math.max(1,c.y-HORIZ_Y0)/k)+Math.sqrt((H-HORIZ_Y0)/k):Infinity,ff=Math.min(far,wf,hz);
+    wfog=wf<far;scene.fog.color.copy(SKY);
     if(WXK.dust>0.01)scene.fog.color.lerp(DUST_C,Math.min(1,WXK.dust)*0.75);if(WXK.haze>0.01)scene.fog.color.lerp(HAZE_C,Math.min(1,WXK.haze)*0.45);   // (a sandstorm's ochre, the rainforest's haze)
     scene.background.copy(scene.fog.color);scene.fog.near=ff*0.45*fk*fk;scene.fog.far=ff;
-    FOG_GLOW.value=ff<far?Math.min(1,Math.max(0,(0.95-fk)/0.5))*(DT.fogLitOn===false?0:DT.fogLit??2):0;   // (lights through the weather's fog, FOG_LIT_FRAG)
+    FOG_GLOW.value=wfog?Math.min(1,Math.max(0,(0.95-fk)/0.5))*(DT.fogLitOn===false?0:DT.fogLit??2):0;   // (lights through the weather's fog, FOG_LIT_FRAG)
     skyU.uFog.value=Math.min(1,Math.max(0,(0.92-fk)/0.45));}   // (and the sky and clouds lost in it)
   // (halos round lamps in the fog: the same fog thickness, times the debug menu's Halos slider, DT.halo, and how dark it is;
   // none with Halos on switched off, as the Fog light on switch does the fog light)
-  {const L=WORLD_LIGHT.value,w=!under&&scene.fog.far<far?Math.min(1,Math.max(0,(0.95-Math.max(0.2,WXK.fog))/0.5)):0;
+  {const L=WORLD_LIGHT.value,w=wfog?Math.min(1,Math.max(0,(0.95-Math.max(0.2,WXK.fog))/0.5)):0;
    HALO_U.uStr.value=w*(DT.haloOn===false?0:DT.halo??0.25)*Math.min(1,Math.max(0,(0.75-Math.max(L.r,L.g,L.b))*2.5));HALO_U.uNear.value=scene.fog.near;HALO_U.uFar.value=scene.fog.far;}
   trkView(p);   // (its player's tracks in the snow: snow-tracks.js)
   carLightsView(p);   // (the cars' lamps: their halos, and their headlights on the road)

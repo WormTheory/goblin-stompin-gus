@@ -24,7 +24,7 @@ for(const v of SPEEDS){
   const st=LODS.map(()=>({bad:0,maxD:0,builds:0,last:0,gap:0}));let frames=0,ms=0,worst=0,bdBad=0;sc.n=0;sc.max=0;sc.cold=0;
   for(let f=0;f<SECS*60;f++){tNow=f/60;P.pos.x+=v/60;P.pos.z+=v*0.25/60;
     const t0=process.hrtime.bigint();T.updateFar(1/60);const dt=Number(process.hrtime.bigint()-t0)/1e6;ms+=dt;worst=Math.max(worst,dt);frames++;
-    LODS.forEach((L,i)=>{const S=shown[i],s=st[i];if(!S){s.bad++;return;}const d=Math.hypot(P.pos.x-S.x,P.pos.z-S.z);
+    LODS.forEach((L,i)=>{const S=shown[i],s=st[i];if(L.ring.value.y<=0)return;if(!S){s.bad++;return;}const d=Math.hypot(P.pos.x-S.x,P.pos.z-S.z);   // (a ring with no band, the far one when the horizon's nearer than it starts, has nothing to cover)
       if(d>S.m+1)s.bad++;s.maxD=Math.max(s.maxD,d);if(S.t!==s.last){s.builds++;s.gap=Math.max(s.gap,S.t-s.last);s.last=S.t;}});
     if(hasBD&&!T.farBackOK())bdBad++;}
   console.log('speed',String(v).padStart(4),'blocks/s | updateFar avg',(ms/frames).toFixed(2),'ms worst',worst.toFixed(1),'| streets asked for unfinished',sc.n,'times, longest',sc.max.toFixed(1),'ms');

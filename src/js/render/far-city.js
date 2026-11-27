@@ -175,7 +175,7 @@ function farGrow(F,cap){if(cap<=F.cap)return;scene.remove(F.m);F.m.geometry.disp
 // backdrop fills in for)
 function mkLod(step,mk,sig,back){const ring={value:new THREE.Vector2(0,0)},cov={c:{value:new THREE.Vector4(0,0,0,0)},r:{value:new THREE.Vector2(0,-1)}};
   return{B:farInst(2048,1,ring,cov,back),G:farInst(1024,0,ring,cov,back),ring,cov,sb:farStage(),sg:farStage(),tb:farStage(),tg:farStage(),step,mk,sig,job:null,cx:1e9,cz:1e9,key:-1,coll:-1,cr:-1,dv:-1,collT:0,
-    cache:new Map(),ep:0,bn:0,cell:1,plan:!back,seed:null,tenv:null,jc:null,bx:0,bz:0,bm:-1,t0:0,dur:0.5};}
+    cache:new Map(),ep:0,bn:0,cell:1,plan:!back,seed:null,tenv:null,jc:null,bx:0,bz:0,bm:-1,t0:0,dur:0.5,hcB:0,hcP:-1};}
 // ---- what a build made of each plot is kept, so the next build only works out the plots that are new to it (moving, that's
 // a strip along the leading edge) and copies the rest. A plot's boxes are worked out again when the ring's epoch moves on
 // (L.ep: settings, a building down, a big blast, a new world) or, in the two nearer rings, when any block in it has been
@@ -217,14 +217,55 @@ function* farPlan(px,pz,n){
   farPlanOK.add(k);
 }
 // (fn(SB,SG,a,b,x) is the generator that draws plot a,b; with no ring given, as the tests call the jobs, nothing's kept)
+// ---- what the curve of the world hides isn't worked out. Bent down (the World curve, core/setup.js), the ground is in
+// sight out to sqrt(h/k) from a camera h above its lowest (HORIZ_Y0), and something whose top stands t above that
+// shows over the horizon for sqrt(t/k) more: at the usual Down 2, 160 blocks of ground from the street and 700 from 120
+// up, with a view of thousands. The shader hides each box the horizon covers (FAR_HORIZ), so the picture was always
+// right, but three quarters of the boxes built and drawn were hidden ones, and nearly all of a build's time is working
+// out plots that are new to it. So a build is told how far the ground can be seen from anywhere the players may get to
+// while it's shown (J.hg, for a camera with room to climb: updateFar), and a plot that can't be seen from there gets a
+// stand-in instead: one box of the land's own colour and height (the backdrop's, farCellBack), in case the camera
+// climbs faster than the next build comes.
+// Which plots: any at all past where the tallest thing there could be (H) would show, without a look at the plan; and
+// nearer than that, open country and open sea, which stand no higher than farLowTop says. A stand-in is kept like any
+// other plot, with the height it was judged by (E.lo), and worked out properly once that would show. ----
+// (is a square S across with its middle at x,z, nothing in it higher than top, out of sight for the whole of build J?)
+function farHid(J,x,z,S,top){
+  if(!J||!(J.hk>0))return false;
+  const d=Math.min(Math.hypot(x-J.x0,z-J.z0),Math.hypot(x-J.x1,z-J.z1))-S*0.71-J.m;
+  return d>J.hg+Math.sqrt(Math.max(0,top-HORIZ_Y0)/J.hk);
+}
+// (the highest anything the far view draws can stand on the n x n plots from px,pz, if they're all open country or all
+// open sea: the land's own height there, sampled, and room over it for trees, a road's signs and the slope between
+// samples, or for a wind turbine. Anything else, a farm, a site, a town, could be any height: H. Suite fartop checks
+// what the rings really draw against it.)
+const FAR_LOW_OVER=24,FAR_TURB_OVER=66,FAR_AIR_H=H+92-HORIZ_Y0;   // (FAR_AIR_H: as high over the lowest ground as the camera of a plane or a mech gets: they're held to H+80)
+function farLowTop(px,pz,n){
+  let sea=0,turb=false;
+  for(let a=0;a<n;a++)for(let b=0;b<n;b++){const t=plotType(px+a,pz+b);if(t==='sea')sea++;else if(t!=='plains')return H;else if(turbineAt(px+a,pz+b))turb=true;}
+  if(sea===n*n)return G+3;
+  let m=0;const x0=px*CELL,z0=pz*CELL,q=n>1?n:2,st=n*CELL/q;   // (a plot: its corners, edges and middle; more plots: every plot's corners)
+  for(let a=0;a<=q;a++)for(let b=0;b<=q;b++){const h=reliefNat(x0+a*st,z0+b*st);if(h>m)m=h;}
+  return G+m+(turb?FAR_TURB_OVER:FAR_LOW_OVER);
+}
+// (fn(SB,SG,a,b,x) is the generator that draws plot a,b; with no ring given, as the tests call the jobs, nothing's kept)
 function* farCached(L,k,SB,SG,a,b,fn,x){
   if(!L){yield* fn(SB,SG,a,b,x);return;}
   let E=L.cache.get(k);const sg=L.sig?farEdS(E?E.S:null,a,b):0;
-  if(!E||E.ep!==L.ep||E.sg!==sg){
-    if(L.plan){const q=L.cell;yield* farPlan(a*q,b*q,q);}
-    L.tb.n=0;L.tg.n=0;yield* fn(L.tb,L.tg,a,b,x);
-    const S=L.sig?superOf(a,b)||bigPlainsAt(a,b)||null:null;
-    E={ep:L.ep,S,sg:S?farEdS(S,a,b):sg,use:0,b:farPack(L.tb),g:farPack(L.tg)};L.cache.set(k,E);
+  const J=L.jc,q=L.cell,hz=L.plan&&J&&J.hk>0,S=q*CELL,mx=(a+0.5)*S,mz=(b+0.5)*S;
+  if(!E||E.ep!==L.ep||E.sg!==sg||E.lo!==undefined&&!(hz&&farHid(J,mx,mz,S,E.lo))){
+    // (hidden whatever's there, or, once the places round it have been gone over, hidden for being open country)
+    let lo;
+    // (and nothing's asked about a plot that open sea, the lowest there is, would show on: it's worked out in full)
+    if(hz&&farHid(J,mx,mz,S,H))lo=H;
+    else if(L.plan){yield* farPlan(a*q,b*q,q);
+      if(hz&&farHid(J,mx,mz,S,G+3)){const t=farLowTop(a*q,b*q,q);if(t<H&&farHid(J,mx,mz,S,t))lo=t;}}
+    L.tb.n=0;L.tg.n=0;
+    if(lo!==undefined){yield* farCellBack(L.tb,L.tg,a,b,S);E={ep:L.ep,S:null,sg:L.sig?farEd(a*q,b*q):0,use:0,b:farPack(L.tb),g:farPack(L.tg),lo};}
+    else{yield* fn(L.tb,L.tg,a,b,x);
+      const S2=L.sig?superOf(a,b)||bigPlainsAt(a,b)||null:null;
+      E={ep:L.ep,S:S2,sg:S2?farEdS(S2,a,b):sg,use:0,b:farPack(L.tb),g:farPack(L.tg)};}
+    L.cache.set(k,E);
     yield;}   // (a breath after each plot worked out: moving, the new ones come a whole row at a time)
   E.use=L.bn;farUnpack(SB,E.b);farUnpack(SG,E.g);
 }
@@ -647,7 +688,7 @@ function farCommit(L){
 }
 // (how far player one is from where a ring's shown build was made, as a share of what that build allows: over 1, the ring
 // no longer covers its band and the backdrop shows through)
-const farLag=(L,p)=>L.bm<0?9:Math.hypot(p.x-L.bx,p.z-L.bz)/Math.max(1,L.bm);
+const farLag=(L,p)=>L.ring.value.y<=0?0:L.bm<0?9:Math.hypot(p.x-L.bx,p.z-L.bz)/Math.max(1,L.bm);   // (a ring with no band, the far one when the horizon's nearer than it starts, isn't behind)
 const farBackOK=()=>{const B=LODS[3],a=players.find(q=>q.active);return !a||B.ring.value.y<=0||farLag(B,a.pos)<=1;};
 let farDirty=true,farT=0,farClk=0;
 const FAR_BUDGET=4,FAR_BUDGET_FAST=6,FAR_FAST=120;   // milliseconds a frame for building the far rings; and for a player going faster than FAR_FAST blocks a second (a jet flat out), who is over new country faster than 4 ms a frame can draw it
@@ -659,14 +700,27 @@ function updateFar(dt){
   LEAFFALL_U.value=leafFall;
   const act=players.filter(q=>q.active);if(!act.length)return;
   {const a=act[0].pos,b=(act[1]||act[0]).pos;FAR_CAMP.value.set(a.x,a.z,b.x,b.z);}
-  farClk+=dt;let spd=0;
-  act.forEach((q,n)=>{const V=farVel[n]||(farVel[n]={x:0,z:0,px:null,pz:0});if(   // (online there can be more than two)
-      V.px!==null&&dt>0){const vx=(q.pos.x-V.px)/dt,vz=(q.pos.z-V.pz)/dt;
-      if(Math.hypot(vx,vz)>1500){V.x=V.z=0;}else{const k=Math.min(1,dt*4);V.x+=(vx-V.x)*k;V.z+=(vz-V.z)*k;}}
-    V.px=q.pos.x;V.pz=q.pos.z;spd=Math.max(spd,Math.hypot(V.x,V.z));});
-  // where each ring starts and ends (it's nothing at all if you can't see past the full-detail city)
-  const near=viewR*CS,R=lodFar(),on=R>near+8,b1=Math.min(R,near+480),b2=Math.min(R,b1+1600);
+  farClk+=dt;let spd=0,up=0,hc=1,air=false;
+  act.forEach((q,n)=>{const V=farVel[n]||(farVel[n]={x:0,z:0,y:0,px:null,pz:0,py:0});if(   // (online there can be more than two)
+      V.px!==null&&dt>0){const vx=(q.pos.x-V.px)/dt,vz=(q.pos.z-V.pz)/dt,vy=(q.pos.y-V.py)/dt;
+      if(Math.hypot(vx,vz)>1500||Math.abs(vy)>1500){V.x=V.z=V.y=0;}else{const k=Math.min(1,dt*4);V.x+=(vx-V.x)*k;V.z+=(vz-V.z)*k;V.y+=(Math.max(-400,Math.min(400,vy))-V.y)*k;}}
+    V.px=q.pos.x;V.pz=q.pos.z;V.py=q.pos.y;spd=Math.max(spd,Math.hypot(V.x,V.z));up=Math.max(up,V.y);
+    hc=Math.max(hc,Math.max(q.pos.y+2,q.camera.position.y)-HORIZ_Y0);if(q.drv&&(q.drv.k==='plane'||q.drv.k==='mech'))air=true;});
+  // How far anything can be seen, the world bent down (see farHid): the ground out to sqrt(h/k) from a camera h up, and
+  // the tallest thing there could be for sqrt((H-HORIZ_Y0)/k) past that. hzP: the height a build is made for, the
+  // highest camera's with room to climb (a quarter again and 24 blocks, and as far as it's climbing now carries it
+  // over t seconds, twice over); a ring is built again once more than 0.6 of that room is used up (rose, below).
+  // Anyone in a plane or a mech could be at its ceiling before a build's done (a jet stood on its tail climbs the whole
+  // sky in a second, a mech boosts), so with one in use the builds are made for that height from the start (FAR_AIR_H).
+  // (Not with the free camera, which goes where the players aren't.)
+  const hk=CURVE_U.value>0&&!DT.freecam?CURVE_U.value:0,hzP=t=>Math.max(hc*1.25+24+up*t*2,air?FAR_AIR_H:0),hzR=h=>Math.sqrt(h/hk)+Math.sqrt((H-HORIZ_Y0)/hk);
+  // where each ring starts and ends (it's nothing at all if you can't see past the full-detail city, or over the horizon
+  // that far). A ring left with nothing but the last 64 blocks is dropped, and the one inside it carries on out to there:
+  // a build reaches a long way past its band, and a whole ring's worth was being built for that sliver.
+  const near=viewR*CS,R0=lodFar(),R=hk?Math.min(R0,hzR(hzP(12))):R0,on=R>near+8,b1=Math.min(R,near+480),b2=Math.min(R,b1+1600);
   const edges=on?[[0,b1],[b1,b2],[b2,R+64],[0,R+64]]:[[0,0],[0,0],[0,0],[0,0]];
+  if(on&&b2>=R){edges[1][1]=R+64;edges[2]=[0,0];}
+  if(on&&b1>=R){edges[0][1]=R+64;edges[1]=[0,0];}
   LODS.forEach((L,i)=>L.ring.value.set(edges[i][0],edges[i][1]));
   // start a ring's build when you've moved far enough from where its last was started, the settings change, or (nearer
   // rings) something has fallen down. A build under way is left to finish (stopped only when the settings change): started
@@ -676,16 +730,16 @@ function updateFar(dt){
   // they'll go meanwhile.
   farT-=dt;
   if(farT<=0||farDirty){farT=spd>40?0.1:0.25;
-    const key=Math.round(R)*100+viewR,nColl=Object.keys(collapses).length,p=act[0].pos,dirty=farDirty;farDirty=false;
-    farBackS=R>3200?128:64;LODS[3].cell=farBackS/CELL;
+    const key=(Math.round(R0)*100+viewR)*64+Math.round(hk/0.00012)+(DT.freecam?32:0),nColl=Object.keys(collapses).length,p=act[0].pos,dirty=farDirty;farDirty=false;
+    farBackS=R0>3200?128:64;LODS[3].cell=farBackS/CELL;
     LODS.forEach((L,i)=>{
       const [r0,r1]=edges[i];L.collT-=0.25;
       // (a building down or a crater: soon, the further rings less often; blocks knocked out: every few seconds at most.
       // The backdrop only shows a big blast's scorched ground)
       const cc=nColl!==L.coll||craters.length!==L.cr,dc=i<3&&destroyVer!==L.dv,collCh=(i<3?cc||dc:craters.length!==L.cr)&&L.collT<=0;
-      const moved=Math.hypot(p.x-L.cx,p.z-L.cz)>L.step,reset=dirty||key!==L.key;
-      if(!(reset||moved||collCh))return;
-      if(!on||r1<=r0){L.job=null;L.jc=null;L.sb.n=0;L.sg.n=0;farCommit(L);L.key=key;L.cx=p.x;L.cz=p.z;return;}
+      const moved=Math.hypot(p.x-L.cx,p.z-L.cz)>L.step,reset=dirty||key!==L.key,rose=hk>0&&(hc>L.hcB+0.6*(L.hcP-L.hcB)||air&&L.hcP<FAR_AIR_H);
+      if(!(reset||moved||collCh||rose))return;
+      if(!on||r1<=r0){L.job=null;L.jc=null;L.sb.n=0;L.sg.n=0;farCommit(L);L.key=key;L.cx=p.x;L.cz=p.z;L.hcB=hc;L.hcP=hzP(12);return;}
       if(L.job&&!reset)return;
       // (the plots kept are no good after a change that isn't in the blocks smashed: a collapse, a crater, a blast still
       // going out, the settings, another world. The far ring, which keeps no count of the blocks, also after any damage)
@@ -693,7 +747,8 @@ function updateFar(dt){
       // built with a margin round its ring, so it still covers the ring as you move until the next build
       const du=Math.min(L.dur,FAR_DUR[i]),go=spd>30?spd*du:0,m=L.step+FAR_M[i]+Math.min(FAR_MX[i],go*0.75),lead=spd>30?du*1.5:0;
       const ctr=act.map((q,n)=>({pos:new THREE.Vector3(q.pos.x+farVel[n].x*lead,q.pos.y,q.pos.z+farVel[n].z*lead)})),c1=ctr[1]||ctr[0];
-      L.sb.n=0;L.sg.n=0;L.bn++;L.t0=farClk;L.jc={x0:ctr[0].pos.x,z0:ctr[0].pos.z,x1:c1.pos.x,z1:c1.pos.z,ra:Math.max(0,r0-m),rb:r1+m,m};
+      L.hcB=hc;L.hcP=hzP(du);
+      L.sb.n=0;L.sg.n=0;L.bn++;L.t0=farClk;L.jc={x0:ctr[0].pos.x,z0:ctr[0].pos.z,x1:c1.pos.x,z1:c1.pos.z,ra:Math.max(0,r0-m),rb:r1+m,m,hk,hg:hk?Math.sqrt(L.hcP/hk):0};
       L.job=L.mk(L.sb,L.sg,ctr,L.jc.ra,L.jc.rb,L);
       L.cx=p.x;L.cz=p.z;L.key=key;L.coll=nColl;L.cr=craters.length;L.dv=destroyVer;if(collCh)L.collT=cc?[0,4,8,2][i]:[3,6,12,0][i];
     });

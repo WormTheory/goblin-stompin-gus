@@ -46,6 +46,9 @@
 - Flying fast is smoother: working out a far-off town's streets, and whether a city has room for an airport, used to freeze the game for up to a sixth of a second each time. Both are now spread over many frames.
 - Standing in town no longer hitches every second or so: shop signs and far-off vehicles (a fire engine on its way, a crew's truck at its camp) kept having ground far past your detail distance made again and again.
 - Starting a game brings in the world right round you at once rather than a piece a frame.
+- The distant view no longer works out land that's over the horizon. With the world curved, most of the Far view is out of sight from the street, and it was all being built anyway. Now it arrives in under half the time when you start a game or land somewhere new, and costs less as you move. What you see is the same.
+- A highway's billboards are worked out as you come to them, not all at once to the far end of the road, which could freeze the game for a moment out in open country.
+- Far-off land fades into haze toward the horizon, so distant towers lift out of it rather than popping up sharp over the edge of the world.
 
 ### The world
 
