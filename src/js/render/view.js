@@ -5,7 +5,7 @@
 // by one flat square. Switched in the menu it takes effect at once; off, nothing's made and the frame's drawn straight
 // to the screen as it always was. Each renderer has a target of its own (S: AA_MAIN, and W2.aa for player two's
 // window), since nothing made on one graphics context can be used on another.
-const aaNew=()=>({rt:null,w:0,h:0,n:0,on:false});
+const aaNew=()=>({rt:null,w:0,h:0,n:0,on:false,raw:false});
 const AA_MAIN=aaNew();let AA_COPY=null,AA_SZ=null;
 // (the frame's start: the target made, or made again at a new size or count, and S.on if this frame goes through it)
 function aaBegin(S,R){
@@ -18,7 +18,7 @@ function aaBegin(S,R){
     // (with a stencil buffer asked for, its depth is kept to 24 bits, as the screen's own is; without, three.js gives a
     // target like this 16, far too coarse for a view this deep: distant walls flicker through one another)
     S.rt=new THREE.WebGLMultisampleRenderTarget(w,h,{stencilBuffer:true});S.rt.samples=Math.min(n,R.capabilities.maxSamples||n);
-    S.w=w;S.h=h;S.n=n;}
+    S.w=w;S.h=h;S.n=n;S.raw=true;}
   S.on=true;
 }
 // (the frame's end: the target's picture on to the screen, w by h)
@@ -37,7 +37,11 @@ function aaEnd(S,R,w,h){
 // SMOOTHING asks, core/atlas.js)
 function drawPrep(R,x,y,w,h){
   const S=R===renderer?AA_MAIN:W2.aa;
-  if(S&&S.on){const k=R.getPixelRatio(),t=S.rt;t.viewport.set(x*k,y*k,w*k,h*k).floor();t.scissor.copy(t.viewport);t.scissorTest=R.getScissorTest();R.setRenderTarget(t);}
+  if(S&&S.on){const k=R.getPixelRatio(),t=S.rt;t.viewport.set(x*k,y*k,w*k,h*k).floor();t.scissor.copy(t.viewport);t.scissorTest=R.getScissorTest();R.setRenderTarget(t);
+    // (it's made by now, its depth and all. From here only its colours are settled to one a pixel when a view's drawn:
+    // left as it was, three.js settles the depth and the stencil as well, which nothing reads, and on Windows (ANGLE on
+    // Direct3D 11) the stencil's settling is done by the processor, pixel by pixel: a third of the frame rate at 2560 x 1440)
+    if(S.raw){S.raw=false;t.depthBuffer=false;t.stencilBuffer=false;}}
   R.setViewport(x,y,w,h);R.setScissor(x,y,w,h);
   texSmooth(R);
 }
