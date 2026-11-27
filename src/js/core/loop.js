@@ -194,6 +194,7 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
   if(atTitle&&menuOpen){let drew=false;safe('title',()=>{drew=titleDraw(dt,w,h);});if(drew){profEnd();return;}}
   let views;
   safe('batDraw',batDraw);safe('fxDraw',fxDraw);
+  aaBegin(AA_MAIN,renderer);   // (ANTI-ALIASING: the views go into the frame's target, and aaEnd puts it on screen, render/view.js)
   if(split==='none'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];}
   else if(split==='win'){renderer.setScissorTest(false);renderView(P1,0,0,w,h);views=[[P1,0,0,w,h]];safe('w2',w2Render);}   // (player two in a window of their own, ui/seats.js)
   else{
@@ -201,6 +202,7 @@ function frame0(now,bg){   // (bg: a tab in the background while online, kept go
     if(split==='lr'){renderView(P1,0,0,w/2,h);renderView(P2,w/2,0,w/2,h);views=[[P1,0,0,w/2,h],[P2,w/2,0,w/2,h]];}
     else{renderView(P1,0,h/2,w,h/2);renderView(P2,0,0,w,h/2);views=[[P1,0,h/2,w,h/2],[P2,0,0,w,h/2]];}
   }
+  aaEnd(AA_MAIN,renderer,w,h);
   safe('dbgOverlay',()=>drawDbgOverlay(dt,views));
   profEnd();
 }

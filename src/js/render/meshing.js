@@ -14,12 +14,22 @@ function faceVisible(b,nb){if(nb===AIR)return true;if(BLOCK[b].liquid)return !BL
 const WORLD_LIGHT={value:new THREE.Color(1,1,1)};
 // With Block lighting on (BLOCK_LIGHT, render/block-light.js), each corner also carries the light from lamps and neon round
 // it (aBlk), which lifts the dark toward full brightness: by day there's no dark to lift, so the day looks as it always did.
+// (TEXTURE SMOOTHING and the ground. A graphics card picks which small copy of a texture to draw from by the longer
+// side of the patch of texture a pixel covers. Ground seen at a shallow angle covers a long thin patch: many pixels of
+// the tile along the way you're looking, hardly one across. Going by the long side, the card drew the street a few
+// blocks ahead from a copy several sizes too small: the yellow line a fat smear, a crossing one grey band. So the card
+// is handed the patch with its long side cut down to TEX_AN times the short one, and picks by that: across your view
+// the ground stays as sharp as it ever was, and along it it's smoothed that far and no further. Walls seen square on
+// aren't changed. Only WebGL 2 lets a shader say what the patch is; without it there are no small copies anyway.)
+const TEX_AN={value:2};
+const MAP_FRAG='#ifdef USE_MAP\n#if __VERSION__ >= 300\n  vec2 tgx=dFdx(vUv),tgy=dFdy(vUv);float tlx=dot(tgx,tgx),tly=dot(tgy,tgy),tmn=min(tlx,tly)*uTexAn*uTexAn;\n  if(tlx>tmn)tgx*=sqrt(tmn/tlx);if(tly>tmn)tgy*=sqrt(tmn/tly);\n  vec4 texelColor=textureGrad(map,vUv,tgx,tgy);\n#else\n  vec4 texelColor=texture2D(map,vUv);\n#endif\n  texelColor=mapTexelToLinear(texelColor);diffuseColor*=texelColor;\n#endif';
 function nightPatch(mat){
   blkDefines(mat);
   mat.onBeforeCompile=sh=>{
+    sh.uniforms.uTexAn=TEX_AN;
     sh.uniforms.uLight=WORLD_LIGHT;sh.uniforms.uSeasonW=SEASON_W;sh.uniforms.uFogGlow=FOG_GLOW;sh.uniforms.uCarP=CARL_U.uCarP;sh.uniforms.uCarD=CARL_U.uCarD;sh.uniforms.uMovP=MOVL_U.uMovP;sh.uniforms.uMovC=MOVL_U.uMovC;
     sh.vertexShader='#ifdef BLOCK_LIGHT\nattribute vec3 aBlk;varying vec3 vBlk;\n#endif\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef BLOCK_LIGHT\n vBlk=aBlk;\n#endif');
-    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uFogGlow;\n#ifdef BLOCK_LIGHT\nvarying vec3 vBlk;uniform vec4 uCarP['+CAR_LN+'];uniform vec3 uCarD['+CAR_LN+'];uniform vec4 uMovP['+MOV_LN+'];uniform vec3 uMovC['+MOV_LN+'];\n#endif\n'+sh.fragmentShader.replace('#include <color_fragment>',FOLIAGE_FRAG+LIT_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*litC,vec3(1.0),glowV);\n#endif'+SNOW_FRAG).replace('#include <fog_fragment>',FOG_LIT_FRAG);
+    sh.fragmentShader='uniform vec3 uLight;uniform vec4 uSeasonW;uniform float uFogGlow,uTexAn;\n#ifdef BLOCK_LIGHT\nvarying vec3 vBlk;uniform vec4 uCarP['+CAR_LN+'];uniform vec3 uCarD['+CAR_LN+'];uniform vec4 uMovP['+MOV_LN+'];uniform vec3 uMovC['+MOV_LN+'];\n#endif\n'+sh.fragmentShader.replace('#include <map_fragment>',MAP_FRAG).replace('#include <color_fragment>',FOLIAGE_FRAG+LIT_FRAG+'#ifdef USE_COLOR\n  float glowV=step(1.5,vColor.r);\n  diffuseColor.rgb*=mix(vColor*litC,vec3(1.0),glowV);\n#endif'+SNOW_FRAG).replace('#include <fog_fragment>',FOG_LIT_FRAG);
     weatherPatch(sh);
   };
   return mat;
@@ -149,7 +159,17 @@ scene.updateMatrixWorld=function(){for(const c of this.children)if(c.visible&&c.
 const meshes=new Map();
 // which chunks currently have a voxel mesh (wrapped into a 128x128 map); the far city hides itself there
 const MESHED=new Uint8Array(256*256*4);let meshedDirty=true;
-function markMeshed(cx,cz,on){const i=((((cz%256)+256)%256)*256+(((cx%256)+256)%256))*4,v=on?255:0;if(MESHED[i]===v)return;MESHED[i]=v;meshedDirty=true;}   // (a chunk rebuilt is still meshed: no need to send the whole map up again)
+// (red: the chunk's blocks are drawn, so the far view's boxes there aren't. Green: how far gone those boxes are, from
+// none to all over a third of a second (MESH_FADE: the spots still on their way, meshFadeTick each frame), so that a
+// chunk arriving dissolves the boxes standing in for it rather than swapping with them in one frame: FAR_FRAG,
+// far-city.js. A chunk let go has its boxes back at once: there's nothing there to dissolve from.)
+const MESH_FADE=[],MESH_FADE_S=1/3;
+function markMeshed(cx,cz,on){const i=((((cz%256)+256)%256)*256+(((cx%256)+256)%256))*4,v=on?255:0;if(MESHED[i]===v)return;MESHED[i]=v;MESHED[i+1]=0;if(on)MESH_FADE.push(i);meshedDirty=true;}   // (a chunk rebuilt is still meshed: no need to send the whole map up again)
+function meshFadeTick(dt){
+  if(!MESH_FADE.length)return;const d=Math.max(1,Math.round(255*dt/MESH_FADE_S));let n=0;
+  for(let q=0;q<MESH_FADE.length;q++){const i=MESH_FADE[q];if(!MESHED[i]||MESHED[i+1]===255)continue;const g=Math.min(255,MESHED[i+1]+d);MESHED[i+1]=g;if(g<255)MESH_FADE[n++]=i;}
+  MESH_FADE.length=n;meshedDirty=true;
+}
 // a ramp is a wedge: flat bottom, sloped top, trapezoid sides, and an upright face at each end that has height
 // a box within block (X,Y,Z) from (x0,y0,z0) to (x1,y1,z1) (fractions of the block), the tile laid on at its true
 // scale (so a half-length panel shows half the tile, not the whole of it squashed); skip(i): leave face i off

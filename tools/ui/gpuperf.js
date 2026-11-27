@@ -1,7 +1,7 @@
 // Real frame rates, on this machine's real graphics card: the game at 1280x720 with the frame cap off, standing in a city, and then
 // while a tall building topples. Prints the card's name, frames per second, and frame times (the time between frames, so all of
 // it counts: JavaScript, the driver and the card).
-// (W=2560 H=1440 DPR=1.5 for a big screen. NOMW=1 makes the chunks' meshes on the main thread, not on workers. CHAR=goblin plays as Gnash. STRESS=8 brings down the buildings round it too. RUN=1 instead moves across the city at 30 blocks a second, DASH=1 with it smashing a hole as it goes. VIEW=2000 DETAIL=500 set the view and detail distances; WAITMS how long to let the distance load first.)
+// (W=2560 H=1440 DPR=1.5 for a big screen. NOMW=1 makes the chunks' meshes on the main thread, not on workers. CHAR=goblin plays as Gnash. STRESS=8 brings down the buildings round it too. RUN=1 instead moves across the city at 30 blocks a second, DASH=1 with it smashing a hole as it goes. VIEW=2000 DETAIL=500 set the view and detail distances; WAITMS how long to let the distance load first. LS=key=value,key=value stores any other settings before the game loads, the picture ones say: LS=goblin-stompin-gus-aa=2,goblin-stompin-gus-renderscale=150,goblin-stompin-gus-texsmooth=0 is ANTI-ALIASING 4x, RENDER SCALE 150%, TEXTURE SMOOTHING Off.)
 // Usage, from tools/ui, after python tools/build_3d.py game/index.html tools/ui/t3.html: node gpuperf.js [page.html] [seed] [nth tallest]
 const {chromium}=require('playwright');
 const fs=require('fs');
@@ -12,7 +12,7 @@ const VIEW=process.env.VIEW,DETAIL=process.env.DETAIL,WAITMS=+(process.env.WAITM
 const b=await chromium.launch({headless:process.env.HEADED?false:true,args:['--use-gl=angle','--use-angle=d3d11','--ignore-gpu-blocklist','--enable-gpu-rasterization','--disable-frame-rate-limit','--disable-gpu-vsync']});
 const p=await (await b.newContext({viewport:{width:+(process.env.W||1280),height:+(process.env.H||720)},deviceScaleFactor:+(process.env.DPR||1)})).newPage();
 const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text().slice(0,200));});
-await p.addInitScript(([k,s,v,d,c])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));if(v)localStorage.setItem('goblin-stompin-gus-view',v);if(d)localStorage.setItem('goblin-stompin-gus-detail',d);if(c)localStorage.setItem('goblin-stompin-gus-character',c);},[SAVE_KEY,seed,VIEW,DETAIL,process.env.CHAR]);
+await p.addInitScript(([k,s,v,d,c,x])=>{if(!localStorage.getItem(k))localStorage.setItem(k,JSON.stringify({seed:s}));if(v)localStorage.setItem('goblin-stompin-gus-view',v);if(d)localStorage.setItem('goblin-stompin-gus-detail',d);if(c)localStorage.setItem('goblin-stompin-gus-character',c);for(const e of (x||'').split(',')){const i=e.indexOf('=');if(i>0)localStorage.setItem(e.slice(0,i),e.slice(i+1));}},[SAVE_KEY,seed,VIEW,DETAIL,process.env.CHAR,process.env.LS]);
 await p.addInitScript(()=>{window.GSG_TEST=true;});
 await p.goto('file://'+page);
 // (NOMW=1: every chunk's mesh made on the main thread, as before render/mesh-worker.js)

@@ -224,6 +224,12 @@
       <div class="crow"><label class="clab" for="loadSpd">LOADING SPEED</label><input type="range" id="loadSpd" class="vrange" min="0" max="3" step="1" value="1" aria-label="How much of each frame goes on loading the world"><span class="vval" id="loadSpdVal">Normal</span></div>
     </div>
     <div class="custom">
+      <h2>PICTURE</h2>
+      <div class="crow"><label class="clab" for="rScale">RENDER SCALE</label><input type="range" id="rScale" class="vrange" min="50" max="200" step="10" value="100" aria-label="Render scale"><span class="vval" id="rScaleVal">100%</span></div>
+      <div class="crow"><span class="clab" id="aaLab">ANTI-ALIASING</span><div class="seg" role="radiogroup" aria-labelledby="aaLab" id="aaSeg"><button type="button" role="radio" data-aa="0" aria-checked="true">Off</button><button type="button" role="radio" data-aa="1" aria-checked="false">2x</button><button type="button" role="radio" data-aa="2" aria-checked="false">4x</button></div></div>
+      <div class="crow"><span class="clab" id="texSmLab">TEXTURE SMOOTHING</span><div class="seg" role="radiogroup" aria-labelledby="texSmLab" id="texSmSeg"><button type="button" role="radio" data-tsm="0" aria-checked="false">Off</button><button type="button" role="radio" data-tsm="1" aria-checked="true">Low</button><button type="button" role="radio" data-tsm="2" aria-checked="false">High</button></div></div>
+    </div>
+    <div class="custom">
       <div class="crow"><label class="clab" for="crowdDist">CROWD DENSITY</label><input type="range" id="crowdDist" class="vrange" min="0" max="30" step="0.25" value="1" aria-label="Goblin and civilian density"><span class="vval" id="crowdVal">100%</span></div>
     </div>
     <div class="custom">

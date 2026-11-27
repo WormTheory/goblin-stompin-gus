@@ -281,7 +281,7 @@ function devFoTick(dt){
   C.position.set(c.x+Math.sin(DEVF.yaw)*Math.cos(DEVF.pitch)*d,c.y+Math.sin(DEVF.pitch)*d+1,c.z+Math.cos(DEVF.yaw)*Math.cos(DEVF.pitch)*d);C.lookAt(c.x,c.y+0.6,c.z);
   const L0=WORLD_LIGHT.value.clone(),cu=CURVE_U.value;WORLD_LIGHT.value.setRGB(1,1,1);CURVE_U.value=0;
   C.updateMatrixWorld();DEVF.lb.flush(C,h);DEVF.sk.flush(C,h);devLabelsIn(document.getElementById('devFoBones'),DEVF.figs,R.fig,devOpt('devFoShowBones'),C,w,h);
-  try{DEVF.r.render(DEVF.scene,C);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
+  try{texSmooth(DEVF.r);DEVF.r.render(DEVF.scene,C);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
 }
 {
   const dd=document.getElementById('devFoDD'),list=document.getElementById('devFoList'),ad=document.getElementById('devFoAnDD'),al=document.getElementById('devFoAnList');

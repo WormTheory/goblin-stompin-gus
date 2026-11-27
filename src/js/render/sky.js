@@ -1,7 +1,14 @@
 // ---------- Renderer ----------
 const canvas=document.getElementById('world');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:false});
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+// (pixels drawn for each pixel of the page: the screen's own, 1.5 at most, times Settings' RENDER SCALE; and never so many
+// that the picture's longer side is more than the card can hold, or 8192)
+const PX_DEV=Math.min(devicePixelRatio||1,1.5);
+function pxRatio(dev,w,h){
+  const cap=Math.min(8192,renderer.capabilities&&renderer.capabilities.maxTextureSize||8192);
+  return Math.max(0.1,Math.min(dev*renderScale/100,cap/Math.max(1,w,h)));
+}
+renderer.setPixelRatio(pxRatio(PX_DEV,innerWidth,innerHeight));
 renderer.localClippingEnabled=true;
 // (the graphics card reset, or the browser took the tab's picture away: three.js builds everything again when it's
 // given back, so the game just pauses meanwhile rather than playing on unseen)

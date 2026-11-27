@@ -46,6 +46,6 @@ function layout(){
   P1.ui.view.classList.add('tl');P1.ui.view.classList.toggle('tr',split!=='lr');P2.ui.view.classList.toggle('tr',split==='lr');   // (in a window of its own player two's has neither: the score and clock are on player one's screen)
   for(const p of players){p.ui.who.hidden=split==='none';if(p.ui.mini){const sz=split==='none'||split==='win'?160:118;p.ui.mini.style.width=p.ui.mini.style.height=sz+'px';const st=p.ui.view.style;if(st.setProperty)st.setProperty('--mm',sz+'px');}}   // (--mm: the Settlement razed card sits over the minimap)
 }
-function resize(){renderer.setSize(innerWidth,innerHeight,false);layout();}
+function resize(){renderer.setPixelRatio(pxRatio(PX_DEV,innerWidth,innerHeight));renderer.setSize(innerWidth,innerHeight,false);layout();}   // (the ratio again: RENDER SCALE may have changed, or the most that fits)
 addEventListener('resize',resize);
 

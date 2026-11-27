@@ -8,15 +8,24 @@ const MESHED_TEX=new THREE.DataTexture(MESHED,256,256,THREE.RGBAFormat);MESHED_T
 // uCovR from how near to how far, so a ring left behind by a fast player stops cleanly; FAR_BACK, the backdrop, draws just
 // where the ring whose band a spot is in, uB0 to uB2, doesn't reach it, so the two never overlap)
 const FAR_COVERED=(c,r)=>'((length(vWP.xz-'+c+'.xy)>='+r+'.x&&length(vWP.xz-'+c+'.xy)<='+r+'.y)||(length(vWP.xz-'+c+'.zw)>='+r+'.x&&length(vWP.xz-'+c+'.zw)<='+r+'.y))';
+// (Nothing switches along a hard line. dth is a number from 0 to 1 that differs from each pixel of the screen to the
+// next, the same for everything drawn at that pixel. Where one ring hands over to the next, each spot's distance is
+// taken as up to FAR_BAND/2 blocks nearer or further by it, so over a band that wide the two rings are mixed pixel by
+// pixel, more of the one and less of the other, and each pixel is still drawn by exactly one of them (the rings and the
+// backdrop all use the same shifted distance; a build reaches further past its band than that, FAR_M). And where the
+// blocks themselves have just been drawn, the box standing in for them goes over a third of a second, a chunk's share
+// of pixels growing with the green of its spot on the map of meshed chunks: markMeshed and meshFadeTick, meshing.js.)
+const FAR_BAND=32;
 const FAR_FRAG=[
-  ' float dR=min(length(vWP.xz-uCamP.xy),length(vWP.xz-uCamP.zw));if(dR<uRing.x||dR>=uRing.y)discard;',
+  ' float dth=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(0.06711056,0.00583715))));',
+  ' float dR=min(length(vWP.xz-uCamP.xy),length(vWP.xz-uCamP.zw)),dRj=max(0.0,dR+(dth-0.5)*'+FAR_BAND+'.0);if(dRj<uRing.x||dRj>=uRing.y)discard;',
   '#ifdef FAR_BACK',
-  ...[0,1,2].map(i=>' if(dR>=uB'+i+'.x&&dR<uB'+i+'.y&&'+FAR_COVERED('uC'+i,'uR'+i)+')discard;'),
+  ...[0,1,2].map(i=>' if(dRj>=uB'+i+'.x&&dRj<uB'+i+'.y&&'+FAR_COVERED('uC'+i,'uR'+i)+')discard;'),
   '#else',
   ' if(!'+FAR_COVERED('uCov','uCovR')+')discard;',
   '#endif',
   ' vec2 chk=floor(vWP.xz/16.0);',
-  ' if(texture2D(uMeshed,(mod(chk,256.0)+0.5)/256.0).r>0.5)discard;',
+  ' {vec4 ms=texture2D(uMeshed,(mod(chk,256.0)+0.5)/256.0);if(ms.r>0.5&&ms.g>=dth)discard;}',
   ' float up=step(0.5,vN.y),dn=step(0.5,-vN.y),side=1.0-up-dn;',
   ' float sh=(up+dn*0.55+side*mix(0.68,0.8,step(0.5,abs(vN.x))))*0.8;',
   ' vec3 c0=mix(vCol,vTop,up);',
@@ -30,16 +39,36 @@ const FAR_FRAG=[
   '  vec3 pal=hT<0.3?vec3(0.95,0.72,0.2):hT<0.6?vec3(0.95,0.48,0.12):hT<0.82?vec3(0.78,0.2,0.1):vec3(0.55,0.36,0.16);',
   '  c0=(c0*vec3(1.03,1.08,0.84)+vec3(0.02,0.025,0.0))*W.x+c0*vec3(0.86,0.97,0.82)*W.y+pal*(0.55+lum*1.4)*W.z+vec3(0.42,0.3,0.18)*(0.6+lum)*W.w;}',
   ' vec3 wall=c0*sh*uLight;',
+  // (a town's street, -6, seen from above: the double yellow line down its middle, where the blocks have it
+  // (world/generate.js: a stripe 3 pixels of 16 wide either side of the middle of a street 8 wide, streets running along
+  // the low edges of every 32-block cell, not through the crossings). Each pixel takes the share of its own width that
+  // falls on the paint, so far off the lines thin out to nothing rather than flicker.)
+  '#if __VERSION__ >= 300',
+  ' if(vWin.a<-5.5&&up>0.5){vec2 q=mod(vWP.xz,32.0),fq=max(fwidth(vWP.xz),vec2(0.001));',
+  '  float along=q.x<8.0&&q.y>=8.0?1.0:0.0,across=q.y<8.0&&q.x>=8.0?1.0:0.0,u=along>0.5?q.x:q.y,fw=along>0.5?fq.x:fq.y;',
+  '  float ln=(clamp((min(u+0.5*fw,3.9375)-max(u-0.5*fw,3.75))/fw,0.0,1.0)+clamp((min(u+0.5*fw,4.25)-max(u-0.5*fw,4.0625))/fw,0.0,1.0))*max(along,across);',
+  '  wall=mix(wall,vec3(0.84,0.71,0.19)*sh*uLight,ln);}',
+  '#endif',
   // (and weather on the tops, but not the sea's: rain darkens them, snow settles on them, on average as it does on the
   // blocks' tops, where each spot is covered once its own share of the snow comes)
   ' if(up>0.5&&abs(vWin.a+2.0)>0.5){float wkF;float snF=snowHere(vWP,wkF);wall*=1.0-0.3*uWet*wkF*(1.0-snF);float snowL=min(snF,uSnowClk),rdF=step(vWin.a,-4.5);wall=mix(wall,mix(vec3(0.897,0.909,0.927),vec3(0.74,0.73,0.72),rdF*0.5)*uLight,clamp(snowL*1.12*(1.0-rdF*mix(0.55,0.4,smoothstep(0.7,1.0,snF))),0.0,1.0)*step(0.002,snowL));}',   // (a road, -5: about what the traffic leaves of it up close, SNOW_FRAG)
   ' const float WP=0.3575;',
   ' float uw=uWin*step(-2.5,vWin.a);',   // (no windows on a box that isn't a building, -3)
-  ' float win=side*step(0.45,fract((vWP.x+vWP.z)*0.5))*step(0.35,fract((vWP.y-5.0)/5.0))*uw;',
+  // (the rows of windows: a window's on for the last 0.55 of every 2 blocks along the wall and the top 0.65 of every 5
+  // up it. Each pixel takes the share of itself that falls on glass, worked out exactly (WPI is how much glass there is
+  // up to a point along the wall), so a far tower's rows melt evenly into the colour they average to instead of
+  // flickering as the pixels land on glass or wall by turns; wfar is how far gone they are, for the night's lit windows)
+  '#if __VERSION__ >= 300',
+  '#define WPI(x,d) (floor(x)*(d)+max(0.0,fract(x)-(1.0-(d))))',
+  ' float wu=(vWP.x+vWP.z)*0.5,wv=(vWP.y-5.0)/5.0,fu=max(fwidth(wu),0.0001),fv=max(fwidth(wv),0.0001);',
+  ' float win=side*uw*clamp((WPI(wu+0.5*fu,0.55)-WPI(wu-0.5*fu,0.55))/fu,0.0,1.0)*clamp((WPI(wv+0.5*fv,0.65)-WPI(wv-0.5*fv,0.65))/fv,0.0,1.0),wfar=smoothstep(0.4,1.2,max(fu,fv));',
+  '#else',
+  ' float win=side*step(0.45,fract((vWP.x+vWP.z)*0.5))*step(0.35,fract((vWP.y-5.0)/5.0))*uw,wfar=0.0;',
+  '#endif',
   ' float f=max(vWin.a,0.0)*side*uw,g=min(1.0,f/WP),gw=max(0.0,(f-WP)/(1.0-WP)),k=mix(1.0,(1.0-0.75*WP-0.25*min(f,WP))/(1.0-WP),side*uw);',
   ' vec3 base=mix(mix(wall*k,vWin.rgb,gw),mix(wall*0.75,vWin.rgb,g),win*step(0.001,uw));',
   ' float hh=fract(sin(dot(floor(vec3((vWP.x+vWP.z)*0.5,(vWP.y-5.0)/5.0,0.0)),vec3(12.9898,78.233,37.719)))*43758.5453);',
-  ' base+=win*(1.0-g)*step(0.42,hh)*uNightK*vec3(1.0,0.78,0.42)*0.85;   // (and at night, lights on in the windows that don\'t glow)',
+  ' base+=win*(1.0-g)*mix(step(0.42,hh),0.58,wfar)*uNightK*vec3(1.0,0.78,0.42)*0.85;   // (and at night, lights on in the windows that don\'t glow: 0.58 of them, which is what a pixel holding several comes to)',
   ' diffuseColor.rgb=base;'].join('\n');
 const FAR_CAMP={value:new THREE.Vector4(0,0,0,0)},LEAFFALL_U={value:0};
 // (the horizon test, per box: a box wholly over the horizon is pushed out of view, so none of it is drawn)
@@ -78,8 +107,10 @@ function farInst(cap,win,ring,cov,back){
 // (a rebuild only works out the plots new to it, farCached, so the further rings needn't be built far past their bands to
 // save rebuilding them) ----
 const _fc=new THREE.Color();
-const topColor=b=>{const t=BLOCK[b].tiles[0];return tileColor[t]!==undefined?tileColor[t]:0x888888;};
-const FARC={sea:new THREE.Color(topColor(WATER)),deep:new THREE.Color(topColor(WATER)).multiplyScalar(0.62),sand:new THREE.Color(topColor(SAND)),con:new THREE.Color(topColor(CONCRETE)),side:new THREE.Color(topColor(SIDEWALK)),park:new THREE.Color(topColor(GRASS)),plaza:new THREE.Color(topColor(CONCRETE)),road:new THREE.Color(topColor(ASPHALT))};
+// (a block's top and its side as they look from far off: the tile's colour added up as light, tileLit in smashing.js)
+const topColor=b=>{const t=BLOCK[b].tiles[0];return tileLit[t]!==undefined?tileLit[t]:0x888888;};
+const farSideCol=b=>{const t=BLOCK[b]&&BLOCK[b].tiles;return t&&tileLit[t[2]]!==undefined?tileLit[t[2]]:0x888888;};
+const FARC={sea:new THREE.Color(topColor(WATER)),deep:new THREE.Color(topColor(WATER)).multiplyScalar(0.62),sand:new THREE.Color(topColor(SAND)),con:new THREE.Color(topColor(CONCRETE)),side:new THREE.Color(topColor(SIDEWALK)),park:new THREE.Color(topColor(GRASS)),plaza:new THREE.Color(topColor(CONCRETE)),road:new THREE.Color(topColor(ASPHALT)),street:new THREE.Color(topColor(ASPHALT))};   // (street: a town's own streets, which get their yellow lines, FAR_FRAG; road: any other tarmac)
 // (a shore's colours by its flavour, coastFlav: shingle, sea ice, the mangroves' mud, red sand)
 const FARC_CF=[null,new THREE.Color(topColor(GRAVEL)),new THREE.Color(topColor(PACKICE)),new THREE.Color(topColor(MUD)),new THREE.Color(topColor(RED_SAND))];
 // what a building looks like from outside, for its far box: the colour of its walls (glowing windows apart), of its glowing
@@ -89,7 +120,7 @@ const FARC_CF=[null,new THREE.Color(topColor(GRAVEL)),new THREE.Color(topColor(P
 // couple of hundred calls of blockAt (a third of a millisecond: the far rings' jobs stop for breath after each new one). The middle ring,
 // where a building is a few pixels across, makes do with a third of the samples.
 const _flA=[0,0,0],_flB=[0,0,0],_flC=[0,0,0],_flD=[0,0,0];
-function farTile(t,o,k){const h=tileColor[t]!==undefined?tileColor[t]:0x888888;o[0]+=((h>>16)&255)*k;o[1]+=((h>>8)&255)*k;o[2]+=(h&255)*k;}
+function farTile(t,o,k){const h=tileLit[t]!==undefined?tileLit[t]:0x888888;o[0]+=((h>>16)&255)*k;o[1]+=((h>>8)&255)*k;o[2]+=(h&255)*k;}
 // (the blocks that are windows: a building none of whose sides' samples is one gets no rows of windows drawn on its far box)
 const FAR_WINB=new Set([GLASS,WIN_BLUE,WIN_GREEN,WIN_WARM,STAINED]);
 const farAvg=(o,n,dflt)=>n?new THREE.Color(o[0]/n/255,o[1]/n/255,o[2]/n/255):new THREE.Color(dflt);
@@ -126,7 +157,7 @@ function farLook(b,px,pz,fine=true){
   // the rest of it is made of, unless the most of it glows)
   if(nrg>nr){for(let i=0;i<3;i++)roof[i]+=roofG[i];nr+=nrg;}
   STRUCT=sv;
-  const c=farAvg(wall,nw,blockColor(b.wall));
+  const c=farAvg(wall,nw,farSideCol(b.wall));
   return b._far={fine,wall:c,glow:farAvg(glow,ng,0),f:nwin||ng?ng/Math.max(1,nw+ng):-3,top:farAvg(roof,nr,topColor(ROOF))};
 }
 // staging buffers: a job writes boxes here; they're copied into the ring's meshes when it finishes
@@ -140,7 +171,7 @@ function farBox(F,x0,y0,z0,x1,y1,z1,c,L){
   if((F.n+1)*16>F.mat.length){const N=F.mat.length*2;F.mat=farGrowArr(F.mat,N);F.col=farGrowArr(F.col,N*3/16);F.top=farGrowArr(F.top,N*3/16);F.wn=farGrowArr(F.wn,N/4);}
   const o=F.n*16,m=F.mat;m.fill(0,o,o+16);m[o]=x1-x0;m[o+5]=y1-y0;m[o+10]=z1-z0;m[o+12]=(x0+x1)/2;m[o+13]=(y0+y1)/2;m[o+14]=(z0+z1)/2;m[o+15]=1;
   const i=F.n*3,t=L?L.top:c;F.col[i]=c.r;F.col[i+1]=c.g;F.col[i+2]=c.b;F.top[i]=t.r;F.top[i+1]=t.g;F.top[i+2]=t.b;
-  const j=F.n*4;if(L){F.wn[j]=L.glow.r;F.wn[j+1]=L.glow.g;F.wn[j+2]=L.glow.b;F.wn[j+3]=L.f;}else{F.wn.fill(0,j,j+3);F.wn[j+3]=c===FARC.park||c.grass?-1:c===FARC.sea||c===FARC.deep||c===_fw?-2:c===FARC.road?-5:-3;}
+  const j=F.n*4;if(L){F.wn[j]=L.glow.r;F.wn[j+1]=L.glow.g;F.wn[j+2]=L.glow.b;F.wn[j+3]=L.f;}else{F.wn.fill(0,j,j+3);F.wn[j+3]=c===FARC.park||c.grass?-1:c===FARC.sea||c===FARC.deep||c===_fw?-2:c===FARC.road?-5:c===FARC.street?-6:-3;}
   F.n++;
 }
 // the far view of a block of the sea and its shore: n x n patches of water, beach, grass, or a port's concrete
@@ -159,11 +190,23 @@ function farSea(SG,px,pz,n){
 // by the block its middle falls in, every third piece standing for three)
 const _fw=new THREE.Color();
 const FAR_DARK=new THREE.Color(0,0,0),farWinL=c=>({glow:FAR_DARK,f:0,top:c});   // (a plain-coloured building's look: windows, none glowing)
+// (the near ring's trimmings, which the blocks have and a bare box doesn't: the neon rim round a flat roof (the top course
+// of the walls, buildings/stairs.js: not under a pitched roof, on a house or on battlements), a box whose sides are all
+// glow (a share of 1) and whose top is the roof's; and a tower's mast and the light on it)
+const FAR_RIMC=new Map(),FAR_MAST=new THREE.Color(farSideCol(METAL)),FAR_TIP={glow:new THREE.Color(farSideCol(NEON_M)),f:1,top:new THREE.Color(farSideCol(NEON_M))};
+function farRim(b,L){
+  roofOf(b);   // (a pitched roof of its own takes the neon away: buildings/roofs.js)
+  if(!b.neon||b.roof>0||b.style==='house'||b.crenel)return null;
+  if(L.rim&&L.rimK===b.neon)return L.rim;
+  let c=FAR_RIMC.get(b.neon);
+  if(!c){c=b.neon==='police'?new THREE.Color(farSideCol(NEON_B)).lerp(new THREE.Color(farSideCol(NEON_R)),0.5):new THREE.Color(farSideCol(b.neon));FAR_RIMC.set(b.neon,c);}
+  L.rimK=b.neon;return L.rim={glow:c,f:1,top:L.top};
+}
 function farLinesPlot(SB,SG,px,pz){
   const X0=px*CELL,Z0=pz*CELL,X1=X0+CELL,Z1=Z0+CELL,inP=(x,z)=>x>=X0&&x<X1&&z>=Z0&&z<Z1;
   const seg=(F,R,i,w,y0,y1,c)=>{const j=Math.min(i+3,R.pts.length-1),[ax,az]=R.pts[i],[bx,bz]=R.pts[j];if(!inP((ax+bx)/2,(az+bz)/2))return;
     farBox(F,Math.min(ax,bx)-w,y0,Math.min(az,bz)-w,Math.max(ax,bx)+w,y1,Math.max(az,bz)+w,c);};
-  {const L=riversNearBox(X0,Z0,X1-1,Z1-1);_fw.setHex(blockColor(WATER));for(let q=0;q<L.length;q+=2)if(L[q+1]%3===0)seg(SG,L[q],L[q+1],RIV_W*0.8,G+0.45,G+1.64,_fw);}
+  {const L=riversNearBox(X0,Z0,X1-1,Z1-1);_fw.setHex(farSideCol(WATER));for(let q=0;q<L.length;q+=2)if(L[q+1]%3===0)seg(SG,L[q],L[q+1],RIV_W*0.8,G+0.45,G+1.64,_fw);}
   {const L=routesNearBox(X0,Z0,X1-1,Z1-1);for(let q=0;q<L.length;q+=2){if(L[q+1]%3)continue;const R=L[q];
     // (a motorway's ramps up into town, as far off as anywhere)
     const rp=R.kind==='moto'&&rtRamp(R,R.cum[L[q+1]]+1.5),yt=rp?rtSurfY(R,R.cum[L[q+1]]+1.5):G+1.66;
@@ -272,10 +315,10 @@ function* farCached(L,k,SB,SG,a,b,fn,x){
 // ---- trees and still water in the far rings. The near ring has every tree, as the chunks grow it (its trunk and two boxes
 // of leaves, which is near enough what a blocky tree is), so that where the full-detail city takes over a tree only gains
 // its detail; further off, woods are clumps of treetops. Ponds and lakes are water a hair above the ground, as rivers are. ----
-const FAR_LEAF=new THREE.Color(blockColor(LEAVES)),FAR_TRUNK=new THREE.Color(blockColor(LOG));
+const FAR_LEAF=new THREE.Color(farSideCol(LEAVES)),FAR_TRUNK=new THREE.Color(farSideCol(LOG));
 // (each biome's ground and leaves seen from afar, world/climate.js: its top block's colour, a grassy one's grass tinted, and
 // so turning with the seasons; grassland's are the plain ones, so a grassland world looks as it always did)
-const FAR_PINE=new THREE.Color(blockColor(PINE)),FAR_CACT=new THREE.Color(blockColor(CACTUS));
+const FAR_PINE=new THREE.Color(farSideCol(PINE)),FAR_CACT=new THREE.Color(farSideCol(CACTUS));
 const FAR_BIO=BIOMES.map(B=>{const top=B.top||GRASS;let g,l;
   if(B.i===BIO_GRASS){g=FARC.park;l=FAR_LEAF;}
   else{g=new THREE.Color(topColor(top));if(top===GRASS){g.r*=B.grass[0];g.g*=B.grass[1];g.b*=B.grass[2];g.grass=true;}
@@ -436,12 +479,15 @@ function* farPlotNear(SB,SG,px,pz){
       const P=plotInfo(px,pz),X0=px*CELL,Z0=pz*CELL,sc=farScorched(X0+CELL/2,Z0+CELL/2);
       if(seaPlot(px,pz))farSea(SG,px,pz,4);
       else if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);if(!sc)farTerrain(SG,px,pz,8,true);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1);if(!sc)yield* farCountry(SB,SG,px,pz,0);}   // the plains: all grass (hills are only drawn up close), and what crosses them
-      else farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
+      // (a town plot: its streets, a box of its own under the pavement. The one floor under the whole ring can't do it: with
+      // the world bent down a box that big, bent only at its far corners, lies hundreds of blocks under the town, and the
+      // streets showed the haze through the gaps instead of tarmac)
+      else{farBox(SG,X0,G+0.3,Z0,X0+CELL,G+0.4,Z0+CELL,FARC.street);farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);}
       if(!seaPlot(px,pz)){if(realmOf(px,pz)==='plains')farPonds(SG,px,pz,4,true);else farTownWater(SG,px,pz,P,2);}
       farTreeNew=false;farTreeBoxes(SG,farTreesOf(px,pz),farBio(px,pz).l);if(farTreeNew)yield;
-      if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
-      if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
-      {const cv=cloverOf(px,pz);if(cv){_fc.setHex(blockColor(CONCRETE));const cx=cv.j*CELL+4,cz=cv.k*CELL+4;
+      if(hwRow(pz,px)){_fc.setHex(farSideCol(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
+      if(hwCol(px,pz)){_fc.setHex(farSideCol(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
+      {const cv=cloverOf(px,pz);if(cv){_fc.setHex(farSideCol(CONCRETE));const cx=cv.j*CELL+4,cz=cv.k*CELL+4;
         for(let n=0;n<4;n++){const ev=n%2===0,hA=ev?HY_X:HY_Z,hB=ev?HY_Z:HY_X;for(const o of CLV){if(o.t!=='deck'&&o.t!=='slope')continue;
           const [a0,b0]=cvRot(n,o.p0,o.q0),[a1,b1]=cvRot(n,o.p1,o.q1),x0=Math.max(X0,cx+Math.min(a0,a1)),x1=Math.min(X0+CELL,cx+Math.max(a0,a1)),z0=Math.max(Z0,cz+Math.min(b0,b1)),z1=Math.min(Z0+CELL,cz+Math.max(b0,b1));
           if(x1<=x0||z1<=z0)continue;const h=o.t==='deck'?(o.h==='A'?hA:hB):(hA+hB)/2;farBox(SB,x0,h-1,z0,x1,h+1,z1,_fc);}}}}
@@ -450,13 +496,23 @@ function* farPlotNear(SB,SG,px,pz){
         const key=px+','+pz+','+bi;yield* farSolid(b,px,pz,key);
         const top=farTop(b,X0,Z0,key);if(top<=G)continue;if(top<G+3&&top<b.top){farRubble(SB,b,X0,Z0,top);continue;}
         if(!b._far||!b._far.fine){farLook(b,px,pz);yield;}const L=b._far;
+        // (rim: the neon round the top of its walls, where it has one and still stands whole, as its own thin box, lit
+        // all round as the blocks are: farRim. The box under it stops a block short)
+        const rim=top===b.top?farRim(b,L):null,cut=rim?1:0;
         if(b.tier>0&&(b.x1-b.x0)>=8){
-          farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,Math.min(top,b.tier)+1,Z0+b.z1,L.wall,L);
-          if(top>b.tier)farBox(SB,X0+b.x0+2,b.tier+1,Z0+b.z0+2,X0+b.x1-2,top+1,Z0+b.z1-2,L.wall,L);
-        } else farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,top+1+(top<b.top?0:(b.roof||0)*0.6),Z0+b.z1,L.wall,L);   // (no roof on what's left)
+          const up=top>b.tier;
+          farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,Math.min(top,b.tier)+1-(up?0:cut),Z0+b.z1,L.wall,L);
+          if(up)farBox(SB,X0+b.x0+2,b.tier+1,Z0+b.z0+2,X0+b.x1-2,top+1-cut,Z0+b.z1-2,L.wall,L);
+          if(rim)farBox(SB,X0+b.x0+(up?2:0),top,Z0+b.z0+(up?2:0),X0+b.x1-(up?2:0),top+1,Z0+b.z1-(up?2:0),L.wall,rim);
+        } else{
+          farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,top+1-cut+(top<b.top?0:(b.roof||0)*0.6),Z0+b.z1,L.wall,L);   // (no roof on what's left)
+          if(rim)farBox(SB,X0+b.x0,top,Z0+b.z0,X0+b.x1,top+1,Z0+b.z1,L.wall,rim);}
+        // (and its mast, with the light on top: buildingColumn's, buildings/roofs.js)
+        if(b.ant&&top===b.top){const mx=X0+((b.x0+b.x1)>>1),mz=Z0+((b.z0+b.z1)>>1),t2=Math.min(H-2,b.top+b.ant);
+          farBox(SB,mx,top+1,mz,mx+1,t2+1,mz+1,FAR_MAST);farBox(SB,mx,t2+1,mz,mx+1,t2+2,mz+1,FAR_TIP.glow,FAR_TIP);}
       }
       if(P.super&&P.super.kind==='capitol'&&px===P.super.ax&&pz===P.super.az&&collapses[px+','+pz+',0']===undefined){
-        const g=capGeo(),sx=X0+PL0,sz=Z0+PL0;_fc.setHex(blockColor(HOSPW));const cL=farWinL(_fc);
+        const g=capGeo(),sx=X0+PL0,sz=Z0+PL0;_fc.setHex(farSideCol(HOSPW));const cL=farWinL(_fc);
         farBox(SG,sx,G+0.97,sz,sx+g.W,G+1.02,sz+g.L,FARC.park);
         farBox(SB,sx+g.px0,G+1,sz+g.bf,sx+g.px1,G+24,sz+g.back,_fc,cL);
         farBox(SB,sx+g.px0,G+1,sz+g.pz0,sx+g.px1,G+4,sz+g.bf,_fc,cL);
@@ -470,13 +526,13 @@ function* farPlotNear(SB,SG,px,pz){
       }
       if(P.super&&P.super.kind==='stadium'&&px===P.super.ax&&pz===P.super.az){
         const SS=P.super,sx=X0+PL0,sz=Z0+PL0,W=(SS.w-1)*CELL+PW,L=(SS.h-1)*CELL+PW,F=stadiumField(W,L),o=STAND+2;
-        const x0=sx+F.fx0-o,x1=sx+F.fx0+F.fw+o,z0=sz+F.fz0-o,z1=sz+F.fz0+F.fh+o,y1=G+STAND+5;_fc.setHex(blockColor(CONCRETE));
+        const x0=sx+F.fx0-o,x1=sx+F.fx0+F.fw+o,z0=sz+F.fz0-o,z1=sz+F.fz0+F.fh+o,y1=G+STAND+5;_fc.setHex(farSideCol(CONCRETE));
         // (each stand as much of it as the big blasts left)
         const st=(a,b,c,d)=>{const t=farCraterTop(a,b,c,d,y1-1);if(t>G)farBox(SB,a,G+1,b,c,t+1,d,t<G+3?FAR_RUB:_fc);};
         st(x0,z0,x1,z0+o);st(x0,z1-o,x1,z1);st(x0,z0+o,x0+o,z1-o);st(x1-o,z0+o,x1,z1-o);
         farBox(SG,sx+F.fx0,G+0.97,sz+F.fz0,sx+F.fx0+F.fw,G+1.02,sz+F.fz0+F.fh,FARC.park);
       }
-      for(const ax of[0,1]){const br=bridgeOf(px,pz,ax);if(!br)continue;_fc.setHex(blockColor(br.wall));
+      for(const ax of[0,1]){const br=bridgeOf(px,pz,ax);if(!br)continue;_fc.setHex(farSideCol(br.wall));
         if(ax)farBox(SB,br.c0,br.y0,br.s0,br.c1,br.y1+1,br.s1,_fc);else farBox(SB,br.s0,br.y0,br.c0,br.s1,br.y1+1,br.c1,_fc);}
 }
 // the middle ring: a plain box per building
@@ -495,14 +551,15 @@ function* farPlotMid(SB,SG,px,pz){
     if(seaPlot(px,pz)){farSea(SG,px,pz,2);return;}
     if(realmOf(px,pz)==='plains'){farBox(SG,X0,G+0.4,Z0,X0+CELL,G+1.6,Z0+CELL,sc?FAR_SCORCH:farBio(px,pz).g);if(!sc)farTerrain(SG,px,pz,16,false);farLinesPlot(SB,SG,px,pz);if(turbineAt(px,pz)&&!sc)farTurbine(SB,px,pz,1.6);if(!sc)yield* farCountry(SB,SG,px,pz,1);
       farPonds(SG,px,pz,8,false);farWoods(SG,px,pz,16,true);
-      if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
-      if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
+      if(hwRow(pz,px)){_fc.setHex(farSideCol(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
+      if(hwCol(px,pz)){_fc.setHex(farSideCol(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
       return;}
     const P=plotInfo(px,pz);
+    farBox(SG,X0,G+0.3,Z0,X0+CELL,G+0.4,Z0+CELL,FARC.street);   // (its streets: see farPlotNear)
     farBox(SG,X0+ROADW,G+0.4,Z0+ROADW,X0+CELL,G+0.97,Z0+CELL,sc?FAR_SCORCH:P.type==='park'?FARC.park:P.type==='plaza'?FARC.plaza:FARC.side);
     farTownWater(SG,px,pz,P,6);
-    if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
-    if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
+    if(hwRow(pz,px)){_fc.setHex(farSideCol(CONCRETE));const y=hwSurf('x',pz,X0+CELL/2)-1;farBox(SB,X0,y-1,Z0-3,X0+CELL,y+2,Z0+11,_fc);}
+    if(hwCol(px,pz)){_fc.setHex(farSideCol(CONCRETE));const y=hwSurf('z',px,Z0+CELL/2)-1;farBox(SB,X0-3,y-1,Z0,X0+11,y+2,Z0+CELL,_fc);}
     yield* farPlotBuildings(SB,P,px,pz);
 }
 // the middle ring's buildings on one plot, one plain box each (and the far ring's, on a plot where something's been destroyed)
@@ -514,10 +571,10 @@ function* farPlotBuildings(SB,P,px,pz){
       if(!b._far){farLook(b,px,pz,false);yield;}const L=b._far;
       farBox(SB,X0+b.x0,G+1,Z0+b.z0,X0+b.x1,(b.tier>0&&top>b.tier?(b.tier+top)/2:top)+1,Z0+b.z1,L.wall,L);}
     if(P.super&&P.super.kind==='capitol'&&px===P.super.ax&&pz===P.super.az&&collapses[px+','+pz+',0']===undefined){
-      const g=capGeo(),sx=X0+PL0,sz=Z0+PL0;_fc.setHex(blockColor(HOSPW));const cL=farWinL(_fc);
+      const g=capGeo(),sx=X0+PL0,sz=Z0+PL0;_fc.setHex(farSideCol(HOSPW));const cL=farWinL(_fc);
       farBox(SB,sx+g.px0,G+1,sz+g.bf,sx+g.px1,G+24,sz+g.back,_fc,cL);farBox(SB,sx+g.c-12,G+24,sz+g.dc-12,sx+g.c+12,G+44,sz+g.dc+12,_fc,cL);}
     if(P.super&&P.super.kind==='stadium'&&px===P.super.ax&&pz===P.super.az){
-      const SS=P.super,sx=X0+PL0,sz=Z0+PL0,W=(SS.w-1)*CELL+PW,L=(SS.h-1)*CELL+PW;_fc.setHex(blockColor(CONCRETE));
+      const SS=P.super,sx=X0+PL0,sz=Z0+PL0,W=(SS.w-1)*CELL+PW,L=(SS.h-1)*CELL+PW;_fc.setHex(farSideCol(CONCRETE));
       const t=farCraterTop(sx,sz,sx+W,sz+L,G+STAND+4);if(t>G)farBox(SB,sx,G+1,sz,sx+W,t+1,sz+L,t<G+3?FAR_RUB:_fc);}
 }
 // ---- the plains' farms and country sites in the far rings: fields and orchards as patches of their colour (crop rows are
@@ -561,7 +618,7 @@ function* farCountry(SB,SG,px,pz,lvl){
 // the same runs are joined along x, and the whole is kept per plot and step (the plan never changes)
 const FAR_BS=new Map(),FAR_BSC=new Map(),FAR_BSL=new Map(),FAR_NOGLOW=new THREE.Color(0,0,0);
 const farBsCol=b=>{let c=FAR_BSC.get(b);if(!c){c=new THREE.Color(topColor(b));FAR_BSC.set(b,c);}return c;};
-const farBsSide=b=>{let c=FAR_BSL.get(b);if(!c){c={top:farBsCol(b),glow:FAR_NOGLOW,f:-3,w:new THREE.Color(blockColor(b))};FAR_BSL.set(b,c);}return c;};
+const farBsSide=b=>{let c=FAR_BSL.get(b);if(!c){c={top:farBsCol(b),glow:FAR_NOGLOW,f:-3,w:new THREE.Color(farSideCol(b))};FAR_BSL.set(b,c);}return c;};
 function farBioRuns(B,px,pz,st){
   const k=px+','+pz+','+st;let R=FAR_BS.get(k);if(R)return R;if(FAR_BS.size>6000)FAR_BS.clear();R=[];
   const ox=(px-B.ax)*CELL,oz=(pz-B.az)*CELL,cl=new Map();let lo=1e9,hi=-1e9;
@@ -588,7 +645,7 @@ function farBioSite(SB,SG,px,pz,lvl){
 // the far ring: one box per town block, from the cheap per-block guesses (no plots worked out)
 // (no buildings are worked out out here, so each block gets a typical look: one of the common wall materials, with the share
 // of glowing windows and the roof colour the buildings nearer in have on average)
-const FAR3_LOOKS=[BRICK,CONCRETE,SIDING,STUCCO,GLASS,PAINT_WHITE].map(b=>({wall:new THREE.Color(blockColor(b)),glow:new THREE.Color(blockColor(WIN_WARM)),f:0.25,top:new THREE.Color(0.44,0.33,0.28)}));
+const FAR3_LOOKS=[BRICK,CONCRETE,SIDING,STUCCO,GLASS,PAINT_WHITE].map(b=>({wall:new THREE.Color(farSideCol(b)),glow:new THREE.Color(farSideCol(WIN_WARM)),f:0.25,top:new THREE.Color(0.44,0.33,0.28)}));
 function* farJobFar(SB,SG,act,ra,rb,L){
   if(TENV){const p0=act[0];farBox(SG,p0.pos.x-rb-128,G+0.3,p0.pos.z-rb-128,p0.pos.x+rb+128,G+0.4,p0.pos.z+rb+128,FARC.park);return;}
   {const p0=act[0];farBox(SG,p0.pos.x-rb-128,G+0.3,p0.pos.z-rb-128,p0.pos.x+rb+128,G+0.4,p0.pos.z+rb+128,FARC.park);}   // (out here it's mostly fields)
@@ -609,8 +666,8 @@ function* farQuadFar(SB,SG,qx,qz,dmg){
       // (a plot where something's come down or been knocked about, or that a big blast reached: its real buildings, as
       // they've been left, rather than the guess)
       if(dmg.has(px+','+pz)||farBlastNear(px,pz)){if(!sc)yield* farPlotBuildings(SB,plotInfo(px,pz),px,pz);yield;continue;}
-      if(hwRow(pz,px)){_fc.setHex(blockColor(CONCRETE));farBox(SB,X0,HY_X-1,Z0-3,X0+CELL,HY_X+2,Z0+11,_fc);}
-      if(hwCol(px,pz)){_fc.setHex(blockColor(CONCRETE));farBox(SB,X0-3,HY_Z-1,Z0,X0+11,HY_Z+2,Z0+CELL,_fc);}
+      if(hwRow(pz,px)){_fc.setHex(farSideCol(CONCRETE));farBox(SB,X0,HY_X-1,Z0-3,X0+CELL,HY_X+2,Z0+11,_fc);}
+      if(hwCol(px,pz)){_fc.setHex(farSideCol(CONCRETE));farBox(SB,X0-3,HY_Z-1,Z0,X0+11,HY_Z+2,Z0+CELL,_fc);}
       const t=baseType(px,pz),h=hash2(px*41+7,pz*37+3);let top=0,inset=0;
       if(t==='tower')top=30+h*60;else if(t==='mid')top=12+h*16;else if(t==='homes'){top=6+h*3;inset=3;}
       else if(t==='park'||t==='plaza')continue;else top=6+h*6;
@@ -696,6 +753,7 @@ const FAR_BACK_MS=12; // (and for the backdrop while it doesn't reach the horizo
 // (each player's speed over the ground, smoothed, from where they were last frame: a jump of a frame, being put somewhere, isn't speed)
 const farVel=[];
 function updateFar(dt){
+  meshFadeTick(dt);
   if(meshedDirty){MESHED_TEX.needsUpdate=true;meshedDirty=false;}
   LEAFFALL_U.value=leafFall;
   const act=players.filter(q=>q.active);if(!act.length)return;

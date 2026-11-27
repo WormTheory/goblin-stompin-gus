@@ -178,6 +178,18 @@ const charTint=p=>{if(!p.gob)return p.who;const o=players.find(q=>q!==p);return 
   const lss=document.getElementById('loadSpd'),lsl=document.getElementById('loadSpdVal');
   const showLS=()=>{lss.value=String(loadSpdI);lsl.textContent=LOAD_SPEEDS[loadSpdI].l;};showLS();
   lss.addEventListener('input',()=>{loadSpdI=Math.max(0,Math.min(LOAD_SPEEDS.length-1,Math.round(+lss.value)||0));showLS();try{localStorage.setItem(LOADSPD_KEY,String(loadSpdI));}catch(e){}});
+  // (RENDER SCALE, ANTI-ALIASING, TEXTURE SMOOTHING: how sharp the picture is. The scale goes on at once, through resize in
+  // ui/hud.js; the other two are read as each frame's drawn, render/view.js and core/atlas.js)
+  const rss=document.getElementById('rScale'),rsl=document.getElementById('rScaleVal');
+  const showRS=()=>{rss.value=String(renderScale);rsl.textContent=renderScale+'%';};showRS();
+  rss.addEventListener('input',()=>{renderScale=Math.max(50,Math.min(200,Math.round((+rss.value||100)/10)*10));showRS();try{localStorage.setItem(RSCALE_KEY,String(renderScale));}catch(e){}if(typeof resize==='function')resize();});
+  const picSeg=(id,at,n,get,set,key)=>{
+    const bs=[...document.querySelectorAll('#'+id+' [data-'+at+']')],show=()=>{for(const b of bs)b.setAttribute('aria-checked',String(+b.dataset[at]===get()));};show();
+    for(const b of bs)b.addEventListener('click',()=>{const v=Math.max(0,Math.min(n-1,+b.dataset[at]||0));if(v!==get())try{tone('triangle',660,0,0.05,0.03);}catch(e){}
+      set(v);show();try{localStorage.setItem(key,String(v));}catch(e){}});
+  };
+  picSeg('aaSeg','aa',AA_MODES.length,()=>aaI,v=>{aaI=v;},AA_KEY);
+  picSeg('texSmSeg','tsm',TEXSM_LVLS.length,()=>texSmI,v=>{texSmI=v;},TEXSM_KEY);
   const cps=document.getElementById('fireCap'),cpl=document.getElementById('fireCapVal');
   const showCap=()=>{cps.value=String(fireCapI);cpl.textContent=FIRE_CAPS[fireCapI]===Infinity?'No limit':String(FIRE_CAPS[fireCapI]);};showCap();
   cps.addEventListener('input',()=>{fireCapI=Math.max(0,Math.min(FIRE_CAPS.length-1,Math.round(+cps.value)||0));showCap();try{localStorage.setItem(FIRECAP_KEY,String(fireCapI));}catch(e){}if(typeof trimFires==='function')trimFires(0);});

@@ -137,4 +137,72 @@ paint(107,(x,y,r)=>{const c=(x*3+y*5)%11===0||(x*7-y*2+33)%13===0;return c?jit([
 paint(106,(x,y,r)=>{const stalk=x%3===0&&r()>.1;if(!stalk)return[0,0,0,0];return y<3?jit([118,86,48],r,10):jit([110,140,60],r,16);});
 const tex=new THREE.CanvasTexture(atlas);
 tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generateMipmaps=false;
+// ---- TEXTURE SMOOTHING (the Performance tab): smaller copies of the atlas, for blocks seen from far off ----
+// With no smaller copies, a block so far off that several of its sixteen pixels fall inside one pixel of the screen
+// shows whichever of them the middle of that pixel lands on: lit windows, leaves and brick break into speckle that
+// crawls as you move. So the atlas carries copies of itself at half the size, a quarter and so on (mip levels), and the
+// graphics card draws from whichever fits. They're made here by hand, tile by tile, because the card's own would run
+// each tile into its neighbours:
+//  - a small pixel is the average of its own tile's pixels under it, added up as light (the stored numbers aren't
+//    light: averaged as they stand, a lit pane among dark wall comes out dimmer than the speckle it replaces looks);
+//  - weighted by how solid each is, so the holes in leaves and fences don't darken what's round them, and a hole takes
+//    the colour of what's solid near it (where two sizes are mixed, a black hole would show as a dark rim);
+//  - a cut-out tile stays as solid, overall, at every size as it's painted, so a fence neither fills in nor vanishes.
+// Below a tile to a pixel a copy would have to mix tiles, so the card is told where to stop (texSmooth's
+// TEXTURE_MAX_LEVEL: Low stops at a quarter size, High at a tile to a pixel); the copies below that are only there
+// because a card won't draw from a set that doesn't go all the way down. Up close nothing changes: where a pixel of the
+// screen is smaller than a pixel of the tile, that one pixel is drawn, as ever.
+let ATLAS_MIPS=null;
+function atlasMips(){
+  if(ATLAS_MIPS)return ATLAS_MIPS;
+  const W=atlas.width,Hh=atlas.height,S=actx.getImageData(0,0,W,Hh).data,NT=AC*AR,LIN=new Float32Array(256);
+  for(let i=0;i<256;i++)LIN[i]=Math.pow(i/255,2.2);
+  const byte=v=>Math.round(255*Math.pow(Math.max(0,Math.min(1,v)),1/2.2));
+  // (P: the full size as light times solidness, and solidness. cut: a tile that's all either solid or hole, with some of
+  // each; cov, how much of it is solid; avg, its solid pixels' average light)
+  let w=W,h=Hh,P=new Float32Array(W*Hh*4);
+  for(let i=0;i<W*Hh;i++){const a=S[i*4+3]/255;P[i*4]=LIN[S[i*4]]*a;P[i*4+1]=LIN[S[i*4+1]]*a;P[i*4+2]=LIN[S[i*4+2]]*a;P[i*4+3]=a;}
+  const cut=new Uint8Array(NT),cov=new Float32Array(NT),avg=new Float32Array(NT*3);
+  for(let t=0;t<NT;t++){const tx=(t%AC)*T,ty=Math.floor(t/AC)*T;let hole=0,part=0,r=0,g=0,b=0,a=0;
+    for(let y=0;y<T;y++)for(let x=0;x<T;x++){const o=((ty+y)*W+tx+x)*4,al=S[o+3];if(al===0)hole++;else if(al<255)part++;r+=P[o];g+=P[o+1];b+=P[o+2];a+=P[o+3];}
+    cut[t]=hole>0&&part===0&&hole<T*T?1:0;cov[t]=1-hole/(T*T);if(a>0){avg[t*3]=r/a;avg[t*3+1]=g/a;avg[t*3+2]=b/a;}}
+  const lvls=[];
+  for(let L=0;w>=1&&h>=1;L++){
+    const n=T>>L,D=new Uint8ClampedArray(w*h*4);
+    for(let i=0;i<w*h;i++){const a=P[i*4+3],o=i*4;
+      if(a>0){D[o]=byte(P[o]/a);D[o+1]=byte(P[o+1]/a);D[o+2]=byte(P[o+2]/a);}
+      D[o+3]=Math.round(a*255);}
+    if(n>=1)for(let t=0;t<NT;t++){const tx=(t%AC)*n,ty=Math.floor(t/AC)*n;
+      // (a hole's colour: its tile's)
+      for(let y=0;y<n;y++)for(let x=0;x<n;x++){const o=((ty+y)*w+tx+x)*4;if(P[o+3]<=0){D[o]=byte(avg[t*3]);D[o+1]=byte(avg[t*3+1]);D[o+2]=byte(avg[t*3+2]);}}
+      // (a cut-out's share that's solid, kept: the alpha test passes at a half, so the solidest k pixels are scaled to
+      // pass it and the rest to fail. The full size is left as painted)
+      if(!cut[t]||L===0)continue;
+      const al=[];for(let y=0;y<n;y++)for(let x=0;x<n;x++)al.push(P[((ty+y)*w+tx+x)*4+3]);
+      const srt=al.slice().sort((p,q)=>q-p),k=Math.round(cov[t]*n*n),hi=k>0?srt[k-1]:0,lo=k<n*n?srt[k]:0;
+      for(let y=0;y<n;y++)for(let x=0;x<n;x++){const o=((ty+y)*w+tx+x)*4,a=P[o+3];
+        D[o+3]=Math.round(255*(k>0&&a>=hi&&a>0?0.55+0.45*(hi<1?(a-hi)/(1-hi):1):lo>0?0.45*Math.min(1,a/lo):0));}}
+    lvls.push(new ImageData(D,w,h));
+    if(w===1&&h===1)break;
+    // (the next size down: each pixel the average of the four under it, or of what there is at an odd edge)
+    const w2=Math.max(1,w>>1),h2=Math.max(1,h>>1),Q=new Float32Array(w2*h2*4);
+    for(let y=0;y<h2;y++)for(let x=0;x<w2;x++){const o=(y*w2+x)*4;
+      for(let j=0;j<2;j++)for(let i=0;i<2;i++){const s=(Math.min(h-1,y*2+j)*w+Math.min(w-1,x*2+i))*4;Q[o]+=P[s]/4;Q[o+1]+=P[s+1]/4;Q[o+2]+=P[s+2]/4;Q[o+3]+=P[s+3]/4;}}
+    P=Q;w=w2;h=h2;}
+  return ATLAS_MIPS=lvls;
+}
+// (before a renderer draws: the atlas set up as the setting asks, on that renderer's card. Only where the card can draw
+// from smaller copies of a picture whose sides aren't powers of two, and be told where to stop: WebGL 2)
+const TEXSM={ml:-1};
+function texSmooth(R){
+  const ok=!!(typeof renderer!=='undefined'&&renderer.capabilities&&renderer.capabilities.isWebGL2&&typeof ImageData!=='undefined'),ml=ok?TEXSM_LVLS[texSmI]:0;
+  if(ml!==TEXSM.ml){
+    const was=TEXSM.ml>0;TEXSM.ml=ml;
+    if(ml>0&&!was){tex.mipmaps=atlasMips();tex.minFilter=THREE.NearestMipmapLinearFilter;tex.needsUpdate=true;}
+    else if(!ml&&was){tex.mipmaps=[];tex.minFilter=THREE.NearestFilter;tex.needsUpdate=true;}}
+  if(!ml||!R.properties||!R.state||!R.initTexture)return;
+  const P=R.properties.get(tex);
+  if(P.__version!==tex.version)R.initTexture(tex);   // (sent up now, so that the limit's on it before it's first drawn from)
+  if(P.__webglTexture&&(P._ml!==ml||P._mv!==tex.version)){const gl=R.getContext();R.state.bindTexture(gl.TEXTURE_2D,P.__webglTexture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAX_LEVEL,ml);P._ml=ml;P._mv=tex.version;}
+}
 

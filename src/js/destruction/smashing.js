@@ -69,8 +69,14 @@ const scorches=[];let scorchIdx=0;
 
 // ---------- Block smashing ----------
 // ---- what each material does when it breaks ----
-const tileColor=[];
-try{const d=actx.getImageData(0,0,atlas.width,atlas.height).data;for(let t=0;t<AC*AR;t++){let r=0,g=0,b=0,n=0;const ox=(t%AC)*T,oy=Math.floor(t/AC)*T;for(let y=0;y<T;y++)for(let x=0;x<T;x++){const o=((oy+y)*atlas.width+ox+x)*4;if(d[o+3]<128)continue;r+=d[o];g+=d[o+1];b+=d[o+2];n++;}tileColor[t]=n?((r/n)<<16|(g/n)<<8|(b/n)):0x888888;}}catch(e){}
+// (tileColor: each tile's average colour, of the pixels that aren't holes. tileLit: the same added up as light, which
+// is how a tile too far off to make out looks: a lit pane among dark wall is a good deal brighter than the plain
+// average of the stored numbers says. The far view's boxes are coloured from it, far-city.js, as the block textures'
+// own small copies are, core/atlas.js)
+const tileColor=[],tileLit=[];
+try{const d=actx.getImageData(0,0,atlas.width,atlas.height).data,lin=v=>Math.pow(v/255,2.2),un=v=>Math.round(255*Math.pow(v,1/2.2));
+  for(let t=0;t<AC*AR;t++){let r=0,g=0,b=0,n=0,lr=0,lg=0,lb=0;const ox=(t%AC)*T,oy=Math.floor(t/AC)*T;for(let y=0;y<T;y++)for(let x=0;x<T;x++){const o=((oy+y)*atlas.width+ox+x)*4;if(d[o+3]<128)continue;r+=d[o];g+=d[o+1];b+=d[o+2];lr+=lin(d[o]);lg+=lin(d[o+1]);lb+=lin(d[o+2]);n++;}
+    tileColor[t]=n?((r/n)<<16|(g/n)<<8|(b/n)):0x888888;tileLit[t]=n?(un(lr/n)<<16|un(lg/n)<<8|un(lb/n)):0x888888;}}catch(e){}
 const shadeHex=(h,k)=>{const r=Math.min(255,((h>>16)&255)*k),g=Math.min(255,((h>>8)&255)*k),b=Math.min(255,(h&255)*k);return(r<<16)|(g<<8)|b;};
 const blockColor=b=>{const t=BLOCK[b]&&BLOCK[b].tiles;return t&&tileColor[t[2]]!==undefined?tileColor[t[2]]:0x888888;};
 const KIND={};

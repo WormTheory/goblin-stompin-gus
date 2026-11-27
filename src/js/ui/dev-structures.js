@@ -153,7 +153,7 @@ function stDrawDeco(C){
   const fog=scene.fog,bg=scene.background,hI=hemi.intensity,sI=sunLight.intensity,hC=hemi.color.clone(),hG=hemi.groundColor.clone(),sC=sunLight.color.clone(),sP=sunLight.position.clone();
   scene.fog=null;scene.background=null;hemi.intensity=0.75;hemi.color.setHex(0xe8f0e0);hemi.groundColor.setHex(0x40483a);sunLight.intensity=0.6;sunLight.color.setHex(0xffe8cc);sunLight.position.set(0.5,1,0.3);
   ST.r.autoClear=false;ST.r.clippingPlanes=ST.clip;
-  try{ST.r.render(scene,C);}
+  try{texSmooth(ST.r);ST.r.render(scene,C);}
   finally{ST.r.autoClear=true;ST.r.clippingPlanes=[];for(const o of hid)o.visible=true;scene.fog=fog;scene.background=bg;
     hemi.intensity=hI;hemi.color.copy(hC);hemi.groundColor.copy(hG);sunLight.intensity=sI;sunLight.color.copy(sC);sunLight.position.copy(sP);}
 }
@@ -227,7 +227,7 @@ function stTick(dt){
   else{if(!ST.drag)ST.yaw+=dt*0.12;stOrbitCam();}   // (turning slowly by itself, until you take hold of it)
   // (drawn flat and in daylight)
   const L0=WORLD_LIGHT.value.clone(),cu=CURVE_U.value;WORLD_LIGHT.value.setRGB(1,1,1);CURVE_U.value=0;
-  try{ST.r.render(ST.scene,C);if(ST.box)stDrawDeco(C);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
+  try{texSmooth(ST.r);ST.r.render(ST.scene,C);if(ST.box)stDrawDeco(C);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
 }
 function stBuildList(){const list=document.getElementById('devStList');if(!list||list.childElementCount)return;
   list.innerHTML=stGroups().map(([g,items])=>'<li class="grp" aria-disabled="true">'+glEsc(g)+'</li>'+items.map(([k,n])=>'<li role="option" data-k="'+k+'">'+glEsc(n)+'</li>').join('')).join('');stMarkDD();}

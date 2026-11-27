@@ -97,7 +97,7 @@ function obitPreviewTick(dt){
   // (drawn flat and in daylight, like the Dev tab's preview: with the world's bend left on, the culling would judge this
   // little scene from the main camera -- far off across the city -- and throw the goblin away as over the horizon)
   const L0=WORLD_LIGHT.value.clone(),cu=CURVE_U.value;WORLD_LIGHT.value.setRGB(1,1,1);CURVE_U.value=0;
-  try{OBP.r.render(OBP.scene,OBP.cam);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
+  try{texSmooth(OBP.r);OBP.r.render(OBP.scene,OBP.cam);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
 }
 {
   const cv=document.getElementById('obitCanvas');let drag=null;

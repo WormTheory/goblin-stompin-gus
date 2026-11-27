@@ -63,6 +63,16 @@ let fireDurI=2;try{const v=parseInt(localStorage.getItem(FIREDUR_KEY));if(v>=0&&
 // how much of each frame goes on bringing the world in (Settings' LOADING SPEED): a multiple of the usual allowance
 const LOAD_SPEEDS=[{m:0.5,l:'Low'},{m:1,l:'Normal'},{m:2,l:'High'},{m:4,l:'Max'}],LOADSPD_KEY='goblin-stompin-gus-loadspeed';
 let loadSpdI=1;try{const v=parseInt(localStorage.getItem(LOADSPD_KEY));if(v>=0&&v<LOAD_SPEEDS.length)loadSpdI=v;}catch(e){}
+// how sharp the picture is (Settings' RENDER SCALE, ANTI-ALIASING and TEXTURE SMOOTHING). renderScale: the pixels drawn for
+// each pixel of the screen, as a percentage each way (render/sky.js's pxRatio). aaI: how many samples each pixel keeps
+// along an edge, AA_MODES (render/view.js's aaBegin). texSmI: how small a copy of each block's picture is drawn far off,
+// TEXSM_LVLS (a tile of 16 pixels halves that many times: core/atlas.js's texSmooth)
+const RSCALE_KEY='goblin-stompin-gus-renderscale',AA_KEY='goblin-stompin-gus-aa',TEXSM_KEY='goblin-stompin-gus-texsmooth';
+const AA_MODES=[0,2,4],TEXSM_LVLS=[0,2,4];
+let renderScale=100,aaI=0,texSmI=1;
+try{const v=parseInt(localStorage.getItem(RSCALE_KEY));if(v>=50&&v<=200)renderScale=v;}catch(e){}
+try{const v=parseInt(localStorage.getItem(AA_KEY));if(v>=0&&v<AA_MODES.length)aaI=v;}catch(e){}
+try{const v=parseInt(localStorage.getItem(TEXSM_KEY));if(v>=0&&v<TEXSM_LVLS.length)texSmI=v;}catch(e){}
 // ---- One allowance a frame for the work that can wait ----
 // The world is brought in a little a frame by several jobs, and each used to have an allowance of its own in a unit of
 // its own: new chunks (one a frame, whatever the frame had to spare), the far rings (4 to 12 ms), meshes made again

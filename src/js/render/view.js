@@ -1,3 +1,46 @@
+// ---------- ANTI-ALIASING (the Performance tab) ----------
+// The page's canvas was made without it, and that can't be changed while the page is open. So with it on, the frame is
+// drawn into a picture off screen that keeps several samples for every pixel (a multisample target: an edge crossing a
+// pixel colours only the samples it covers), and that picture, settled to one colour a pixel, is copied to the screen
+// by one flat square. Switched in the menu it takes effect at once; off, nothing's made and the frame's drawn straight
+// to the screen as it always was. Each renderer has a target of its own (S: AA_MAIN, and W2.aa for player two's
+// window), since nothing made on one graphics context can be used on another.
+const aaNew=()=>({rt:null,w:0,h:0,n:0,on:false});
+const AA_MAIN=aaNew();let AA_COPY=null,AA_SZ=null;
+// (the frame's start: the target made, or made again at a new size or count, and S.on if this frame goes through it)
+function aaBegin(S,R){
+  if(!S)return;S.on=false;
+  const n=AA_MODES[aaI],can=n>0&&!!(THREE.WebGLMultisampleRenderTarget&&R.capabilities&&R.capabilities.isWebGL2&&R.getDrawingBufferSize);
+  if(!can){if(S.rt){S.rt.dispose();S.rt=null;if(R.getRenderTarget&&R.getRenderTarget())R.setRenderTarget(null);}return;}
+  const sz=R.getDrawingBufferSize(AA_SZ||(AA_SZ=new THREE.Vector2())),w=sz.x,h=sz.y;if(w<2||h<2)return;
+  if(!S.rt||S.w!==w||S.h!==h||S.n!==n){
+    if(S.rt)S.rt.dispose();
+    // (with a stencil buffer asked for, its depth is kept to 24 bits, as the screen's own is; without, three.js gives a
+    // target like this 16, far too coarse for a view this deep: distant walls flicker through one another)
+    S.rt=new THREE.WebGLMultisampleRenderTarget(w,h,{stencilBuffer:true});S.rt.samples=Math.min(n,R.capabilities.maxSamples||n);
+    S.w=w;S.h=h;S.n=n;}
+  S.on=true;
+}
+// (the frame's end: the target's picture on to the screen, w by h)
+function aaEnd(S,R,w,h){
+  if(!S||!S.on)return;S.on=false;
+  if(!AA_COPY){
+    const m=new THREE.ShaderMaterial({uniforms:{tD:{value:null}},depthTest:false,depthWrite:false,fog:false,
+      vertexShader:'varying vec2 vU;void main(){vU=uv;gl_Position=vec4(position.xy,0.0,1.0);}',
+      fragmentShader:'uniform sampler2D tD;varying vec2 vU;void main(){gl_FragColor=vec4(texture2D(tD,vU).rgb,1.0);}'});
+    const q=new THREE.Mesh(new THREE.PlaneGeometry(2,2),m);q.frustumCulled=false;
+    AA_COPY={sc:new THREE.Scene(),cam:new THREE.Camera(),m};AA_COPY.sc.add(q);}
+  AA_COPY.m.uniforms.tD.value=S.rt.texture;
+  R.setRenderTarget(null);R.setScissorTest(false);R.setViewport(0,0,w,h);R.render(AA_COPY.sc,AA_COPY.cam);
+}
+// (before a view is drawn: where on the screen, or on the frame's target, it goes; and the block textures as TEXTURE
+// SMOOTHING asks, core/atlas.js)
+function drawPrep(R,x,y,w,h){
+  const S=R===renderer?AA_MAIN:W2.aa;
+  if(S&&S.on){const k=R.getPixelRatio(),t=S.rt;t.viewport.set(x*k,y*k,w*k,h*k).floor();t.scissor.copy(t.viewport);t.scissorTest=R.getScissorTest();R.setRenderTarget(t);}
+  R.setViewport(x,y,w,h);R.setScissor(x,y,w,h);
+  texSmooth(R);
+}
 // ---------- Drawing one player's view (it was in ui/minimap.js) ----------
 function renderView(p,x,y,w,h,R=renderer){   // (R: player two's own window draws with a renderer of its own, ui/seats.js)
   const wk0=WXK;WXK=p.wxk||WXK;try{renderView0(p,x,y,w,h,R);}finally{WXK=wk0;}}   // (each view in its own player's weather)
@@ -29,7 +72,7 @@ function renderView0(p,x,y,w,h,R){
   placePrecip(c,p.idx);
   p.camera.aspect=w/h;p.camera.fov=p.tkFov||(p.gob&&!p.drv&&p.scFov)||72-6*(p.speedFx||0)-8*(p.windZoom||0)+(p.drv&&p.drv.k==='mech'?p.mgFov||0:0);   // (tkFov: a tank's gunsight, tank-handling.js)
   p.camera.far=far+40;p.camera.near=p.gob?0.12:0.25;p.camera.updateProjectionMatrix();
-  R.setViewport(x,y,w,h);R.setScissor(x,y,w,h);
+  drawPrep(R,x,y,w,h);
   sky.position.copy(p.camera.position);
   if(p.lockMark&&p.lockMark.visible)p.lockMark.quaternion.copy(p.camera.quaternion);
   // the sky's horizon goes where the world's edge appears: bent down, the top of the curve (or the end of the view, if

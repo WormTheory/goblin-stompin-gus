@@ -133,8 +133,9 @@ function titleDraw(dt,w,h){
   cam.position.set(cx+sx,1.17+sy,dist);cam.lookAt(cx+sx,2.46+sy,0);
   // each row scrolls at the street's speed (the far ones look slower, being further off), wrapping round
   for(const R of TSC.rows){const s=R===TSC.clouds?TSC.t*1.5:TSC.scroll*R.speed;R.grp.position.x=cx-R.L*0.5-((s%R.L)+R.L)%R.L;}
-  renderer.setScissorTest(false);renderer.setViewport(0,0,w,h);
+  renderer.setScissorTest(false);aaBegin(AA_MAIN,renderer);drawPrep(renderer,0,0,w,h);   // (anti-aliased and smoothed as the game is, render/view.js)
   const L0=WORLD_LIGHT.value.clone(),cu=CURVE_U.value;WORLD_LIGHT.value.setRGB(1,1,1);CURVE_U.value=0;
   try{renderer.render(TSC.scene,cam);}finally{WORLD_LIGHT.value.copy(L0);CURVE_U.value=cu;}
+  aaEnd(AA_MAIN,renderer,w,h);
   return true;
 }

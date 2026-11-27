@@ -53,6 +53,17 @@
 - A highway's billboards are worked out as you come to them, not all at once to the far end of the road, which could freeze the game for a moment out in open country.
 - Far-off land fades into haze toward the horizon, so distant towers lift out of it rather than popping up sharp over the edge of the world.
 
+### A sharper picture
+
+- TEXTURE SMOOTHING, a new setting under Performance (Off, Low, High; it starts on Low): distant blocks no longer break into speckle that crawls as you move. Lit windows, brick and leaves far off settle into steady colour, as bright as before. Up close, blocks look exactly as they did.
+- ANTI-ALIASING, a new setting under Performance (Off, 2x, 4x): smooths the stair-stepped edges of far towers and rooftops. It changes at once, with no reload.
+- RENDER SCALE, a new slider under Performance (50% to 200%): draw the picture with fewer pixels for speed, or more for sharpness.
+- Far-off streets are tarmac with their yellow lines now. From up high they used to show as pale strips of haze, turning dark only as the detailed world arrived.
+- Far-off buildings are as bright as the real ones. Their lit windows used to be drawn a shade dimmer than the buildings they stand in for, so a tower brightened as you came up to it.
+- A far tower's rows of windows melt evenly into its colour with distance instead of flickering.
+- Buildings just past the detailed world keep the neon round their roofs and the masts on top, so those no longer pop in.
+- The detailed world dissolves in over the far view over a third of a second instead of switching in one frame, and the far view's own levels of detail blend into each other across a band instead of along a line.
+
 ### The world
 
 - The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.

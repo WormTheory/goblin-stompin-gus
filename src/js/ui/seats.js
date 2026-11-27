@@ -66,7 +66,7 @@ function seatsSeen(st){
 // dragged across, with a full-screen button. Both windows' keys and mouse go to the same handlers, and controllers are read
 // through both (w2Pads), since a browser may only tell the window with focus about them.
 const W2_KEY='goblin-stompin-gus-screen2';
-const W2={mode:'split',win:null,cv:null,r:null,hud:null,fs:null,idle:null,ok:false,w:0,h:0,pr:0,cls:null,ui:null,uiOff:null,flt:null,blocked:false};
+const W2={mode:'split',win:null,cv:null,r:null,hud:null,fs:null,idle:null,ok:false,w:0,h:0,pr:0,cls:null,ui:null,uiOff:null,flt:null,blocked:false,aa:null};
 try{W2.mode=localStorage.getItem(W2_KEY)==='win'?'win':'split';}catch(e){}
 try{navigator.permissions.query({name:'window-management'}).then(st=>{W2.ok=st.state==='granted';st.onchange=()=>{W2.ok=st.state==='granted';};}).catch(()=>{});}catch(e){}
 function w2Open_(){return !!(W2.win&&!W2.win.closed);}
@@ -119,7 +119,7 @@ function w2Setup(w){
   finally{window.WebGL2RenderingContext=G2;}
   if(!r||typeof r.render!=='function')return false;
   r.localClippingEnabled=true;
-  Object.assign(W2,{win:w,cv,r,hud,fs,idle,w:0,h:0,pr:0,cls:null,flt:null});
+  Object.assign(W2,{win:w,cv,r,hud,fs,idle,w:0,h:0,pr:0,cls:null,flt:null,aa:aaNew()});   // (aa: its own anti-aliasing target, render/view.js)
   hud.append(P2.ui.view);
   // (this window's keys and mouse drive the game as the first window's do: whoever has the keyboard, kbP)
   w.addEventListener('keydown',e=>{seatKb();onKeyDown(e);});w.addEventListener('keyup',onKeyUp);w.addEventListener('blur',onBlur);
@@ -138,9 +138,10 @@ function w2Setup(w){
 function w2Close(){
   if(!W2.r&&!W2.win)return;
   const hud=document.getElementById('hud');if(hud)hud.insertBefore(P2.ui.view,hud.firstChild);
+  try{if(W2.aa&&W2.aa.rt)W2.aa.rt.dispose();}catch(e){}
   try{W2.r.dispose();}catch(e){}
   try{if(W2.win&&!W2.win.closed)W2.win.close();}catch(e){}
-  Object.assign(W2,{win:null,cv:null,r:null,hud:null,fs:null,idle:null,uiOff:null});
+  Object.assign(W2,{win:null,cv:null,r:null,hud:null,fs:null,idle:null,uiOff:null,aa:null});
   layout();seatsRender();
 }
 function w2Check(){if((W2.win||W2.r)&&!w2Open_())w2Close();else w2Sync();}
@@ -156,10 +157,10 @@ function w2Sync(){
 }
 function w2Render(){
   if(!w2Live())return;const W=W2.win,w=W.innerWidth,h=W.innerHeight;if(w<2||h<2)return;
-  const pr=Math.min(W.devicePixelRatio||1,1.5);
+  const pr=pxRatio(Math.min(W.devicePixelRatio||1,1.5),w,h);   // (RENDER SCALE here too)
   if(pr!==W2.pr){W2.pr=pr;W2.r.setPixelRatio(pr);W2.w=0;}
   if(w!==W2.w||h!==W2.h){W2.w=w;W2.h=h;W2.r.setSize(w,h,false);layout();}
-  W2.r.setScissorTest(false);renderView(P2,0,0,w,h,W2.r);
+  W2.r.setScissorTest(false);aaBegin(W2.aa,W2.r);renderView(P2,0,0,w,h,W2.r);aaEnd(W2.aa,W2.r,w,h);
 }
 // (Player 2 screen: player two on half this screen or in a window of their own)
 function w2Show(){
