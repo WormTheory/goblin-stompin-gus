@@ -144,6 +144,31 @@ document.getElementById('quitBtn').addEventListener('click',()=>toTitle());
 menuMode();   // (the page opens on the title screen)
 document.getElementById('optBtn').addEventListener('click',()=>openSub(setFirst(),'optBtn'));
 document.getElementById('setBtn').addEventListener('click',()=>openSub(setFirst(),'setBtn'));
+// Defaults, at the foot of each Settings tab: every setting in that tab back to what a new player starts with. Each is
+// put back through its own control, as if clicked or dragged, so it's saved and takes effect just as it would by hand.
+// (r: a slider and its value; t: a switch and whether it's on; b: a button to press unless it's already the one picked;
+// f: anything else.) Whatever's player one's alone (.p1only) or switched off (a guest's hostility) is left be.
+const SET_DEFS={
+  tabControls:[['b','.ctl-seg [data-view="auto"]'],['t','#camTog',false],['b','#planeSeg [data-pctl="auto"]'],['f',()=>{const r=document.getElementById('rbReset');if(r)r.click();}]],
+  tabGameplay:[['r','#hostMain',3],['r','#daySpeed',3]],
+  tabPerf:[['r','#viewDist',112],['r','#detailDist',112],['r','#propDist',64],['r','#crowdDist',1],['r','#trafficDist',1],['r','#fireDur',2],['r','#fireCap',5],
+    ['b','#pathSeg [data-path="0"]'],['t','#blkTog',true],['t','#trkTog',true],['t','#dbgMenuTog .tog',false]],
+  tabDisplay:[['r','#sndVol',100],['r','#brightness',100],['t','#scorePopTog',false],['t','#dmgPopTog',false],['t','#shoutTog',false],['t','#hpBarTog',false],
+    ['t','#bloodTog',false],['t','#keysTog',false],['t','#calmTog',false]],
+  tabMulti:[['f',()=>{const a=document.getElementById('seatAuto');if(a&&!a.hidden)a.click();}],['b','#scrSeg [data-scr="split"]'],['b','#pvpSeg [data-pvp="0"]'],
+    ['t','#chatShowTog',true],['t','#vcPttTog',true],['t','#vcMicTog',true],['t','#vcHearTog',true],['r','#vcMicVol',100],['r','#vcVol',100],['t','#vcTog',false]],
+};
+function setDefaults(tab){
+  const two=menuP2();
+  for(const [k,q,v] of SET_DEFS[tab]||[]){
+    if(k==='f'){try{q();}catch(e){}continue;}
+    const el=document.querySelector(q);if(!el||el.disabled||two&&el.closest('.p1only'))continue;
+    if(k==='r'){if(+el.value!==v){el.value=String(v);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}}
+    else if(k==='t'){if((el.getAttribute('aria-checked')==='true')!==v)el.click();}
+    else if(el.getAttribute('aria-checked')!=='true')el.click();
+  }
+}
+for(const b of document.querySelectorAll('[data-def]'))b.addEventListener('click',()=>{setDefaults(b.dataset.def);try{tone('triangle',660,0,0.06,0.03);}catch(e){}});
 document.getElementById('devLink').addEventListener('click',()=>openSub('dev','devLink'));
 addEventListener('keydown',e=>{if(!menuOpen||BIND_CAP||e.repeat)return;const t=e.target;if(t&&(t.tagName==='INPUT'&&t.type!=='range'&&t.type!=='checkbox'||t.tagName==='TEXTAREA'))return;
   if(e.code==='KeyQ'||e.code==='KeyE'){e.preventDefault();subStep(e.code==='KeyE'?1:-1);}});

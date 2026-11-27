@@ -29,7 +29,7 @@ function renderChar(){
     for(const k of row.querySelectorAll('.cs-card')){const c=k.dataset.c;k.setAttribute('aria-checked',String(c===(seat?c2:CHAR)));
       k.classList.toggle('p1',c===CHAR);k.classList.toggle('p2',co&&c===c2);
       const pic=k.querySelector('.cs-pic');if(pic&&!pic.dataset.done){pic.dataset.done='1';pic.className='cs-pic '+sprCls(pic.dataset.spr,6);}}}
-  const n=document.getElementById('charNote');if(n)n.textContent=charNote();
+  const n=document.getElementById('charNote');if(n){n.textContent=charNote();n.hidden=!n.textContent;}
   renderAbil();renderGwpn();charSecs();   // (the ability switches or goblin weapons shown are this menu's player's)
   // (the 2P menu tag; the title menu's "Playing as" line, charLinkName, is gone: the character's picked in game)
   let two=false;try{two=begun&&P2.active&&!P2.net;menuWhoShow();}catch(e){}   // (not yet while the page loads: begun is declared later on)

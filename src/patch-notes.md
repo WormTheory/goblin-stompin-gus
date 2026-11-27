@@ -686,6 +686,7 @@
 ### Settings
 
 - Controls and Options are one Settings screen now, with five tabs: Controls, Gameplay, Performance, Display and Multiplayer. LB / RB (Q / E) step through the tabs.
+- Each Settings tab has a Defaults button at the bottom, putting everything in that tab back as it was for a new player (in Controls, the key bindings too).
 - Plane controls are under Controls; enemy hostility and day / night speed under Gameplay; render distance, crowds, traffic, fires, goblin pathfinding, Advanced lighting and tracks in snow under Performance; sound, brightness and what's on screen under Display; the Players list (which keyboard or controller is whose), Player 2 screen (split screen or a second window), PvP and online chat and voice under Multiplayer.
 - The Co-op button is called Split screen now.
 - On the pause menu, Play solo / Split screen and Play online have moved into Settings' Multiplayer tab. The title screen keeps them where they were.
@@ -694,7 +695,8 @@
 - Shouts, Health bars and Reduced motion in the Display tab no longer have a description under them.
 - More menu text trimmed: the notes under the Performance tab's settings (all but the Debug menu's), under PvP and under Plane controls, the "Showing what you're using" line in Controls, and "Nothing flattened yet" in This rampage.
 - Day / night speed's note just says how long a whole day and night takes, such as 10 minutes or 38 seconds, or ∞ when it's frozen.
-- The Character screen is just the cards and the switches: no descriptions under the characters, abilities or weapons, no "Gus can" strip, no Abilities or Loadout heading, no "Last one" tag, and no notes about the loadout or player two.
+- The Character screen is just the cards and the switches: no descriptions under the characters, abilities or weapons, no "Gus can" strip, no +1 / +2 coins on the upgrades, no Abilities or Loadout heading, no "Last one" tag, and no notes about the loadout or player two.
+- The character cards are smaller, now that they're just a picture and a name.
 - The title screen no longer has the "Playing as" line: pick your character from the pause menu's Character screen once you're playing.
 - The pause menu's seed line no longer says that smashed blocks save in the browser.
 

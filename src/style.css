@@ -901,6 +901,7 @@ body.calm .tmenu>.online,body.calm .tmenu>.confirm{animation:none!important}
 #pause .settabs button.padfocus,.settabs button:focus-visible{outline:4px dashed var(--yolk)!important;outline-offset:3px!important;box-shadow:3px 3px 0 var(--ink)!important}
 /* (Multiplayer's Play solo / Co-op and Play online, while paused) */
 .tmenu.mpmenu:empty{display:none}
+.setdef{display:flex;justify-content:flex-end;padding-top:6px}
 .opts.ctlplane{max-width:none;margin:0}
 .pause:not(.title) .tmenu.mpmenu{border-top:0;padding:0}
 /* the Workshop (Testing Environment, Dev) is only in the pause menu */
@@ -919,6 +920,8 @@ body.calm .tmenu>.online,body.calm .tmenu>.confirm{animation:none!important}
 .cs-card{--cc:#b7f08a;position:relative;justify-content:flex-start;gap:12px;min-height:270px;padding:22px 12px 16px;color:var(--ink);background-color:var(--paper);background-image:var(--dither);background-size:6px 6px;border:4px solid var(--ink);border-radius:var(--wob);box-shadow:6px 6px 0 var(--ink);transform:rotate(-1deg);transition:transform .12s}
 .cs-card:nth-child(even){border-radius:var(--wob2);transform:rotate(1.5deg)}
 .cs-card:nth-child(3){transform:rotate(-1deg)}.cs-card:nth-child(4){transform:rotate(2deg)}
+.cs-row{padding:22px 30px 12px}.cs-card{min-height:0;gap:8px;padding:16px 10px 14px}   /* (just the picture and the name now) */
+.cs-note[hidden]{display:none}
 .cs-card.c-gertie{--cc:#ffc2b6}.cs-card.c-gnash{--cc:var(--yolk)}.cs-card.c-grizzle{--cc:#ff8a7e}
 .cs-card:hover{background-color:#fffaf0;filter:none}
 .cs-card[aria-checked="true"]{border-color:var(--ink);background-color:var(--paper);box-shadow:6px 6px 0 var(--ink)}
@@ -932,13 +935,9 @@ body.calm .tmenu>.online,body.calm .tmenu>.confirm{animation:none!important}
 .cs-card.p1 .t1{display:block;left:-16px;background:var(--gus);transform:rotate(-8deg)}
 .cs-card.p2 .t2{display:block;right:-16px;background:var(--pink);transform:rotate(7deg)}
 #pause .cs-card.padfocus,#pause .cs-card:focus-visible{outline:5px dashed var(--yolk)!important;outline-offset:6px!important;animation:ckBob 1.1s ease-in-out infinite;box-shadow:6px 6px 0 var(--ink)!important}
-.cs-moves{display:flex;align-items:center;gap:18px;padding:14px 22px;margin:4px 6% 0;transform:rotate(-.6deg)}
-.cs-moves>.px{font-size:22px;flex:none;color:var(--ink)}
-.cs-chips{display:flex;flex-wrap:wrap;gap:9px}
-.cs-chips .sticker{background:var(--yolk);color:var(--ink);padding:4px 10px 3px;font-size:18px;text-transform:uppercase;box-shadow:3px 3px 0 var(--ink)}
 .cs-note{text-align:center;font:700 15px var(--f-body);color:var(--paper)}
 @media(max-width:860px){.cs-row{grid-template-columns:repeat(2,minmax(0,1fr))}.cs-card{min-height:0}}
-@media(max-width:560px){.cs-name{font-size:30px}.cs-moves{flex-direction:column;align-items:flex-start;margin-inline:0}}
+@media(max-width:560px){.cs-name{font-size:30px}}
 
 /* ---- Play online, in the menu card ---- */
 .tmenu .online{margin:0;padding:12px;border:3px solid var(--ink);border-radius:var(--wobs);background:#e5f2fc;color:var(--ink);gap:9px}
@@ -1111,15 +1110,13 @@ body:has(#pause:not([hidden])) .placeBanner{display:none}
 :is(#abilList,#gwpnList)[data-seat="1"] .ab-base[aria-checked="true"]{background:#fde0d8}
 :is(#abilList,#gwpnList)[data-seat="1"] .ab-base[aria-checked="true"] .st{background:var(--pink)}
 /* an upgrade: a yolk token with its coin */
-:is(#abilList,#gwpnList) .ab-tok{flex:1 1 230px;padding-left:44px;border-radius:14px 18px 12px 16px/16px 12px 18px 14px;border-style:solid}
+:is(#abilList,#gwpnList) .ab-tok{flex:1 1 230px;border-radius:14px 18px 12px 16px/16px 12px 18px 14px;border-style:solid}
 :is(#abilList,#gwpnList) .ab-tok[aria-checked="true"]{background:#fff0b0}
 :is(#abilList,#gwpnList) .ab-tok[aria-checked="true"] .st{background:var(--yolk)}
-:is(#abilList,#gwpnList) .ab-tok .lv{position:absolute;left:7px;top:6px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:400 14px/1 var(--f-px);font-style:normal;color:var(--ink);background:var(--yolk);border:3px solid var(--ink);box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
 /* off: greyed out, still readable (the name and description stay well over 4.5:1 on the grey) */
 :is(#abilList,#gwpnList) .tog[aria-checked="false"]{background:#e2dadb;border-color:#6e5f70;box-shadow:3px 3px 0 #6e5f70;color:#4b3c4e}
 :is(#abilList,#gwpnList) .tog[aria-checked="false"] small{color:#594a5b}
-:is(#abilList,#gwpnList) .tog[aria-checked="false"] .st,:is(#abilList,#gwpnList) .tog[aria-checked="false"] .lv{background:#cbc1c4;border-color:#6e5f70;color:#4b3c4e}
-:is(#abilList,#gwpnList) .tog[aria-checked="false"] .lv{box-shadow:none}
+:is(#abilList,#gwpnList) .tog[aria-checked="false"] .st{background:#cbc1c4;border-color:#6e5f70;color:#4b3c4e}
 /* an upgrade whose basic move is off: greyed, and dashed round, as it can't do anything yet */
 :is(#abilList,#gwpnList) .tog.dim{border-style:dashed;box-shadow:none}
 :is(#abilList,#gwpnList) .tog:focus-visible,#pause :is(#abilList,#gwpnList) .tog.padfocus{outline:4px dashed var(--yolk)!important;outline-offset:3px;box-shadow:0 0 0 3px var(--ink)!important}

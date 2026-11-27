@@ -39,7 +39,7 @@ function gloadSave(seat){try{localStorage.setItem(GLOAD_KEYS[seat],JSON.stringif
 function gwpnBuild(){
   const list=document.getElementById('gwpnList');if(!list||list.firstChild)return list;
   const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const card=k=>'<button type="button" class="tog ab-base" role="switch" data-k="'+k+'"><span class="tl"><b class="nm">'+esc(WEAPONS[k].name)+'</b></span><span class="st" aria-hidden="true"></span></button>';
+  const card=k=>'<button type="button" class="tog ab-base" role="switch" data-k="'+k+'"><span class="tl"><b class="nm">'+esc(WEAPONS[k].name)+'</b></span></button>';
   let h='<div class="ab-h" aria-hidden="true"><span class="px">Weapons</span></div>';
   for(let i=0;i<GOB_PICK.length;i+=2)h+='<div class="ab-row" role="group" aria-label="Weapons">'+GOB_PICK.slice(i,i+2).map(card).join('')+'</div>';
   for(const k of GOB_STACKS){const G=WEAPONS[k],lo=esc(G.name.toLowerCase());
@@ -61,7 +61,7 @@ function gwpnBuild(){
 function renderGwpn(){
   const seat=abilSeat(),L=GOB_LOADS[seat],list=gwpnBuild();if(!list)return;list.dataset.seat=String(seat);
   for(const b of list.querySelectorAll('.tog[data-k]')){const k=b.dataset.k,on=!!L.w[k];b.setAttribute('aria-checked',String(on));
-    const t=b.querySelector('.st');if(t)t.textContent='';}
+    }
   for(const c of list.querySelectorAll('.gl-cnt')){const sk=c.dataset.s,v=L[stkField(sk)]||0,mx=stkMax(sk);c.setAttribute('aria-checked',String(v>0));const nm=c.querySelector('.gl-n');if(nm)nm.textContent=v+' / '+mx;
     const B=[...c.querySelectorAll('.gl-b')];if(B.length===2){B[0].setAttribute('aria-disabled',String(v<=0));B[1].setAttribute('aria-disabled',String(v>=mx));}}   // (not disabled: the controller's focus stays on it)
   const no=document.getElementById('gwpnNote');
