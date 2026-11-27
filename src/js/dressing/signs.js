@@ -246,6 +246,9 @@ function bFace(b,side,inset){
   if(side===2)return{ax:'x',f:b.z0+i,w:b.z0+i,a0:b.x0+i,a1:b.x1-i,n:-1};
   return{ax:'x',f:b.z1-i,w:b.z1-1-i,a0:b.x0+i,a1:b.x1-i,n:1};
 }
+// (the chunks bSpot couldn't look into, while brandSpots is asking: null in the Testing Environment and the structure
+// preview, where a building's looked at wherever it is, loaded or not, as it always was)
+let bsMiss=null;
 function bSpot(b,px,pz,side,inset,yc,h,aspect,out){
   const F=bFace(b,side,inset),span=F.a1-F.a0;let w=Math.min(h*aspect,span-1.2);if(w<2.2)return;h=w/aspect;
   const X0=px*CELL,Z0=pz*CELL,c=(F.a0+F.a1)/2,anc=[];
@@ -258,8 +261,12 @@ function bSpot(b,px,pz,side,inset,yc,h,aspect,out){
   if(F.ax==='z'){sp.x=X0+F.f+F.n*0.06;sp.z=Z0+c;sp.yaw=F.n>0?Math.PI/2:-Math.PI/2;}
   else{sp.z=Z0+F.f+F.n*0.06;sp.x=X0+c;sp.yaw=F.n>0?0:Math.PI;}
   // nothing built right in front of it (a highway deck, a neighbour's wall)?
-  let hit=0;for(const k of [-0.45,-0.15,0.15,0.45])for(const dy of [-0.4,0,0.4]){const a=c+k*w,yy=yc+dy*h;
-    if(F.ax==='z'?get(X0+F.f+F.n*0.5,yy,Z0+a):get(X0+a,yy,Z0+F.f+F.n*0.5))hit++;}
+  // (Looked for in the world itself, so only where it's loaded: asking made the chunk, and signs are placed far past
+  // where the chunks are kept, so standing in town made chunk after chunk out there for good. Where it isn't loaded
+  // the sign's taken to be clear, and brandSpots, told which chunks were missing, looks again once they're there.)
+  let hit=0;for(const k of [-0.45,-0.15,0.15,0.45])for(const dy of [-0.4,0,0.4]){const a=c+k*w,yy=yc+dy*h,qx=F.ax==='z'?X0+F.f+F.n*0.5:X0+a,qz=F.ax==='z'?Z0+a:Z0+F.f+F.n*0.5;
+    if(bsMiss){const ck=ckey(Math.floor(qx/CS),Math.floor(qz/CS));if(!chunks.has(ck)){if(!bsMiss.includes(ck))bsMiss.push(ck);continue;}}
+    if(get(qx,yy,qz))hit++;}
   if(hit>2)return false;
   out.push(sp);return true;
 }
@@ -285,7 +292,9 @@ function bSpotAny(b,px,pz,inset,yc,h,out){for(const sd of [b.door,(b.door+2)%4,b
 const SMALL_SHOPS=new Set(['books','dentist','dispo','guns','bar','soup']),B2_SIGNS=new Set(['courthouse','library','radio','news','bank','disco','club','dealer','armory','theater','stocks','nursery','museum','aquarium','school','datacenter','electric','casino','factory','campus','prison','jail','water','power','lab','arena','base','airport','airfield','nuclear']);
 function brandSpots(b,px,pz){
   if(b._signs)return b._signs;
-  const out=[],cat=b.signCat,tierOn=b.tier>0&&(b.x1-b.x0)>=8,ins=tierOn?2:0;
+  // (placed without a look at what's in front of it, those chunks not being loaded: that stands until they are)
+  if(b._signsP){if(!b._signsP.miss.every(k=>chunks.has(k)))return b._signsP;b._signsP=null;}
+  const out=[],cat=b.signCat,tierOn=b.tier>0&&(b.x1-b.x0)>=8,ins=tierOn?2:0,miss=bsMiss=TENV||ST.dressing?null:[];
   if(cat==='bigbox')bSpot(b,px,pz,b.door,0,G+7.4,4,4,out);
   else if(cat==='grocery'||cat==='market')bSpot(b,px,pz,b.door,0,G+7,2,4,out);
   else if(cat==='drug')bSpot(b,px,pz,b.door,0,G+7.1,2.4,4,out);   // clear of the awning over the doors
@@ -320,7 +329,9 @@ function brandSpots(b,px,pz){
   else bSpotAny(b,px,pz,ins,b.top-2.4,Math.min(3.4,b.top-G>40?3.4:2.6),out);   // offices, hospitals, police: up near the roof
   // (nothing solid enough where its sign should go, like a school's row of windows: up by the roof, on whichever side has room)
   if(!out.length&&b.brand&&b.style==='normal')bSpotAny(b,px,pz,ins,b.top-1.6,1.6,out);
-  b._signs=out;return out;
+  bsMiss=null;
+  if(miss&&miss.length){out.miss=miss;b._signsP=out;}else b._signs=out;
+  return out;
 }
 const BSIGN_GEO=new THREE.PlaneGeometry(1,1),bsigns=[],bsignUp=new Map();let nBS=0,nBP=0;
 const BPOLE={post:new THREE.BoxGeometry(0.22,1,0.22),board:new THREE.BoxGeometry(1,1,0.24),steel:new THREE.MeshLambertMaterial({color:0x5a6066}),edge:new THREE.MeshLambertMaterial({color:0x2c3034}),rims:new Map()},bpoles=[];
@@ -342,8 +353,6 @@ function refreshBrandSigns(){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
       if(!tenvShow(px,pz))continue;const P=plotInfo(px,pz);if(!P.b.length)continue;
       for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(!b.brand)continue;const dark=BL_DARK.has(px+','+pz+','+bi);   // (its lights out: lights-out.js)
-        // (working out where a sign goes looks at its building, which makes its chunks: one a frame until they're there)
-        if(!b._signs&&!ST.dressing&&!mayLook(px*CELL+b.x0,pz*CELL+b.z0))continue;
         const sp=brandSpots(b,px,pz);
         for(let si=0;si<sp.length;si++){const S=sp[si],dx=S.x-p.pos.x,dz=S.z-p.pos.z;if(dx*dx+dz*dz>R*R||siteIn(S.x,S.z))continue;
           // still held up? (count what's left of the wall behind it, in chunks that are loaded)

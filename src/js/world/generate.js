@@ -302,7 +302,19 @@ function flatChunk(cx,cz){
   if(chunkFreeze(cx,cz))freezeArr(a,true,cx,cz);
   return a;
 }
-function chunkArr(cx,cz){const k=ckey(cx,cz);if(k===lastK)return lastA;let a=chunks.get(k);if(!a){a=genChunk(cx,cz);chunks.set(k,a);}lastK=k;lastA=a;return a;}
+// (Vehicles are driven far past where the chunks are kept: a fire engine on its way in from 300 blocks off, a crew's
+// truck parked at its camp, anything ahead of you in flight. Every look one took at the ground under it made the chunk
+// there, a few milliseconds each, thrown away again two seconds later and made again. While noMake is set (the vehicles'
+// own turn, updateCars) a chunk that isn't loaded is made by nobody: whoever looks is shown level, open ground, nothing
+// in the way and no hole, and nothing's written to it. loadedRound: is the world really there all round a spot?)
+// (byLoader: up while the chunk loader or a mesh's rebuild is at work, whose chunks are meant. One made at any other time
+// was made by something just looking, and the profiler lists it by name, ui/profiler.js)
+let noMake=false,openA=null,byLoader=0;
+function openChunk(){if(!openA){openA=new Uint8Array(CS*CS*H);openA.fill(STONE,0,CS*CS*G);openA.fill(GRASS,CS*CS*G,CS*CS*(G+1));}return openA;}
+function loadedRound(x,z,r){const x0=Math.floor((x-r)/CS),x1=Math.floor((x+r)/CS),z0=Math.floor((z-r)/CS),z1=Math.floor((z+r)/CS);
+  for(let a=x0;a<=x1;a++)for(let b=z0;b<=z1;b++)if(!chunks.has(ckey(a,b)))return false;
+  return true;}
+function chunkArr(cx,cz){const k=ckey(cx,cz);if(k===lastK)return lastA;let a=chunks.get(k);if(!a){if(noMake)return openChunk();a=genChunk(cx,cz);chunks.set(k,a);}lastK=k;lastA=a;return a;}
 // leaves fall in autumn and are gone in winter: leafFall is the share of leaf blocks that are down (each block has its own
 // threshold), and a fallen leaf block counts as air everywhere -- you walk through it, snow settles under it, nothing draws it
 let leafFall=0;const leafQ=[],leafCheckQ=new Set();
@@ -331,7 +343,7 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G&&!wfQuiet)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){const fx=Math.floor(x),fz=Math.floor(z),A0=chunkArr(Math.floor(fx/CS),Math.floor(fz/CS)),top=(A0.tileTops||tileTopsOf(A0))[((fz&15)>>2)*4+((fx&15)>>2)];let open=true;for(let yy=y+1;yy<=top&&yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(colKey(Math.floor(x),Math.floor(z)),WX.snowClock);}navCols.delete(colKey(Math.floor(x),Math.floor(z)));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR){const o=get(x,y,z);if(o===ICE||y<=G&&o===PACKICE)b=WATER;else if(ICE_LV[o])b=WATER_L[ICE_LV[o]];}if(b===AIR&&!wfQuiet)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(noMake&&!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G&&!wfQuiet)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){const fx=Math.floor(x),fz=Math.floor(z),A0=chunkArr(Math.floor(fx/CS),Math.floor(fz/CS)),top=(A0.tileTops||tileTopsOf(A0))[((fz&15)>>2)*4+((fx&15)>>2)];let open=true;for(let yy=y+1;yy<=top&&yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(colKey(Math.floor(x),Math.floor(z)),WX.snowClock);}navCols.delete(colKey(Math.floor(x),Math.floor(z)));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR){const o=get(x,y,z);if(o===ICE||y<=G&&o===PACKICE)b=WATER;else if(ICE_LV[o])b=WATER_L[ICE_LV[o]];}if(b===AIR&&!wfQuiet)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(BB.jobs.length)bbTouch(x,z);if(b===AIR&&get(x,y,z)===WATER)b=WATER;editPut(Math.floor(x),Math.floor(y),Math.floor(z),b);}
 // The block at a place only if its chunk is already made, else AIR: for anything that looks about each frame (AI, effects,
 // sounds) and mustn't set a chunk being made, a couple of milliseconds, just by looking. get() makes the chunk.

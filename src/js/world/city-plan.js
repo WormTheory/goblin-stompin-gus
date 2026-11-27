@@ -159,23 +159,50 @@ function planAsk(S,i,j){
   if(a||settlementAt(i-1,j)===S||gCol(i,j*CELL+RC))segBase(i,j,0);
   if(a||settlementAt(i,j-1)===S||gRow(j,i*CELL+RC))segBase(i,j,1);
 }
-const planJob={S:null,i:0,j:0,x1:0,z0:0,z1:0};
+const planJob={S:null,i:0,j:0,x1:0,z0:0,z1:0,w:undefined};
 function planAhead(){
   if(TENV)return;const t0=performance.now();
   if(!planJob.S){
     for(const p of players){if(!p.active)continue;const r0=Math.round(p.pos.x/CELL/SET_SP),q0=Math.round(p.pos.z/CELL/SET_SP);
-      for(let a=-2;a<=2&&!planJob.S;a++)for(let b=-2;b<=2&&!planJob.S;b++){const S=settlementLat(r0+a,q0+b);if(S.conns||S.planned)continue;
-        const r=Math.ceil(S.R*1.5)+3;Object.assign(planJob,{S,i:S.cx-r,j:S.cz-r,x1:S.cx+r+1,z0:S.cz-r,z1:S.cz+r+1});}
+      for(let a=-2;a<=2&&!planJob.S;a++)for(let b=-2;b<=2&&!planJob.S;b++){const S=settlementLat(r0+a,q0+b);if(S.conns)continue;
+        const r=Math.ceil(S.R*1.5)+3;Object.assign(planJob,{S,i:S.cx-r,j:S.cz-r,x1:S.cx+r+1,z0:S.cz-r,z1:S.cz+r+1,w:undefined});}
       if(planJob.S)break;}
     if(!planJob.S)return;}
   const J=planJob;
-  for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++)planAsk(J.S,J.i,J.j);
-    if(performance.now()-t0>1.5){J.i++;J.j=J.z0;return;}}
-  J.S.planned=true;J.S=null;
+  if(!J.S.planned){
+    // (the airports its blocks will ask about first: each one's search a slice at a time, world/airfields.js)
+    if(J.w===undefined)J.w=apAhead(J.i,J.z0,J.x1,J.z1);
+    while(J.w){if(J.w.next().done)J.w=null;else if(performance.now()-t0>1.5)return;}
+    for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++)planAsk(J.S,J.i,J.j);
+      if(performance.now()-t0>1.5){J.i++;J.j=J.z0;return;}}
+    J.S.planned=true;}
+  // (and then its streets themselves, a slice a frame: left for whoever asked first, they came all at once, 10 ms for a city)
+  while(!setConnsStep(J.S))if(performance.now()-t0>1.5)return;
+  J.S=null;
 }
 // worked out once per place: which stretches of new road it needs to hold together
+// (Asked outright, it's all worked out there and then. Those who go over places ahead of time, planAhead here and the
+// far rings' farPlan, take it a slice at a time instead, setConnsStep, each about a millisecond: S.cj is the working
+// out under way and S.cjC what it has so far, which is also the answer to anything it asks about itself on the way,
+// S.cjOn, as it always was. Anyone asking outright meanwhile has the rest of it done at once.)
 function setConns(S){
-  if(S.conns)return S.conns;const C=S.conns=new Set();
+  if(S.conns)return S.conns;
+  if(S.cjOn)return S.cjC;
+  while(!setConnsStep(S)){}
+  return S.conns;
+}
+// one slice of a place's streets (true once they're done)
+function setConnsStep(S){
+  if(S.conns)return true;
+  if(S.cjOn)return false;
+  if(!S.cj){S.cjC=new Set();S.cj=setConnsJob(S,S.cjC);}
+  let r;S.cjOn=true;try{r=S.cj.next();}finally{S.cjOn=false;}
+  if(!r.done)return false;
+  S.conns=S.cjC;S.cj=S.cjC=null;return true;
+}
+function* setConnsJob(S,C){
+  let tY=performance.now();   // (a breath whenever a millisecond's gone by: brk)
+  const brk=()=>performance.now()-tY>1;
   const r=Math.ceil(S.R*1.5)+3,x0=S.cx-r,x1=S.cx+r+1,z0=S.cz-r,z1=S.cz+r+1;   // (nodes x0..x1, z0..z1; blocks x0..x1-1)
   const NK=(i,j)=>i*100003+j,inS=(x,z)=>settlementAt(x,z)===S;
   const DV=[[0,1],[1,0],[0,-1],[-1,0]],segOf=(i,j,dd)=>dd===0?[i,j,0]:dd===1?[i,j,1]:dd===2?[i,j-1,0]:[i-1,j,1];
@@ -188,10 +215,11 @@ function setConns(S){
   const slopeAt=()=>false;   // (no motorway comes down to the ground any more)
   const badN=new Map(),bad=n=>{let v=badN.get(n);if(v===undefined){const i=Math.floor(n/100003+0.5);v=slopeAt(i,n-i*100003);badN.set(n,v);}return v;};
   const hwNode=new Set();
-  for(let i=x0;i<=x1;i++)for(let j=z0;j<=z1;j++)for(const d of [0,1]){
+  for(let i=x0;i<=x1;i++){for(let j=z0;j<=z1;j++)for(const d of [0,1]){
     if(d===0&&j>=z1||d===1&&i>=x1)continue;if(!open(i,j,d))continue;
     const a=NK(i,j),b=d===0?NK(i,j+1):NK(i+1,j);uni(a,b);
     if(d===1?gRow(j,i*CELL+RC):gCol(i,j*CELL+RC)){if(!bad(a))hwNode.add(a);if(!bad(b))hwNode.add(b);}}
+    if(brk()){yield;tY=performance.now();}}
   // the main network: the piece reaching nearest the middle of the place (the biggest, if none does)
   let main=null;{let bd=1e9;const sz=new Map();for(const a of par.keys()){const f=find(a);sz.set(f,(sz.get(f)||0)+1);}
     for(const a of par.keys()){const i=Math.floor(a/100003+0.5),j=a-i*100003;const dd=Math.hypot(i-S.cx-0.5,j-S.cz-0.5)-sz.get(find(a))*0.02;if(dd<bd){bd=dd;main=find(a);}}}
@@ -229,11 +257,12 @@ function setConns(S){
   // (a place's own highway that hasn't met its streets gets a road to them: otherwise it runs in and just stops)
   {const pieces=new Map();for(const a of hwNode){if(find(a)===main)continue;const i=Math.floor(a/100003+0.5),j=a-i*100003,own=ax=>{const Sp=axisSpan(S,ax);return Sp&&Sp.kind==='country'&&Sp.k===(ax==='x'?j:i)&&(ax==='x'?i:j)>=Sp.m0&&(ax==='x'?i:j)<=Sp.m1+1;};
      if(own('x')||own('z')){const f=find(a);if(!pieces.has(f))pieces.set(f,[]);pieces.get(f).push(a);}}
-   if(main!==null)for(const L of pieces.values())joinUp(L,true);}
+   if(main!==null)for(const L of pieces.values()){joinUp(L,true);if(brk()){yield;tY=performance.now();}}}
   for(const a of hwNode)reached.add(a);
   const keep=new Set();
   // 1. every block of the place touches a street that's joined up
   for(const [x,z] of cells){
+    if(brk()){yield;tY=performance.now();}
     let ok=false;const starts=[];
     for(const [i,j,d] of edgesOf(x,z)){if(!roadAt(i,j,d))continue;for(const n of ends(i,j,d)){starts.push(n);if(reached.has(n))ok=true;}}
     if(ok)continue;
@@ -245,19 +274,20 @@ function setConns(S){
     if(bare&&o!==null)for(const [i,j,d] of edgesOf(x,z)){const [a,b]=ends(i,j,d);if((a===o||b===o)&&!blocked(i,j,d)&&!bad(a)&&!bad(b)){const k=segK(i,j,d);C.add(k);keep.add(k);reached.add(a);reached.add(b);break;}}
   }
   // 2. and no stretch of street is left on its own: each one leads somewhere
-  for(let i=x0;i<=x1;i++)for(let j=z0;j<=z1;j++)for(const d of [0,1]){
+  for(let i=x0;i<=x1;i++){for(let j=z0;j<=z1;j++)for(const d of [0,1]){
     if(d===0&&j>=z1||d===1&&i>=x1)continue;
     const cs=segCells(i,j,d);if(!inS(cs[0][0],cs[0][1])&&!inS(cs[1][0],cs[1][1]))continue;
     if(!open(i,j,d))continue;const [a,b]=ends(i,j,d);if(reached.has(a)||reached.has(b))continue;
     joinUp([a,b]);
   }
+    if(brk()){yield;tY=performance.now();}}
   // 3. no new road ends in the middle of nowhere: a stretch of link road that leads nowhere (a dead end out in the
   // fields, left over where two routes met) is taken away again, unless it's the only street a block has
   const deg=n=>{const i=Math.floor(n/100003+0.5),j=n-i*100003;let c=0;for(let dd=0;dd<4;dd++){const [si,sj,sd]=segOf(i,j,dd);if(roadAt(si,sj,sd))c++;}return c;};
   for(let pass=0,gone=true;gone&&pass<50;pass++){gone=false;
+    if(brk()){yield;tY=performance.now();}
     for(const k of [...C]){if(keep.has(k))continue;const d=((k%2)+2)%2,nn=(k-d)/2,i=Math.floor(nn/100003+0.5),j=nn-i*100003,[a,b]=ends(i,j,d);
       if(deg(a)<=1||deg(b)<=1){C.delete(k);gone=true;}}}
-  return C;
 }
 // ---- joined blocks: some streets between neighbouring blocks aren't streets. Between two building blocks the
 // road becomes a narrow back alley (the buildings come out over the pavements to meet it); inside a neighbourhood,

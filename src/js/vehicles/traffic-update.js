@@ -43,6 +43,11 @@ function updateCars(dt){
       if(c.police){if(c.respawnT<=0&&playing&&crowd>0&&!spawnPolice(c))c.respawnT=2;continue;}
       if(c.respawnT<=0&&playing&&alive<trafficTarget()){if(spawnTraffic(c))alive++;else c.respawnT=0.5;}continue;
     }
+    // (From here on nothing a vehicle looks at makes a chunk, noMake in world/generate.js. off: the world isn't loaded
+    // where it is, and it's on rails: carried along its way at the height it's at, or its road's, with no ground to
+    // feel for. It drops onto the real ground when that's there.)
+    noMake=true;try{
+    const off=!loadedRound(c.pos.x,c.pos.z,8);
     const any=nearestPlayer(c.pos.x,c.pos.z,false);
     c.visT=(c.visT||0)-dt;
     let gone=!any||any.d>(c.parkPool?Math.min(75,Math.max(55,viewFar())):Math.max(85,viewFar()+14));   // parked cars recycle to car parks nearer you
@@ -127,6 +132,7 @@ function updateCars(dt){
     else if(c.rt){
       // out on a route: steer for a point a little way ahead along its line, in its lane; keep a gap to the car in front
       const T=c.rt,R=T.R,me=rtProject(R,c.pos.x,c.pos.z,T.i);T.i=me.i;
+      if(off)c.pos.y=rtSurfY(R,me.s);
       const onDeck=Math.abs(c.pos.y-rtSurfY(R,me.s))<1.3&&Math.abs(me.sd)<9;
       // the end of the route: hand over to the place's main street, or its motorway deck
       const end=T.dir>0?me.s>R.L-1.5:me.s<1.5;
@@ -168,7 +174,7 @@ function updateCars(dt){
     }
     else if(c.hw){
       // motorway driving: hold the lane, keep a gap to the car in front, cruise fast; knocked off the deck, it just rolls to a stop
-      const H=c.hw;if(!H.ground){const kk=Math.floor((H.lane+3)/CELL),aa=H.ax==='x'?c.pos.x:c.pos.z;H.y=hwSurf(H.ax,kk,aa);if(c.pos.y<G+3&&!hwRampAt(H.ax,kk,aa)&&hwFootNear(H,c))H.y=G+1;}const onDeck=c.pos.y>H.y-1.3,sloped=!H.ground&&H.y%1!==0;
+      const H=c.hw;if(!H.ground){const kk=Math.floor((H.lane+3)/CELL),aa=H.ax==='x'?c.pos.x:c.pos.z;H.y=hwSurf(H.ax,kk,aa);if(c.pos.y<G+3&&!hwRampAt(H.ax,kk,aa)&&hwFootNear(H,c))H.y=G+1;}if(off&&!H.ground&&c.pos.y>H.y-1.3)c.pos.y=H.y;const onDeck=c.pos.y>H.y-1.3,sloped=!H.ground&&H.y%1!==0;
       // run off the end of a place's motorway deck: out on the route across the plains from here
       {const k=Math.floor((H.lane+3)/CELL),al=H.ax==='x'?c.pos.x:c.pos.z,m=Math.floor(al/CELL);
        if(!H.ground&&onDeck&&hwLine(H.ax,k,m)!=='moto'){
@@ -391,7 +397,7 @@ function updateCars(dt){
     const sm=Math.min(15,(c.hpMax||CAR_HP)*0.5),bn=sm*8/15;
     if(c.hp<sm){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<bn?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<bn?0x1a1a1a:0x666666);if(c.hp<bn)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
     if(c.forkOn&&!(c.forkOn.alive&&c.forkOn.g.visible))c.forkOn=null;   // (its forklift's gone: it falls)
-    if(c.forkOn){c.vy=0;c.grounded=true;}else carPhysics(c,dt);if(!c.alive)continue;   // (up on a forklift's forks: forkPost holds it there, it doesn't fall or settle on the ground under it)
+    if(c.forkOn||off){c.vy=0;c.grounded=true;}else carPhysics(c,dt);if(!c.alive)continue;   // (up on a forklift's forks: forkPost holds it there, it doesn't fall or settle on the ground under it)
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
     carSpin(c,dt);   // (sent spinning by a knock: collide.js)
     c.g.position.copy(c.pos);c.g.rotation.set(c.pitch+(c.wly||0),c.heading,c.roll+(c.tipR||0)+(LIGHT_LEAN[c.veh]?-c.steer*Math.min(1,Math.abs(c.speed)/8)*LIGHT_LEAN[c.veh]:0));lightLook(c,dt);   // (a motorcycle, or a bicycle or scooter, leans into its turns)
@@ -399,6 +405,7 @@ function updateCars(dt){
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
     for(const f of c.front)f.rotation.y=c.steer*(c.veh==='forklift'?-0.6:0.45);   // (a forklift steers with its back wheels)
     if(c.fan&&c.drv)c.fan.rotation.z+=dt*(14+Math.abs(c.speed)*0.8);   // (a hovercraft's fan, while someone's at the controls)
+    }finally{noMake=false;}
   }
   // fender benders: by their masses, an impulse where they meet (collide.js). Far apart is thrown out first, cheaply
   for(let i=0;i<cars.length;i++){const a=cars[i];if(!a.alive)continue;const ra=Math.max(a.hx,a.hz)+0.5;for(let j=i+1;j<cars.length;j++){const b=cars[j];if(!b.alive)continue;

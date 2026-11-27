@@ -191,17 +191,29 @@ function farUnpack(S,a){if(!a)return;const n=a.length/26;
   S.mat.set(a.subarray(0,n*16),S.n*16);S.col.set(a.subarray(n*16,n*19),S.n*3);S.top.set(a.subarray(n*19,n*22),S.n*3);S.wn.set(a.subarray(n*22),S.n*4);S.n+=n;}
 // (the first question about a place's streets has them all worked out at a stroke, setConns: a tenth of a second and more,
 // and the builds reach places long before planAhead, which looks only round the players, has been over them. So before a
-// plot's drawn the places it could belong to are gone over as planAhead does, a millisecond at a time)
-const farPlanOK=new Set();let farPlanSeed=null;
-function* farPlan(px,pz){
-  const r0=Math.round(px/SET_SP),q0=Math.round(pz/SET_SP),k=r0*100003+q0;
+// plot's drawn the places it could belong to are gone over as planAhead does, a millisecond at a time, and then their
+// streets a slice at a time, setConnsStep)
+// (px,pz: the first of the n x n plots about to be drawn. Which places: drawing a plot asks about the streets of the plots
+// next to it too (linkNear, for the woods and the turbines), and a street's answer looks at the nine places round its own
+// spot on their grid, connOpen. So every place within one of any plot up to FAR_PLAN_PAD from these, not just the nine
+// round the middle one: a plot near the edge of its square of the grid reached a tenth place, which was worked out cold)
+const farPlanOK=new Set(),FAR_PLAN_PAD=2;let farPlanSeed=null;
+function* farPlan(px,pz,n){
+  const r0=Math.round((px-FAR_PLAN_PAD)/SET_SP)-1,r1=Math.round((px+n-1+FAR_PLAN_PAD)/SET_SP)+1,q0=Math.round((pz-FAR_PLAN_PAD)/SET_SP)-1,q1=Math.round((pz+n-1+FAR_PLAN_PAD)/SET_SP)+1;
+  const k=((r0*100003+q0)*2+(r1-r0-2))*2+(q1-q0-2);   // (three places across, or four where the plots straddle two squares)
   if(farPlanSeed!==seed||farPlanOK.size>50000){farPlanOK.clear();farPlanSeed=seed;}
   if(farPlanOK.has(k)||TENV)return;
-  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const S=settlementLat(r0+a,q0+b);if(S.conns||S.planned)continue;
-    const r=Math.ceil(S.R*1.5)+3;let t=performance.now();
-    for(let i=S.cx-r;i<=S.cx+r+1;i++){for(let j=S.cz-r;j<=S.cz+r+1;j++)planAsk(S,i,j);
-      if(performance.now()-t>1){yield;t=performance.now();}}
-    S.planned=true;yield;setConns(S);yield;}
+  // (the airports these plots, and then each place's, will ask about go first: a city's search for the room for one is
+  // the longest single question of the lot, and can be given a slice at a time, apAhead in world/airfields.js)
+  yield* apAhead(px-FAR_PLAN_PAD,pz-FAR_PLAN_PAD,px+n-1+FAR_PLAN_PAD,pz+n-1+FAR_PLAN_PAD);
+  for(let a=r0;a<=r1;a++)for(let b=q0;b<=q1;b++){const S=settlementLat(a,b);if(S.conns)continue;
+    if(!S.planned){const r=Math.ceil(S.R*1.5)+3;let t=performance.now();
+      yield* apAhead(S.cx-r,S.cz-r,S.cx+r+1,S.cz+r+1);
+      for(let i=S.cx-r;i<=S.cx+r+1;i++){for(let j=S.cz-r;j<=S.cz+r+1;j++)planAsk(S,i,j);
+        if(performance.now()-t>1){yield;t=performance.now();}}
+      S.planned=true;yield;}
+    while(!setConnsStep(S))yield;
+    yield;}
   farPlanOK.add(k);
 }
 // (fn(SB,SG,a,b,x) is the generator that draws plot a,b; with no ring given, as the tests call the jobs, nothing's kept)
@@ -209,7 +221,7 @@ function* farCached(L,k,SB,SG,a,b,fn,x){
   if(!L){yield* fn(SB,SG,a,b,x);return;}
   let E=L.cache.get(k);const sg=L.sig?farEdS(E?E.S:null,a,b):0;
   if(!E||E.ep!==L.ep||E.sg!==sg){
-    if(L.plan){const q=L.cell;yield* farPlan(Math.floor(a*q+q/2),Math.floor(b*q+q/2));}
+    if(L.plan){const q=L.cell;yield* farPlan(a*q,b*q,q);}
     L.tb.n=0;L.tg.n=0;yield* fn(L.tb,L.tg,a,b,x);
     const S=L.sig?superOf(a,b)||bigPlainsAt(a,b)||null:null;
     E={ep:L.ep,S,sg:S?farEdS(S,a,b):sg,use:0,b:farPack(L.tb),g:farPack(L.tg)};L.cache.set(k,E);

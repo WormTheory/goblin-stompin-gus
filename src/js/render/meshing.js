@@ -684,8 +684,14 @@ function chunkOrder(R){
   const L=[];for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const d=dx*dx+dz*dz;if(d<=(R+0.6)*(R+0.6))L.push([dx,dz,d]);}
   L.sort((a,b)=>a[2]-b[2]);chunkOrd=L;chunkOrdR=R;return L;
 }
+// (budget: how many meshes it may ask for this call. 999 is "what's near, now", from a new game, the Testing Environment
+// or the sea redrawn: that used to stop after making three chunks like any other frame, so the world still came in one
+// a frame after it. Now it carries on, nearest first, until it's made 96: about a quarter of a second.)
 function updateChunks(budget,dt){
-  const R=viewR;
+  byLoader++;try{updateChunks0(budget,dt);}finally{byLoader--;}
+}
+function updateChunks0(budget,dt){
+  const R=viewR,genMax=budget>=999?96:3;
   shipChunks();   // (each ship's own blocks, all of them, kept for as long as it's there)
   const centers=players.filter(p=>p.active).map(p=>[Math.floor(pwx(p)/CS),Math.floor(pwz(p)/CS)]);   // (aboard a ship: where the ship really is)
   if(DT.freecam)centers.push([Math.floor(FC.pos.x/CS),Math.floor(FC.pos.z/CS)]);
@@ -702,7 +708,7 @@ function updateChunks(budget,dt){
     if(made>=budget)break scan;
     // (a mesh needs its neighbours' blocks too, which may mean making all eight first: no more than three a frame, then carry on next time)
     const X=pcx+dx,Z=pcz+dz;
-    for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);if(++gens>=3){chunkScan.key=key;chunkScan.full=false;return;}}
+    for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);if(++gens>=genMax){chunkScan.key=key;chunkScan.full=false;return;}}
     meshAsk(X,Z);made++;
   }
   chunkScan.key=key;chunkScan.full=!made;chunkScan.size=meshes.size;
@@ -718,6 +724,9 @@ function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
 // the chunk nearest a player goes first, as that's where the smashing being looked at is.
 const REBUILD_MS=5;
 function flushRebuilds(){
+  byLoader++;try{flushRebuilds0();}finally{byLoader--;}
+}
+function flushRebuilds0(){
   meshTick();
   if(!rebuildQ.size)return;
   const full=()=>MW.ws.length&&MW.pend.size>=MW_LIM;if(full())return;

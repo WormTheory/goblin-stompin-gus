@@ -4,7 +4,9 @@
 // went, how many chunks were made in that time and what asked for them, and what the worst frames were made of.
 // Standing still nothing should make a chunk: one costs a few milliseconds, and anything that looks out past what's
 // loaded with get() has its chunk made, thrown away two seconds later as too far off, and made again. (flyhitch.js asks
-// the same after a long flight, high up and far from any town.)
+// the same after a long flight, high up and far from any town.) It fails unless none was made: shop signs looking at what
+// stood in front of them, and service vehicles and parked crew trucks feeling for the ground out past the detail
+// distance, used to make about fifty a minute here.
 // Usage: node stilltown.js     (STAY=60 the seconds watched, DETAIL=112 the detail distance)
 const {T,E,step,els,pads,errs}=require('./harness.js')();
 for(const f of els.play.L.click)f();pads.length=0;step(120);
@@ -32,6 +34,6 @@ console.log('chunks made standing still:',nn,'('+made.size+' different)');
 rec.sort((a,b)=>b.t-a.t);console.log('worst frames:');
 for(const r of rec.slice(0,4))console.log('   ',r.t.toFixed(1),'ms |',[...r.m].sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>k+' '+v.toFixed(1)).join(', '));
 console.log('errors',errs.length);
-const ok=!errs.length;
-console.log(ok?'stilltown ok':'stilltown FAILED');
+const ok=!errs.length&&nn===0;
+console.log(ok?'stilltown ok':'stilltown FAILED'+(nn?': '+nn+' chunks were made standing still':''));
 process.exit(ok?0:1);

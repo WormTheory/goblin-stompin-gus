@@ -59,7 +59,14 @@ function destLabel(){
 }
 // HUD clock: daytime is the top half (sunrise on the left, sunset on the right), night the bottom half
   clockT-=dt;
-  safe('dest',()=>{const p=players.find(q=>q.active);const S=p&&settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));if(S){setDestroyed(S);rampRazeTick(S);}
+  safe('dest',()=>{const p=players.find(q=>q.active);const S=p&&settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL))||null;
+    // (A place's count is 3 ms a frame until it's done, the first time you're there: over a jet's flight that came to
+    // more than a millisecond of every frame, each town below begun and dropped for the next. So it's 1 ms while you're
+    // travelling fast (faster than 40 blocks a second, by the far view's reckoning) or the frames are already long, and
+    // a place not yet counted isn't begun until you've been in it a second.)
+    {const V=farVel[0];destMs=frameMs>20||V&&V.x*V.x+V.z*V.z>1600?1:3;}
+    if(S!==destIn.S){destIn.S=S;destIn.t=0;}else destIn.t+=dt;
+    if(S&&(destIn.t>=1||setListC.has(S.rx+','+S.rz))){setDestroyed(S);rampRazeTick(S);}
     // (otherwise, a little at a time, work out the totals for the places you've found but not been into, for the map)
     else if(destJob.S)setDestroyed(destJob.S);
     else for(const K of knownSets.values())if(!setListC.has(K.rx+','+K.rz)){setDestroyed(K);break;}});

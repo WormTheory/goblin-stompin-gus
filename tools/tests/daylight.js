@@ -17,9 +17,12 @@ chk('by day in clear weather the light is skipped',T.blkDay===true);
 const P=T.players[0],cx0=Math.floor(P.pos.x/T.CS),cz0=Math.floor(P.pos.z/T.CS);
 const L=[];for(let dx=-3;dx<=3;dx++)for(let dz=-3;dz<=3;dz++)L.push([cx0+dx,cz0+dz]);
 const time=()=>{const t=performance.now();for(const [a,b] of L)T.buildChunk(a,b);return (performance.now()-t)/L.length;};
-const tDay=time();const dayE=L.map(([a,b])=>T.meshes.get(T.ckey(a,b)));
+// (each is the best of three goes: the first go of either also pays for whatever of the land's light and neighbours
+// wasn't worked out yet, and one go alone can be thrown by anything else the computer's doing)
+const best=()=>Math.min(time(),time(),time());
+const tDay=best();const dayE=L.map(([a,b])=>T.meshes.get(T.ckey(a,b)));
 chk('those chunks are marked and unlit',dayE.every(e=>e.dayL&&!e.lc&&sum(e)===0));
-T.blkDaySkip=false;step(1);const tLit=time();const litN=L.filter(([a,b])=>sum(T.meshes.get(T.ckey(a,b)))>0).length;T.blkDaySkip=true;step(1);
+T.blkDaySkip=false;step(1);const tLit=best();const litN=L.filter(([a,b])=>sum(T.meshes.get(T.ckey(a,b)))>0).length;T.blkDaySkip=true;step(1);
 console.log('per chunk: by day',tDay.toFixed(2),'ms, with the light',tLit.toFixed(2),'ms | chunks with lamplight when lit',litN,'of',L.length);
 chk('quicker by day',tDay<tLit&&litN>0);
 time();   // (back to day ones)

@@ -16,14 +16,45 @@ const apV=(B,v)=>B.flip?AP.H-v:v,apYaw=(B,h)=>B.flip?Math.PI-h:h;
 // edge of town and there's room for all of it on open plains (searched once per city, nearest the middle first) ----
 let apBusy=0;const apAtC=new Map();
 function airportOf(S){
-  if(S.ap!==undefined)return S.ap;S.ap=null;apBusy++;let v=null;
+  if(S.ap!==undefined)return S.ap;
+  while(!apStep(S)){}
+  return S.ap;
+}
+// (The search asks hundreds of blocks round the city about the sea, the railways, the roads, the rivers and the farms, and
+// the first time that's 100 ms and more at a stroke: most cities have no room for one, and every spot is tried. So it's
+// written to be done a millisecond at a time: whoever goes over places ahead of time (planAhead, the far rings' farPlan,
+// through apAhead) gives it a slice a turn, and whoever needs the answer now (airportOf) runs what's left of it there
+// and then. It comes out the same either way: nothing it asks depends on where any airport is, bar the ones of the
+// cities ahead of it in the order, which are always finished first.)
+// One slice of city S's search; true once it's done (S.ap: the airport, or null).
+// (While a slice runs, S.ap is null and apBusy is up, as they always were all through the search: anything it asks that
+// comes back round to this city is told "none yet", and nothing worked out meanwhile is kept, see airportAt. Between
+// slices S.ap is undefined again: not searched yet, to anyone who asks.)
+function apStep(S){
+  if(S.ap!==undefined)return true;
+  if(!S.apJ)S.apJ=apJob(S);
+  let r=null;S.ap=null;apBusy++;
+  try{r=S.apJ.next();}
+  finally{apBusy--;if(!r)S.apJ=null;else if(!r.done)S.ap=undefined;}   // (it threw: no airport here, as before)
+  if(!r.done)return false;
+  S.ap=r.value||null;S.apJ=null;return true;
+}
+function* apJob(S){
+  let t=performance.now(),v=null;
   // (the neighbouring cities ahead of it in the order go first and keep theirs: no two airports overlap)
   const others=[];for(let rx=S.rx-2;rx<=S.rx+2;rx++)for(let rz=S.rz-2;rz<=S.rz+2;rz++){const S2=settlementLat(rx,rz);
-    if(S2.type==='city'&&(S2.cx<S.cx||S2.cx===S.cx&&S2.cz<S.cz)&&settlementAt(S2.cx,S2.cz)===S2){const A=airportOf(S2);if(A)others.push(A);}}
-  const free=(ax,az)=>{if(others.some(A=>ax<A.ax+A.w+1&&ax+16>A.ax-1&&az<A.az+A.h+1&&az+8>A.az-1))return false;for(let a=ax;a<ax+16;a++)for(let b=az;b<az+8;b++)if(realmOf(a,b)!=='plains'||settlementAt(a,b)||seaPlot(a,b)||railPlot(a,b)||farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,1)||rivPlotNear(a,b))return false;return true;};
+    if(S2.type==='city'&&(S2.cx<S.cx||S2.cx===S.cx&&S2.cz<S.cz)&&settlementAt(S2.cx,S2.cz)===S2){
+      while(!apStep(S2))yield;
+      if(S2.ap)others.push(S2.ap);t=performance.now();}}
+  // (is this block taken? Each one's answer is kept for the length of the search: the spots tried overlap, a dozen and
+  // more to every block, and the roads' part of the answer isn't remembered anywhere else)
+  const busyC=new Map(),busy=(a,b)=>{const k=a*100003+b;let u=busyC.get(k);
+    if(u===undefined){u=realmOf(a,b)!=='plains'||!!settlementAt(a,b)||!!seaPlot(a,b)||railPlot(a,b)||farmK(a,b)!==null||!!tsPlot(a,b)||plotNearLines(a,b,1)||rivPlotNear(a,b);busyC.set(k,u);}
+    return u;};
   const R=Math.ceil(S.R)+3,cols=[];for(let d=0;d<=R;d++){cols.push(S.cx+d);if(d)cols.push(S.cx-d);}
   for(const flip of [false,true]){if(v)break;
     for(const ix of cols){if(v)break;
+      if(performance.now()-t>1){yield;t=performance.now();}
       // the city's edge in this column (the first row, coming in from that side, with blocks of it either side of the
       // street), and a street there leaving it for the open country
       let iz=null;
@@ -31,8 +62,20 @@ function airportOf(S){
       else{for(let z=S.cz+R;z>=S.cz;z--)if(settlementAt(ix,z)===S&&settlementAt(ix-1,z)===S){iz=z+1;break;}}
       if(iz===null||!(flip?segBase(ix,iz-1,0):segBase(ix,iz,0)))continue;
       const az=flip?iz:iz-8;
-      for(const i of [8,7,9,6,10,5,11,4,12,3,13,2]){const ax=ix-i;if(free(ax,az)&&rlfLotOK(ax,az,16,8)){v={kind:'airport',ax,az,w:16,h:8,i,flip};break;}}}}
-  apBusy--;S.ap=v;return v;
+      for(const i of [8,7,9,6,10,5,11,4,12,3,13,2]){const ax=ix-i;
+        let ok=!others.some(A=>ax<A.ax+A.w+1&&ax+16>A.ax-1&&az<A.az+A.h+1&&az+8>A.az-1);
+        if(ok)scan:for(let a=ax;a<ax+16;a++){for(let b=az;b<az+8;b++)if(busy(a,b)){ok=false;break scan;}
+          if(performance.now()-t>1){yield;t=performance.now();}}
+        if(ok&&rlfLotOK(ax,az,16,8)){v={kind:'airport',ax,az,w:16,h:8,i,flip};break;}}}}
+  return v;
+}
+// (the searches that the blocks from (x0,z0) to (x1,z1) will ask about, a slice a turn: every city whose airport
+// airportAt would look for from any of them)
+function* apAhead(x0,z0,x1,z1){
+  if(TEST_OFF.has('airport'))return;
+  for(let rx=Math.round(x0/SET_SP)-1;rx<=Math.round(x1/SET_SP)+1;rx++)for(let rz=Math.round(z0/SET_SP)-1;rz<=Math.round(z1/SET_SP)+1;rz++){const S=settlementLat(rx,rz);
+    if(S.type!=='city'||S.ap!==undefined||settlementAt(S.cx,S.cz)!==S)continue;
+    while(!apStep(S))yield;}
 }
 function airportAt(px,pz){
   if(TEST_OFF.has('airport'))return null;

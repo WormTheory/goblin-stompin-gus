@@ -1,4 +1,4 @@
-<!-- Built by tools/build.py from src/: edit there, not here. sha256:54a4ad2dfbb0b3d15deb9d340be56164c570b633fe0411b0e114199c8b6eeaaa -->
+<!-- Built by tools/build.py from src/: edit there, not here. sha256:2f8da4c605667398bb2502e6fd1c5fa1ccbd735d3219fb0b921f6d79819d3582 -->
 <title>Goblin-Stompin' Gus</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1669,7 +1669,7 @@ body.attitle .pops,body:has(#pause:not([hidden])) .pops{visibility:hidden}
 <h3>Biomes, polished</h3>
 <ul><li>Waterfalls drop into a proper plunge pool now, about six blocks deep under the fall and shallower toward the rim, deep enough to dive into.</li><li>Where a river meets a lake it runs down to the lake's level in a steady slope, with no more steps like little weirs.</li><li>The land behind a rocky headland rises into the hills inland, instead of lying flat behind it.</li><li>The pause map marks stone arches, waterfalls and landmarks you've explored, and colours natural shores by kind: sandy shores, shingle, ice shelves, mangroves, red sand, cliffs and headlands, and fjords. Each has an entry in the key. The World Generator's Map has the same, as its Wonders and Coasts layers.</li><li>Out in the far view, the oil fields, peat diggings, research stations, safari lodges, stilt villages and ski slopes look like themselves (the rigs and tanks, the trenches, the radar dome and mast, the tents and waterhole, the huts over the water, the piste and its lift) rather than plain patches of ground.</li><li>Biomes blend into each other now: where two meet, patches of each mix across a wide band instead of meeting at a sharp line or in a speckle of single blocks, and the grass and leaves change colour gradually across it, in the far view too.</li><li>Farms, compounds, bases and other sites out in the country no longer sit in a pit below the hills with cliffs all round them: they're only built where the land round them is low enough to meet them gently.</li><li>Where one kind of ground meets another (grass and sand, sand and red sand, dirt and snow), their colours fade into each other over some fifty blocks instead of stopping at a block's edge.</li><li>Towns, farms and roads cut into hills more gently: the terraces beside a town's edge are lower and climb all the way up instead of ending in a cliff, and roads and railways run through wider cuttings with gentler sides.</li><li>Coasts change gradually as well: a sandy beach gives way to a rocky headland as the land gets rougher, and one kind of shore turns into the next in stretches rather than block by block.</li><li>Dust devils are easy to see now: tall, swirling funnels of dust that lean with the wind.</li><li>A dust devil behind smoke now stays behind it, rather than showing through.</li><li>Towns are built a little more their biome's way: in the desert and the badlands, small shops and eateries are adobe with parapets and log beam ends, squares are more often paved plazas, and there are more rows of shops; in forests, swamps and the cold they're log and plank with false fronts or steep roofs, and the squares are left green; on the moor they're stone.</li><li>This changes how the world is made, so a saved city starts afresh.</li></ul>
 <h3>The far view at speed</h3>
-<ul><li>Flying fast no longer outruns the distant view. The far rings of the world used to start over every time you'd moved a little, so at a plane's speed they never finished and the land ahead was bare; now each one finishes, is drawn ahead of where you're going, and only works out the land that's new.</li><li>There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.</li><li>Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.</li><li>After a long flight the game no longer hitches every second or so, even once you've landed: vehicles passed on the way, and fires left burning behind, kept having the far-off ground under them made again, only for it to be put away again.</li></ul>
+<ul><li>Flying fast no longer outruns the distant view. The far rings of the world used to start over every time you'd moved a little, so at a plane's speed they never finished and the land ahead was bare; now each one finishes, is drawn ahead of where you're going, and only works out the land that's new.</li><li>There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.</li><li>Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.</li><li>After a long flight the game no longer hitches every second or so, even once you've landed: vehicles passed on the way, and fires left burning behind, kept having the far-off ground under them made again, only for it to be put away again.</li><li>Flying fast is smoother: working out a far-off town's streets, and whether a city has room for an airport, used to freeze the game for up to a sixth of a second each time. Both are now spread over many frames.</li><li>Standing in town no longer hitches every second or so: shop signs and far-off vehicles (a fire engine on its way, a crew's truck at its camp) kept having ground far past your detail distance made again and again.</li><li>Starting a game brings in the world right round you at once rather than a piece a frame.</li></ul>
 <h3>The world</h3>
 <ul><li>The world is made of continents and oceans now, about half land and half sea. Before, one side of the world was all ocean and the other all land. Now there are big continents and smaller ones, seas and oceans between them, island chains off their coasts and the odd group of islands far out at sea.</li><li>The sea is shallow over the continental shelf near the coast and deep out in the open ocean.</li><li>Continents have bold, solid coastlines, with big peninsulas, bays and gulfs. Island chains off the coasts are made of whole, rounded islands, with the sea bed rising smoothly round each one.</li><li>You now always start on a continent, never on an island off one.</li><li>The World Generator zooms out more than ten times further, far enough to see whole continents and oceans. Far out it shows just the land, the sea and the capital; settlements, bases and rivers come back as you zoom in, and markers that would pile on top of each other are thinned out.</li><li>The World Generator has Land &amp; sea sliders: how much land there is, how big the continents are, how rough their coastlines, how many ocean channels cut through them and how many island chains lie offshore. The settings go in the page's address, so a world can be shared as you've shaped it. Island size makes the islands in a chain bigger and fewer, with fewer tiny specks between them. The game's own worlds are unchanged.</li><li>This makes a new world, so a saved city starts afresh.</li><li>The World Generator can show the climate over the land, as temperature or moisture: the groundwork for biomes. It doesn't change the game's world yet.</li></ul>
 <h3>Biomes</h3>
@@ -2425,7 +2425,7 @@ function horizHidden(cx,cy,cz,hr,top){
     sp.center.y-=(lo+hi)/2;sp.radius+=Math.abs(hi-lo)/2;return this.intersectsSphere(sp);};}}
 // (this build's version, from the newest "## Version X" in the patch notes, and an id for this exact build: both filled in by
 // tools/build.py, which writes the same two into game/version.json so a running game can tell when there's a newer one)
-const GAME_VER='0.5.1',GAME_BUILD='4eea0221bd12';
+const GAME_VER='0.5.1',GAME_BUILD='93f6cc2928f1';
 let posSaveT=0;const CS=16, H=200, G=44, CELL=32, ROADW=8, SAVE_KEY='goblin-city-v112'+assetSiteSig(ASSETS);   // (a world built with sites from the editor's Structures tab is a world of its own: core/assets.js)
 // (which generation of world generation a save was made by, kept in it: a save from another is never loaded into this one)
 const WORLD_GEN=14;
@@ -6595,14 +6595,45 @@ const apV=(B,v)=>B.flip?AP.H-v:v,apYaw=(B,h)=>B.flip?Math.PI-h:h;
 // edge of town and there's room for all of it on open plains (searched once per city, nearest the middle first) ----
 let apBusy=0;const apAtC=new Map();
 function airportOf(S){
-  if(S.ap!==undefined)return S.ap;S.ap=null;apBusy++;let v=null;
+  if(S.ap!==undefined)return S.ap;
+  while(!apStep(S)){}
+  return S.ap;
+}
+// (The search asks hundreds of blocks round the city about the sea, the railways, the roads, the rivers and the farms, and
+// the first time that's 100 ms and more at a stroke: most cities have no room for one, and every spot is tried. So it's
+// written to be done a millisecond at a time: whoever goes over places ahead of time (planAhead, the far rings' farPlan,
+// through apAhead) gives it a slice a turn, and whoever needs the answer now (airportOf) runs what's left of it there
+// and then. It comes out the same either way: nothing it asks depends on where any airport is, bar the ones of the
+// cities ahead of it in the order, which are always finished first.)
+// One slice of city S's search; true once it's done (S.ap: the airport, or null).
+// (While a slice runs, S.ap is null and apBusy is up, as they always were all through the search: anything it asks that
+// comes back round to this city is told "none yet", and nothing worked out meanwhile is kept, see airportAt. Between
+// slices S.ap is undefined again: not searched yet, to anyone who asks.)
+function apStep(S){
+  if(S.ap!==undefined)return true;
+  if(!S.apJ)S.apJ=apJob(S);
+  let r=null;S.ap=null;apBusy++;
+  try{r=S.apJ.next();}
+  finally{apBusy--;if(!r)S.apJ=null;else if(!r.done)S.ap=undefined;}   // (it threw: no airport here, as before)
+  if(!r.done)return false;
+  S.ap=r.value||null;S.apJ=null;return true;
+}
+function* apJob(S){
+  let t=performance.now(),v=null;
   // (the neighbouring cities ahead of it in the order go first and keep theirs: no two airports overlap)
   const others=[];for(let rx=S.rx-2;rx<=S.rx+2;rx++)for(let rz=S.rz-2;rz<=S.rz+2;rz++){const S2=settlementLat(rx,rz);
-    if(S2.type==='city'&&(S2.cx<S.cx||S2.cx===S.cx&&S2.cz<S.cz)&&settlementAt(S2.cx,S2.cz)===S2){const A=airportOf(S2);if(A)others.push(A);}}
-  const free=(ax,az)=>{if(others.some(A=>ax<A.ax+A.w+1&&ax+16>A.ax-1&&az<A.az+A.h+1&&az+8>A.az-1))return false;for(let a=ax;a<ax+16;a++)for(let b=az;b<az+8;b++)if(realmOf(a,b)!=='plains'||settlementAt(a,b)||seaPlot(a,b)||railPlot(a,b)||farmK(a,b)!==null||tsPlot(a,b)||plotNearLines(a,b,1)||rivPlotNear(a,b))return false;return true;};
+    if(S2.type==='city'&&(S2.cx<S.cx||S2.cx===S.cx&&S2.cz<S.cz)&&settlementAt(S2.cx,S2.cz)===S2){
+      while(!apStep(S2))yield;
+      if(S2.ap)others.push(S2.ap);t=performance.now();}}
+  // (is this block taken? Each one's answer is kept for the length of the search: the spots tried overlap, a dozen and
+  // more to every block, and the roads' part of the answer isn't remembered anywhere else)
+  const busyC=new Map(),busy=(a,b)=>{const k=a*100003+b;let u=busyC.get(k);
+    if(u===undefined){u=realmOf(a,b)!=='plains'||!!settlementAt(a,b)||!!seaPlot(a,b)||railPlot(a,b)||farmK(a,b)!==null||!!tsPlot(a,b)||plotNearLines(a,b,1)||rivPlotNear(a,b);busyC.set(k,u);}
+    return u;};
   const R=Math.ceil(S.R)+3,cols=[];for(let d=0;d<=R;d++){cols.push(S.cx+d);if(d)cols.push(S.cx-d);}
   for(const flip of [false,true]){if(v)break;
     for(const ix of cols){if(v)break;
+      if(performance.now()-t>1){yield;t=performance.now();}
       // the city's edge in this column (the first row, coming in from that side, with blocks of it either side of the
       // street), and a street there leaving it for the open country
       let iz=null;
@@ -6610,8 +6641,20 @@ function airportOf(S){
       else{for(let z=S.cz+R;z>=S.cz;z--)if(settlementAt(ix,z)===S&&settlementAt(ix-1,z)===S){iz=z+1;break;}}
       if(iz===null||!(flip?segBase(ix,iz-1,0):segBase(ix,iz,0)))continue;
       const az=flip?iz:iz-8;
-      for(const i of [8,7,9,6,10,5,11,4,12,3,13,2]){const ax=ix-i;if(free(ax,az)&&rlfLotOK(ax,az,16,8)){v={kind:'airport',ax,az,w:16,h:8,i,flip};break;}}}}
-  apBusy--;S.ap=v;return v;
+      for(const i of [8,7,9,6,10,5,11,4,12,3,13,2]){const ax=ix-i;
+        let ok=!others.some(A=>ax<A.ax+A.w+1&&ax+16>A.ax-1&&az<A.az+A.h+1&&az+8>A.az-1);
+        if(ok)scan:for(let a=ax;a<ax+16;a++){for(let b=az;b<az+8;b++)if(busy(a,b)){ok=false;break scan;}
+          if(performance.now()-t>1){yield;t=performance.now();}}
+        if(ok&&rlfLotOK(ax,az,16,8)){v={kind:'airport',ax,az,w:16,h:8,i,flip};break;}}}}
+  return v;
+}
+// (the searches that the blocks from (x0,z0) to (x1,z1) will ask about, a slice a turn: every city whose airport
+// airportAt would look for from any of them)
+function* apAhead(x0,z0,x1,z1){
+  if(TEST_OFF.has('airport'))return;
+  for(let rx=Math.round(x0/SET_SP)-1;rx<=Math.round(x1/SET_SP)+1;rx++)for(let rz=Math.round(z0/SET_SP)-1;rz<=Math.round(z1/SET_SP)+1;rz++){const S=settlementLat(rx,rz);
+    if(S.type!=='city'||S.ap!==undefined||settlementAt(S.cx,S.cz)!==S)continue;
+    while(!apStep(S))yield;}
 }
 function airportAt(px,pz){
   if(TEST_OFF.has('airport'))return null;
@@ -7142,23 +7185,50 @@ function planAsk(S,i,j){
   if(a||settlementAt(i-1,j)===S||gCol(i,j*CELL+RC))segBase(i,j,0);
   if(a||settlementAt(i,j-1)===S||gRow(j,i*CELL+RC))segBase(i,j,1);
 }
-const planJob={S:null,i:0,j:0,x1:0,z0:0,z1:0};
+const planJob={S:null,i:0,j:0,x1:0,z0:0,z1:0,w:undefined};
 function planAhead(){
   if(TENV)return;const t0=performance.now();
   if(!planJob.S){
     for(const p of players){if(!p.active)continue;const r0=Math.round(p.pos.x/CELL/SET_SP),q0=Math.round(p.pos.z/CELL/SET_SP);
-      for(let a=-2;a<=2&&!planJob.S;a++)for(let b=-2;b<=2&&!planJob.S;b++){const S=settlementLat(r0+a,q0+b);if(S.conns||S.planned)continue;
-        const r=Math.ceil(S.R*1.5)+3;Object.assign(planJob,{S,i:S.cx-r,j:S.cz-r,x1:S.cx+r+1,z0:S.cz-r,z1:S.cz+r+1});}
+      for(let a=-2;a<=2&&!planJob.S;a++)for(let b=-2;b<=2&&!planJob.S;b++){const S=settlementLat(r0+a,q0+b);if(S.conns)continue;
+        const r=Math.ceil(S.R*1.5)+3;Object.assign(planJob,{S,i:S.cx-r,j:S.cz-r,x1:S.cx+r+1,z0:S.cz-r,z1:S.cz+r+1,w:undefined});}
       if(planJob.S)break;}
     if(!planJob.S)return;}
   const J=planJob;
-  for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++)planAsk(J.S,J.i,J.j);
-    if(performance.now()-t0>1.5){J.i++;J.j=J.z0;return;}}
-  J.S.planned=true;J.S=null;
+  if(!J.S.planned){
+    // (the airports its blocks will ask about first: each one's search a slice at a time, world/airfields.js)
+    if(J.w===undefined)J.w=apAhead(J.i,J.z0,J.x1,J.z1);
+    while(J.w){if(J.w.next().done)J.w=null;else if(performance.now()-t0>1.5)return;}
+    for(;J.i<=J.x1;J.i++,J.j=J.z0){for(;J.j<=J.z1;J.j++)planAsk(J.S,J.i,J.j);
+      if(performance.now()-t0>1.5){J.i++;J.j=J.z0;return;}}
+    J.S.planned=true;}
+  // (and then its streets themselves, a slice a frame: left for whoever asked first, they came all at once, 10 ms for a city)
+  while(!setConnsStep(J.S))if(performance.now()-t0>1.5)return;
+  J.S=null;
 }
 // worked out once per place: which stretches of new road it needs to hold together
+// (Asked outright, it's all worked out there and then. Those who go over places ahead of time, planAhead here and the
+// far rings' farPlan, take it a slice at a time instead, setConnsStep, each about a millisecond: S.cj is the working
+// out under way and S.cjC what it has so far, which is also the answer to anything it asks about itself on the way,
+// S.cjOn, as it always was. Anyone asking outright meanwhile has the rest of it done at once.)
 function setConns(S){
-  if(S.conns)return S.conns;const C=S.conns=new Set();
+  if(S.conns)return S.conns;
+  if(S.cjOn)return S.cjC;
+  while(!setConnsStep(S)){}
+  return S.conns;
+}
+// one slice of a place's streets (true once they're done)
+function setConnsStep(S){
+  if(S.conns)return true;
+  if(S.cjOn)return false;
+  if(!S.cj){S.cjC=new Set();S.cj=setConnsJob(S,S.cjC);}
+  let r;S.cjOn=true;try{r=S.cj.next();}finally{S.cjOn=false;}
+  if(!r.done)return false;
+  S.conns=S.cjC;S.cj=S.cjC=null;return true;
+}
+function* setConnsJob(S,C){
+  let tY=performance.now();   // (a breath whenever a millisecond's gone by: brk)
+  const brk=()=>performance.now()-tY>1;
   const r=Math.ceil(S.R*1.5)+3,x0=S.cx-r,x1=S.cx+r+1,z0=S.cz-r,z1=S.cz+r+1;   // (nodes x0..x1, z0..z1; blocks x0..x1-1)
   const NK=(i,j)=>i*100003+j,inS=(x,z)=>settlementAt(x,z)===S;
   const DV=[[0,1],[1,0],[0,-1],[-1,0]],segOf=(i,j,dd)=>dd===0?[i,j,0]:dd===1?[i,j,1]:dd===2?[i,j-1,0]:[i-1,j,1];
@@ -7171,10 +7241,11 @@ function setConns(S){
   const slopeAt=()=>false;   // (no motorway comes down to the ground any more)
   const badN=new Map(),bad=n=>{let v=badN.get(n);if(v===undefined){const i=Math.floor(n/100003+0.5);v=slopeAt(i,n-i*100003);badN.set(n,v);}return v;};
   const hwNode=new Set();
-  for(let i=x0;i<=x1;i++)for(let j=z0;j<=z1;j++)for(const d of [0,1]){
+  for(let i=x0;i<=x1;i++){for(let j=z0;j<=z1;j++)for(const d of [0,1]){
     if(d===0&&j>=z1||d===1&&i>=x1)continue;if(!open(i,j,d))continue;
     const a=NK(i,j),b=d===0?NK(i,j+1):NK(i+1,j);uni(a,b);
     if(d===1?gRow(j,i*CELL+RC):gCol(i,j*CELL+RC)){if(!bad(a))hwNode.add(a);if(!bad(b))hwNode.add(b);}}
+    if(brk()){yield;tY=performance.now();}}
   // the main network: the piece reaching nearest the middle of the place (the biggest, if none does)
   let main=null;{let bd=1e9;const sz=new Map();for(const a of par.keys()){const f=find(a);sz.set(f,(sz.get(f)||0)+1);}
     for(const a of par.keys()){const i=Math.floor(a/100003+0.5),j=a-i*100003;const dd=Math.hypot(i-S.cx-0.5,j-S.cz-0.5)-sz.get(find(a))*0.02;if(dd<bd){bd=dd;main=find(a);}}}
@@ -7212,11 +7283,12 @@ function setConns(S){
   // (a place's own highway that hasn't met its streets gets a road to them: otherwise it runs in and just stops)
   {const pieces=new Map();for(const a of hwNode){if(find(a)===main)continue;const i=Math.floor(a/100003+0.5),j=a-i*100003,own=ax=>{const Sp=axisSpan(S,ax);return Sp&&Sp.kind==='country'&&Sp.k===(ax==='x'?j:i)&&(ax==='x'?i:j)>=Sp.m0&&(ax==='x'?i:j)<=Sp.m1+1;};
      if(own('x')||own('z')){const f=find(a);if(!pieces.has(f))pieces.set(f,[]);pieces.get(f).push(a);}}
-   if(main!==null)for(const L of pieces.values())joinUp(L,true);}
+   if(main!==null)for(const L of pieces.values()){joinUp(L,true);if(brk()){yield;tY=performance.now();}}}
   for(const a of hwNode)reached.add(a);
   const keep=new Set();
   // 1. every block of the place touches a street that's joined up
   for(const [x,z] of cells){
+    if(brk()){yield;tY=performance.now();}
     let ok=false;const starts=[];
     for(const [i,j,d] of edgesOf(x,z)){if(!roadAt(i,j,d))continue;for(const n of ends(i,j,d)){starts.push(n);if(reached.has(n))ok=true;}}
     if(ok)continue;
@@ -7228,19 +7300,20 @@ function setConns(S){
     if(bare&&o!==null)for(const [i,j,d] of edgesOf(x,z)){const [a,b]=ends(i,j,d);if((a===o||b===o)&&!blocked(i,j,d)&&!bad(a)&&!bad(b)){const k=segK(i,j,d);C.add(k);keep.add(k);reached.add(a);reached.add(b);break;}}
   }
   // 2. and no stretch of street is left on its own: each one leads somewhere
-  for(let i=x0;i<=x1;i++)for(let j=z0;j<=z1;j++)for(const d of [0,1]){
+  for(let i=x0;i<=x1;i++){for(let j=z0;j<=z1;j++)for(const d of [0,1]){
     if(d===0&&j>=z1||d===1&&i>=x1)continue;
     const cs=segCells(i,j,d);if(!inS(cs[0][0],cs[0][1])&&!inS(cs[1][0],cs[1][1]))continue;
     if(!open(i,j,d))continue;const [a,b]=ends(i,j,d);if(reached.has(a)||reached.has(b))continue;
     joinUp([a,b]);
   }
+    if(brk()){yield;tY=performance.now();}}
   // 3. no new road ends in the middle of nowhere: a stretch of link road that leads nowhere (a dead end out in the
   // fields, left over where two routes met) is taken away again, unless it's the only street a block has
   const deg=n=>{const i=Math.floor(n/100003+0.5),j=n-i*100003;let c=0;for(let dd=0;dd<4;dd++){const [si,sj,sd]=segOf(i,j,dd);if(roadAt(si,sj,sd))c++;}return c;};
   for(let pass=0,gone=true;gone&&pass<50;pass++){gone=false;
+    if(brk()){yield;tY=performance.now();}
     for(const k of [...C]){if(keep.has(k))continue;const d=((k%2)+2)%2,nn=(k-d)/2,i=Math.floor(nn/100003+0.5),j=nn-i*100003,[a,b]=ends(i,j,d);
       if(deg(a)<=1||deg(b)<=1){C.delete(k);gone=true;}}}
-  return C;
 }
 // ---- joined blocks: some streets between neighbouring blocks aren't streets. Between two building blocks the
 // road becomes a narrow back alley (the buildings come out over the pavements to meet it); inside a neighbourhood,
@@ -10535,7 +10608,19 @@ function flatChunk(cx,cz){
   if(chunkFreeze(cx,cz))freezeArr(a,true,cx,cz);
   return a;
 }
-function chunkArr(cx,cz){const k=ckey(cx,cz);if(k===lastK)return lastA;let a=chunks.get(k);if(!a){a=genChunk(cx,cz);chunks.set(k,a);}lastK=k;lastA=a;return a;}
+// (Vehicles are driven far past where the chunks are kept: a fire engine on its way in from 300 blocks off, a crew's
+// truck parked at its camp, anything ahead of you in flight. Every look one took at the ground under it made the chunk
+// there, a few milliseconds each, thrown away again two seconds later and made again. While noMake is set (the vehicles'
+// own turn, updateCars) a chunk that isn't loaded is made by nobody: whoever looks is shown level, open ground, nothing
+// in the way and no hole, and nothing's written to it. loadedRound: is the world really there all round a spot?)
+// (byLoader: up while the chunk loader or a mesh's rebuild is at work, whose chunks are meant. One made at any other time
+// was made by something just looking, and the profiler lists it by name, ui/profiler.js)
+let noMake=false,openA=null,byLoader=0;
+function openChunk(){if(!openA){openA=new Uint8Array(CS*CS*H);openA.fill(STONE,0,CS*CS*G);openA.fill(GRASS,CS*CS*G,CS*CS*(G+1));}return openA;}
+function loadedRound(x,z,r){const x0=Math.floor((x-r)/CS),x1=Math.floor((x+r)/CS),z0=Math.floor((z-r)/CS),z1=Math.floor((z+r)/CS);
+  for(let a=x0;a<=x1;a++)for(let b=z0;b<=z1;b++)if(!chunks.has(ckey(a,b)))return false;
+  return true;}
+function chunkArr(cx,cz){const k=ckey(cx,cz);if(k===lastK)return lastA;let a=chunks.get(k);if(!a){if(noMake)return openChunk();a=genChunk(cx,cz);chunks.set(k,a);}lastK=k;lastA=a;return a;}
 // leaves fall in autumn and are gone in winter: leafFall is the share of leaf blocks that are down (each block has its own
 // threshold), and a fallen leaf block counts as air everywhere -- you walk through it, snow settles under it, nothing draws it
 let leafFall=0;const leafQ=[],leafCheckQ=new Set();
@@ -10564,7 +10649,7 @@ function purgeLeaves(){
 const leafHash=(x,y,z)=>hash2(x*7+y*131,z*13+y*17);
 const leafDown=(x,y,z)=>leafFall>0&&leafHash(x,y,z)<leafFall;
 function get(x,y,z){x=Math.floor(x);y=Math.floor(y);z=Math.floor(z);if(y<0||y>=H)return AIR;const cx=Math.floor(x/CS),cz=Math.floor(z/CS);const b=chunkArr(cx,cz)[li(x-cx*CS,y,z-cz*CS)];return b===LEAVES&&leafDown(x,y,z)?AIR:b;}
-function setRaw(x,y,z,b){if(y<0||y>=H)return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G&&!wfQuiet)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){const fx=Math.floor(x),fz=Math.floor(z),A0=chunkArr(Math.floor(fx/CS),Math.floor(fz/CS)),top=(A0.tileTops||tileTopsOf(A0))[((fz&15)>>2)*4+((fx&15)>>2)];let open=true;for(let yy=y+1;yy<=top&&yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(colKey(Math.floor(x),Math.floor(z)),WX.snowClock);}navCols.delete(colKey(Math.floor(x),Math.floor(z)));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR){const o=get(x,y,z);if(o===ICE||y<=G&&o===PACKICE)b=WATER;else if(ICE_LV[o])b=WATER_L[ICE_LV[o]];}if(b===AIR&&!wfQuiet)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
+function setRaw(x,y,z,b){if(y<0||y>=H)return;if(noMake&&!chunks.has(ckey(Math.floor(x/CS),Math.floor(z/CS))))return;if(BB.jobs.length)bbTouch(x,z);if(x>=SHIP_X0&&shipN)b=shipDent(x,y,z,b);if(b===AIR&&y>G&&!wfQuiet)noteRemoved(x,y,z);if(snowMax()>0&&snowAt(x,z,y)>0){const fx=Math.floor(x),fz=Math.floor(z),A0=chunkArr(Math.floor(fx/CS),Math.floor(fz/CS)),top=(A0.tileTops||tileTopsOf(A0))[((fz&15)>>2)*4+((fx&15)>>2)];let open=true;for(let yy=y+1;yy<=top&&yy<H;yy++)if(get(x,yy,z)){open=false;break;}if(open)snowBorn.set(colKey(Math.floor(x),Math.floor(z)),WX.snowClock);}navCols.delete(colKey(Math.floor(x),Math.floor(z)));const cx=Math.floor(x/CS),cz=Math.floor(z/CS);if(b!==LOG&&rawGet(x,y,z)===LOG)leafCheckQ.add(Math.floor(x)+','+Math.floor(y)+','+Math.floor(z));if(b===AIR){const o=get(x,y,z);if(o===ICE||y<=G&&o===PACKICE)b=WATER;else if(ICE_LV[o])b=WATER_L[ICE_LV[o]];}if(b===AIR&&!wfQuiet)wfNoteRemoved(x,y,z);const A=chunkArr(cx,cz),lx=x-cx*CS,lz=z-cz*CS;if(BL_ON)blkEdit(x,y,z,A[li(lx,y,lz)],b,A);if(b&&A.tileTops){const t=(Math.floor(lz)>>2)*4+(Math.floor(lx)>>2);if(y>A.tileTops[t])A.tileTops[t]=y;}A[li(lx,y,lz)]=b;}
 function addEdit(x,y,z,b){if(BB.jobs.length)bbTouch(x,z);if(b===AIR&&get(x,y,z)===WATER)b=WATER;editPut(Math.floor(x),Math.floor(y),Math.floor(z),b);}
 // The block at a place only if its chunk is already made, else AIR: for anything that looks about each frame (AI, effects,
 // sounds) and mustn't set a chunk being made, a couple of milliseconds, just by looking. get() makes the chunk.
@@ -11871,8 +11956,14 @@ function chunkOrder(R){
   const L=[];for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const d=dx*dx+dz*dz;if(d<=(R+0.6)*(R+0.6))L.push([dx,dz,d]);}
   L.sort((a,b)=>a[2]-b[2]);chunkOrd=L;chunkOrdR=R;return L;
 }
+// (budget: how many meshes it may ask for this call. 999 is "what's near, now", from a new game, the Testing Environment
+// or the sea redrawn: that used to stop after making three chunks like any other frame, so the world still came in one
+// a frame after it. Now it carries on, nearest first, until it's made 96: about a quarter of a second.)
 function updateChunks(budget,dt){
-  const R=viewR;
+  byLoader++;try{updateChunks0(budget,dt);}finally{byLoader--;}
+}
+function updateChunks0(budget,dt){
+  const R=viewR,genMax=budget>=999?96:3;
   shipChunks();   // (each ship's own blocks, all of them, kept for as long as it's there)
   const centers=players.filter(p=>p.active).map(p=>[Math.floor(pwx(p)/CS),Math.floor(pwz(p)/CS)]);   // (aboard a ship: where the ship really is)
   if(DT.freecam)centers.push([Math.floor(FC.pos.x/CS),Math.floor(FC.pos.z/CS)]);
@@ -11889,7 +11980,7 @@ function updateChunks(budget,dt){
     if(made>=budget)break scan;
     // (a mesh needs its neighbours' blocks too, which may mean making all eight first: no more than three a frame, then carry on next time)
     const X=pcx+dx,Z=pcz+dz;
-    for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);if(++gens>=3){chunkScan.key=key;chunkScan.full=false;return;}}
+    for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(!chunks.has(ckey(X+a,Z+b))){chunkArr(X+a,Z+b);if(++gens>=genMax){chunkScan.key=key;chunkScan.full=false;return;}}
     meshAsk(X,Z);made++;
   }
   chunkScan.key=key;chunkScan.full=!made;chunkScan.size=meshes.size;
@@ -11905,6 +11996,9 @@ function rebuildSet(set){for(const k of set)if(meshes.has(k))rebuildQ.add(k);}
 // the chunk nearest a player goes first, as that's where the smashing being looked at is.
 const REBUILD_MS=5;
 function flushRebuilds(){
+  byLoader++;try{flushRebuilds0();}finally{byLoader--;}
+}
+function flushRebuilds0(){
   meshTick();
   if(!rebuildQ.size)return;
   const full=()=>MW.ws.length&&MW.pend.size>=MW_LIM;if(full())return;
@@ -13334,13 +13428,16 @@ function setBuildings(S){
 // how destroyed a place is, 0..1 -- or null while its total is still being worked out (a little each frame, so
 // walking into a big city never stalls the game). A building that's been destroyed counts as entirely gone, whatever
 // is left of it; one still standing counts the blocks actually knocked out of it. No building left standing: 100%.
-const destJob={S:null,list:null,i:0,tot:0},setDCache=new Map();let setDVer=0;   // (bumped when a place's figure changes)
+// (destMs: how long a frame it may count for. 3 ms, or 1 when you're travelling fast or the frames are already long,
+// set each frame by the tick in render/daynight.js, which also waits until a second's been spent in a place: destIn,
+// the place you're in and for how long)
+const destJob={S:null,list:null,i:0,tot:0},setDCache=new Map(),destIn={S:null,t:0};let setDVer=0,destMs=3;   // (bumped when a place's figure changes)
 function setDestroyed(S){
   const k=S.rx+','+S.rz;let L=setListC.get(k);
   if(!L){
     if(destJob.S!==S){destJob.S=S;destJob.list=setBuildings(S);destJob.i=0;destJob.tot=0;}
     const t0=performance.now();
-    while(destJob.i<destJob.list.length&&performance.now()-t0<3){const E=destJob.list[destJob.i],n=bldgSolidPart(E.b,E.px,E.pz,E.key,t0+3);if(n===undefined)break;destJob.tot+=n;destJob.i++;}
+    while(destJob.i<destJob.list.length&&performance.now()-t0<destMs){const E=destJob.list[destJob.i],n=bldgSolidPart(E.b,E.px,E.pz,E.key,t0+destMs);if(n===undefined)break;destJob.tot+=n;destJob.i++;}
     if(destJob.i<destJob.list.length)return null;
     L=destJob.list;setListC.set(k,L);setTotC.set(k,destJob.tot);destJob.S=null;}
   if(!L.length)return 0;
@@ -30440,6 +30537,9 @@ function bFace(b,side,inset){
   if(side===2)return{ax:'x',f:b.z0+i,w:b.z0+i,a0:b.x0+i,a1:b.x1-i,n:-1};
   return{ax:'x',f:b.z1-i,w:b.z1-1-i,a0:b.x0+i,a1:b.x1-i,n:1};
 }
+// (the chunks bSpot couldn't look into, while brandSpots is asking: null in the Testing Environment and the structure
+// preview, where a building's looked at wherever it is, loaded or not, as it always was)
+let bsMiss=null;
 function bSpot(b,px,pz,side,inset,yc,h,aspect,out){
   const F=bFace(b,side,inset),span=F.a1-F.a0;let w=Math.min(h*aspect,span-1.2);if(w<2.2)return;h=w/aspect;
   const X0=px*CELL,Z0=pz*CELL,c=(F.a0+F.a1)/2,anc=[];
@@ -30452,8 +30552,12 @@ function bSpot(b,px,pz,side,inset,yc,h,aspect,out){
   if(F.ax==='z'){sp.x=X0+F.f+F.n*0.06;sp.z=Z0+c;sp.yaw=F.n>0?Math.PI/2:-Math.PI/2;}
   else{sp.z=Z0+F.f+F.n*0.06;sp.x=X0+c;sp.yaw=F.n>0?0:Math.PI;}
   // nothing built right in front of it (a highway deck, a neighbour's wall)?
-  let hit=0;for(const k of [-0.45,-0.15,0.15,0.45])for(const dy of [-0.4,0,0.4]){const a=c+k*w,yy=yc+dy*h;
-    if(F.ax==='z'?get(X0+F.f+F.n*0.5,yy,Z0+a):get(X0+a,yy,Z0+F.f+F.n*0.5))hit++;}
+  // (Looked for in the world itself, so only where it's loaded: asking made the chunk, and signs are placed far past
+  // where the chunks are kept, so standing in town made chunk after chunk out there for good. Where it isn't loaded
+  // the sign's taken to be clear, and brandSpots, told which chunks were missing, looks again once they're there.)
+  let hit=0;for(const k of [-0.45,-0.15,0.15,0.45])for(const dy of [-0.4,0,0.4]){const a=c+k*w,yy=yc+dy*h,qx=F.ax==='z'?X0+F.f+F.n*0.5:X0+a,qz=F.ax==='z'?Z0+a:Z0+F.f+F.n*0.5;
+    if(bsMiss){const ck=ckey(Math.floor(qx/CS),Math.floor(qz/CS));if(!chunks.has(ck)){if(!bsMiss.includes(ck))bsMiss.push(ck);continue;}}
+    if(get(qx,yy,qz))hit++;}
   if(hit>2)return false;
   out.push(sp);return true;
 }
@@ -30479,7 +30583,9 @@ function bSpotAny(b,px,pz,inset,yc,h,out){for(const sd of [b.door,(b.door+2)%4,b
 const SMALL_SHOPS=new Set(['books','dentist','dispo','guns','bar','soup']),B2_SIGNS=new Set(['courthouse','library','radio','news','bank','disco','club','dealer','armory','theater','stocks','nursery','museum','aquarium','school','datacenter','electric','casino','factory','campus','prison','jail','water','power','lab','arena','base','airport','airfield','nuclear']);
 function brandSpots(b,px,pz){
   if(b._signs)return b._signs;
-  const out=[],cat=b.signCat,tierOn=b.tier>0&&(b.x1-b.x0)>=8,ins=tierOn?2:0;
+  // (placed without a look at what's in front of it, those chunks not being loaded: that stands until they are)
+  if(b._signsP){if(!b._signsP.miss.every(k=>chunks.has(k)))return b._signsP;b._signsP=null;}
+  const out=[],cat=b.signCat,tierOn=b.tier>0&&(b.x1-b.x0)>=8,ins=tierOn?2:0,miss=bsMiss=TENV||ST.dressing?null:[];
   if(cat==='bigbox')bSpot(b,px,pz,b.door,0,G+7.4,4,4,out);
   else if(cat==='grocery'||cat==='market')bSpot(b,px,pz,b.door,0,G+7,2,4,out);
   else if(cat==='drug')bSpot(b,px,pz,b.door,0,G+7.1,2.4,4,out);   // clear of the awning over the doors
@@ -30514,7 +30620,9 @@ function brandSpots(b,px,pz){
   else bSpotAny(b,px,pz,ins,b.top-2.4,Math.min(3.4,b.top-G>40?3.4:2.6),out);   // offices, hospitals, police: up near the roof
   // (nothing solid enough where its sign should go, like a school's row of windows: up by the roof, on whichever side has room)
   if(!out.length&&b.brand&&b.style==='normal')bSpotAny(b,px,pz,ins,b.top-1.6,1.6,out);
-  b._signs=out;return out;
+  bsMiss=null;
+  if(miss&&miss.length){out.miss=miss;b._signsP=out;}else b._signs=out;
+  return out;
 }
 const BSIGN_GEO=new THREE.PlaneGeometry(1,1),bsigns=[],bsignUp=new Map();let nBS=0,nBP=0;
 const BPOLE={post:new THREE.BoxGeometry(0.22,1,0.22),board:new THREE.BoxGeometry(1,1,0.24),steel:new THREE.MeshLambertMaterial({color:0x5a6066}),edge:new THREE.MeshLambertMaterial({color:0x2c3034}),rims:new Map()},bpoles=[];
@@ -30536,8 +30644,6 @@ function refreshBrandSigns(){
       const ck=px*100003+pz;if(seen.has(ck))continue;seen.add(ck);
       if(!tenvShow(px,pz))continue;const P=plotInfo(px,pz);if(!P.b.length)continue;
       for(let bi=0;bi<P.b.length;bi++){const b=P.b[bi];if(!b.brand)continue;const dark=BL_DARK.has(px+','+pz+','+bi);   // (its lights out: lights-out.js)
-        // (working out where a sign goes looks at its building, which makes its chunks: one a frame until they're there)
-        if(!b._signs&&!ST.dressing&&!mayLook(px*CELL+b.x0,pz*CELL+b.z0))continue;
         const sp=brandSpots(b,px,pz);
         for(let si=0;si<sp.length;si++){const S=sp[si],dx=S.x-p.pos.x,dz=S.z-p.pos.z;if(dx*dx+dz*dz>R*R||siteIn(S.x,S.z))continue;
           // still held up? (count what's left of the wall behind it, in chunks that are loaded)
@@ -31032,6 +31138,11 @@ function updateCars(dt){
       if(c.police){if(c.respawnT<=0&&playing&&crowd>0&&!spawnPolice(c))c.respawnT=2;continue;}
       if(c.respawnT<=0&&playing&&alive<trafficTarget()){if(spawnTraffic(c))alive++;else c.respawnT=0.5;}continue;
     }
+    // (From here on nothing a vehicle looks at makes a chunk, noMake in world/generate.js. off: the world isn't loaded
+    // where it is, and it's on rails: carried along its way at the height it's at, or its road's, with no ground to
+    // feel for. It drops onto the real ground when that's there.)
+    noMake=true;try{
+    const off=!loadedRound(c.pos.x,c.pos.z,8);
     const any=nearestPlayer(c.pos.x,c.pos.z,false);
     c.visT=(c.visT||0)-dt;
     let gone=!any||any.d>(c.parkPool?Math.min(75,Math.max(55,viewFar())):Math.max(85,viewFar()+14));   // parked cars recycle to car parks nearer you
@@ -31116,6 +31227,7 @@ function updateCars(dt){
     else if(c.rt){
       // out on a route: steer for a point a little way ahead along its line, in its lane; keep a gap to the car in front
       const T=c.rt,R=T.R,me=rtProject(R,c.pos.x,c.pos.z,T.i);T.i=me.i;
+      if(off)c.pos.y=rtSurfY(R,me.s);
       const onDeck=Math.abs(c.pos.y-rtSurfY(R,me.s))<1.3&&Math.abs(me.sd)<9;
       // the end of the route: hand over to the place's main street, or its motorway deck
       const end=T.dir>0?me.s>R.L-1.5:me.s<1.5;
@@ -31157,7 +31269,7 @@ function updateCars(dt){
     }
     else if(c.hw){
       // motorway driving: hold the lane, keep a gap to the car in front, cruise fast; knocked off the deck, it just rolls to a stop
-      const H=c.hw;if(!H.ground){const kk=Math.floor((H.lane+3)/CELL),aa=H.ax==='x'?c.pos.x:c.pos.z;H.y=hwSurf(H.ax,kk,aa);if(c.pos.y<G+3&&!hwRampAt(H.ax,kk,aa)&&hwFootNear(H,c))H.y=G+1;}const onDeck=c.pos.y>H.y-1.3,sloped=!H.ground&&H.y%1!==0;
+      const H=c.hw;if(!H.ground){const kk=Math.floor((H.lane+3)/CELL),aa=H.ax==='x'?c.pos.x:c.pos.z;H.y=hwSurf(H.ax,kk,aa);if(c.pos.y<G+3&&!hwRampAt(H.ax,kk,aa)&&hwFootNear(H,c))H.y=G+1;}if(off&&!H.ground&&c.pos.y>H.y-1.3)c.pos.y=H.y;const onDeck=c.pos.y>H.y-1.3,sloped=!H.ground&&H.y%1!==0;
       // run off the end of a place's motorway deck: out on the route across the plains from here
       {const k=Math.floor((H.lane+3)/CELL),al=H.ax==='x'?c.pos.x:c.pos.z,m=Math.floor(al/CELL);
        if(!H.ground&&onDeck&&hwLine(H.ax,k,m)!=='moto'){
@@ -31380,7 +31492,7 @@ function updateCars(dt){
     const sm=Math.min(15,(c.hpMax||CAR_HP)*0.5),bn=sm*8/15;
     if(c.hp<sm){c.smokeT-=dt;if(c.smokeT<=0){c.smokeT=c.hp<bn?0.06:0.15;const hx=c.pos.x+fx*1.5,hz=c.pos.z+fz*1.5;smoke(hx,c.pos.y+1.1,hz,1,c.hp<bn?0x1a1a1a:0x666666);if(c.hp<bn)puff(hx,c.pos.y+0.9,hz,1,Math.random()<.5?0xff8a2a:0xffc040,0.25);}}
     if(c.forkOn&&!(c.forkOn.alive&&c.forkOn.g.visible))c.forkOn=null;   // (its forklift's gone: it falls)
-    if(c.forkOn){c.vy=0;c.grounded=true;}else carPhysics(c,dt);if(!c.alive)continue;   // (up on a forklift's forks: forkPost holds it there, it doesn't fall or settle on the ground under it)
+    if(c.forkOn||off){c.vy=0;c.grounded=true;}else carPhysics(c,dt);if(!c.alive)continue;   // (up on a forklift's forks: forkPost holds it there, it doesn't fall or settle on the ground under it)
     if(Math.abs(c.kv.x)+Math.abs(c.kv.z)>0.05){nudgeFlat(c,c.kv.x*dt,c.kv.z*dt);const k=Math.exp(-dt*3.5);c.kv.x*=k;c.kv.z*=k;}
     carSpin(c,dt);   // (sent spinning by a knock: collide.js)
     c.g.position.copy(c.pos);c.g.rotation.set(c.pitch+(c.wly||0),c.heading,c.roll+(c.tipR||0)+(LIGHT_LEAN[c.veh]?-c.steer*Math.min(1,Math.abs(c.speed)/8)*LIGHT_LEAN[c.veh]:0));lightLook(c,dt);   // (a motorcycle, or a bicycle or scooter, leans into its turns)
@@ -31388,6 +31500,7 @@ function updateCars(dt){
     for(const w of c.wheels)w.rotation.x+=c.speed*dt/0.36;
     for(const f of c.front)f.rotation.y=c.steer*(c.veh==='forklift'?-0.6:0.45);   // (a forklift steers with its back wheels)
     if(c.fan&&c.drv)c.fan.rotation.z+=dt*(14+Math.abs(c.speed)*0.8);   // (a hovercraft's fan, while someone's at the controls)
+    }finally{noMake=false;}
   }
   // fender benders: by their masses, an impulse where they meet (collide.js). Far apart is thrown out first, cheaply
   for(let i=0;i<cars.length;i++){const a=cars[i];if(!a.alive)continue;const ra=Math.max(a.hx,a.hz)+0.5;for(let j=i+1;j<cars.length;j++){const b=cars[j];if(!b.alive)continue;
@@ -33174,17 +33287,29 @@ function farUnpack(S,a){if(!a)return;const n=a.length/26;
   S.mat.set(a.subarray(0,n*16),S.n*16);S.col.set(a.subarray(n*16,n*19),S.n*3);S.top.set(a.subarray(n*19,n*22),S.n*3);S.wn.set(a.subarray(n*22),S.n*4);S.n+=n;}
 // (the first question about a place's streets has them all worked out at a stroke, setConns: a tenth of a second and more,
 // and the builds reach places long before planAhead, which looks only round the players, has been over them. So before a
-// plot's drawn the places it could belong to are gone over as planAhead does, a millisecond at a time)
-const farPlanOK=new Set();let farPlanSeed=null;
-function* farPlan(px,pz){
-  const r0=Math.round(px/SET_SP),q0=Math.round(pz/SET_SP),k=r0*100003+q0;
+// plot's drawn the places it could belong to are gone over as planAhead does, a millisecond at a time, and then their
+// streets a slice at a time, setConnsStep)
+// (px,pz: the first of the n x n plots about to be drawn. Which places: drawing a plot asks about the streets of the plots
+// next to it too (linkNear, for the woods and the turbines), and a street's answer looks at the nine places round its own
+// spot on their grid, connOpen. So every place within one of any plot up to FAR_PLAN_PAD from these, not just the nine
+// round the middle one: a plot near the edge of its square of the grid reached a tenth place, which was worked out cold)
+const farPlanOK=new Set(),FAR_PLAN_PAD=2;let farPlanSeed=null;
+function* farPlan(px,pz,n){
+  const r0=Math.round((px-FAR_PLAN_PAD)/SET_SP)-1,r1=Math.round((px+n-1+FAR_PLAN_PAD)/SET_SP)+1,q0=Math.round((pz-FAR_PLAN_PAD)/SET_SP)-1,q1=Math.round((pz+n-1+FAR_PLAN_PAD)/SET_SP)+1;
+  const k=((r0*100003+q0)*2+(r1-r0-2))*2+(q1-q0-2);   // (three places across, or four where the plots straddle two squares)
   if(farPlanSeed!==seed||farPlanOK.size>50000){farPlanOK.clear();farPlanSeed=seed;}
   if(farPlanOK.has(k)||TENV)return;
-  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const S=settlementLat(r0+a,q0+b);if(S.conns||S.planned)continue;
-    const r=Math.ceil(S.R*1.5)+3;let t=performance.now();
-    for(let i=S.cx-r;i<=S.cx+r+1;i++){for(let j=S.cz-r;j<=S.cz+r+1;j++)planAsk(S,i,j);
-      if(performance.now()-t>1){yield;t=performance.now();}}
-    S.planned=true;yield;setConns(S);yield;}
+  // (the airports these plots, and then each place's, will ask about go first: a city's search for the room for one is
+  // the longest single question of the lot, and can be given a slice at a time, apAhead in world/airfields.js)
+  yield* apAhead(px-FAR_PLAN_PAD,pz-FAR_PLAN_PAD,px+n-1+FAR_PLAN_PAD,pz+n-1+FAR_PLAN_PAD);
+  for(let a=r0;a<=r1;a++)for(let b=q0;b<=q1;b++){const S=settlementLat(a,b);if(S.conns)continue;
+    if(!S.planned){const r=Math.ceil(S.R*1.5)+3;let t=performance.now();
+      yield* apAhead(S.cx-r,S.cz-r,S.cx+r+1,S.cz+r+1);
+      for(let i=S.cx-r;i<=S.cx+r+1;i++){for(let j=S.cz-r;j<=S.cz+r+1;j++)planAsk(S,i,j);
+        if(performance.now()-t>1){yield;t=performance.now();}}
+      S.planned=true;yield;}
+    while(!setConnsStep(S))yield;
+    yield;}
   farPlanOK.add(k);
 }
 // (fn(SB,SG,a,b,x) is the generator that draws plot a,b; with no ring given, as the tests call the jobs, nothing's kept)
@@ -33192,7 +33317,7 @@ function* farCached(L,k,SB,SG,a,b,fn,x){
   if(!L){yield* fn(SB,SG,a,b,x);return;}
   let E=L.cache.get(k);const sg=L.sig?farEdS(E?E.S:null,a,b):0;
   if(!E||E.ep!==L.ep||E.sg!==sg){
-    if(L.plan){const q=L.cell;yield* farPlan(Math.floor(a*q+q/2),Math.floor(b*q+q/2));}
+    if(L.plan){const q=L.cell;yield* farPlan(a*q,b*q,q);}
     L.tb.n=0;L.tg.n=0;yield* fn(L.tb,L.tg,a,b,x);
     const S=L.sig?superOf(a,b)||bigPlainsAt(a,b)||null:null;
     E={ep:L.ep,S,sg:S?farEdS(S,a,b):sg,use:0,b:farPack(L.tb),g:farPack(L.tg)};L.cache.set(k,E);
@@ -33747,7 +33872,14 @@ function destLabel(){
 }
 // HUD clock: daytime is the top half (sunrise on the left, sunset on the right), night the bottom half
   clockT-=dt;
-  safe('dest',()=>{const p=players.find(q=>q.active);const S=p&&settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL));if(S){setDestroyed(S);rampRazeTick(S);}
+  safe('dest',()=>{const p=players.find(q=>q.active);const S=p&&settlementAt(Math.floor(p.pos.x/CELL),Math.floor(p.pos.z/CELL))||null;
+    // (A place's count is 3 ms a frame until it's done, the first time you're there: over a jet's flight that came to
+    // more than a millisecond of every frame, each town below begun and dropped for the next. So it's 1 ms while you're
+    // travelling fast (faster than 40 blocks a second, by the far view's reckoning) or the frames are already long, and
+    // a place not yet counted isn't begun until you've been in it a second.)
+    {const V=farVel[0];destMs=frameMs>20||V&&V.x*V.x+V.z*V.z>1600?1:3;}
+    if(S!==destIn.S){destIn.S=S;destIn.t=0;}else destIn.t+=dt;
+    if(S&&(destIn.t>=1||setListC.has(S.rx+','+S.rz))){setDestroyed(S);rampRazeTick(S);}
     // (otherwise, a little at a time, work out the totals for the places you've found but not been into, for the map)
     else if(destJob.S)setDestroyed(destJob.S);
     else for(const K of knownSets.values())if(!setListC.has(K.rx+','+K.rz)){setDestroyed(K);break;}});
@@ -36141,7 +36273,9 @@ function profEv(k){if(!PROF.on)return;if(!PROF.fev)PROF.fev=new Map();PROF.fev.s
 const profEvWrap=(k,f,ok)=>function(){if(PROF.on&&(!ok||ok.apply(null,arguments)))profEv(k);return f.apply(this,arguments);};
 // the hot spots that aren't a safe() of their own (function declarations can be swapped like this: every caller looks
 // them up by name)
-genChunk=profWrap('gen',profEvWrap('chunk made',genChunk));
+// (a chunk made by anything but the loader was made by something just looking, get() in world/generate.js: a few
+// milliseconds nobody budgeted for. Those are listed apart, so a new one shows up against its spike.)
+genChunk=profWrap('gen',(f=>function(){if(PROF.on)profEv(byLoader?'chunk made':'chunk made by a look');return f.apply(this,arguments);})(genChunk));
 buildChunk=profWrap('meshing',buildChunk);
 blkFlood=profWrap('lighting',blkFlood);meshAsk=profWrap('meshing',meshAsk);meshTick=profWrap('meshing',meshTick);
 regionTick=profWrap('regions',regionTick);

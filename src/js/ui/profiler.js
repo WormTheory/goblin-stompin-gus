@@ -34,7 +34,9 @@ function profEv(k){if(!PROF.on)return;if(!PROF.fev)PROF.fev=new Map();PROF.fev.s
 const profEvWrap=(k,f,ok)=>function(){if(PROF.on&&(!ok||ok.apply(null,arguments)))profEv(k);return f.apply(this,arguments);};
 // the hot spots that aren't a safe() of their own (function declarations can be swapped like this: every caller looks
 // them up by name)
-genChunk=profWrap('gen',profEvWrap('chunk made',genChunk));
+// (a chunk made by anything but the loader was made by something just looking, get() in world/generate.js: a few
+// milliseconds nobody budgeted for. Those are listed apart, so a new one shows up against its spike.)
+genChunk=profWrap('gen',(f=>function(){if(PROF.on)profEv(byLoader?'chunk made':'chunk made by a look');return f.apply(this,arguments);})(genChunk));
 buildChunk=profWrap('meshing',buildChunk);
 blkFlood=profWrap('lighting',blkFlood);meshAsk=profWrap('meshing',meshAsk);meshTick=profWrap('meshing',meshTick);
 regionTick=profWrap('regions',regionTick);

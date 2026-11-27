@@ -43,6 +43,9 @@
 - There's always land out to the horizon: a coarse backdrop of the ground, sea, towns and hills is drawn at once wherever the detailed distant view hasn't caught up, when you fly flat out or have just arrived somewhere far away, and the detail fills in over it.
 - Arriving near a town you haven't seen no longer hitches the game while its streets are worked out.
 - After a long flight the game no longer hitches every second or so, even once you've landed: vehicles passed on the way, and fires left burning behind, kept having the far-off ground under them made again, only for it to be put away again.
+- Flying fast is smoother: working out a far-off town's streets, and whether a city has room for an airport, used to freeze the game for up to a sixth of a second each time. Both are now spread over many frames.
+- Standing in town no longer hitches every second or so: shop signs and far-off vehicles (a fire engine on its way, a crew's truck at its camp) kept having ground far past your detail distance made again and again.
+- Starting a game brings in the world right round you at once rather than a piece a frame.
 
 ### The world
 

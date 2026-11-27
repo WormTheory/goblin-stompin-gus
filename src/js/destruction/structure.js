@@ -120,13 +120,16 @@ function setBuildings(S){
 // how destroyed a place is, 0..1 -- or null while its total is still being worked out (a little each frame, so
 // walking into a big city never stalls the game). A building that's been destroyed counts as entirely gone, whatever
 // is left of it; one still standing counts the blocks actually knocked out of it. No building left standing: 100%.
-const destJob={S:null,list:null,i:0,tot:0},setDCache=new Map();let setDVer=0;   // (bumped when a place's figure changes)
+// (destMs: how long a frame it may count for. 3 ms, or 1 when you're travelling fast or the frames are already long,
+// set each frame by the tick in render/daynight.js, which also waits until a second's been spent in a place: destIn,
+// the place you're in and for how long)
+const destJob={S:null,list:null,i:0,tot:0},setDCache=new Map(),destIn={S:null,t:0};let setDVer=0,destMs=3;   // (bumped when a place's figure changes)
 function setDestroyed(S){
   const k=S.rx+','+S.rz;let L=setListC.get(k);
   if(!L){
     if(destJob.S!==S){destJob.S=S;destJob.list=setBuildings(S);destJob.i=0;destJob.tot=0;}
     const t0=performance.now();
-    while(destJob.i<destJob.list.length&&performance.now()-t0<3){const E=destJob.list[destJob.i],n=bldgSolidPart(E.b,E.px,E.pz,E.key,t0+3);if(n===undefined)break;destJob.tot+=n;destJob.i++;}
+    while(destJob.i<destJob.list.length&&performance.now()-t0<destMs){const E=destJob.list[destJob.i],n=bldgSolidPart(E.b,E.px,E.pz,E.key,t0+destMs);if(n===undefined)break;destJob.tot+=n;destJob.i++;}
     if(destJob.i<destJob.list.length)return null;
     L=destJob.list;setListC.set(k,L);setTotC.set(k,destJob.tot);destJob.S=null;}
   if(!L.length)return 0;
